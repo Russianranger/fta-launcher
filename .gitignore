@@ -1,0 +1,25 @@
+# Private inputs and generated runtime content must never be committed.
+/external/
+/private-work/
+/inputs/
+/build/
+/out/
+/reports/
+*.zip
+*.7z
+*.sql
+*.apk
+*.aab
+*.so
+*.db
+*.sqlite*
+.env
+.env.*
+__pycache__/
+*.py[cod]
+.venv/
+.gradle/
+**/build/
+local.properties
+*.jks
+*.keystore
