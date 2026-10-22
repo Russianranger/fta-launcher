@@ -138,6 +138,59 @@ postconditions match the earlier unrestricted model exactly; no additional
 grants were needed. The bounded public record is
 `docs/evidence/database-2026-10-22-world-updater-model.json`.
 
+The exact production Kotlin `WorldUpdaterEvidence.schemaSql` output was also
+executed on a fresh host instance after that model, then parsed by the compiled
+production Kotlin `parseValidation` method. All 24 schema-validation fields
+passed; the three read-only queries preserved the postcondition digests and
+MariaDB exited 0 after SQL shutdown. The public record contains only source,
+class, query and metadata-output hashes plus fixed flags:
+`docs/evidence/database-2026-10-22-world-updater-production-sql.json`. This checks
+the host SQL/parser integration and does not execute the compiled native updater
+or establish Android execution.
+
+The canonical source binding subsequently advanced from world-v8 to world-v9
+for an explicit signed 64-bit packet serialization cast in `Unit.cpp`. The
+guarded fixture confirms that all audited updater/startup/ALE source hashes
+remain unchanged. Actual production Kotlin re-emitted all three queries from
+the v9 lock and each query is byte-identical to the host-tested v8 query. The
+public proof preserves the historical v8 host lock identity and records this
+metadata-only binding advance separately; it does not claim another SQL run.
+
+The original prepared-statement registrations were checked separately against
+host MariaDB 12.3.2 after a fresh unchanged seed and updater model. A small C++20
+recorder compiled the exact original statement/connection enums and complete
+`DoPrepareStatements` bodies with recording-only stubs. The C++ compiler retained
+adjacent string-literal semantics; SQL was not extracted or rewritten with a
+regular expression. First-connect and reconnect registrations matched.
+
+| Pool | Selected registered statements | ASYNC preparation | SYNCH preparation |
+| --- | ---: | ---: | ---: |
+| Login | 106 | 57 | 50 |
+| Character | 554 | 444 | 128 |
+| World | 102 | 46 | 57 |
+
+The 762 selected registrations expand to 782 connection instances because 20
+use `CONNECTION_BOTH`. Character preparation contains one real schema-dependent
+branch at index 511: its original metadata query observed the transmog table,
+selecting the join variant. The recorder also covered null/zero-row results,
+and the alternate empty-result statement prepared separately. Every one of
+those 783 sequential host operations used only `PREPARE` and `DEALLOCATE`, with
+the C API's `utf8mb4` session charset and schema-only grants. No prepared query
+body was executed. A server-side byte-length/SHA256 round trip confirmed each
+unchanged input, all clients exited 0 with empty stderr, postconditions stayed
+unchanged and SQL shutdown exited 0.
+
+World's original enum additionally declares unused index 65,
+`WORLD_SEL_GAMEOBJECT_TARGET`; the full original source/module inventory contains
+only that declaration. No registration or SQL was invented for it. All 763
+selected/alternate SQL byte strings plus NUL terminators were also found in the
+three actual AArch64 target object files, tying literal contents to the native
+compile without claiming execution. Source/function/query hashes, indices,
+connection flags and outcomes are recorded in
+`docs/evidence/database-2026-10-22-host-prepared-statements.json`. This is
+extracted-source host preparation evidence; the real Bionic pools, their
+simultaneous prepared state and the device updater boundary remain separate.
+
 | Schema | Tables after updater | Canonical update receipts | Release receipts | Routines / events |
 | --- | ---: | ---: | ---: | ---: |
 | `acore_auth` | 27 | 12 | 0 | 0 / 0 |
@@ -174,6 +227,37 @@ regenerating the source binding; the host SQL result fixture may be reused only
 when the audited updater policy and input SQL remain unchanged. The lock always
 states that the expected-result model does not qualify compiled world execution,
 world readiness, a listener or gameplay.
+
+## Reviewed module work before the map boundary
+
+Original initial configuration callbacks run before the missing-map exit. They
+can read and change rows in the disposable copy independently of the 236 runtime
+SQL files. These callbacks remain enabled according to the packaged original
+module configurations. Their reviewed behavior is broader than the updater,
+prepared-statement and catalog checks:
+
+| Module and original source | Initial behavior |
+| --- | --- |
+| BossLoot, `mod-talisman-of-binding-shard/src/mod_talisman_of_binding_shard.cpp:358–510,704–739` | Ensures the already inventoried world once-drop table exists; inserts missing configured keys, updates rule metadata, optionally resets eligible startup state, reads dropped state and can copy legacy state with guarded updates. The legacy path contains no drop, alter or truncate operation. |
+| MountRequirements, `mod-mount-requirements/src/MountRequirementsScript.cpp:14–19` and `MountRequirements.cpp:23–79,160–201,259–285` | Applies configured or original mount requirements using world `item_template` and `trainer_spell` updates. `CommitTransaction` queues this work on the original database pool; disabling its feature selects restoration updates. |
+| Attriboost, `Attriboost/src/Attriboost.cpp:253–291,764–772` | Reads character attributes into its in-memory map even on the first configuration load. Reload additionally saves and clears the old map. An empty/failed initial read logs an error. |
+| StatBooster, `StatBooster/src/StatBoost.cpp:202–240` and `StatBoostCfgMgr.cpp:44–94,134–184` | When enabled, reads the world enchant-template and enchant-score tables into memory. Some failure/empty paths report at INFO severity, so catalog and SQL-error checks alone do not establish a successful module data load. |
+| ALE, `mod-ale/src/LuaEngine/LuaEngine.cpp:62–85,113–135,617–665` | Issues the original character `instance.data` TEXT conversion, discovers configured Lua paths and initializes its engine. The supplied seed already has that column shape. Configured Lua script-file execution and gameplay callbacks remain beyond this map boundary. |
+
+Locations in this table are relative to `AzerothCore_Linux/modules`. Complete
+logs must still contain no failed SQL. The gate compares receipts and catalog
+metadata; it does not assert every module row value, async transaction effect,
+loaded in-memory record or gameplay outcome. The host updater/prepare probes
+did not execute these native module callbacks. No player-data contents or module
+row counts are exported. All initialization reads, DML and DDL in the native
+diagnostic are restricted to the freshly seeded disposable installation.
+
+The final source audit also pins the original
+`mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp` queue helper, binding
+the source-supported private runtime-directory configuration. The guarded host
+SQL fixture retains its original nine updater/startup/ALE source identities;
+adding this native configuration pin does not relabel the earlier host model as
+module execution or imply another SQL run.
 
 ## Lua and data requirements
 

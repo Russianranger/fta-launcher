@@ -2,7 +2,13 @@ package com.russianranger.fta.runtime
 
 import java.io.File
 
-/** Disposable NORMAL startup. Its original missing-map exit precedes every world listener. */
+/**
+ * Disposable NORMAL startup. Its original missing-map exit precedes every world listener.
+ * ProcessPriority.h names its priority option "ProcessPriority", not "HighPriority".
+ * World startup defaults that option to true and attempts setpriority(-15) before
+ * database loading. Ordinary Android scheduling avoids its permission-denied ERROR;
+ * UseProcessors=0 also leaves processor affinity to the operating system.
+ */
 internal object WorldUpdaterConfig {
     fun render(socket: File, client: File, sourceDirectory: File, dataDirectory: File,
         tempDirectory: File, log: File, user: String, password: String): String {
@@ -24,6 +30,8 @@ internal object WorldUpdaterConfig {
             Database.Reconnect.Seconds = 1
             Database.Reconnect.Attempts = 2
             RealmID = 1
+            ProcessPriority = 0
+            UseProcessors = 0
             SourceDirectory = "${sourceDirectory.absolutePath}"
             DataDir = "${dataDirectory.absolutePath}"
             MySQLExecutable = "${client.absolutePath}"

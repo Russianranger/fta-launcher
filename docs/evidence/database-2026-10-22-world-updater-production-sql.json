@@ -1,0 +1,120 @@
+{
+  "androidExecutionQualified": false,
+  "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+  "authTcpListenerQualified": false,
+  "clientInvocations": [
+    {
+      "exitCode": 0,
+      "metadataOutputBytes": 378,
+      "schema": "acore_auth",
+      "sqlBytes": 3401,
+      "stderrEmpty": true
+    },
+    {
+      "exitCode": 0,
+      "metadataOutputBytes": 390,
+      "schema": "acore_characters",
+      "sqlBytes": 7730,
+      "stderrEmpty": true
+    },
+    {
+      "exitCode": 0,
+      "metadataOutputBytes": 393,
+      "schema": "acore_world",
+      "sqlBytes": 12443,
+      "stderrEmpty": true
+    }
+  ],
+  "compiledWorldExecutionQualified": false,
+  "date": "2026-10-22",
+  "formatVersion": 1,
+  "gameplayQualified": false,
+  "hostModelSourceProfile": "android-arm64-world-v8",
+  "hostModelSourceTreeSha256": "b92be92d888912deb5c66e588e4ed95444745fd117ffd2de98a5b0e6cec8ad6f",
+  "hostTestedCanonicalLockSha256": "bc255121be1ee4cb3c1947a82b0377666c373210370b41222fe670ebae8f4a29",
+  "privateSqlOrRowsIncluded": false,
+  "productionValidationClientDefaultCharset": "utf8",
+  "providerVersion": "12.3.2-MariaDB",
+  "readOnlyProductionQueriesPreservedPostconditions": true,
+  "runtimeClientDefaultCharset": "utf8",
+  "runtimeSqlFilesChecked": 236,
+  "schemaPrivilegesOnly": true,
+  "schemas": {
+    "acore_auth": {
+      "flags": {
+        "columnInventoryMatches": true,
+        "eventsMatch": true,
+        "includeInventoryMatches": true,
+        "receiptBaselineMatches": true,
+        "releaseReceiptBaselineMatches": true,
+        "routinesMatch": true,
+        "tableInventoryMatches": true,
+        "triggerInventoryMatches": true
+      },
+      "metadataOutputSha256": "693b81035d6d43e94149370d9ad6e6a271a90edf3a149361e93400f7d659e6be",
+      "productionQuerySha256": "e260a83e8dac36be795b6a61f5bf008986d8c536c3e6f2952ac9df6e33ed75ec"
+    },
+    "acore_characters": {
+      "flags": {
+        "columnInventoryMatches": true,
+        "eventsMatch": true,
+        "includeInventoryMatches": true,
+        "receiptBaselineMatches": true,
+        "releaseReceiptBaselineMatches": true,
+        "routinesMatch": true,
+        "tableInventoryMatches": true,
+        "triggerInventoryMatches": true
+      },
+      "metadataOutputSha256": "7050a71279c871f893e36571a92e919e9ac0ef5e133fc7c46256a47b3e9ddf95",
+      "productionQuerySha256": "80b9f4d0cd351ef2148adf9095444a1a930629a50c2863ffc0aee23f8b04090f"
+    },
+    "acore_world": {
+      "flags": {
+        "columnInventoryMatches": true,
+        "eventsMatch": true,
+        "includeInventoryMatches": true,
+        "receiptBaselineMatches": true,
+        "releaseReceiptBaselineMatches": true,
+        "routinesMatch": true,
+        "tableInventoryMatches": true,
+        "triggerInventoryMatches": true
+      },
+      "metadataOutputSha256": "c384895c6a342c94e2e34b2b258cf730b83f089264e3e9fb21229917731b1777",
+      "productionQuerySha256": "4e3c58e448d9bd48966bd2735d369f693477ffcd9b2550ae8e2c9ebda79a0513"
+    }
+  },
+  "scope": "Actual production Kotlin schemaSql queries executed on disposable host MariaDB; actual production Kotlin parseValidation accepted metadata from the source-policy model. No compiled native worldserver was executed.",
+  "seedTablesImported": 563,
+  "seedTriggersImported": 1,
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "sourceSqlRewritten": false,
+  "sqlShutdownExitedZero": true,
+  "standaloneProductionClasses": {
+    "androidExecutionQualified": false,
+    "classFileCount": 45,
+    "classInventorySha256": "bc04f4334d4cb2a79712c25f197777802fb6bb3d4f79a1b325e788cf002e3369",
+    "compiler": "Kotlin1.9.23/JDK17/SDK35-stubs",
+    "productionSourceSha256": {
+      "FullSeedEvidence.kt": "afef7754ec3817a826d4d7baa7930affcb81bd4c7e2ebb0fd4728fa9275edf7f",
+      "RuntimeManifest.kt": "f5ede0d4441e73b1d4bdbb3dd08b2487f58b2cc261a10f32942bcf23cf342481",
+      "WorldUpdaterEvidence.kt": "dce50c9c5011cf711215f68c97e2960bda6692d3d0a23b2d9c60b54825f32289",
+      "WorldUpdaterMetadata.kt": "4cdf50a13a3a47068b3f0b4a1700d6bde5b8e2c871cd87941293a541c21c6cd9"
+    }
+  },
+  "status": "host-production-sql-parser-passed",
+  "subsequentSourceBindingVerification": {
+    "additionalSqlExecutionPerformed": false,
+    "allThreeQueryBytesIdenticalToHostTestedVersion": true,
+    "auditedUpdaterStartupAndAleSourceUnchanged": true,
+    "canonicalLockSha256": "2356d81856353067c2c4aac207ccf8a18b901161ab269487760dda20d6b00d74",
+    "guardedHostMeasurementReused": true,
+    "productionQueriesReemittedByActualKotlin": true,
+    "reason": "v9 adds only an explicit signed64 packet serialization cast in Unit.cpp; audited updater/startup/ALE and SQL are unchanged",
+    "sourceProfile": "android-arm64-world-v9",
+    "sourceTreeSha256": "a1ba6d040406bd252628f39e63e4027a2c722fcbf68c2425f98c632e6e90272d"
+  },
+  "validationFieldsPassed": 24,
+  "validationFieldsPerSchema": 8,
+  "worldReady": false,
+  "worldTcpListenerQualified": false
+}

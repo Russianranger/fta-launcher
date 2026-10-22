@@ -187,12 +187,19 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 3. Continue the separate world build with the verified Android toolchain.
    Readline now cross builds, full world configuration passes and compiler-led
    fixes are recorded in `docs/native-build.md`. The current world source profile
-   is `android-arm64-world-v8`, tree
-   `b92be92d888912deb5c66e588e4ed95444745fd117ffd2de98a5b0e6cec8ad6f`.
+   is `android-arm64-world-v11`, tree
+   `882a152345a18d6d4ce480457cbe3aacbb4c20d3e2a119c5ce59c9f0812b3679`.
    The Android-only ncurses link selection fixes a reproduced NDK linker error;
    a real Readline/ncurses probe passes. Fresh compilation has passed the large
    NPC bot sources and continues through the world graph; the complete world
-   compilation and link have not finished. Actual CMake evidence checks source
+   compilation and link have not finished. Later compiler-led fixes preserve
+   signed 64-bit packet serialization and supply missing direct script headers.
+   The reviewed v11 patch adds 22 includes to 17 files, preserving all other bytes
+   and line endings. Sixteen corrected translation units compiled; a secondary
+   owning-header failure remains in the other file. A bounded unchanged-source
+   diagnostic pass is collecting further direct-header
+   failures while retaining successful objects; it cannot qualify a completed
+   world build. Actual CMake evidence checks source
    entries for all 52 modules, static scripts/Lua and 49 original config names.
    Preserve C++20, all 52 modules,
    default static Lua 5.2 and static scripts/modules; auth must build first.
@@ -209,12 +216,26 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 
 The optional compiled-updater Android mode and private world stager are now
 implemented behind the actual world capability and signed source/ELF/lock
-bindings. The real Database.zip staging proof passed among 125 standalone JVM
-tests; 137 tooling tests passed. Host source-policy measurements also passed
+bindings. The real Database.zip staging proof passed among 136 standalone JVM
+tests; the reviewed v11 checkpoint passed all 138 tooling tests. The world diagnostic uses ordinary process
+priority and the original World Inspector environment override with a fresh
+private empty queue. Prepared-statement error exports discard SQL continuations.
+Host source-policy measurements also passed
 using only three-schema privileges and the original utf8 client setting, with
 exact post-run schema/receipt fingerprints. These are preparation evidence;
-no world ELF, world APK or device compiled-updater success is claimed yet.
+all 24 production Kotlin SQL/parser checks and 783 extracted-source host
+statement preparations passed. The latter only prepared and deallocated queries;
+they did not execute their bodies or the original Bionic connection pools.
+No world ELF, world APK or device compiled-updater success is claimed yet.
 Follow `docs/world-runtime.md` for private staging and corresponding source.
+
+Static startup review also found an original gameplay-cache issue to investigate
+before realm qualification: `modules/Attriboost/src/Attriboost.cpp:284` reads
+`Settings` from index 8 of `SELECT *`, which the supplied table DDL identifies as
+`achievement_granted`; its later per-player loader uses index 9. Both are unsigned
+integer columns, so this is not a query/type blocker for the updater gate. The
+original implementation remains unchanged; module data correctness and gameplay
+need their own validation.
 
 ## Resource and evidence discipline
 

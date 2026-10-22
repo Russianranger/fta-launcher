@@ -24,4 +24,13 @@ class WorldUpdaterConfigTest {
             assertThrows(Exception::class.java) { render(File(path)) }
         assertThrows(Exception::class.java) { render(password = "secret\"\n") }
     }
+
+    @Test fun supportedPriorityAndAffinityKeysKeepOrdinaryAndroidScheduling() {
+        val settings = render().lineSequence().map { it.trim() }.toList()
+        // The native CONFIG_HIGH_PRIORITY constant is ProcessPriority. A similarly
+        // named HighPriority option is ignored and would retain the privileged default.
+        assertEquals(1, settings.count { it == "ProcessPriority = 0" })
+        assertEquals(1, settings.count { it == "UseProcessors = 0" })
+        assertFalse(settings.any { it.startsWith("HighPriority") })
+    }
 }

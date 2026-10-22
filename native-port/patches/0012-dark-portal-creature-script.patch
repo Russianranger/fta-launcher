@@ -1,0 +1,10 @@
+--- a/src/server/scripts/Custom/dark_portal_siege.cpp
++++ b/src/server/scripts/Custom/dark_portal_siege.cpp
+@@ -3,6 +3,7 @@
+ #include "Chat.h"
+ #include "DBCStores.h"
+ #include "Creature.h"
++#include "CreatureScript.h"
+ #include "GameObject.h"
+ #include "GameObjectScript.h"
+ #include "GameTime.h"

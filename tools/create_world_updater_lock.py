@@ -33,7 +33,7 @@ EMPTY_SHA256 = hashlib.sha256(b"").hexdigest()
 STATES = ("RELEASED", "ARCHIVED", "CUSTOM", "MODULE", "PENDING")
 POLICY = {"enableDatabases": 7, "redundancy": True, "allowRehash": True,
           "archivedRedundancy": False, "cleanDeadRefMaxCount": 3, "dryRun": False}
-AUDIT_FILES = (
+HOST_POLICY_AUDIT_FILES = (
     "src/server/apps/worldserver/Main.cpp",
     "src/server/game/World/World.cpp",
     "src/server/database/Database/DatabaseLoader.cpp",
@@ -43,6 +43,9 @@ AUDIT_FILES = (
     "src/server/database/Updater/UpdateFetcher.h",
     "modules/mod-ale/src/ALE_SC.cpp",
     "modules/mod-ale/src/LuaEngine/LuaEngine.cpp",
+)
+AUDIT_FILES = HOST_POLICY_AUDIT_FILES + (
+    "modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp",
 )
 ORIGINAL_AUDIT_HASHES = (
     "782a1100dcbc84c24b924f6394ee3cb7ec33712881089274aaa3f22974edd1a0",
@@ -54,6 +57,7 @@ ORIGINAL_AUDIT_HASHES = (
     "2186590153b8d14355ef53f7003cd2f2d73a2ec24aaba27bdfb6b3ff52716518",
     "bbbde21d580845c5aeedc5b82bcb30cb1ac45fcc0d8a05e03485ba9f1f40d896",
     "118a80c9ea5309af6a99de3ea076e1609ac281ccaba2411493e672a3ca5c3005",
+    "dd31bb4522aff0c33fbd50c3b49697584187f3c41a7e751064e9e218424eb0cd",
 )
 CANONICAL_COLUMNS = ("UTF-8(HEX(table_name) + ':' + HEX(column_name) + ':' + ordinal_position + ':' + "
     "HEX(column_type) + ':' + HEX(is_nullable) + ':' + nullable HEX(column_default) + ':' + "
@@ -184,6 +188,15 @@ def expected_source_audit(profile: dict) -> list[dict]:
                     raise GateError("Reviewed world source audit patch chain is inconsistent")
                 hashes[path] = change["after_sha256"]
     return [{"path": name, "sha256": hashes[name]} for name in AUDIT_FILES]
+
+
+def host_policy_source_audit(audits: list[dict]) -> list[dict]:
+    """Retain the execution-source identities recorded by the host SQL model.
+
+    The additional WorldInspector pin binds the native queue configuration
+    evidence. That module was outside the measured host updater model.
+    """
+    return [item for item in audits if item["path"] in HOST_POLICY_AUDIT_FILES]
 
 
 def source_policy_probe(cli, archive: zipfile.ZipFile, plan: DatabasePlan) -> dict:
@@ -337,7 +350,7 @@ def world_updater_lock(plan: DatabasePlan, archive_size: int, source: dict, meas
     audits = source.get("sourceAudit")
     if audits != expected_source_audit(profile):
         raise GateError("World updater source audit identities are invalid")
-    if measured.get("sourcePolicyAudit") != audits:
+    if measured.get("sourcePolicyAudit") != host_policy_source_audit(audits):
         raise GateError("World updater expected-result fixture was measured against different audited source")
     files = [{"path": e.path, "targetPath": PurePosixPath(e.path).relative_to("Database/RuntimeSQL").as_posix(),
               "schema": e.schema, "size": e.size, "sha256": e.sha256, "sha1": e.sha1.upper()}
@@ -422,7 +435,7 @@ def main() -> int:
                     transitions = source_policy_probe(runtime_cli, archive, plan)
                 measured = {"formatVersion": 1, "scope": "host-source-policy-model-only", "archiveSha256": plan.archive_sha256,
                             "providerVersion": version, "policy": POLICY, "schemaPrivilegesOnly": True,
-                            "runtimeClientDefaultCharset": "utf8", "sourcePolicyAudit": source["sourceAudit"],
+                            "runtimeClientDefaultCharset": "utf8", "sourcePolicyAudit": host_policy_source_audit(source["sourceAudit"]),
                             "transitions": transitions, "schemas": postconditions(runtime_cli)}
                 if postconditions(runtime_cli) != measured["schemas"]:
                     raise GateError("Read-only world postcondition inspection changed metadata")

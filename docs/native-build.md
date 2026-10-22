@@ -52,7 +52,7 @@ python3 tools/build_native.py --source /private/fta-source \
 python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth
 python3 tools/build_native.py --source /private/fta-android-world-source \
-  --port-profile android-arm64-world-v8 \
+  --port-profile android-arm64-world-v11 \
   --build-dir /private/fta-build-android --platform android --stage world \
   --toolchain /private/android-ndk-r28c/build/cmake/android.toolchain.cmake \
   --dependency-prefix /private/android-dependencies \
@@ -338,9 +338,13 @@ ncurses ELF or substituted libedit.
 three official patches. `native-port/build-world-dependencies.py` generates
 matching target ncurses headers and builds only the new shared Readline. It
 requires explicit local inputs, a fresh output directory, NDK r28c and one
-compiler job. `--plan` validates identities without writing. The individual
-measured commands passed; the combined driver has eight tests and its real-input
-plan passed, but its complete fresh-output build has not yet been rerun.
+compiler job. `--plan` validates identities without writing. The combined driver
+has eight tests and has now completed its entire fresh-output build with pinned
+inputs. It regenerated matching ncurses headers, applied the three Readline
+patches, and reproduced the exact Readline ELF hash above while preserving every
+provider library byte. The broader auth dependency driver still does not claim
+a complete fresh rebuild; this restoration reused the verified NDK/provider and
+configured matching target headers.
 
 ```sh
 python3 native-port/build-world-dependencies.py \
@@ -410,7 +414,7 @@ dependencies. No game assets are required for compilation. The build driver now
 explicitly pins Lua 5.2 static and rejects caches that swap it for LuaJIT, another
 Lua version or dynamic linkage.
 
-The current `android-arm64-world-v8` tree is
+The `android-arm64-world-v8` linker profile tree is
 `b92be92d888912deb5c66e588e4ed95444745fd117ffd2de98a5b0e6cec8ad6f`.
 Patch 0010 fixes a confirmed Android linker dependency: the original world
 command adds raw `-lncurses`, which the NDK cannot resolve. A target probe
@@ -421,6 +425,43 @@ retain their original linker flags. The complete v8 profile reproduced from the
 pristine source and its auth prerequisite linked. Full world compilation is
 running, with all NPC bot translation units past the compiler. This remains an
 incomplete world build until the complete target links and its ELF is inspected.
+
+The `android-arm64-world-v9` packet portability tree is
+`a1ba6d040406bd252628f39e63e4027a2c722fcbf68c2425f98c632e6e90272d`.
+Actual `Unit.cpp` compilation then found an ambiguous packet insertion:
+Android's `std::chrono::milliseconds::rep` is `long long`, while this target's
+`int64` overload is `long`. Patch 0011 casts that single timestamp explicitly to
+`int64`, preserving the original supported platforms' signed 64-bit value and
+eight serialized bytes. The packet reservation and other fields are unchanged.
+`check-packet-timestamp.py` uses the production ByteBuffer header, append body
+and exact timestamp statement. Eight boundary values, including values above
+32 bits and both signed extremes, produce identical original and fixed host
+bytes. The original Android ambiguity is reproduced and the fixed expression
+cross compiles with signed 64-bit type assertions. No Android probe is executed.
+The full v9 source profile reproduced from pristine source before the complete
+world build resumed.
+
+The `android-arm64-world-v10` tree is
+`640867ba0e45ff4150f889053f2b7a987c8f815cd51846b713ea1ab1ad96303b`.
+Actual Custom script compilation next found that `dark_portal_siege.cpp` uses
+the `CreatureScript` base and `RegisterCreatureAI` macro without their declaring
+header. Patch 0012 directly includes `CreatureScript.h`; no script body changes.
+The complete source profile reproduced from pristine source, and the full
+ARM64/API33 translation unit then compiled successfully. The complete world
+target continues; this header fix alone does not establish a linked worldserver.
+
+The current `android-arm64-world-v11` tree is
+`882a152345a18d6d4ce480457cbe3aacbb4c20d3e2a119c5ce59c9f0812b3679`.
+A bounded two-job Ninja diagnostic pass on unchanged v10 reached 285 of 827
+remaining build edges before its configured 16 failed-edge limit; it returned
+1 and the full source inventory still matched v10. The compiler errors identify
+missing direct owning headers in 16 script translation units. An actual target
+object also confirms lockpick's undefined private-template `Visit` dependency.
+Patch 0013 adds 22 owning-header includes across those 17 files, preserving
+original line endings and every script body. `CellImpl.h` supplies the actual
+`Cell::VisitObjects` template bodies for four diagnosed grid-search callers.
+The complete profile reproduces from pristine source. The normal world build
+must recompile these units and finish linking before compilation is qualified.
 
 Runtime world readiness additionally needs matching user-supplied maps, vmaps,
 mmaps and DBCs. See `docs/world-updater-gate.md` for the original startup ordering

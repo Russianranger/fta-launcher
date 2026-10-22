@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "recorded_at_utc": "2026-10-22T00:58:00.140225+00:00",
+  "recorded_at_utc": "2026-10-22T19:11:46.113646+00:00",
   "source_archive_sha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
   "host_auth": {
     "status": "passed",
@@ -251,8 +251,9 @@
     "link_no_undefined": true,
     "provider_libraries_unchanged": true,
     "independent_symbol_closure_review": "passed",
-    "combined_recipe_full_rebuild": false,
-    "execution_qualified": false
+    "combined_recipe_full_rebuild": true,
+    "execution_qualified": false,
+    "fresh_recipe_rebuild_scope": "Complete unmodified build-world-dependencies.py fresh-output driver: pinned ncurses headers and Readline8.3.3; provider ELFs unchanged"
   },
   "android_world_compile_progress": {
     "status": "full-world-compile-in-progress",
@@ -266,8 +267,8 @@
     "scripts": "static",
     "modules": "static",
     "cxx_standard": 20,
-    "current_profile": "android-arm64-world-v8",
-    "source_tree_sha256": "b92be92d888912deb5c66e588e4ed95444745fd117ffd2de98a5b0e6cec8ad6f",
+    "current_profile": "android-arm64-world-v11",
+    "source_tree_sha256": "882a152345a18d6d4ce480457cbe3aacbb4c20d3e2a119c5ce59c9f0812b3679",
     "pristine_profile_reproduction": "passed",
     "compiler_blockers": [
       {
@@ -296,6 +297,27 @@
         "fix_patch": "patches/0010-android-ncurses-target.patch",
         "fixed_probe": "Pinned Readline and ncursesw full-path link passed with rl_initialize/initscr and --no-undefined",
         "full_world_link_passed": false
+      },
+      {
+        "profile": "android-arm64-world-v8",
+        "error": "Unit.cpp packet insertion is ambiguous for Android chrono rep long long versus int64 long",
+        "fix_patch": "patches/0011-chrono-packet-timestamp.patch",
+        "serialization_width_bytes_preserved": 8
+      },
+      {
+        "profile": "android-arm64-world-v9",
+        "error": "Custom/dark_portal_siege.cpp lacks CreatureScript declaration and RegisterCreatureAI macro with NOPCH",
+        "fix_patch": "patches/0012-dark-portal-creature-script.patch",
+        "full_translation_unit_compiled": true
+      },
+      {
+        "profile": "android-arm64-world-v10",
+        "error": "Bounded unchanged-source NOPCH diagnostics found 16 script translation units missing owning headers; lockpick also had an actual undefined private-template Visit warning",
+        "fix_patch": "patches/0013-script-direct-headers.patch",
+        "affected_source_files": 17,
+        "owning_header_includes": 22,
+        "script_body_changes": 0,
+        "full_translation_units_recompiled": false
       }
     ],
     "worldserver_compiled": false,
@@ -318,7 +340,9 @@
       "final gSOAP stdsoap2.cpp and static gSOAP link",
       "actual botspell.cpp translation unit under final v7 source profile",
       "world-v8 authserver prerequisite compile/link",
-      "world-v8 complete NPC bot translation units including bot_ai.cpp and botspell.cpp"
+      "world-v8 complete NPC bot translation units including bot_ai.cpp and botspell.cpp",
+      "world-v9 full Unit.cpp translation unit after signed64 packet timestamp conversion",
+      "world-v10 full dark_portal_siege.cpp translation unit after direct CreatureScript include"
     ],
     "gsoap_strerror_regression": {
       "status": "passed",
@@ -356,6 +380,51 @@
       "objects_executed": false
     },
     "previous_checkpoint_profile": "android-arm64-world-v7",
-    "previous_pause_reason": "bounded checkpoint after actual compiler fixes; more than 1200 world build edges remain"
+    "previous_pause_reason": "bounded checkpoint after actual compiler fixes; more than 1200 world build edges remain",
+    "previous_compile_profile": "android-arm64-world-v9",
+    "packet_timestamp_regression": {
+      "status": "passed",
+      "profile": "android-arm64-world-v9",
+      "source_tree_sha256": "a1ba6d040406bd252628f39e63e4027a2c722fcbf68c2425f98c632e6e90272d",
+      "host_cases": 8,
+      "serialized_bytes_per_case": 8,
+      "host_original_and_fixed_bytes_equal": true,
+      "original_android_ambiguity_reproduced": true,
+      "fixed_android_compile": "passed",
+      "android_binaries_executed": false,
+      "byte_buffer_header_sha256": "de27756fb9957ed64b82d77c1f5b77086ddf22f82cabcbc80d633857fb1f8ff9",
+      "game_time_header_sha256": "07d259cdffdabe90466d31876e9e50da3767cc1d33acb1bf92da2882bee0571d",
+      "duration_header_sha256": "b973178cea66928ba0c1c0cd2e27c35b8d8a3380eaf4439b047d868d84251df3",
+      "byte_buffer_append_sha256": "603f0c2d7aa2c04dd66ac6d09ee91a1ab2854a464eb6a4a1a8a9146c5ea52630",
+      "statement_sha256": "10271a61f6fe16557e84c61e68e30983a605be2967a2299c73d5115c5d396fed",
+      "scope": "actual ByteBuffer header/append and exact timestamp expression; host byte execution and NDK compile only"
+    },
+    "dark_portal_translation_unit_regression": {
+      "status": "translation-unit-compile-passed",
+      "profile": "android-arm64-world-v10",
+      "source_tree_sha256": "640867ba0e45ff4150f889053f2b7a987c8f815cd51846b713ea1ab1ad96303b",
+      "target": "arm64-v8a/android-33",
+      "cxx_standard": 20,
+      "translation_unit": "src/server/scripts/Custom/dark_portal_siege.cpp",
+      "object_sha256": "4db950c3ac3c39a77b751391ee3674f754e4dda1b208acc7840f0b53aaca54fc",
+      "object_bytes": 5991928,
+      "worldserver_compiled": false,
+      "objects_executed": false
+    },
+    "grouped_header_diagnostics": {
+      "profile": "android-arm64-world-v10",
+      "source_tree_sha256": "640867ba0e45ff4150f889053f2b7a987c8f815cd51846b713ea1ab1ad96303b",
+      "mode": "bounded Ninja keep-going diagnostics",
+      "jobs": 2,
+      "maximum_failed_build_edges": 16,
+      "completed_build_edges": 285,
+      "scheduled_build_edges": 827,
+      "failed_build_edges": 16,
+      "exit_code": 1,
+      "source_verified_unchanged_after": true,
+      "private_template_warning_verified_in_actual_target_object": true,
+      "worldserver_compiled": false,
+      "execution_qualified": false
+    }
   }
 }

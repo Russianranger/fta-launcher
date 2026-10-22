@@ -45,6 +45,22 @@ are retained. All 52 modules, C++20, static scripts and default static Lua 5.2 a
 preserved. The profile records source portability, while completed compilation
 and device execution still require their separate evidence.
 
+`android-arm64-world-v9` resolves Android's chrono/ByteBuffer overload ambiguity
+with an explicit `int64` packet timestamp conversion. It preserves the original
+eight serialized bytes, including values above 32 bits. The exact production
+ByteBuffer regression compares host payloads and checks the original and fixed
+NDK compile outcomes without executing Android code.
+
+`android-arm64-world-v10` adds the missing direct `CreatureScript.h` dependency
+for the original Dark Portal Siege custom script with precompiled headers off.
+The full target translation unit compiles after this include-only change.
+
+`android-arm64-world-v11` adds direct owning headers to 17 original script
+files after actual NOPCH compiler errors and an undefined private-template
+warning. All script bodies and original line endings are preserved. A bounded
+v10 diagnostic pass returned nonzero; only a subsequent completed normal world
+build can qualify compilation.
+
 `LICENSE` preserves the original core's GPL version 2 license text; its source
 headers allow version 2 or later. The patch series and this explanation are
 GPL-2.0-or-later. The independently written probes and Python tools retain their

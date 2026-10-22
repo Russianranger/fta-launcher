@@ -1,0 +1,175 @@
+--- a/src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp
++++ b/src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp
+@@ -38,6 +38,7 @@
+ #include "Unit.h"
+ #include "Player.h"
+ #include "botmgr.h"
++#include "SpellScript.h"
+ #include <mutex>
+ #include <unordered_map>
+ #include <unordered_set>
+--- a/src/server/scripts/Custom/Custom_Misc/Hackfixes.cpp
++++ b/src/server/scripts/Custom/Custom_Misc/Hackfixes.cpp
+@@ -1,6 +1,7 @@
+ #include "Player.h"
+ #include "ScriptMgr.h"
+ #include "SharedDefines.h"
++#include "SpellScript.h"
+ 
+ namespace
+ {
+--- a/src/server/scripts/Custom/Custom_Misc/lockpick_game.cpp
++++ b/src/server/scripts/Custom/Custom_Misc/lockpick_game.cpp
+@@ -23,6 +23,7 @@
+ #include "SpellInfo.h"
+ #include "SpellMgr.h"
+ #include "StringFormat.h"
++#include "GridNotifiersImpl.h"
+ 
+ using namespace Acore::ChatCommands;
+ 
+--- a/src/server/scripts/Custom/Custom_NPC/Naxx40/boss_kelthuzad_40_custom.cpp
++++ b/src/server/scripts/Custom/Custom_NPC/Naxx40/boss_kelthuzad_40_custom.cpp
+@@ -15,6 +15,8 @@
+ #include "botmgr.h"
+ 
+ #include "../../modules/mod-individual-progression/src/naxx40Scripts/naxxramas.h"
++#include "CellImpl.h"
++#include "GridNotifiersImpl.h"
+ 
+ #include <string>
+ 
+--- a/src/server/scripts/Custom/Custom_NPC/Naxx40/boss_sapphiron_40_custom.cpp
++++ b/src/server/scripts/Custom/Custom_NPC/Naxx40/boss_sapphiron_40_custom.cpp
+@@ -17,6 +17,8 @@
+ #include "botmgr.h"
+ 
+ #include "../../modules/mod-individual-progression/src/naxx40Scripts/naxxramas.h"
++#include "CellImpl.h"
++#include "GridNotifiersImpl.h"
+ 
+ #include <string>
+ 
+--- a/src/server/scripts/Custom/Custom_Npc_Bots/npcbot_auto_hide_on_logout.cpp
++++ b/src/server/scripts/Custom/Custom_Npc_Bots/npcbot_auto_hide_on_logout.cpp
+@@ -14,6 +14,7 @@
+ #include "WorldSession.h"
+ #include "botmgr.h"
+ #include "Log.h"
++#include "Chat.h"
+ 
+ namespace
+ {
+--- a/src/server/scripts/Custom/Custom_Player_Scripts/mod_spectral_repop_mounts.cpp
++++ b/src/server/scripts/Custom/Custom_Player_Scripts/mod_spectral_repop_mounts.cpp
+@@ -18,6 +18,7 @@
+ #include "Log.h"
+ #include "Config.h"
+ #include "Map.h"
++#include "SpellScript.h"
+ 
+ namespace
+ {
+--- a/src/server/scripts/Custom/Custom_Spell_Scripts/generic_custom_spells.cpp
++++ b/src/server/scripts/Custom/Custom_Spell_Scripts/generic_custom_spells.cpp
+@@ -4,6 +4,7 @@
+ #include "SpellAuraEffects.h"
+ #include "SpellMgr.h"
+ #include "Unit.h"
++#include "SpellScript.h"
+ 
+ // 25046, 28730, 50613 - Arcane Torrent
+ class spell_gen_arcane_torrent : public SpellScript
+--- a/src/server/scripts/Custom/Custom_Spell_Scripts/item_custom_spells.cpp
++++ b/src/server/scripts/Custom/Custom_Spell_Scripts/item_custom_spells.cpp
+@@ -8,6 +8,7 @@
+ #include "Player.h"
+ #include "SpellInfo.h"
+ #include "SharedDefines.h"
++#include "SpellAuraEffects.h"
+ #include <cmath>                      // std::round, std::ceil
+ 
+ class spell_custom_xp_15 : public SpellScriptLoader
+--- a/src/server/scripts/Custom/Custom_Spell_Scripts/mage_custom_spells.cpp
++++ b/src/server/scripts/Custom/Custom_Spell_Scripts/mage_custom_spells.cpp
+@@ -3,6 +3,8 @@
+ #include "SpellScript.h"
+ #include "Creature.h"
+ #include "Player.h"
++#include "SpellAuraEffects.h"
++#include "GridNotifiersImpl.h"
+ 
+ #include "GridNotifiers.h"     // AnyUnfriendlyUnitInObjectRangeCheck
+ #include "CellImpl.h"          // Acore::VisitNearbyObject
+--- a/src/server/scripts/Custom/Custom_Spell_Scripts/meta_gem_scripts.cpp
++++ b/src/server/scripts/Custom/Custom_Spell_Scripts/meta_gem_scripts.cpp
+@@ -17,6 +17,7 @@
+ #include "SpellAuras.h"
+ #include "SpellMgr.h"
+ #include "Unit.h"
++#include "SpellScript.h"
+ 
+ #include <algorithm>
+ #include <cmath>
+--- a/src/server/scripts/Custom/Custom_Spell_Scripts/shaman_custom_spells.cpp
++++ b/src/server/scripts/Custom/Custom_Spell_Scripts/shaman_custom_spells.cpp
+@@ -2,6 +2,7 @@
+ #include "SpellScript.h"
+ #include "Unit.h"
+ #include "Common.h"
++#include "SpellMgr.h"
+ 
+ enum ShamanCustomSpells : uint32
+ {
+--- a/src/server/scripts/Custom/Custom_Spell_Scripts/shattered_sun_neck_scripts.cpp
++++ b/src/server/scripts/Custom/Custom_Spell_Scripts/shattered_sun_neck_scripts.cpp
+@@ -11,6 +11,7 @@
+ #include "Random.h"
+ #include "ScriptMgr.h"
+ #include "SpellAuraEffects.h"
++#include "SpellScript.h"
+ 
+ namespace
+ {
+--- a/src/server/scripts/Custom/WellOfEternity/well_of_eternity_palace.cpp
++++ b/src/server/scripts/Custom/WellOfEternity/well_of_eternity_palace.cpp
+@@ -11,6 +11,7 @@
+ #include "SpellInfo.h"
+ #include "TemporarySummon.h"
+ #include "ThreatManager.h"
++#include "CreatureScript.h"
+ 
+ #include <algorithm>
+ #include <array>
+--- a/src/server/scripts/EasternKingdoms/SunwellPlateau/boss_brutallus.cpp
++++ b/src/server/scripts/EasternKingdoms/SunwellPlateau/boss_brutallus.cpp
+@@ -34,6 +34,7 @@
+ #include "botmgr.h"
+ #include "sunwell_plateau_bot_helpers.h"
+ #include "sunwell_plateau.h"
++#include "SpellAuraEffects.h"
+ 
+ #include <algorithm>
+ #include <array>
+--- a/src/server/scripts/EasternKingdoms/ZulGurub/boss_jindo.cpp
++++ b/src/server/scripts/EasternKingdoms/ZulGurub/boss_jindo.cpp
+@@ -22,6 +22,8 @@
+ #include "TaskScheduler.h"
+ #include "bot_ai.h"
+ #include "zulgurub.h"
++#include "CellImpl.h"
++#include "GridNotifiersImpl.h"
+ #include "Config.h" // <— added for sConfigMgr
+ 
+ enum Say
+--- a/src/server/scripts/Kalimdor/RuinsOfAhnQiraj/boss_ayamiss.cpp
++++ b/src/server/scripts/Kalimdor/RuinsOfAhnQiraj/boss_ayamiss.cpp
+@@ -21,6 +21,8 @@
+ #include "SpellScript.h"
+ #include "SpellScriptLoader.h"
+ #include "ruins_of_ahnqiraj.h"
++#include "CellImpl.h"
++#include "GridNotifiersImpl.h"
+ 
+ enum Spells
+ {

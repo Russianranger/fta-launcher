@@ -30,6 +30,10 @@ object DiagnosticSanitizer {
     private val credentialMarker = Regex("password|passwd|secret|token|credential|authorization|bearer", RegexOption.IGNORE_CASE)
     private val longHex = Regex("[A-Fa-f0-9]{24,}")
     private val accessKey = Regex("(?:AKIA|ASIA)[A-Z0-9]{16}")
+    private val preparedHeaderStart = Regex("^(?:ERROR \\[sql[.]sql] )?In mysql_stmt_(?:init|prepare)\\(\\)")
+    private val preparedHeader = Regex("""^(?:ERROR \[sql[.]sql] )?In mysql_stmt_(?:init|prepare)\(\) id: (0|[1-9][0-9]{0,4}), sql: ["]""")
+    private val preparedPool = Regex("^(?:ERROR \\[server[.](?:authserver|worldserver)] )?Could not prepare statements of the (Login|Character|World) database, see log for details[.]$")
+    private val preparedFailure = Regex("Could not prepare statements of the|Could not fetch prepared statement|In mysql_stmt_(?:init|prepare)\\(\\)")
 
     private data class CannedRule(val pattern: Regex, val summary: String)
     private fun canned(pattern: String, summary: String) = CannedRule(Regex(pattern, RegexOption.IGNORE_CASE), summary)
@@ -46,23 +50,21 @@ object DiagnosticSanitizer {
         canned("\\bUnknown[ \\t]+character[ \\t]+set\\b",
             "MariaDB could not load a required character set."),
         canned("Config::LoadFile:[ \\t]*(?:Failed open|Failure to read line number|Empty file|Duplicate key name)",
-            "Authserver configuration could not be loaded or parsed."),
+            "Server configuration could not be loaded or parsed."),
         canned("FATAL ERROR:[ \\t]*Missing property\\b|Core can't start if found incorrect options|Server Config[^\\r\\n]{0,512}is defined but not loaded",
-            "Authserver configuration is missing or has an invalid required setting."),
+            "Server configuration is missing or has an invalid required setting."),
         canned("Config:[ \\t]*Missing property\\b|Config:[ \\t]*Bad value defined for name[^\\r\\n]{0,1024}going to use[^\\r\\n]{0,1024}instead|Server Config[^\\r\\n]{0,512}failed validation check[^\\r\\n]{0,512}Default value[^\\r\\n]{0,512}will be used instead",
-            "An authserver setting used its default."),
+            "A server setting used its default."),
         canned("Didn't find any executable MySQL binary|MySQL[^\\r\\n]{0,512}(?:binary|executable)[^\\r\\n]{0,80}(?:not executable|cannot be executed)",
             "The updater could not locate or execute the MySQL client."),
         canned("Could not (?:initialize Mysql connection to database|connect to MySQL database)|DatabasePool[^\\r\\n]{0,512}NOT opened|Lost the connection to the MySQL server",
-            "Authserver could not open or maintain its database connection."),
+            "Server could not open or maintain its database connection."),
         canned("\\bAccess denied for user\\b|\\bAuthentication plugin[^\\r\\n]{0,512}(?:failed|cannot|could not)",
             "Database authentication was rejected."),
         canned("\\bUnknown database\\b|\\bTable[^\\r\\n]{0,512}doesn't exist|Database[^\\r\\n]{0,512}does not exist|Table[^\\r\\n]{0,512}not exist! Try add based table",
             "A required database schema or table is missing."),
         canned("AzerothCore does not support MySQL versions below|Used MySQL library version[^\\r\\n]{0,512}does not match|DatabaseIncompatibleVersion",
             "The database engine or client version is incompatible with this server."),
-        canned("Could not prepare statements of the|Could not fetch prepared statement|In mysql_stmt_(?:init|prepare)\\(\\)",
-            "Authserver could not initialize its prepared database statements."),
         canned("DBUpdater: The given source directory[^\\r\\n]{0,1024}does not exist",
             "The original updater source directory is unavailable."),
         canned("DBUpdater: Given update include directory[^\\r\\n]{0,1024}does not exist",
@@ -102,12 +104,12 @@ object DiagnosticSanitizer {
         canned("boost::process[^\\r\\n]{0,120}(?:process_error|exception)|\\b(?:execve|posix_spawn)[^\\r\\n]{0,120}failed|\\bprocess_error\\b",
             "The updater could not start or wait for its child process."),
         canned("\\bCannot create PID file\\b",
-            "Authserver could not create its process marker."),
+            "Server could not create its process marker."),
         // These statements are progress reports, never runtime/world readiness.
         canned("Started auth database connection pool\\.|DatabasePool[^\\r\\n]{0,512}opened successfully\\.",
-            "Authserver opened its database connection pool."),
+            "Server opened its database connection pool."),
         canned("Connected to MySQL database at",
-            "Authserver established a database connection."),
+            "Server established a database connection."),
         canned("Updating Auth database\\.\\.\\.",
             "The original auth database updater started."),
         canned(">>[ \\t]*Applying update\\b",
@@ -125,9 +127,18 @@ object DiagnosticSanitizer {
         if (bounded.isBlank()) return emptyList()
         val summaries = linkedSetOf<String>()
         var omitted = bounded.length < output.length
+        var preparedContext = false
         for (line in bounded.lineSequence()) {
             if (summaries.size >= MAX_SUMMARIES) break
             if (line.isBlank()) continue
+            // This original header embeds the full SQL. Once recognized, inspect only
+            // its fixed header/index and discard SQL continuations and mysql_stmt_error.
+            val startsPrepare = preparedHeaderStart.containsMatchIn(line)
+            val knownPool = preparedPool.matches(line)
+            val prepare = if (!preparedContext || startsPrepare || knownPool) preparedDiagnostic(line) else null
+            if (startsPrepare) preparedContext = true
+            if (prepare != null) { add(summaries, prepare); continue }
+            if (preparedContext) { omitted = true; continue }
             var recognized = false
             databaseError.findAll(line).forEach { match ->
                 val code = match.groupValues[1].toInt()
@@ -187,6 +198,20 @@ object DiagnosticSanitizer {
     private fun safeIdentifier(value: String): Boolean =
         !credentialMarker.containsMatchIn(value) && !longHex.containsMatchIn(value) &&
             !accessKey.containsMatchIn(value) && !value.startsWith("eyJ")
+
+    private fun preparedDiagnostic(line: String): String? {
+        val header = preparedHeader.find(line)
+        if (header != null) {
+            val index = header.groupValues[1].toIntOrNull()
+            if (index != null && index in 0..65_535) return "Server prepared-statement failure at index $index."
+        }
+        val pool = preparedPool.matchEntire(line)?.groupValues?.get(1)
+        if (pool != null) {
+            val label = if (pool == "Login") "Auth" else pool
+            return "Server could not prepare statements for the $label database."
+        }
+        return if (preparedFailure.containsMatchIn(line)) "Server could not initialize its prepared database statements." else null
+    }
 
     /** Count a bounded prefix without first encoding an arbitrarily large untrusted string. */
     private fun utf8Prefix(value: String): String {

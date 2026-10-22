@@ -4,6 +4,67 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class DiagnosticSanitizerTest {
+    @Test fun exactOriginalPreparedHeadersKeepOnlyBoundedIndexAndDiscardTheirSqlPayload() {
+        val password = "e9dd9ee4587fbb89a7f7e7f6227cb8925a9f9c9846da459e"
+        for ((prefix, method, index) in listOf(Triple("", "prepare", 19), Triple("ERROR [sql.sql] ", "init", 0),
+            Triple("ERROR [sql.sql] ", "prepare", 65535))) {
+            val input = "${prefix}In mysql_stmt_$method() id: $index, sql: \"SELECT password, '$password', 'ERROR 1234' FROM private_account; /private/database.sql\""
+            assertEquals(listOf("Server prepared-statement failure at index $index."), DiagnosticSanitizer.summarize(input))
+        }
+    }
+
+    @Test fun malformedPreparedHeadersCannotExportOutOfRangeOrInjectedIndices() {
+        for (header in listOf("id: 65536, sql: \"", "id: 999999, sql: \"", "id: -1, sql: \"", "id: 019, sql: \"",
+            "id: 19secret, sql: \"", "id: 19, sql: SELECT", "id: password=19, sql: \"")) {
+            val result = DiagnosticSanitizer.summarize("In mysql_stmt_prepare() $header SELECT private_value\"")
+            assertEquals(listOf("Server could not initialize its prepared database statements."), result)
+        }
+        assertEquals(listOf("Server could not initialize its prepared database statements."),
+            DiagnosticSanitizer.summarize("INFO [sql.sql] In mysql_stmt_prepare() id: 19, sql: \"private SQL\""))
+    }
+
+    @Test fun knownPreparePoolsUseOnlyFixedCategoriesAndUnknownNamesStayPrivate() {
+        for ((nativeName, safeName) in listOf("Login" to "Auth", "Character" to "Character", "World" to "World")) {
+            for (prefix in listOf("", "ERROR [server.worldserver] ", "ERROR [server.authserver] ")) {
+                assertEquals(listOf("Server could not prepare statements for the $safeName database."),
+                    DiagnosticSanitizer.summarize("${prefix}Could not prepare statements of the $nativeName database, see log for details."))
+            }
+        }
+        val input = "Could not prepare statements of the private_schema database, see log for details. password=DO_NOT_SHARE\n" +
+            "Unknown column 'private_password_column' in 'SELECT private_field FROM private_account'\n" +
+            "/private/mysql.sock secret=DO_NOT_SHARE"
+        val result = DiagnosticSanitizer.summarize(input)
+        assertEquals(listOf("Server could not initialize its prepared database statements.", "Other native diagnostic output was omitted."), result)
+        for (forbidden in listOf("private_schema", "DO_NOT_SHARE", "private_password_column", "SELECT", "private_account", "/private/"))
+            assertFalse(result.joinToString().contains(forbidden))
+    }
+
+    @Test fun failedStatementAndKnownPoolRemainActionableWithoutExportingMysqlErrorRows() {
+        val result = DiagnosticSanitizer.summarize("ERROR [sql.sql] In mysql_stmt_prepare() id: 87, sql: \"SELECT password FROM private_table\"\n" +
+            "ERROR [sql.sql] Unknown column 'private_column' in 'private_table' password=DO_NOT_SHARE\n" +
+            "ERROR [server.worldserver] Could not prepare statements of the World database, see log for details.")
+        assertEquals(listOf("Server prepared-statement failure at index 87.",
+            "Server could not prepare statements for the World database.", "Other native diagnostic output was omitted."), result)
+        assertTrue(result.none { it.contains("Authserver") || it.contains("private_") || it.contains("DO_NOT_SHARE") || it.contains("SELECT") })
+    }
+
+    @Test fun multilinePreparedSqlAndRawErrorContinuationsCannotBecomeIdentifierDiagnostics() {
+        val input = "ERROR [sql.sql] In mysql_stmt_prepare() id: 87, sql: \"SELECT private_password,\n" +
+            "library \"private_account.so\" not found\n" +
+            "cannot locate symbol \"private_player_column\"\n" +
+            "ERROR 1234 at line 9876 password=DO_NOT_SHARE\n" +
+            "Unknown character set: private_charset\n" +
+            "FROM private_table\"\n" +
+            "ERROR [sql.sql] Unknown column 'private_column'\n" +
+            "ERROR [sql.sql] In mysql_stmt_init() id: 2, sql: \"SELECT another_private_value\"\n" +
+            "ERROR [server.worldserver] Could not prepare statements of the Character database, see log for details."
+        val result = DiagnosticSanitizer.summarize(input)
+        assertEquals(listOf("Server prepared-statement failure at index 87.", "Server prepared-statement failure at index 2.",
+            "Server could not prepare statements for the Character database.", "Other native diagnostic output was omitted."), result)
+        for (forbidden in listOf("private_", "DO_NOT_SHARE", "SELECT", "1234", "9876", "charset", ".so", "symbol"))
+            assertFalse(result.joinToString().contains(forbidden))
+    }
+
     @Test fun characterSetFailuresKeepOnlyTheCodeLineAndCannedCategory() {
         val result = DiagnosticSanitizer.summarize(
             "ERROR 1115 (42000) at line 19: Unknown character set: 'private-charset' /private/charsets password=never-share\n" +
@@ -101,9 +162,9 @@ class DiagnosticSanitizerTest {
             "> Config::LoadFile: Empty file '/private/config'",
             "> Config::LoadFile: Duplicate key name 'LoginDatabaseInfo=secret' in config file '/private/config'"
         )
-        original.forEach { line -> assertEquals(listOf("Authserver configuration could not be loaded or parsed."),
+        original.forEach { line -> assertEquals(listOf("Server configuration could not be loaded or parsed."),
             DiagnosticSanitizer.summarize(line + " password=never-export-this SELECT account FROM secret")) }
-        assertEquals(listOf("Authserver configuration is missing or has an invalid required setting."),
+        assertEquals(listOf("Server configuration is missing or has an invalid required setting."),
             DiagnosticSanitizer.summarize("FATAL ERROR: Missing property LoginDatabaseInfo in config file /private/auth.conf, add user=secret"))
     }
 
@@ -117,9 +178,9 @@ class DiagnosticSanitizerTest {
     @Test fun originalDatabaseFailuresOmitHostsUsersAndSql() {
         val failures = mapOf(
             "Could not connect to MySQL database at /private/mysql.sock: user password=hidden" to
-                "Authserver could not open or maintain its database connection.",
+                "Server could not open or maintain its database connection.",
             "DatabasePool private_auth NOT opened. There were errors opening the MySQL connections." to
-                "Authserver could not open or maintain its database connection.",
+                "Server could not open or maintain its database connection.",
             "Access denied for user 'secret-user'@'private-host' password=hidden" to
                 "Database authentication was rejected.",
             "Unknown database 'secret_schema'" to "A required database schema or table is missing.",
@@ -129,9 +190,9 @@ class DiagnosticSanitizerTest {
             "Used MySQL library version (secret) does not match the version id used to compile AzerothCore" to
                 "The database engine or client version is incompatible with this server.",
             "Could not prepare statements of the secret_auth database, see log for details." to
-                "Authserver could not initialize its prepared database statements.",
+                "Server could not initialize its prepared database statements.",
             "In mysql_stmt_prepare() id: 19, sql: SELECT password FROM private_account" to
-                "Authserver could not initialize its prepared database statements."
+                "Server could not initialize its prepared database statements."
         )
         failures.forEach { (line, expected) -> assertEquals(listOf(expected),
             DiagnosticSanitizer.summarize(line + " token=DO_NOT_EXPORT_THIS")) }
@@ -192,7 +253,7 @@ class DiagnosticSanitizerTest {
 
     @Test fun cannedProgressDoesNotClaimAWorkingRealmOrWorld() {
         val input = "Started auth database connection pool. private-user=hidden\nUpdating Auth database...\n>> Applying update \"private.sql\" '1234567'...\n>> Auth database is up-to-date! secret"
-        assertEquals(listOf("Authserver opened its database connection pool.",
+        assertEquals(listOf("Server opened its database connection pool.",
             "The original auth database updater started.", "The original updater is applying an SQL update.",
             "The original updater reported the auth database is up to date."), DiagnosticSanitizer.summarize(input))
         assertFalse(DiagnosticSanitizer.summarize(input).any { it.contains("world ready", ignoreCase = true) })
@@ -212,10 +273,10 @@ class DiagnosticSanitizerTest {
     @Test fun oneSuccessfulConnectionDoesNotClaimAnOpenedPool() {
         val input = "Connected to MySQL database at /private/mysql.sock\nCould not connect to MySQL database at /private/mysql.sock: hidden\nDatabasePool private_auth NOT opened. There were errors opening the MySQL connections."
         val result = DiagnosticSanitizer.summarize(input)
-        assertEquals(listOf("Authserver established a database connection.",
-            "Authserver could not open or maintain its database connection."), result)
-        assertFalse(result.contains("Authserver opened its database connection pool."))
-        assertEquals(listOf("Authserver opened its database connection pool."),
+        assertEquals(listOf("Server established a database connection.",
+            "Server could not open or maintain its database connection."), result)
+        assertFalse(result.contains("Server opened its database connection pool."))
+        assertEquals(listOf("Server opened its database connection pool."),
             DiagnosticSanitizer.summarize("DatabasePool 'private_auth' opened successfully. 2 total connections running."))
         assertEquals(listOf("A required native operation was denied."),
             DiagnosticSanitizer.summarize("exec operation: Operation not permitted /private/binary"))
@@ -247,17 +308,17 @@ class DiagnosticSanitizerTest {
         val privateConfig = "/data/private/auth-secret.conf"
         val warning = "> Config: Missing property $privateProperty in config file $privateConfig, add \"$privateProperty = $privateDefault\" to this file or define 'PRIVATE_ENV_SETTING' as an environment variable."
         val result = DiagnosticSanitizer.summarize(warning)
-        assertEquals(listOf("An authserver setting used its default."), result)
+        assertEquals(listOf("A server setting used its default."), result)
         for (privateValue in listOf(privateProperty, privateDefault, privateConfig, "PRIVATE_ENV_SETTING")) {
             assertFalse(result.joinToString().contains(privateValue))
         }
-        assertEquals(listOf("An authserver setting used its default."),
+        assertEquals(listOf("A server setting used its default."),
             DiagnosticSanitizer.summarize("> Config: Bad value defined for name '$privateProperty', going to use '$privateDefault' instead"))
-        assertEquals(listOf("An authserver setting used its default."),
+        assertEquals(listOf("A server setting used its default."),
             DiagnosticSanitizer.summarize("Server Config (Name: $privateProperty) failed validation check 'private-validation'. Default value '$privateDefault' will be used instead."))
-        assertEquals(listOf("Authserver configuration is missing or has an invalid required setting."),
+        assertEquals(listOf("Server configuration is missing or has an invalid required setting."),
             DiagnosticSanitizer.summarize("FATAL ERROR: Missing property $privateProperty in config file $privateConfig, add \"$privateProperty = $privateDefault\" to this file"))
-        assertEquals(listOf("Authserver configuration could not be loaded or parsed."),
+        assertEquals(listOf("Server configuration could not be loaded or parsed."),
             DiagnosticSanitizer.summarize("> Config::LoadFile: Failed open file '$privateConfig'"))
     }
 }

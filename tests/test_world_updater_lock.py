@@ -9,7 +9,7 @@ import unittest
 import zipfile
 
 from tools.create_world_updater_lock import (AUDIT_FILES, EMPTY_SHA256, POLICY, ROOT, column_query,
-    expected_source_audit, include_directories, parse_aggregate, release_query, source_policy_probe,
+    expected_source_audit, host_policy_source_audit, include_directories, parse_aggregate, release_query, source_policy_probe,
     verify_runtime_layout, world_updater_lock)
 from tools.fta_database import DATABASE_SHA256, SCHEMAS, DatabasePlan, GateError, SqlEntry
 from tools.fta_source import SOURCE_SHA256
@@ -106,7 +106,7 @@ class WorldLockTests(unittest.TestCase):
         measured = {"formatVersion": 1, "archiveSha256": DATABASE_SHA256, "providerVersion": "12.3.2-MariaDB",
                     "scope": "host-source-policy-model-only", "policy": deepcopy(POLICY), "schemas": schemas,
                     "schemaPrivilegesOnly": True, "runtimeClientDefaultCharset": "utf8",
-                    "sourcePolicyAudit": deepcopy(source["sourceAudit"]),
+                    "sourcePolicyAudit": deepcopy(host_policy_source_audit(source["sourceAudit"])),
                     "transitions": {name: {"recentBefore": 2, "archivedBefore": 3, "applied": 1, "orphanWarnings": 2} for name in SCHEMAS},
                     "private": "PRIVATE_SQL_VALUE"}
         plan = DatabasePlan(DATABASE_SHA256, tuple(entry(f"synthetic_{i:03}.sql") for i in range(236)), 2596)
@@ -172,6 +172,26 @@ class WorldLockTests(unittest.TestCase):
                     with self.assertRaises(GateError): verify_runtime_layout(archive, plan)
                 else:
                     verify_runtime_layout(archive, plan)
+
+    def test_queue_source_pin_preserves_the_existing_guarded_host_model_scope(self):
+        plan, source, measured = self.fixture()
+        original_measurement = deepcopy(measured)
+        lock = world_updater_lock(plan, 123, source, measured)
+        self.assertEqual(len(lock["sourceAudit"]), 10)
+        self.assertEqual(len(measured["sourcePolicyAudit"]), 9)
+        self.assertEqual(measured, original_measurement)
+        self.assertEqual(lock["sourceAudit"][-1], {
+            "path": "modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp",
+            "sha256": "dd31bb4522aff0c33fbd50c3b49697584187f3c41a7e751064e9e218424eb0cd"})
+        self.assertFalse(lock["expectedResultEvidence"]["compiledWorldExecutionQualified"])
+        for target in ("source", "measurement"):
+            bad_source, bad_measured = deepcopy(source), deepcopy(measured)
+            if target == "source":
+                bad_source["sourceAudit"][-1]["sha256"] = "0" * 64
+            else:
+                bad_measured["sourcePolicyAudit"].append(deepcopy(source["sourceAudit"][-1]))
+            with self.subTest(target=target), self.assertRaises(GateError):
+                world_updater_lock(plan, 123, bad_source, bad_measured)
 
     def test_aggregate_protocol_preserves_case_and_rejects_truncation(self):
         self.assertEqual(parse_aggregate(f"FTA_RELEASES=0:0:0:0:{EMPTY_SHA256}", "FTA_RELEASES", "releaseReceipt", empty=True)["releaseReceiptCount"], 0)

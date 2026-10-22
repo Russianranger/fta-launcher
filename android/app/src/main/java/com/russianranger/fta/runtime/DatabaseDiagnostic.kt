@@ -24,6 +24,7 @@ class DatabaseDiagnostic(
     private lateinit var runtime: PackagedRuntime
     private var server = 0L
     private var clientOptions: File? = null
+    private var worldInspectorQueue: File? = null
     private lateinit var socket: File
     private lateinit var characterSetsDirectory: File
     private var step = 0
@@ -363,6 +364,7 @@ class DatabaseDiagnostic(
             }
             val emptyData = File(root, "world-empty-data").apply { check(mkdir()) }
             check(emptyData.listFiles()?.isEmpty() == true)
+            worldInspectorQueue = WorldUpdaterEnvironment.createQueue(root)
             val secret = ByteArray(24).also { SecureRandom().nextBytes(it) }
                 .joinToString("") { "%02x".format(it.toInt() and 255) }
             client("CREATE USER 'fta_world_diag'@'localhost' IDENTIFIED BY '$secret';" +
@@ -393,6 +395,7 @@ class DatabaseDiagnostic(
             config.delete()
             File(temp, "mysql_ac.conf").delete()
             stage.deleteRecursively()
+            worldInspectorQueue = null
         }
     }
 
@@ -430,11 +433,11 @@ class DatabaseDiagnostic(
         }
     }
 
-    private fun environment(): Array<String> = arrayOf(
+    private fun environment(role: String): Array<String> = WorldUpdaterEnvironment.forRole(arrayOf(
         "PATH=/system/bin", "HOME=${root.absolutePath}", "TMPDIR=${root.absolutePath}",
         "ANDROID_ROOT=/system", "ANDROID_DATA=/data",
         "LD_LIBRARY_PATH=${runtime.libraryDirectory.absolutePath}:${runtime.nativeDirectory.absolutePath}"
-    )
+    ), role, root, worldInspectorQueue)
 
     private fun setStage(stage: String, message: String) {
         currentStage = stage
@@ -481,7 +484,7 @@ class DatabaseDiagnostic(
         check(executable.canonicalFile.parentFile == runtime.nativeDirectory)
         val evidence = invocationJournal?.begin(label, role, currentStage, timeoutMs)
         val handle = try {
-            NativeProcessBridge.start(executable.absolutePath, args.toTypedArray(), environment(),
+            NativeProcessBridge.start(executable.absolutePath, args.toTypedArray(), environment(role),
                 root.absolutePath, stdin?.absolutePath, File(root, "$label.out").absolutePath, File(root, "$label.err").absolutePath)
         } catch (failure: Exception) {
             evidence?.let { invocationJournal?.finish(it, "start_failed", null, logBytes(label, "out"), logBytes(label, "err")) }

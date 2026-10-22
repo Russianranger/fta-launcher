@@ -13,12 +13,17 @@ Fixture tests establish packaging checks only.
 
 | Evidence | Current status |
 | --- | --- |
-| Final world source profile and completed all-module build report | Pending final build qualification |
+| Final world source profile and completed all-module build report | Reviewed `android-arm64-world-v11`; completed build pending |
 | World ELF SHA256, byte length and inspected dependency closure | Pending final artifact |
 | Private world-stage inventory and preservation verification | Pending real staging |
 | Signed world diagnostic APK SHA256 and packaged-file verification | Pending APK build |
 | Compiled Login/Character/World updater execution on Android | Pending physical-device milestone |
 | World initialization, listener, game login and gameplay | Unqualified |
+
+The canonical updater lock retains its measured v9 source binding while the
+compiler-led world work continues. Before actual staging, regenerate its source
+binding and audit pins for the completed final profile. The stager refuses a
+lock/build mismatch; the current checkpoint does not produce a world runtime.
 
 ## Inputs and command
 
