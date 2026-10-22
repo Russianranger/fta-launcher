@@ -72,7 +72,7 @@ and the Android resolver correction. Its evidence is in
 [`evidence/android-2026-10-22-private-auth-resolver-apk.json`](evidence/android-2026-10-22-private-auth-resolver-apk.json).
 Future private updates must use a version code greater than 5.
 
-Latest full-seed diagnostic: version code 6, `0.4.0-full-seed-diagnostic`, uses
+Full-seed checkpoint: version code 6, `0.4.0-full-seed-diagnostic`, uses
 the same certificate and retains the passing resolver-corrected authserver.
 Install it over version 5 to keep the verified database ZIP. Select
 `Test full original database seed`, allow the fresh disposable import to finish,
@@ -83,3 +83,13 @@ replaying runtime SQL or starting auth/world listeners. See
 [`database-gate.md`](database-gate.md) and the
 [exact build evidence](evidence/android-2026-10-22-private-full-seed-apk.json).
 Future private builds must use a version code greater than 6 and the same key.
+
+Latest: version code 7, `0.4.1-charset-diagnostic`, is signed with the same key.
+It corrects charset-data routing after version 6 failed on the first ASCII
+column, following 158 successful table imports. The existing XML files and all
+provider native bytes are preserved. The early database check now creates an
+ASCII/ascii_bin column and verifies its exact bytes before starting the seed.
+Install over version 6 and rerun `Test full original database seed`; keep the
+imported ZIP. See the [device failure evidence](evidence/android-2026-10-22-thor-full-seed-attempt.json)
+and [exact corrected APK evidence](evidence/android-2026-10-22-private-charset-apk.json).
+Use the same key and a version code greater than 7 for future private builds.

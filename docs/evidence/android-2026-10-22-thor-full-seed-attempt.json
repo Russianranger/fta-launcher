@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "evidenceKind": "user-exported-physical-device-report",
+  "sourceReportSha256": "f57bc5f16ec35c17299910f73a62278593a2ca80e2c93ff6f9266d93d44a109d",
+  "apkSha256": "adaf3d14701261d26a4178d145812a72dcec0ba4df996a5f830d8bffab0dc3cc",
+  "appVersionName": "0.4.0-full-seed-diagnostic",
+  "appVersionCode": 6,
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "diagnosticState": "FAILED",
+  "currentAttemptEvidenceBound": true,
+  "nativeInvocations": 169,
+  "droppedInvocations": 0,
+  "seedTablesImported": 158,
+  "seedTriggersImported": 0,
+  "failedSeedOrdinal": 159,
+  "inferredMemberFromVerifiedImportOrder": {
+    "path": "Database/acore_characters/table-mod_npcbot_paperdoll_consumable_receipt.sql",
+    "sha256": "5400b20e28a51dce41a816f770f17b6b5cf7b70d7f7af981189c434b3a828e09"
+  },
+  "failedNativeRole": "database-client",
+  "failedNativeStage": "SEED_IMPORT",
+  "failedNativeExitCode": 1,
+  "failedNativeDurationMs": 83,
+  "failedNativeStderrBytes": 379,
+  "failedNativeTimedOut": false,
+  "failedNativeCancelled": false,
+  "measuredMariaDbErrorCode": 1115,
+  "measuredSqlLine": 19,
+  "measuredCharacterSetName": null,
+  "databaseReadinessObserved": true,
+  "databaseSqlShutdownRequested": true,
+  "databaseCleanShutdownObserved": true,
+  "databaseExitCode": 0,
+  "fullSeedImported": false,
+  "seedCompatibilityQualified": false,
+  "worldserverQualified": false,
+  "sourceDiagnosis": "Verified import order maps the failure to the only seed table with an explicit ASCII/ascii_bin column. Its unchanged CREATE starts at line 19. The exact APK already contains Index.xml and ascii.xml; launcher options omit the charset-directory override required by its relocated share/mysql layout. The raw device charset name was not exported.",
+  "sqlRewritten": false
+}

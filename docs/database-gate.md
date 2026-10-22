@@ -317,3 +317,35 @@ starts and stops its own disposable instance, verifies the baseline twice and
 never opens live saves. Its host result is distinct from the next Thor test.
 The later compiled updater gate must follow the
 [original startup ordering and failure protocol](world-updater-gate.md).
+
+## Thor charset-directory correction
+
+Private version 6 imported 158 unchanged tables, then its next client exited 1
+in 83 ms with MariaDB error 1115 at line 19. The current-attempt journal is
+complete, and failure cleanup requested SQL shutdown and observed database
+exit 0. The deterministic lock order identifies table 159,
+`mod_npcbot_paperdoll_consumable_receipt`, whose original CREATE starts at line
+19. Its `ascii`/`ascii_bin` column is the seed's only explicit ASCII column.
+The raw device charset name was not exported; that identification comes from
+the unchanged file and verified import order. See the
+[physical failure evidence](evidence/android-2026-10-22-thor-full-seed-attempt.json).
+
+Both required XML files were already packaged. The provider's compiled share
+layout differs from the staged `share/mysql` path. MariaDB 12.3.2
+[`fix_paths`](https://github.com/MariaDB/server/blob/mariadb-12.3.2/sql/mysqld.cc)
+resolves the charset directory separately from its message directory;
+[`get_charsets_dir`](https://github.com/MariaDB/server/blob/mariadb-12.3.2/mysys/charset.c)
+uses the explicit directory when supplied. Version 7 passes that verified
+directory to bootstrap, the running server and every direct client invocation.
+It checks ASCII/ascii_bin DDL, exact ASCII bytes, Unicode and rollback before
+the full-seed import. Original SQL, collation declarations and receipts are
+preserved.
+
+The exact corrected production probe SQL and the original failing file pass on
+the separate Linux MariaDB 12.3.2 distribution with the packaged charset path.
+That host also succeeds with an empty charset directory because ASCII is built
+in there. This is a build-configuration limit of the host comparison; it does
+not reproduce or qualify the Android negative case. The
+[host/source evidence](evidence/database-2026-10-22-charset-path-probe.json)
+records that limit explicitly. Rerun `Test full original database seed` on Thor
+with private version 7; only a complete matching report closes the device gate.

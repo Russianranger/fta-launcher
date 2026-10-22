@@ -73,13 +73,15 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version `0.4.0-full-seed-diagnostic`
-passed all 107 Android tests, lint, clean assembly, signing/alignment, 114 exact
+signing and validation. Latest private version `0.4.1-charset-diagnostic`
+passed all 108 Android tests, lint, clean assembly, signing/alignment, 114 exact
 runtime/notice files and the canonical full-seed metadata asset. See its
-[measured APK evidence](docs/evidence/android-2026-10-22-private-full-seed-apk.json).
+[measured APK evidence](docs/evidence/android-2026-10-22-private-charset-apk.json).
 The original auth updater/dry-run gate already
 [passed on physical Thor in version 5](docs/evidence/android-2026-10-22-thor-resolver-pass.json);
-the new full-seed device gate remains open. Public CI snapshots use a different
+version 6 reached 158 seed tables, then failed on its first ASCII column.
+Version 7 explicitly binds the packaged charset directory and checks ASCII before
+seed import; its corrected full-seed device gate remains open. Public CI snapshots use a different
 debug certificate and package only the database provider; use the separately
 provided private APK to update the installed private diagnostic.
 
@@ -119,7 +121,7 @@ tables. Validation uses the measured archive inventory.
 | Android ARM64/Bionic authserver compile and private runtime stage | Passed; private APK build/payload checks passed; auth version command ran on Thor |
 | Packaged Android database bootstrap/health/shutdown | Passed on Thor, including observed SQL shutdown and exit 0 |
 | Optional private auth-only updater diagnostic | Passed on physical Thor: original updater/dry-run exit 0, 27 auth imports and clean SQL shutdown |
-| Full seed import on pinned Android MariaDB provider | Implemented in version 6; physical Thor test pending |
+| Full seed import on pinned Android MariaDB provider | Version 6 imported 158 tables; version 7 corrects charset-data routing, awaiting Thor retest |
 | Android ARM64 worldserver and all required modules | Open |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |

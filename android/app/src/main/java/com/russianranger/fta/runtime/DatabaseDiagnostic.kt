@@ -24,6 +24,7 @@ class DatabaseDiagnostic(
     private var server = 0L
     private var clientOptions: File? = null
     private lateinit var socket: File
+    private lateinit var characterSetsDirectory: File
     private var step = 0
     private var currentStage = "CHECKING"
     private var currentAttemptId: String? = null
@@ -51,6 +52,13 @@ class DatabaseDiagnostic(
         setStage("STAGING", "Verifying packaged database bootstrap and system data.")
         val bootstrap = runtime.stageData(context, File(root, "payload"), ::checkCancelled)
         val provider = File(root, "payload/data/provider")
+        // The provider was relocated from Termux's share/mariadb layout. Its
+        // message-file override does not redirect the separate charset loader.
+        characterSetsDirectory = File(provider, "share/mysql/charsets")
+        check(characterSetsDirectory.isDirectory &&
+            listOf("Index.xml", "ascii.xml").all { File(characterSetsDirectory, it).isFile }) {
+            "Pinned database character-set data is unavailable"
+        }
         val datadir = File(root, "database").apply { check(mkdir()) }
         val runDirectory = File(context.filesDir, "run").apply { check(mkdirs() || isDirectory) }
         socket = File(runDirectory, "d.sock")
@@ -62,6 +70,7 @@ class DatabaseDiagnostic(
             "--no-defaults", "--basedir=${provider.absolutePath}", "--datadir=${datadir.absolutePath}",
             "--plugin-dir=${pluginDirectory.absolutePath}",
             "--lc-messages-dir=${File(provider, "share/mysql").absolutePath}",
+            "--character-sets-dir=${characterSetsDirectory.absolutePath}",
             "--socket=${socket.absolutePath}", "--pid-file=${File(root, "db.pid").absolutePath}",
             "--skip-networking", "--skip-name-resolve", "--performance-schema=OFF",
             "--innodb-buffer-pool-size=64M", "--innodb-log-file-size=16M", "--aria-pagecache-buffer-size=16M", "--key-buffer-size=8M",
@@ -88,7 +97,7 @@ class DatabaseDiagnostic(
             }
             check(ready) { "Database socket did not become ready" }
             evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "database_ready") }
-            setStage("CHECKING", "Testing local credentials, transactions, system tables and MySQL 8 collation alias.")
+            setStage("CHECKING", "Testing local credentials, transactions, system tables, Unicode and ASCII character sets.")
             val secret = ByteArray(24).also { SecureRandom().nextBytes(it) }
                 .joinToString("") { "%02x".format(it.toInt() and 255) }
             client("ALTER USER 'root'@'localhost' IDENTIFIED BY '$secret'; FLUSH PRIVILEGES;", 10_000)
@@ -102,12 +111,16 @@ class DatabaseDiagnostic(
                 SELECT CONCAT('FTA_SYSTEM_TABLES=',COUNT(*)) FROM information_schema.tables WHERE table_schema='mysql';
                 SELECT CONCAT('FTA_COLLATION=',COUNT(*)) FROM information_schema.collations WHERE collation_name='utf8mb4_0900_ai_ci';
                 CREATE DATABASE fta_diagnostic;
-                CREATE TABLE fta_diagnostic.probe(id INT PRIMARY KEY, text_value VARCHAR(32))
+                CREATE TABLE fta_diagnostic.probe(id INT PRIMARY KEY, text_value VARCHAR(32),
+                    ascii_value VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin)
                     ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
                 START TRANSACTION;
-                INSERT INTO fta_diagnostic.probe VALUES (1, CONVERT(0xF09F9495 USING utf8mb4));
+                INSERT INTO fta_diagnostic.probe VALUES (1, CONVERT(0xF09F9495 USING utf8mb4), 0x4654412D4153434949);
                 SELECT CONCAT('FTA_UNICODE_ROWS=',COUNT(*)) FROM fta_diagnostic.probe
                     WHERE text_value=CONVERT(0xF09F9495 USING utf8mb4);
+                SELECT CONCAT('FTA_ASCII_ROWS=',COUNT(*)) FROM fta_diagnostic.probe
+                    WHERE HEX(ascii_value)='4654412D4153434949'
+                    AND CHARSET(ascii_value)='ascii' AND COLLATION(ascii_value)='ascii_bin';
                 ROLLBACK;
                 SELECT CONCAT('FTA_ROLLBACK_ROWS=',COUNT(*)) FROM fta_diagnostic.probe;
                 DROP DATABASE fta_diagnostic;
@@ -121,6 +134,7 @@ class DatabaseDiagnostic(
             // need not appear as its own row in INFORMATION_SCHEMA on every engine.
             check(values["FTA_COLLATION"]?.toIntOrNull() != null)
             check(values["FTA_UNICODE_ROWS"] == "1") { "Unicode collation round trip failed" }
+            check(values["FTA_ASCII_ROWS"] == "1") { "ASCII character-set round trip failed" }
             check(values["FTA_ROLLBACK_ROWS"] == "0") { "InnoDB rollback probe failed" }
             if (includeAuth) runAuthUpdaterDiagnostic()
             if (includeFullSeed) runFullSeedDiagnostic()
@@ -137,7 +151,7 @@ class DatabaseDiagnostic(
                 "All 563 original tables and the world trigger imported unchanged into a fresh disposable database; object inventories and original updater receipt baselines matched, then MariaDB shut down cleanly. Runtime SQL was not applied. Compiled world/character updaters, worldserver and game login remain unqualified."
                 else if (includeAuth)
                 "Original ARM64 authserver dry run and updater passed against the unchanged 27-table auth seed, then the disposable database shut down cleanly. No auth listener was opened. Full seed, worldserver and game login remain unqualified."
-                else "MariaDB ${runtime.manifest.providerVersion}: fresh bootstrap, private credentials, socket health, system tables, collation alias, InnoDB rollback and clean shutdown passed. Seed compatibility and AzerothCore remain unqualified."
+                else "MariaDB ${runtime.manifest.providerVersion}: fresh bootstrap, private credentials, socket health, system tables, Unicode/ASCII character sets, InnoDB rollback and clean shutdown passed. Seed compatibility and AzerothCore remain unqualified."
         } finally {
             // SQL shutdown is preferred. The JNI helper owns process groups and enforces deadlines.
             if (server != 0L && !cancelled.get()) runCatching {
@@ -402,7 +416,8 @@ class DatabaseDiagnostic(
         require(database == null || database in FullSeedStore.SCHEMAS)
         val args = if (clientOptions != null) listOf("--defaults-file=${clientOptions!!.absolutePath}")
             else listOf("--no-defaults", "--user=root", "--protocol=socket", "--socket=${socket.absolutePath}")
-        return runTool("database-client", args + listOf("--batch", "--skip-column-names", "--connect-timeout=2") +
+        return runTool("database-client", args + listOf("--character-sets-dir=${characterSetsDirectory.absolutePath}",
+            "--batch", "--skip-column-names", "--connect-timeout=2") +
             (if (includeFullSeed) listOf("--binary-mode", "--local-infile=0", "--default-character-set=utf8mb4", "--max-allowed-packet=256M") else emptyList()) +
             listOfNotNull(database), script, timeout)
     }

@@ -1,0 +1,45 @@
+{
+  "formatVersion": 1,
+  "scope": "host-only production foundation SQL with packaged character-set data",
+  "sourceSha256": "e205cd68ff5238223c72fe69ff864331dee5d3c97701d7b331f98c36531f6e37",
+  "productionSqlSha256": "712044e563b41c21cdea6b62d8a61ba29f08b023d2f7d4f4ceb1cde48886e77c",
+  "productionSqlBytes": 1060,
+  "engineVersion": "12.3.2-MariaDB",
+  "systemTablesVerified": true,
+  "unicodeRoundTripPassed": true,
+  "asciiBinaryRoundTripPassed": true,
+  "rollbackVerified": true,
+  "sqlShutdownExitedZero": true,
+  "charsetDirectoryMatched": true,
+  "directoryDataSource": "exact previously qualified private APK",
+  "sourceSqlRewritten": false,
+  "androidExecutionQualified": false,
+  "outputBytes": 119,
+  "syntheticProbeRowsOnly": true,
+  "hostDistributionSha256": "4a18365541d7280bbe947762e341bab94bc49f3ed31e6b5caf4e21f26246e458",
+  "originalFailingMember": {
+    "path": "Database/acore_characters/table-mod_npcbot_paperdoll_consumable_receipt.sql",
+    "sha256": "5400b20e28a51dce41a816f770f17b6b5cf7b70d7f7af981189c434b3a828e09",
+    "size": 1674
+  },
+  "packagedCharsetFileSha256": {
+    "Index.xml": "c28a7f28b8268d5af070f894b108ee616bd6cf0f16a5a6bb73002d6cd9067816",
+    "ascii.xml": "0d9216d2c38a467e03e0485d3bb9607a554196f7294e41efd92bc8a11b4f29ff"
+  },
+  "originalMemberImportedUnchangedOnHost": true,
+  "hostWithoutXmlAlsoPassed": true,
+  "androidNegativeCaseReproduced": false,
+  "limitation": "The Linux distribution has ASCII built in. The empty-XML host case also passes and does not reproduce the Android failure. This verifies the exact production SQL and unchanged failing seed file on the host; corrected Thor execution remains unqualified.",
+  "primarySources": [
+    {
+      "url": "https://raw.githubusercontent.com/MariaDB/server/mariadb-12.3.2/sql/mysqld.cc",
+      "sha256": "397868b66c452883dbddce05d0863ac00447ed98bcb13814b560a40b87254dcf",
+      "relevantLines": "9561-9582"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/MariaDB/server/mariadb-12.3.2/mysys/charset.c",
+      "sha256": "23c12864dea271f7db32356c8c5acba88254c44a9af0af578eb9354c3522d5cd",
+      "relevantLines": "562-580"
+    }
+  ]
+}

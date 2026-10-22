@@ -37,6 +37,8 @@ object DiagnosticSanitizer {
     // Match original AzerothCore auth/config/updater diagnostics. Dynamic names,
     // paths, queries, hashes and connection strings never become output fields.
     private val originalDiagnostics = listOf(
+        canned("\\bUnknown[ \\t]+character[ \\t]+set\\b",
+            "MariaDB could not load a required character set."),
         canned("Config::LoadFile:[ \\t]*(?:Failed open|Failure to read line number|Empty file|Duplicate key name)",
             "Authserver configuration could not be loaded or parsed."),
         canned("FATAL ERROR:[ \\t]*Missing property\\b|Core can't start if found incorrect options|Server Config[^\\r\\n]{0,512}is defined but not loaded",

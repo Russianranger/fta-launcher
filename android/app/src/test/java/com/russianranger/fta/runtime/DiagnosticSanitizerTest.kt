@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class DiagnosticSanitizerTest {
+    @Test fun characterSetFailuresKeepOnlyTheCodeLineAndCannedCategory() {
+        val result = DiagnosticSanitizer.summarize(
+            "ERROR 1115 (42000) at line 19: Unknown character set: 'private-charset' /private/charsets password=never-share\n" +
+                "SELECT 'private-player-record' FROM private_accounts;")
+        assertEquals(listOf("MariaDB error 1115 at line 19.",
+            "MariaDB could not load a required character set.",
+            "Other native diagnostic output was omitted."), result)
+    }
+
     @Test fun mariaDbErrorsKeepCodesAndSourceLineOnly() {
         val result = DiagnosticSanitizer.summarize("ERROR 1064 (42000) at line 47: SELECT 'my-secret' FROM private_account;\nERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)")
         assertEquals(listOf("MariaDB error 1064 at line 47.", "MariaDB error 1045.", "Database authentication was rejected."), result)

@@ -70,6 +70,23 @@ The combined bootstrap preserves the six original package SQL files and sets
 `@auth_root_socket=NULL`, matching the original database initialization protocol.
 Application credentials and FTA schemas are separate later operations.
 
+Relocation also requires an explicit `--character-sets-dir` for the server
+(including bootstrap) and each direct MariaDB client. Use the verified private
+`data/provider/share/mysql/charsets` directory. The provider's compiled layout
+uses `share/mariadb`; overriding `--basedir` or `--lc-messages-dir` does not bind
+the separately resolved character-set directory to the staged `share/mysql`.
+Require the pinned `Index.xml` and `ascii.xml` before launching native tools.
+The database probe creates an ASCII/ascii_bin column and verifies an exact byte
+round trip alongside Unicode and rollback before importing any private seed.
+
+Physical version 6 reached its first explicit ASCII column after 158 table
+imports and returned error 1115. The exact APK already contained the required
+XML. Version 7 corrects the directory binding without changing those files or
+the native ELFs. The [bounded device evidence](evidence/android-2026-10-22-thor-full-seed-attempt.json)
+and [host/source probe](evidence/database-2026-10-22-charset-path-probe.json)
+separate the measured failure from the corrected device result, which still
+requires a Thor retest.
+
 ## Validation and evidence
 
 The stage checks complete input identity, traversal/duplicate/link/size limits,

@@ -7,18 +7,32 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private Thor diagnostic: **0.4.0-full-seed-diagnostic**, version code
-**6**. Its clean build passed all **107 Android tests**, lint, signing/alignment,
-114 exact provider/notice files and the exact full-seed metadata asset.
-APK SHA256: `adaf3d14701261d26a4178d145812a72dcec0ba4df996a5f830d8bffab0dc3cc`.
-See `docs/evidence/android-2026-10-22-private-full-seed-apk.json`.
-It retains the physically tested `android-arm64-resolver-v3` authserver and adds
-`Test full original database seed`: all 563 tables plus one trigger, exact
-catalog and original receipt checks, no runtime SQL replay. Its full-seed device
-result remains unqualified. Only the retained verified Database.zip is required.
-Install over version 5; use the same private signing key and future version
-codes greater than 6. Public CI snapshots retain disposable debug signing and
-package the database provider; use the private APK for this upgrade.
+Latest private Thor diagnostic: **0.4.1-charset-diagnostic**, version code **7**.
+Its clean build passed all **108 Android tests**, lint, signing/alignment, 114
+exact provider/notice files and the canonical full-seed metadata asset.
+APK SHA256: `6ef5d5fd1bde576ec30e876128777e497e62670aa153afe013c86030cb4993d5`.
+See `docs/evidence/android-2026-10-22-private-charset-apk.json`.
+Install over version 6 to keep the verified Database.zip; a source ZIP is not
+required. Reuse the persistent private signing key and future version codes
+**greater than 7**. Public CI snapshots use disposable debug signing and package
+only the database provider; use the private APK for this upgrade.
+
+Physical version 6 imported **158 tables**, then failed on the first ASCII column
+with MariaDB error **1115** at line 19. The native client exited 1 in 83 ms;
+the database still received SQL shutdown and exited 0. Verified import order
+identifies table 159, `mod_npcbot_paperdoll_consumable_receipt`. This is the only
+seed table with an explicit ASCII/ascii_bin column. See
+`docs/evidence/android-2026-10-22-thor-full-seed-attempt.json`.
+
+The pinned APK already includes Index.xml and ascii.xml. MariaDB derives its
+charset path independently from its message directory; compiled share/mariadb
+and staged share/mysql differ. Version 7 binds `--character-sets-dir` explicitly
+for bootstrap/server and every direct client invocation, then checks a real
+ASCII/ascii_bin column and exact ASCII/Unicode round trips before seed import.
+No SQL or provider ELF was changed. The exact new foundation SQL and unchanged
+failing file pass on host 12.3.2. That host also succeeds without XML because its
+ASCII support is compiled in; it does not reproduce Android's negative case.
+The corrected full-seed Thor result remains unqualified.
 
 Physical Thor version 5 **passed the original auth updater and dry run** after
 all 27 unchanged auth imports. The auth process exited 0 in 107 ms, its
@@ -158,11 +172,11 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 1. Preserve the passing physical version 5 auth evidence. Still qualify explicit
    cancellation, background and process-death cleanup on Thor; the normal passing
    dry run does not establish those behaviors.
-2. Run `Test full original database seed` in private version 6 on Thor. It needs
+2. Run `Test full original database seed` in private version 7 on Thor. It needs
    at least 3 GiB free and allows 30 minutes, checks every original file and all
    three schema/receipt baselines, then requires observed SQL shutdown. Export
-   its current-attempt report. Host execution of the actual Kotlin SQL/parser
-   passed all 15 validations; that does not replace this physical-device gate.
+   its current-attempt report. The early ASCII probe must pass before any seed
+   import. Host SQL/parser and metadata proofs do not replace this device gate.
 3. Continue the separate world build with the verified Android toolchain.
    Readline now cross builds, full world configuration passes and compiler-led
    fixes are recorded in `docs/native-build.md`. The current world source profile
@@ -196,3 +210,10 @@ missing-tools status as a current blocker. ARM64 auth compilation, private stagi
 world compilation and the remaining full-seed/lifecycle diagnostics still require
 their own measured evidence. Inspect the exact commit's GitHub CI results before
 reporting setup APK checks as passed; native compilation has its own build report.
+
+Workspace recovery: previous scratch bytes and world objects were pruned by
+maintenance. The exact Android toolchain was restored and the private runtime
+recovered byte-for-byte from the saved version 6 APK; the signing capsule was
+reused. Do not claim the old world object cache is still present. Recover the
+original source archive and reproduce profile v7 before resuming native work.
+Saved artifact identities and existing source profiles remain authoritative.
