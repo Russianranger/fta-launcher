@@ -204,7 +204,9 @@
         "sha256": "2ebeccfd986134c281cb127002f9040f72bc17990af0fbfa022be1ce97846a9d",
         "finding": "unsupported flags rejected before numeric parsing; numeric IPv4 success returns before DNS proxy"
       }
-    ]
+    ],
+    "auth_updater_device_dry_run_qualified": true,
+    "execution_qualification_scope": "original disposable auth-updater dry run only; auth listener, full seed and world execution remain unqualified"
   },
   "thor_apk4_auth_attempt": {
     "apk_version_code": 4,
@@ -219,5 +221,112 @@
     "source_identified_blocker": "unsupported Bionic AI_ALL resolver flag",
     "device_resolver_error_code_exported": false,
     "corrected_resolver_artifact_tested": false
+  },
+  "thor_apk5_auth_updater_pass": {
+    "evidence": "docs/evidence/android-2026-10-22-thor-resolver-pass.json",
+    "report_sha256": "cdc9dab502491a0cd7db5169b36ddbc766cbcf2566debdaeb152c5adf457691d",
+    "apk_version_code": 5,
+    "apk_sha256": "468d9896a614ae8c3a1bf0b9ac33805d47455187d8d9f0fcf48976d2a0d1d913",
+    "auth_binary_sha256": "7e901a2bbb4efa5c239c44242578bd587aff194d30ed6aed810d5576ceaf9ce4",
+    "auth_tables_imported": 27,
+    "original_auth_dry_run_passed": true,
+    "scope": "physical AYN Thor Android13 disposable auth-updater; no listener/full seed/world qualification"
+  },
+  "android_world_dependency": {
+    "status": "readline-cross-build-passed",
+    "target": "arm64-v8a/android-33",
+    "readline_version": "8.3.3",
+    "source_pins": "native-port/world-inputs.json",
+    "binary_sha256": "321f805999b0c1c5dc2b759b423eedd8cc235ea3916729beebfb717329d4ba15",
+    "binary_bytes": 418840,
+    "minimum_load_alignment": 16384,
+    "soname": "libreadline.so.8",
+    "needed": [
+      "libncursesw.so.6",
+      "libandroid-support.so",
+      "libdl.so",
+      "libc.so"
+    ],
+    "runtime_search_paths": [],
+    "link_no_undefined": true,
+    "provider_libraries_unchanged": true,
+    "independent_symbol_closure_review": "passed",
+    "combined_recipe_full_rebuild": false,
+    "execution_qualified": false
+  },
+  "android_world_compile_progress": {
+    "status": "compiler-fixes-verified-full-build-paused",
+    "all_module_directories": 52,
+    "cpp_compilation_edges": 1439,
+    "c_compilation_edges": 50,
+    "module_cpp_compilation_edges": 225,
+    "auth_prerequisite": "compile-link-passed",
+    "lua_version": "5.2.4",
+    "lua_static": true,
+    "scripts": "static",
+    "modules": "static",
+    "cxx_standard": 20,
+    "current_profile": "android-arm64-world-v6",
+    "source_tree_sha256": "02874636d09ccc76b70495d552a5d84737dece7f70802489e5f97c4b7f22a7ef",
+    "pristine_profile_reproduction": "passed",
+    "compiler_blockers": [
+      {
+        "profile": "android-arm64-resolver-v3",
+        "error": "Lua CMake substring removal corrupts NDK -Werror=format-security",
+        "fix_patch": "patches/0006-lua-warning-flags.patch"
+      },
+      {
+        "profile": "android-arm64-world-v4",
+        "error": "Object.h inline LOG_DEBUG use lacks direct Log.h dependency with NOPCH",
+        "fix_patch": "patches/0007-object-logging-include.patch"
+      },
+      {
+        "profile": "android-arm64-world-v5",
+        "error": "gSOAP assumes XSI int strerror_r for Bionic GNU char* mode",
+        "fix_patch": "patches/0008-bionic-gsoap-strerror.patch"
+      }
+    ],
+    "worldserver_compiled": false,
+    "all_modules_compiled": false,
+    "execution_qualified": false,
+    "lua_flags_regression": {
+      "status": "passed",
+      "script": "native-port/check-lua-flags.py",
+      "c_and_cxx_cases": 18,
+      "old_corruption_cases": 16,
+      "target_literal_format_compile": "passed",
+      "target_nonliteral_printf_compile": "rejected-by-format-security",
+      "target": "arm64-v8a/android-33",
+      "binaries_executed": false
+    },
+    "actual_compiled_components": [
+      "world-build authserver prerequisite compile/link",
+      "Attriboost first module translation unit",
+      "32 Lua5.2 C sources and static Lua link",
+      "final gSOAP stdsoap2.cpp and static gSOAP link"
+    ],
+    "pause_reason": "bounded checkpoint after actual compiler fixes; more than 1200 world build edges remain",
+    "gsoap_strerror_regression": {
+      "status": "passed",
+      "script": "native-port/check-gsoap-strerror.py",
+      "expected_compile_outcomes": 16,
+      "languages": [
+        "C11",
+        "C++20"
+      ],
+      "android_api_levels": [
+        21,
+        33
+      ],
+      "feature_modes": [
+        "GNU",
+        "XSI"
+      ],
+      "old_api33_gnu_failure_reproduced": true,
+      "api21_xsi_semantics_preserved": true,
+      "production_function_sha256": "c2a3f2df6a75c7b70ad301a5aae5482b1a94cdeddf13f708022adc1a3810d942",
+      "ndk_string_header_sha256": "77ccdd315d04fde51d0b65829f78a60ad7d9bcbc65caaf5c432feeba6134b88a",
+      "binaries_executed": false
+    }
   }
 }

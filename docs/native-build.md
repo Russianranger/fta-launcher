@@ -51,8 +51,8 @@ python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth --dry-run
 python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth
-python3 tools/build_native.py --source /private/fta-android-resolver-source \
-  --port-profile android-arm64-resolver-v3 \
+python3 tools/build_native.py --source /private/fta-android-world-source \
+  --port-profile android-arm64-world-v6 \
   --build-dir /private/fta-build-android --platform android --stage world \
   --toolchain /private/android-ndk-r28c/build/cmake/android.toolchain.cmake \
   --dependency-prefix /private/android-dependencies \
@@ -301,20 +301,97 @@ Its 30,655,008-byte ELF has SHA256
 `7e901a2bbb4efa5c239c44242578bd587aff194d30ed6aed810d5576ceaf9ce4`.
 Release/C++20/static settings, 16 KiB load alignment and dependency closure are
 unchanged. The socket regression also passed against this exact profile.
-The corrected artifact's Thor dry run remains unqualified until measured.
+The exact version 5 private APK subsequently passed the original auth updater
+dry run on AYN Thor/Android 13: native exit 0, completion marker observed and
+MariaDB SQL shutdown with exit 0. The three read-only realm eligibility checks
+also passed. See `docs/evidence/android-2026-10-22-thor-resolver-pass.json`. This
+qualifies that disposable auth-updater path, not an auth listener, full seed,
+worldserver or gameplay.
 
-## Next worldserver gate
+## Measured world dependency and compile gate
 
-Worldserver compilation can proceed without client maps or DBC files. Its console
-and the default Lua module need target GNU Readline and a terminal library;
-NDK does not supply those dependencies, and the provider's libedit is not a
-qualified substitute. These dependencies must be pinned and cross built before
-the full static module build. Retain the supplied Lua default; the optional
-LuaJIT build invokes host make without a qualified cross environment.
+Readline 8.3 with official patches 001–003 now cross builds for ARM64/API33.
+The final 418,840-byte shared library has SHA256
+`321f805999b0c1c5dc2b759b423eedd8cc235ea3916729beebfb717329d4ba15`,
+SONAME `libreadline.so.8`, four 16 KiB-aligned load segments and no embedded
+RPATH/RUNPATH. Its dependencies are the unchanged pinned provider ncurses and
+Android support libraries plus Bionic libc/libdl. The actual `--no-undefined`
+link and independent symbol/ELF review passed. Nothing replaced the provider's
+ncurses ELF or substituted libedit.
 
-The full world build is a separate, lengthy single-job gate. Runtime world
-readiness additionally needs matching user-supplied maps, vmaps, mmaps and DBCs;
-an auth compile or a world `--help` run cannot establish it.
+`native-port/world-inputs.json` pins the Readline and ncurses sources and all
+three official patches. `native-port/build-world-dependencies.py` generates
+matching target ncurses headers and builds only the new shared Readline. It
+requires explicit local inputs, a fresh output directory, NDK r28c and one
+compiler job. `--plan` validates identities without writing. The individual
+measured commands passed; the combined driver has eight tests and its real-input
+plan passed, but its complete fresh-output build has not yet been rerun.
+
+```sh
+python3 native-port/build-world-dependencies.py \
+  --ndk-root /private/android-ndk-r28c \
+  --provider-stage /private/provider \
+  --readline-archive /private/readline-8.3.tar.gz \
+  --ncurses-archive /private/ncurses-5f58399b.tar.gz \
+  --readline-patch-001 /private/readline83-001 \
+  --readline-patch-002 /private/readline83-002 \
+  --readline-patch-003 /private/readline83-003 \
+  --work-root /private/new-world-dependencies --plan
+```
+
+The resulting prefix contains Readline headers/library plus symlinks to the
+verified provider dependencies. Add those target inputs to the existing Boost,
+OpenSSL and Connector/C prefix before the world build; retain their hashes.
+The library intentionally retains the original default inputrc behavior. A later
+private runtime must explicitly supply its input configuration and terminal-data
+environment; no fixed Termux installation path is introduced. Readline is
+GPL-3.0-or-later: any combined world distribution must retain its notices and
+corresponding source, and elect compatible terms for GPL-2.0-or-later core code.
+No world binary is distributed at this checkpoint.
+
+The actual full world configuration now passes with all 52 module directories,
+C++20, Release, static scripts/modules and default static Lua 5.2.4. Its pinned
+Lua archive is fetched by the original module CMake, not substituted by this
+driver. The world build's auth prerequisite compiled and linked successfully.
+Actual world compilation then exposed three bounded build defects:
+
+1. The Lua module removed `-Werror` as a substring, corrupting NDK's
+   `-Werror=format-security` into an invalid compiler argument. Patch 0006 removes
+   only the standalone token and preserves targeted security flags. The
+   `android-arm64-world-v4` profile records that exact source stage. The exact
+   production CMake regression passed 18 C/C++ flag cases, reproduced the old
+   corruption, and cross compiled a literal-format probe while correctly
+   rejecting nonliteral `printf` under retained format-security enforcement.
+   No probe binary was executed.
+2. The first module translation unit included `Object.h`, whose inline grid
+   helper uses `LOG_DEBUG` without declaring that macro. With precompiled headers
+   disabled, Clang rejects it. Patch 0007 directly includes `Log.h`, retaining the
+   original helper behavior. Profile `android-arm64-world-v5` adds only this
+   header dependency and preserves every earlier profile. The actual Attriboost
+   translation unit then compiled, followed by all 32 Lua C sources and the
+   static Lua library link.
+3. gSOAP forced its Android `strerror_r` call through the XSI `int` branch even
+   when Bionic exposes its GNU `char*` interface. Patch 0008 selects the existing
+   GNU return behavior only for Android, `__USE_GNU` and API 23 or later. The
+   exact production function passed 16 expected compile outcomes across C11 and
+   C++20, GNU/XSI modes and APIs 21/33; the original API33 GNU failures were
+   reproduced. The final full gSOAP source then compiled and its static library
+   linked successfully. No probe or server binary was executed.
+
+The current reviewed `android-arm64-world-v6` source tree is
+`02874636d09ccc76b70495d552a5d84737dece7f70802489e5f97c4b7f22a7ef`.
+Every world profile reproduced exactly from the pristine source. These patches
+and successful configuration are progress toward compilation, not a completed
+world build or module qualification. The single-job build was intentionally paused after these actual compile
+checks; it still has more than 1,200 world build edges remaining. Resume its
+verified cache with v6; no game assets are required for compilation. The build driver now
+explicitly pins Lua 5.2 static and rejects caches that swap it for LuaJIT, another
+Lua version or dynamic linkage.
+
+Runtime world readiness additionally needs matching user-supplied maps, vmaps,
+mmaps and DBCs. See `docs/world-updater-gate.md` for the original startup ordering
+and the future compiled database-updater gate. An auth compile or a world
+`--help` run cannot establish world readiness.
 
 Build logs are private under the chosen build directory. Publish reviewed
 summaries, tool versions and binary hashes only; do not upload unfiltered logs or

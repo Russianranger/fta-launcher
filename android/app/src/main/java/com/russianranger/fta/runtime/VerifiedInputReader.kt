@@ -12,7 +12,7 @@ import java.util.Properties
 object VerifiedInputReader {
     private val generation = Regex("g-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 
-    fun resolve(importsRoot: File, spec: ArchiveSpec): File {
+    fun resolve(importsRoot: File, spec: ArchiveSpec, checkCancelled: () -> Unit = {}): File {
         val folder = File(importsRoot, spec.id)
         val pointer = File(folder, "active")
         if (!regular(pointer) || pointer.length() !in 1..64) throw IOException("Verified input pointer is unavailable")
@@ -30,17 +30,18 @@ object VerifiedInputReader {
         if (fields.getProperty("kind") != spec.id || fields.getProperty("sha256") != spec.sha256 ||
             fields.getProperty("bytes") != spec.bytes.toString()) throw IOException("Verified input receipt differs from the approved input")
         val archive = File(directory, "archive.zip")
-        verify(archive, spec.sha256, spec.bytes)
+        verify(archive, spec.sha256, spec.bytes, checkCancelled)
         return archive
     }
 
-    internal fun verify(file: File, expectedSha256: String, expectedSize: Long) {
+    internal fun verify(file: File, expectedSha256: String, expectedSize: Long, checkCancelled: () -> Unit = {}) {
         if (!regular(file) || file.length() != expectedSize) throw IOException("Verified input archive is missing or has the wrong size")
         val digest = MessageDigest.getInstance("SHA-256")
         var bytes = 0L
         file.inputStream().use { input ->
             val buffer = ByteArray(256 * 1024)
             while (true) {
+                checkCancelled()
                 if (Thread.currentThread().isInterrupted) throw IOException("Input verification interrupted")
                 val read = input.read(buffer)
                 if (read < 0) break

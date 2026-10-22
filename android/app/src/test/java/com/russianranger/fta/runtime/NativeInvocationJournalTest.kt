@@ -86,7 +86,7 @@ class NativeInvocationJournalTest {
 
     @Test fun boundEvictsFinishedToolsWhileRetainingRunningDatabase() {
         val server = journal.begin("server", "database-server", "STARTING", null)
-        repeat(140) { index ->
+        repeat(NativeInvocationJournal.MAX_RECORDS + 12) { index ->
             val id = journal.begin("tool-${index + 1}", "database-client", "CHECKING", 5_000)
             journal.finish(id, "exited", 0, 0, 0)
         }
@@ -94,6 +94,20 @@ class NativeInvocationJournalTest {
         assertEquals(NativeInvocationJournal.MAX_RECORDS, read.first.size)
         assertTrue(read.second > 0)
         assertTrue(read.first.any { it.id == server && it.outcome == "running" })
+        assertTrue(file.length() <= NativeInvocationJournal.MAX_FILE_BYTES)
+    }
+
+    @Test fun fullSeedAttemptRetainsEveryImportAlongsideDatabaseOwnership() {
+        val server = journal.begin("server", "database-server", "STARTING", null)
+        repeat(564) { index ->
+            val id = journal.begin("tool-${index + 1}", "database-client", "SEED_IMPORT", 300_000)
+            journal.finish(id, "exited", 0, 0, 0)
+        }
+        val read = NativeInvocationJournal.read(file)!!
+        assertEquals(565, read.first.size)
+        assertEquals(0, read.second)
+        assertTrue(read.first.any { it.id == server && it.outcome == "running" })
+        assertEquals(564, read.first.count { it.stage == "SEED_IMPORT" && it.exitCode == 0 })
         assertTrue(file.length() <= NativeInvocationJournal.MAX_FILE_BYTES)
     }
 

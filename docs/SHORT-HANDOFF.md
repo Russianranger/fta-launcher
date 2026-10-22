@@ -7,19 +7,26 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private Thor diagnostic: **0.3.2-auth-resolver-diagnostic**, version code
-**5**, with profile `android-arm64-resolver-v3`. Its clean build passed 91 Android
-tests, lint, signing/alignment and all 114 packaged-file identity checks.
-APK SHA256: `468d9896a614ae8c3a1bf0b9ac33805d47455187d8d9f0fcf48976d2a0d1d913`.
-See `docs/evidence/android-2026-10-22-private-auth-resolver-apk.json`.
-Use this private APK for auth tests; public CI releases remain database-only.
-Reuse the persistent private signing key and increase future version codes
-beyond 5. Imports survive an ordinary update from versions 3 or 4.
+Latest private Thor diagnostic: **0.4.0-full-seed-diagnostic**, version code
+**6**. Its clean build passed all **107 Android tests**, lint, signing/alignment,
+114 exact provider/notice files and the exact full-seed metadata asset.
+APK SHA256: `adaf3d14701261d26a4178d145812a72dcec0ba4df996a5f830d8bffab0dc3cc`.
+See `docs/evidence/android-2026-10-22-private-full-seed-apk.json`.
+It retains the physically tested `android-arm64-resolver-v3` authserver and adds
+`Test full original database seed`: all 563 tables plus one trigger, exact
+catalog and original receipt checks, no runtime SQL replay. Its full-seed device
+result remains unqualified. Only the retained verified Database.zip is required.
+Install over version 5; use the same private signing key and future version
+codes greater than 6. Public CI snapshots retain disposable debug signing and
+package the database provider; use the private APK for this upgrade.
 
-Thor version 4 proved database readiness, 27 auth imports, pool opening and SQL
-shutdown with exit 0. Its original updater reported up to date, but the dry run
-failed realm lookup. Version 5 fixes Android resolver flags and adds read-only
-realm eligibility booleans; its device dry-run result remains unqualified.
+Physical Thor version 5 **passed the original auth updater and dry run** after
+all 27 unchanged auth imports. The auth process exited 0 in 107 ms, its
+completion marker was observed, and MariaDB received SQL shutdown and exited 0.
+All 41 invocation outcomes are present with no timeout, cancellation or validation
+failure. This qualifies the disposable auth updater gate, not a running listener,
+full seed, worldserver, game login or abnormal lifecycle handling. See
+`docs/evidence/android-2026-10-22-thor-resolver-pass.json`.
 
 ## Preserve these constraints
 
@@ -148,25 +155,28 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 
 ## Next concrete work
 
-1. Retest the original auth updater using the corrected private version 5 APK on
-   Thor. Export the current-attempt report to confirm native exit, dry-run
-   completion and database clean shutdown, or identify the next exact failure.
-   The imported database ZIP can remain in place; a source ZIP is not needed.
-   Do not infer execution from compiled or packaged ELF hashes. Check
-   stop/background/crash ownership too.
-2. Run the matching full private seed on that exact engine in a disposable Android
-   environment. Record engine version, schemas, trigger/routines, receipt
-   hashes/counts and exact compatibility failures without publishing records.
-3. Start the separate world build with the verified Android toolchain and target
-   dependencies, including Readline for worldserver/bundled Lua. Preserve C++20,
-   all 52 required modules and static scripts/modules; auth must still build
-   first. Use one heavy build at a time and record actual compiler blockers as
-   bounded reviewed patches. A read-only module audit found no further confirmed
-   Android compile blocker; it is not compiler evidence.
-4. Qualify compiled world/character updaters and worldserver with every required
-   module, the disposable seed and matching DBC/maps/vmaps/mmaps. Those data
-   assets were not supplied. Only then package controlled
-   native services, account provisioning and restart-safe database installation.
+1. Preserve the passing physical version 5 auth evidence. Still qualify explicit
+   cancellation, background and process-death cleanup on Thor; the normal passing
+   dry run does not establish those behaviors.
+2. Run `Test full original database seed` in private version 6 on Thor. It needs
+   at least 3 GiB free and allows 30 minutes, checks every original file and all
+   three schema/receipt baselines, then requires observed SQL shutdown. Export
+   its current-attempt report. Host execution of the actual Kotlin SQL/parser
+   passed all 15 validations; that does not replace this physical-device gate.
+3. Continue the separate world build with the verified Android toolchain.
+   Readline now cross builds, full world configuration passes and compiler-led
+   fixes are recorded in `docs/native-build.md`. Preserve C++20, all 52 modules,
+   default static Lua 5.2 and static scripts/modules; auth must build first.
+   World compilation is incomplete. Use one heavy build at a time and record
+   actual compiler blockers as bounded reviewed patches.
+4. After a successful world build, qualify the compiled three-database updater
+   through original normal startup and the original missing-map boundary, with
+   exact post-run receipt/error checks. **Do not use world `--dry-run` for this
+   gate**: failed SQL can write receipts before its final error-counter check,
+   which missing DBCs prevent reaching. Follow `docs/world-updater-gate.md`.
+   World readiness still requires every module and matching DBC/maps/vmaps/mmaps;
+   those assets were not supplied. Only then package controlled persistent
+   services, account provisioning and restart-safe database installation.
 
 ## Resource and evidence discipline
 
@@ -178,7 +188,7 @@ build, a setup APK or a CI artifact with a successful Thor runtime test.
 
 The initial shell lacked build tools; host tools/dependencies are now staged
 privately and the exact host database gate has run. Do not repeat that old
-missing-tools status as a current blocker. ARM64 auth compilation and private
-staging passed; world compilation and physical-device diagnostics still require
+missing-tools status as a current blocker. ARM64 auth compilation, private staging and the physical auth dry run passed;
+world compilation and the remaining full-seed/lifecycle diagnostics still require
 their own measured evidence. Inspect the exact commit's GitHub CI results before
 reporting setup APK checks as passed; native compilation has its own build report.

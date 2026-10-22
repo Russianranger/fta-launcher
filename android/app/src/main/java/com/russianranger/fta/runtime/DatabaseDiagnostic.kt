@@ -15,7 +15,8 @@ class DatabaseDiagnostic(
     private val context: Context,
     private val cancelled: AtomicBoolean,
     private val status: (String, String) -> Unit,
-    private val includeAuth: Boolean = false
+    private val includeAuth: Boolean = false,
+    private val includeFullSeed: Boolean = false
 ) {
     private val owned = ConcurrentHashMap<Long, String>()
     private lateinit var root: File
@@ -28,9 +29,10 @@ class DatabaseDiagnostic(
     private var currentAttemptId: String? = null
     private var invocationJournal: NativeInvocationJournal? = null
     private val evidenceHandles = ConcurrentHashMap<Long, Int>()
-    private val deadline = System.nanoTime() + (if (includeAuth) 420L else 300L) * 1_000_000_000L
+    private val deadline = System.nanoTime() + (if (includeFullSeed) 1800L else if (includeAuth) 420L else 300L) * 1_000_000_000L
 
     fun run(): String {
+        require(!(includeAuth && includeFullSeed)) { "Select one diagnostic scope" }
         runtime = PackagedRuntime.inspect(context)
         if (includeAuth) require("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables)
         require(runtime.manifest.bootstrap != null) { "A pinned bootstrap recipe is required" }
@@ -38,7 +40,7 @@ class DatabaseDiagnostic(
         // At most two previous diagnostic directories are retained. These never hold user saves.
         parent.listFiles()?.filter { it.isDirectory && it.name.startsWith("g-") }
             ?.sortedByDescending { it.lastModified() }?.drop(2)?.forEach { it.deleteRecursively() }
-        check(parent.usableSpace >= 512L * 1024 * 1024) { "At least 512 MiB free private storage is required" }
+        check(parent.usableSpace >= (if (includeFullSeed) 3L * 1024 * 1024 * 1024 else 512L * 1024 * 1024)) { "Insufficient free private storage for the disposable diagnostic" }
         root = File(parent, "g-${UUID.randomUUID()}").apply { check(mkdir()) }
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val attemptId = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
@@ -64,7 +66,7 @@ class DatabaseDiagnostic(
             "--skip-networking", "--skip-name-resolve", "--performance-schema=OFF",
             "--innodb-buffer-pool-size=64M", "--innodb-log-file-size=16M", "--aria-pagecache-buffer-size=16M", "--key-buffer-size=8M",
             "--max-connections=8", "--thread-cache-size=2", "--tmp-table-size=8M", "--max-heap-table-size=8M",
-            "--max-allowed-packet=16M"
+            "--max-allowed-packet=${if (includeFullSeed) "256M" else "16M"}"
         )
         try {
             setStage("BOOTSTRAPPING", "Initializing a fresh disposable database. Existing saves are untouched.")
@@ -121,6 +123,7 @@ class DatabaseDiagnostic(
             check(values["FTA_UNICODE_ROWS"] == "1") { "Unicode collation round trip failed" }
             check(values["FTA_ROLLBACK_ROWS"] == "0") { "InnoDB rollback probe failed" }
             if (includeAuth) runAuthUpdaterDiagnostic()
+            if (includeFullSeed) runFullSeedDiagnostic()
             setStage("STOPPING", "Stopping the diagnostic database with SQL SHUTDOWN.")
             client("SHUTDOWN;", 10_000)
             evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "sql_shutdown_requested") }
@@ -130,7 +133,9 @@ class DatabaseDiagnostic(
             owned.remove(server)
             evidenceHandles.remove(server)
             server = 0
-            return if (includeAuth)
+            return if (includeFullSeed)
+                "All 563 original tables and the world trigger imported unchanged into a fresh disposable database; object inventories and original updater receipt baselines matched, then MariaDB shut down cleanly. Runtime SQL was not applied. Compiled world/character updaters, worldserver and game login remain unqualified."
+                else if (includeAuth)
                 "Original ARM64 authserver dry run and updater passed against the unchanged 27-table auth seed, then the disposable database shut down cleanly. No auth listener was opened. Full seed, worldserver and game login remain unqualified."
                 else "MariaDB ${runtime.manifest.providerVersion}: fresh bootstrap, private credentials, socket health, system tables, collation alias, InnoDB rollback and clean shutdown passed. Seed compatibility and AzerothCore remain unqualified."
         } finally {
@@ -222,6 +227,70 @@ class DatabaseDiagnostic(
             config.delete()
             // Original DBUpdater writes this private temporary client options file.
             File(temp, "mysql_ac.conf").delete()
+        }
+    }
+
+    private fun runFullSeedDiagnostic() {
+        setStage("SEED_INPUT", "Verifying the full private database ZIP for a fresh disposable import.")
+        val info = JSONObject().put("formatVersion", 1).put("attemptId", currentAttemptId)
+            .put("archiveSha256", Inputs.database.sha256)
+            .put("plannedTableCount", 563).put("importedTableCount", 0)
+            .put("plannedTriggerCount", 1).put("importedTriggerCount", 0)
+            .put("fullSeedImported", false).put("validationPassed", false)
+            .put("runtimeSqlApplied", false).put("startedAtEpochMs", System.currentTimeMillis())
+        fun receipt() {
+            val file = AtomicFile(File(context.filesDir, "runtime/full-seed-diagnostic.json"))
+            val output = file.startWrite()
+            try { output.write(info.toString().toByteArray()); file.finishWrite(output) }
+            catch (failure: Exception) { file.failWrite(output); throw failure }
+        }
+        receipt()
+        val lock = FullSeedMetadata.load(context)
+        val archive = VerifiedInputReader.resolve(File(context.filesDir, "imports"), Inputs.database, ::checkCancelled)
+        val stageDirectory = File(root, "full-seed-stage")
+        try {
+            setStage("SEED_STAGING", "Staging the unchanged full seed with per-file identity checks.")
+            val staged = FullSeedStore().stage(archive, lock, stageDirectory, ::checkCancelled) { done, total ->
+                setStage("SEED_STAGING", "Verifying full seed file $done of $total.")
+            }
+            checkCancelled()
+            val names = FullSeedStore.SCHEMAS.joinToString(",") { "'$it'" }
+            // Even empty existing schemas are refused. The datadir is owned by this new attempt.
+            check(client("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name IN ($names);", 5_000).trim() == "0") {
+                "Full seed requires all three schemas to be absent"
+            }
+            FullSeedStore.SCHEMAS.forEach { schema ->
+                client("CREATE DATABASE `$schema` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;", 5_000)
+            }
+            var tables = 0
+            var triggers = 0
+            staged.entries.forEachIndexed { index, (entry, file) ->
+                checkCancelled()
+                setStage("SEED_IMPORT", "Importing original seed file ${index + 1} of 564 into the disposable database.")
+                runClientScript(file, 300_000, entry.schema)
+                if (entry.kind == "table") tables++ else triggers++
+                info.put("importedTableCount", tables).put("importedTriggerCount", triggers)
+                receipt()
+            }
+            check(tables == 563 && triggers == 1)
+            setStage("SEED_VALIDATION", "Validating exact schema objects and unchanged updater receipt baselines.")
+            val schemaResults = JSONObject()
+            lock.schemas.forEach { schema ->
+                checkCancelled()
+                val result = client(FullSeedEvidence.inventorySql(schema, lock.files) + "\n" +
+                    FullSeedEvidence.receiptSql(schema), 15_000)
+                val flags = FullSeedEvidence.parseValidation(result, schema)
+                schemaResults.put(schema.name, JSONObject(flags))
+                info.put("schemas", schemaResults)
+                receipt()
+                check(flags.values.all { it }) { "Full seed metadata or receipt baseline differs" }
+            }
+            info.put("fullSeedImported", true).put("validationPassed", true)
+                .put("completedAtEpochMs", System.currentTimeMillis())
+            receipt()
+        } finally {
+            // The imported ZIP remains in its verified input generation. Expanded SQL is reproducible.
+            stageDirectory.deleteRecursively()
         }
     }
 
@@ -330,10 +399,11 @@ class DatabaseDiagnostic(
     }
 
     private fun runClientScript(script: File, timeout: Long, database: String? = null): String {
-        require(database == null || database == "acore_auth")
+        require(database == null || database in FullSeedStore.SCHEMAS)
         val args = if (clientOptions != null) listOf("--defaults-file=${clientOptions!!.absolutePath}")
             else listOf("--no-defaults", "--user=root", "--protocol=socket", "--socket=${socket.absolutePath}")
         return runTool("database-client", args + listOf("--batch", "--skip-column-names", "--connect-timeout=2") +
+            (if (includeFullSeed) listOf("--binary-mode", "--local-infile=0", "--default-character-set=utf8mb4", "--max-allowed-packet=256M") else emptyList()) +
             listOfNotNull(database), script, timeout)
     }
 
@@ -483,11 +553,11 @@ internal class NativeInvocationJournal(private val file: File, private val attem
     }
 
     companion object {
-        const val MAX_RECORDS = 128
-        const val MAX_FILE_BYTES = 256 * 1024L
+        const val MAX_RECORDS = 1024
+        const val MAX_FILE_BYTES = 2 * 1024 * 1024L
         const val MAX_LOG_BYTES = 8 * 1024 * 1024L
         private val roles = setOf("database-server", "database-client", "auth-server")
-        private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "STOPPING", "CLEANUP")
+        private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "STOPPING", "CLEANUP")
         private val outcomes = setOf("running", "exited", "timed_out", "cancelled", "start_failed", "wait_failed", "stopped", "supervisor_failed")
         private val validations = setOf("output_limit_exceeded", "version_marker_missing", "completion_marker_missing")
 

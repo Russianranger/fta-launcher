@@ -8,8 +8,10 @@ Development includes a setup application, a packaged database diagnostic and
 reproducible input/build tooling. **A playable realm and game client remain
 unqualified.** The default database diagnostic creates a fresh disposable
 instance. A separately staged private auth diagnostic can import only the exact
-27-table auth seed and run the original authserver's updater dry run. Neither
-path installs a persistent realm or opens player saves.
+27-table auth seed and run the original authserver's updater dry run. The full-seed
+test imports all 563 tables and one trigger into its own disposable database,
+then verifies the original catalog and receipt fingerprints. These tests do not
+install a persistent realm or open player saves.
 
 ## Current implementation
 
@@ -36,11 +38,10 @@ path installs a persistent realm or opens player saves.
   The reviewed Android port preserves all 52 module directories; auth-only
   compilation does not qualify worldserver or its modules. The private stage
   preserves the database provider and adds the measured Connector/C dependency.
-  The physical Thor follow-up passed database checks, all 27 auth imports,
-  connection-pool opening and SQL shutdown. The original updater reported the
-  auth database up to date; the dry run then failed realm lookup. Android's
-  unsupported resolver flags have a reviewed correction without changing the
-  seed or adding network permission. The corrected dry run awaits a Thor test.
+  The exact private version 5 APK passed on physical Thor: all 27 unchanged auth
+  imports, original auth updater and dry-run completion with native exit 0, then
+  observed SQL shutdown and database exit 0. The resolver correction preserves
+  the seed and network restrictions. A listener and world remain unqualified.
 - CI: Python safety tests, Android unit tests/lint/debug compilation and an APK
   checksum. Debug artifacts are setup previews, not playable releases.
 
@@ -72,11 +73,15 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Private version `0.3.2-auth-resolver-diagnostic` passed all 91
-Android unit tests, lint, assembly, signature verification and exact preservation
-of 114 packaged runtime/notice files. Its [measured APK evidence](docs/evidence/android-2026-10-22-private-auth-resolver-apk.json)
-keeps execution of the corrected resolver build unqualified. Public releases still package the database
-diagnostic; the auth APK is provided separately to the source recipient.
+signing and validation. Latest private version `0.4.0-full-seed-diagnostic`
+passed all 107 Android tests, lint, clean assembly, signing/alignment, 114 exact
+runtime/notice files and the canonical full-seed metadata asset. See its
+[measured APK evidence](docs/evidence/android-2026-10-22-private-full-seed-apk.json).
+The original auth updater/dry-run gate already
+[passed on physical Thor in version 5](docs/evidence/android-2026-10-22-thor-resolver-pass.json);
+the new full-seed device gate remains open. Public CI snapshots use a different
+debug certificate and package only the database provider; use the separately
+provided private APK to update the installed private diagnostic.
 
 The app currently accepts the exact reviewed `From_The_Ashes_Source.zip` and
 `Database.zip`. Selecting a file stores a private verified preparation input;
@@ -113,17 +118,19 @@ tables. Validation uses the measured archive inventory.
 | Compiled host authserver and original auth updater | Passed; world/character updater remains separate |
 | Android ARM64/Bionic authserver compile and private runtime stage | Passed; private APK build/payload checks passed; auth version command ran on Thor |
 | Packaged Android database bootstrap/health/shutdown | Passed on Thor, including observed SQL shutdown and exit 0 |
-| Optional private auth-only updater diagnostic | Thor pool opened and updater reported up to date; resolver portability fix remains for the final dry run |
-| Actual seed import on pinned Android MariaDB provider | Open |
+| Optional private auth-only updater diagnostic | Passed on physical Thor: original updater/dry-run exit 0, 27 auth imports and clean SQL shutdown |
+| Full seed import on pinned Android MariaDB provider | Implemented in version 6; physical Thor test pending |
 | Android ARM64 worldserver and all required modules | Open |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-The next device gate is the disposable database test followed by the optional
-auth-only dry run on the exact private APK. The next world build needs target
-dependencies including Readline, all required static modules and scripts, and
-separate compiled world/character-updater evidence. World startup also requires
+The next device gate is a full unchanged seed import in a fresh disposable
+database, with exact schema and receipt verification. World configuration now
+passes with target Readline and default static Lua 5.2; actual compilation is
+progressing through bounded portability fixes. Separate compiled world/character
+updater evidence follows the [original startup protocol](docs/world-updater-gate.md).
+World startup also requires
 the matching DBC/maps/vmaps/mmaps, which were not supplied.
 
 Preserve the original SQL/update

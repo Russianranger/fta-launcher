@@ -1,0 +1,13 @@
+--- a/modules/mod-ale/src/lualib/lua/CMakeLists.txt
++++ b/modules/mod-ale/src/lualib/lua/CMakeLists.txt
+@@ -58,8 +58,8 @@
+ string(REGEX REPLACE "( |^)/W[0-9]( |$)" "\\1/W2\\2" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+ string(REGEX REPLACE "( |^)/W[0-9]( |$)" "\\1/W2\\2" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+ # Remove -Werror from flags for Lua compilation
+-string(REGEX REPLACE "-Werror" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+-string(REGEX REPLACE "-Werror" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
++string(REGEX REPLACE "(^|[ \t])-Werror([ \t]|$)" "\\1\\2" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
++string(REGEX REPLACE "(^|[ \t])-Werror([ \t]|$)" "\\1\\2" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+ # Also remove any warning-as-error flags
+ string(REGEX REPLACE "-Wno-error=[^ ]*" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+ string(REGEX REPLACE "-Wno-error=[^ ]*" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")

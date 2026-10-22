@@ -2,6 +2,12 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+val fullSeedAssetDirectory = layout.buildDirectory.dir("generated/fullSeedAssets")
+val prepareFullSeedMetadata by tasks.registering(Copy::class) {
+    from(rootProject.file("../manifests/full-seed-lock.json"))
+    into(fullSeedAssetDirectory.map { it.dir("metadata") })
+}
+tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(prepareFullSeedMetadata) }
 val ftaSigningStore = providers.gradleProperty("ftaSigningStore").orNull
 android {
     namespace = "com.russianranger.fta"
@@ -32,6 +38,7 @@ android {
             assets.srcDir(file("$providerDirectory/assets"))
         }
     }
+    sourceSets.getByName("main").assets.srcDir(fullSeedAssetDirectory)
     packaging {
         jniLibs {
             useLegacyPackaging = true

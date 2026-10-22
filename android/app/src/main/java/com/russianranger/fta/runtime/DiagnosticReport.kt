@@ -33,8 +33,8 @@ object DiagnosticReport {
             .put("worldserverQualified", false)
         val scopeFile = File(context.filesDir, "runtime/diagnostic-scope.txt")
         val scope = if (scopeFile.isFile && scopeFile.length() < 32) scopeFile.readText() else "database"
-        result.put("requestedDiagnostic", if (scope == "auth-updater") scope else "database")
-        result.put("scope", if (scope == "auth-updater") "disposable-native-auth-updater-diagnostic" else "disposable-native-database-diagnostic")
+        result.put("requestedDiagnostic", if (scope in setOf("auth-updater", "full-seed")) scope else "database")
+        result.put("scope", when (scope) { "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; else -> "disposable-native-database-diagnostic" })
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val currentAttempt = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
             ?.takeIf { NativeInvocationJournal.validAttemptId(it) }
@@ -54,6 +54,39 @@ object DiagnosticReport {
             val executableHash = auth.optString("authExecutableSha256")
             if (executableHash.matches(Regex("[a-f0-9]{64}"))) safe.put("authExecutableSha256", executableHash)
             result.put("authUpdaterDiagnostic", safe)
+        }
+        val fullSeedFile = File(context.filesDir, "runtime/full-seed-diagnostic.json")
+        val fullSeed = if (scope == "full-seed" && fullSeedFile.isFile && fullSeedFile.length() <= 8192)
+            runCatching { JSONObject(fullSeedFile.readText()) }.getOrNull() else null
+        var seedValidated = false
+        if (currentAttempt != null && fullSeed != null && fullSeed.opt("attemptId") == currentAttempt &&
+            fullSeed.opt("archiveSha256") == com.russianranger.fta.Inputs.database.sha256 && fullSeed.opt("runtimeSqlApplied") == false) {
+            val fields = (FullSeedEvidence.counts.keys + setOf("fullSeedImported", "validationPassed"))
+                .associateWith { fullSeed.opt(it) }
+            val safeValues = FullSeedEvidence.safeValues(fields)
+            if (safeValues.isNotEmpty()) {
+                val safe = JSONObject(safeValues).put("attemptId", currentAttempt)
+                    .put("archiveSha256", com.russianranger.fta.Inputs.database.sha256).put("runtimeSqlApplied", false)
+                val safeSchemas = JSONObject()
+                val schemas = fullSeed.optJSONObject("schemas")
+                var schemaPasses = 0
+                FullSeedStore.SCHEMAS.forEach { schema ->
+                    val value = schemas?.optJSONObject(schema)
+                    val flags = FullSeedEvidence.validationFields.associateWith { value?.opt(it) }
+                    if (flags.values.all { it is Boolean }) {
+                        safeSchemas.put(schema, JSONObject(flags))
+                        if (flags.values.all { it == true }) schemaPasses++
+                    }
+                }
+                safe.put("schemas", safeSchemas)
+                for (field in listOf("startedAtEpochMs", "completedAtEpochMs")) {
+                    val value = fullSeed.opt(field)
+                    if (value is Number && (value is Int || value is Long) && value.toLong() >= 0) safe.put(field, value)
+                }
+                seedValidated = safeValues["validationPassed"] == true && schemaPasses == 3
+                result.put("fullSeedDiagnostic", safe)
+                result.put("fullSeedImported", seedValidated)
+            }
         }
         val helper = File(context.applicationInfo.nativeLibraryDir, "libfta_process.so")
         if (helper.isFile) result.put("processSupervisorSha256", hash(helper))
@@ -85,6 +118,8 @@ object DiagnosticReport {
         val session = matching?.first
         val journal = matching?.second
         val invocations = journal?.first.orEmpty()
+        result.put("seedCompatibilityQualified", FullSeedEvidence.qualified(seedValidated,
+            lines.firstOrNull(), invocations, journal?.second ?: 0))
         result.put("nativeInvocationEvidence", JSONObject()
             .put("formatVersion", 1)
             .put("available", journal != null)

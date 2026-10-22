@@ -93,8 +93,8 @@ The follow-up `android-arm64-socket-v2` stage also passed with authserver SHA256
 `bfa532f7c91d59410c10104a2b7e5ce40d5763c59dad36f16c625bf152f3428c`.
 It preserves the same dependencies, provider data and notices, while correcting
 pool socket routing. Private APK version 4 passed all 83 Android tests, lint,
-assembly, signature/alignment and 114 exact packaged-file checks; its corrected
-auth execution remains unqualified on Thor. See
+assembly, signature/alignment and 114 exact packaged-file checks. Its Thor run
+opened the pool and reached the updater, then failed realm lookup. See
 [`native-build.md`](native-build.md) for the regression and
 [`evidence/android-2026-10-22-private-auth-socket-apk.json`](evidence/android-2026-10-22-private-auth-socket-apk.json)
 for the exact APK identity.
@@ -103,6 +103,11 @@ The current `android-arm64-resolver-v3` stage passed with authserver SHA256
 `7e901a2bbb4efa5c239c44242578bd587aff194d30ed6aed810d5576ceaf9ce4`.
 Private version 5 passed all 91 Android tests, lint, clean assembly, signing,
 alignment and 114 exact packaged-file checks. Its Android-only resolver flag
-correction preserves the seed, filter, updater and permissions. Physical Thor
-dry-run confirmation remains required; see
-[`evidence/android-2026-10-22-private-auth-resolver-apk.json`](evidence/android-2026-10-22-private-auth-resolver-apk.json).
+correction preserves the seed, filter, updater and permissions. The exact APK
+then passed on physical Thor: all 27 auth imports, original updater and dry-run
+completion (native exit 0), followed by observed SQL shutdown and database exit 0.
+All 41 invocation outcomes were present without timeout or validation failure.
+This qualifies the disposable auth updater dry run; listener, full seed, game
+login, worldserver and abnormal lifecycle behavior remain separate gates. See
+[`evidence/android-2026-10-22-thor-resolver-pass.json`](evidence/android-2026-10-22-thor-resolver-pass.json)
+and the [exact APK build evidence](evidence/android-2026-10-22-private-auth-resolver-apk.json).

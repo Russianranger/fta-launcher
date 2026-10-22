@@ -14,7 +14,12 @@ def digest(stream):
     return value.hexdigest()
 
 
-def verify(apk: Path, stage: Path) -> dict:
+def verify(apk: Path, stage: Path, full_seed_lock: Path | None = None) -> dict:
+    full_seed_lock = full_seed_lock or Path(__file__).resolve().parents[1] / "manifests/full-seed-lock.json"
+    if not full_seed_lock.is_file() or full_seed_lock.is_symlink():
+        raise ValueError("Canonical full-seed metadata is missing or linked")
+    with full_seed_lock.open("rb") as source:
+        metadata_digest = digest(source)
     proof = json.loads((stage / "BUILD_PROVENANCE.json").read_text())
     if not proof.get("noticeProvided") or proof.get("redistributionNoticePending"):
         raise ValueError("Provider attribution and source evidence are incomplete")
@@ -32,6 +37,12 @@ def verify(apk: Path, stage: Path) -> dict:
         names = archive.namelist()
         if len(names) != len(set(names)):
             raise ValueError("APK contains duplicate ZIP names")
+        metadata = archive.getinfo("assets/metadata/full-seed-lock.json")
+        if metadata.file_size != full_seed_lock.stat().st_size:
+            raise ValueError("Packaged full-seed metadata size differs from the canonical lock")
+        with archive.open(metadata) as packaged:
+            if digest(packaged) != metadata_digest:
+                raise ValueError("Packaged full-seed metadata identity differs from the canonical lock")
         for path, member in expected:
             info = archive.getinfo(member)
             if info.file_size != path.stat().st_size:
@@ -48,6 +59,7 @@ def verify(apk: Path, stage: Path) -> dict:
         apk_digest = digest(source)
     return {"status": "apk_identity_passed", "apk_sha256": apk_digest,
             "provider_and_notice_files_verified": len(expected),
+            "full_seed_metadata_sha256": metadata_digest,
             "android_execution_qualified": False}
 
 
@@ -55,5 +67,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("apk", type=Path)
     parser.add_argument("--provider-stage", type=Path, required=True)
+    parser.add_argument("--full-seed-lock", type=Path,
+                        help="Canonical metadata override; defaults to this repository's full-seed lock")
     args = parser.parse_args()
-    print(json.dumps(verify(args.apk, args.provider_stage), indent=2))
+    print(json.dumps(verify(args.apk, args.provider_stage, args.full_seed_lock), indent=2))

@@ -1,0 +1,10 @@
+--- a/src/server/game/Entities/Object/Object.h
++++ b/src/server/game/Entities/Object/Object.h
+@@ -25,6 +25,7 @@
+ #include "G3D/Vector3.h"
+ #include "GridDefines.h"
+ #include "GridReference.h"
++#include "Log.h"
+ #include "Map.h"
+ #include "ModelIgnoreFlags.h"
+ #include "ObjectDefines.h"

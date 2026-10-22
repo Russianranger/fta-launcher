@@ -256,7 +256,64 @@ The same minimal configuration, four-directory auth-only tree, unchanged 27-tabl
 seed, and `--dry-run` passed on the compiled x86_64 host authserver: exit 0,
 original updater/completion markers observed, and auth receipt fingerprint
 unchanged. The host used its authenticated loopback database transport because
-Unix sockets are denied there. The Android `.;socket` database connection path,
-Bionic binary execution, and foreground-service lifecycle still need device
-qualification. Summary evidence:
+Unix sockets are denied there. Summary evidence:
 [`database-2026-10-22-minimal-auth.json`](evidence/database-2026-10-22-minimal-auth.json).
+
+The exact private version 5 APK subsequently passed the original auth updater
+and dry run on physical AYN Thor, using the Android Unix-socket path and Bionic
+authserver. All 27 tables imported, the auth process exited 0 with its completion
+marker, and MariaDB shut down through SQL with exit 0. This establishes normal
+completion of this disposable auth test. Explicit cancellation, background and
+process-death behavior still need their own device evidence. See
+[`android-2026-10-22-thor-resolver-pass.json`](evidence/android-2026-10-22-thor-resolver-pass.json).
+
+## Disposable full-seed Android diagnostic
+
+`Test full original database seed` uses the verified `Database.zip` and the
+APK's pinned database provider. It does not require the source ZIP or an auth
+binary. The test creates its own fresh datadir, requires all three target
+schemas to be absent, and imports the original 563 table files before the one
+world trigger. SQL passes unchanged through MariaDB's client, preserving dump
+directives and delimiter syntax. No runtime updates are replayed in this mode.
+
+The [full-seed lock](../manifests/full-seed-lock.json) contains only member paths,
+sizes, digests and catalog/receipt expectations. Its 564 files expand to
+626,293,162 bytes. At least 3 GiB of free private storage is required; import
+packets are bounded to 256 MiB, individual commands to five minutes and the
+whole attempt to 30 minutes. Cancellation is checked while hashing, extracting
+and waiting for native commands. Expanded SQL is removed after the attempt.
+
+For each schema the test verifies the exact base-table names, trigger names,
+zero routines/events and the original `updates` receipt fingerprint. Receipt
+canonicalization preserves the exact hash/state case and orders by binary name;
+it excludes timestamps and execution speeds. Both the expected concatenation
+length and its actual length must match before its SHA256 is accepted. The
+baseline contains 12 auth, 50 character and 3,191 world receipts. No receipt is
+rewritten to make validation pass.
+
+Gradle copies the canonical lock into `assets/metadata/full-seed-lock.json`.
+APK verification checks its exact bytes as well as every provider/notice file.
+The shareable report includes aggregate import counts, per-schema validation
+booleans and current-attempt native outcomes; it excludes SQL, rows, receipt
+names/hashes, private paths and credentials. Qualification requires all 564
+imports to exit 0, all catalog/receipt checks to pass, a complete journal and
+observed SQL shutdown with database exit 0. A seed import does not establish
+compiled world/character updater compatibility or a playable realm.
+
+Reproduce the metadata from a fresh, exact host MariaDB 12.3.2 instance:
+
+```bash
+python3 tools/create_full_seed_lock.py /private/Database.zip \
+  --measure-host-baseline --baseline-report /private/full-seed-baseline.json \
+  --mariadbd /private/mariadb/bin/mariadbd \
+  --install-db /private/mariadb/scripts/mariadb-install-db \
+  --mysql /private/mariadb/bin/mariadb
+python3 tools/create_full_seed_lock.py /private/Database.zip \
+  --baseline-report /private/full-seed-baseline.json --check
+```
+
+Use `--transport loopback` where host Unix sockets are unavailable. This tool
+starts and stops its own disposable instance, verifies the baseline twice and
+never opens live saves. Its host result is distinct from the next Thor test.
+The later compiled updater gate must follow the
+[original startup ordering and failure protocol](world-updater-gate.md).

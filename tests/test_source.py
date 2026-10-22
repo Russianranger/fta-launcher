@@ -100,8 +100,17 @@ class BuildTests(unittest.TestCase):
         self.assertIn('-DMODULES=static', plan[0])
         self.assertIn('-DSCRIPTS=static', plan[0])
         self.assertIn('-DCMAKE_CXX_STANDARD=20', plan[0])
+        self.assertIn('-DLUA_VERSION=lua52', plan[0])
+        self.assertIn('-DLUA_STATIC=ON', plan[0])
         self.assertEqual(plan[1][plan[1].index('--target') + 1], 'authserver')
         self.assertEqual(plan[2][plan[2].index('--target') + 1], 'worldserver')
+
+    def test_world_cache_cannot_swap_default_lua_or_linkage(self):
+        for cache in ({'LUA_VERSION': 'luajit'}, {'LUA_VERSION': 'lua54'},
+                      {'LUA_STATIC': 'OFF'}):
+            with self.subTest(cache=cache), self.assertRaises(BuildError):
+                check_cache(cache, 'android', configured=False)
+        check_cache({'LUA_VERSION': 'lua52', 'LUA_STATIC': 'ON'}, 'android', configured=False)
 
     def test_no_build_inside_source(self):
         with self.assertRaises(BuildError):

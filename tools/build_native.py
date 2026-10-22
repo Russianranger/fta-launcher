@@ -85,6 +85,8 @@ def check_cache(cache: dict[str, str], target_platform: str, *, configured: bool
         if (key.startswith(('MODULE_', 'SCRIPTS_')) and not key.endswith(('-STRINGS', '-ADVANCED'))
                 and value not in ('static', 'default')):
             raise BuildError('CMake cache changes required content linkage or disables it')
+    if cache.get('LUA_VERSION', 'lua52') != 'lua52' or cache.get('LUA_STATIC', 'ON') != 'ON':
+        raise BuildError('CMake cache changes the required static Lua 5.2 module profile')
     if configured:
         for key, expected in {'SCRIPTS':'static', 'MODULES':'static', 'CMAKE_BUILD_TYPE':'Release',
                               'CMAKE_CXX_STANDARD':'20'}.items():
@@ -107,6 +109,10 @@ def commands(args: argparse.Namespace) -> list[list[str]]:
                  '-DCMAKE_INSTALL_PREFIX=' + str((build / 'install').resolve()),
                  f'-DCMAKE_JOB_POOLS=compile_pool={args.jobs};link_pool=1',
                  '-DCMAKE_JOB_POOL_COMPILE=compile_pool', '-DCMAKE_JOB_POOL_LINK=link_pool']
+    if args.stage == 'world':
+        # Keep the supplied module default explicit; LuaJIT invokes an unqualified
+        # host-make path and changing Lua versions changes module semantics.
+        configure += ['-DLUA_VERSION=lua52', '-DLUA_STATIC=ON']
     # Ninja still caps the entire graph by --parallel; separate pools keep links serial.
     if args.platform == 'android':
         if not args.toolchain or not args.toolchain.is_file():
@@ -194,7 +200,7 @@ def main() -> int:
             'CMAKE_BUILD_TYPE', 'CMAKE_CXX_STANDARD', 'SCRIPTS', 'MODULES',
             'CMAKE_CXX_COMPILER', 'ANDROID_ABI', 'CMAKE_ANDROID_ARCH_ABI',
             'ANDROID_PLATFORM', 'ANDROID_STL', 'CMAKE_ANDROID_STL_TYPE',
-            'CMAKE_SYSTEM_NAME', 'APPS_BUILD') if key in cache}
+            'CMAKE_SYSTEM_NAME', 'APPS_BUILD', 'LUA_VERSION', 'LUA_STATIC') if key in cache}
         if args.platform == 'android':
             report['target_abi'] = cache.get('CMAKE_ANDROID_ARCH_ABI', cache.get('ANDROID_ABI'))
         if not args.configure_only:

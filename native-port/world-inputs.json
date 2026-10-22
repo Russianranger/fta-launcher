@@ -1,0 +1,44 @@
+{
+  "formatVersion": 1,
+  "target": "arm64-v8a/android-33",
+  "ndkRevision": "28.2.13676358",
+  "clangVersion": "19.0.1",
+  "termuxRecipeCommit": "7e79544e0abe70c317e71b65eb9079071d4acf0b",
+  "archives": {
+    "readline": {
+      "version": "8.3",
+      "url": "https://mirrors.kernel.org/gnu/readline/readline-8.3.tar.gz",
+      "sha256": "fe5383204467828cd495ee8d1d3c037a7eba1389c22bc6a041f627976f9061cc",
+      "root": "readline-8.3",
+      "license": "GPL-3.0-or-later"
+    },
+    "ncurses": {
+      "version": "6.5.20250830",
+      "url": "https://github.com/ThomasDickey/ncurses-snapshots/archive/5f58399b2de47ed14bdfe3a0cb149293b27893d5.tar.gz",
+      "sha256": "28cd102efe6a2610e830cc79cf270da6ff0427b2022900a9a36d2761522f9576",
+      "root": "ncurses-snapshots-5f58399b2de47ed14bdfe3a0cb149293b27893d5",
+      "license": "MIT"
+    }
+  },
+  "readlinePatches": {
+    "001": {
+      "url": "https://mirrors.kernel.org/gnu/readline/readline-8.3-patches/readline83-001",
+      "sha256": "21f0a03106dbe697337cd25c70eb0edbaa2bdb6d595b45f83285cdd35bac84de"
+    },
+    "002": {
+      "url": "https://mirrors.kernel.org/gnu/readline/readline-8.3-patches/readline83-002",
+      "sha256": "e27364396ba9f6debf7cbaaf1a669e2b2854241ae07f7eca74ca8a8ba0c97472"
+    },
+    "003": {
+      "url": "https://mirrors.kernel.org/gnu/readline/readline-8.3-patches/readline83-003",
+      "sha256": "72dee13601ce38f6746eb15239999a7c56f8e1ff5eb1ec8153a1f213e4acdb29"
+    }
+  },
+  "lua52": {
+    "version": "5.2.4",
+    "url": "https://www.lua.org/ftp/lua-5.2.4.tar.gz",
+    "sha256": "b9e2e4aad6789b3b63a056d442f7b39f0ecfca3ae0f1fc0ae4e9614401b69f4b",
+    "license": "MIT",
+    "builtBy": "Original mod-ale CMake FetchContent with LUA_VERSION=lua52 and LUA_STATIC=ON; not this dependency driver"
+  }
+}

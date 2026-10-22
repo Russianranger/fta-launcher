@@ -1,0 +1,4567 @@
+{
+  "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+  "archiveSize": 103160479,
+  "canonicalReceipts": "UTF-8(name + TAB + exact-case hash + TAB + state + LF), ordered by BINARY name; no timestamp or speed",
+  "constraints": {
+    "authTcpListener": false,
+    "freshDisposableDatadirOnly": true,
+    "liveDatabaseAccess": false,
+    "runtimeSqlApplied": false,
+    "sqlContentsInManifest": false,
+    "sqlRewriting": false,
+    "worldTcpListener": false
+  },
+  "files": [
+    {
+      "kind": "table",
+      "name": "account",
+      "path": "Database/acore_auth/table-account.sql",
+      "schema": "acore_auth",
+      "sha256": "4c9b37b2c14ec03a790ac00bfaf7b5b0d640afd2c23005d63897764e29ab8cfa",
+      "size": 5041
+    },
+    {
+      "kind": "table",
+      "name": "account_access",
+      "path": "Database/acore_auth/table-account_access.sql",
+      "schema": "acore_auth",
+      "sha256": "62770055d3b429025c64b2faf53f5b0a5bb463e74fb8e24f565dd5d8e077c243",
+      "size": 1751
+    },
+    {
+      "kind": "table",
+      "name": "account_banned",
+      "path": "Database/acore_auth/table-account_banned.sql",
+      "schema": "acore_auth",
+      "sha256": "76394b677732b2bccbf4941a8f4d3464ce609a66ae6e8efcf1b15337731b9e0e",
+      "size": 1826
+    },
+    {
+      "kind": "table",
+      "name": "account_muted",
+      "path": "Database/acore_auth/table-account_muted.sql",
+      "schema": "acore_auth",
+      "sha256": "9423ca85b60393a18bd423650facec10f7c841c21616aa33ebf4bf233c2ac7af",
+      "size": 1790
+    },
+    {
+      "kind": "table",
+      "name": "account_transmog",
+      "path": "Database/acore_auth/table-account_transmog.sql",
+      "schema": "acore_auth",
+      "sha256": "f17ce2005657a16a7564d3006e177809f327b07cd54cd19c368b4b2a14dfd924",
+      "size": 113450
+    },
+    {
+      "kind": "table",
+      "name": "account_transmog_favorites",
+      "path": "Database/acore_auth/table-account_transmog_favorites.sql",
+      "schema": "acore_auth",
+      "sha256": "59db7d7848d20437bce9d88c9f0a256e6593211daf08f2a177634bed1276a36e",
+      "size": 1544
+    },
+    {
+      "kind": "table",
+      "name": "account_transmog_outfit_items",
+      "path": "Database/acore_auth/table-account_transmog_outfit_items.sql",
+      "schema": "acore_auth",
+      "sha256": "62d97119011852be5cd44938cfecfbec11f5c326d7d551021a551cb3b8ae9d54",
+      "size": 1585
+    },
+    {
+      "kind": "table",
+      "name": "account_transmog_outfits",
+      "path": "Database/acore_auth/table-account_transmog_outfits.sql",
+      "schema": "acore_auth",
+      "sha256": "8451b5f53d8e904d8fdf13abd4b5e655d4ac26efe8c4fe37d55d813af7f4fe30",
+      "size": 1675
+    },
+    {
+      "kind": "table",
+      "name": "acore_cms_subscriptions",
+      "path": "Database/acore_auth/table-acore_cms_subscriptions.sql",
+      "schema": "acore_auth",
+      "sha256": "353ded1facd2c691721f50336fd9d2829d84ce8f327d3d7ec787a1006765bcfd",
+      "size": 1560
+    },
+    {
+      "kind": "table",
+      "name": "autobroadcast",
+      "path": "Database/acore_auth/table-autobroadcast.sql",
+      "schema": "acore_auth",
+      "sha256": "91fe33d3e1375b6320c8cead605e9e65573cbab19144682c58772c6450a67751",
+      "size": 1627
+    },
+    {
+      "kind": "table",
+      "name": "autobroadcast_locale",
+      "path": "Database/acore_auth/table-autobroadcast_locale.sql",
+      "schema": "acore_auth",
+      "sha256": "b98a405fbab15544c9ffcb283a697e1b180cb524bbd5ef31ed301fd593e8490e",
+      "size": 1670
+    },
+    {
+      "kind": "table",
+      "name": "build_info",
+      "path": "Database/acore_auth/table-build_info.sql",
+      "schema": "acore_auth",
+      "sha256": "4d729ab196a115fb042ecc622de5e22bc23b20c124e42174c5d682eb23ffe4aa",
+      "size": 3125
+    },
+    {
+      "kind": "table",
+      "name": "ip_banned",
+      "path": "Database/acore_auth/table-ip_banned.sql",
+      "schema": "acore_auth",
+      "sha256": "7a65db1c7c7c02fdf983ebd9fbda446d4f8f3c8dbc97436c20e5ce5d1f8f2b67",
+      "size": 1803
+    },
+    {
+      "kind": "table",
+      "name": "logs",
+      "path": "Database/acore_auth/table-logs.sql",
+      "schema": "acore_auth",
+      "sha256": "c07dc406351ba401d404db70abaa2de1616f3a5fa573fa62b5b457b3edca723e",
+      "size": 1605
+    },
+    {
+      "kind": "table",
+      "name": "logs_ip_actions",
+      "path": "Database/acore_auth/table-logs_ip_actions.sql",
+      "schema": "acore_auth",
+      "sha256": "99b08fc746ccdc6c8238a2f3c2ec6a41f25550561a7902ddac6a7636d684b6a3",
+      "size": 2149
+    },
+    {
+      "kind": "table",
+      "name": "motd",
+      "path": "Database/acore_auth/table-motd.sql",
+      "schema": "acore_auth",
+      "sha256": "f1a94dcbd4f2a76007aaf693a3977b61a645f5e0daa071a6ecbdc4875e955728",
+      "size": 1555
+    },
+    {
+      "kind": "table",
+      "name": "motd_localized",
+      "path": "Database/acore_auth/table-motd_localized.sql",
+      "schema": "acore_auth",
+      "sha256": "d8a9bea78558e9222fc03b78494e1022374d082de8b195776d60b14183da25e0",
+      "size": 1604
+    },
+    {
+      "kind": "table",
+      "name": "rbac_account_permissions",
+      "path": "Database/acore_auth/table-rbac_account_permissions.sql",
+      "schema": "acore_auth",
+      "sha256": "29da003452296dd9d17489c692ea824f300c3ff7773a8c08064d3ae8d4589908",
+      "size": 2146
+    },
+    {
+      "kind": "table",
+      "name": "rbac_default_permissions",
+      "path": "Database/acore_auth/table-rbac_default_permissions.sql",
+      "schema": "acore_auth",
+      "sha256": "ebe114922d1739b2c05498d9f3f86645fa7863139386d3fd7cf24f8fe3372dc5",
+      "size": 2134
+    },
+    {
+      "kind": "table",
+      "name": "rbac_linked_permissions",
+      "path": "Database/acore_auth/table-rbac_linked_permissions.sql",
+      "schema": "acore_auth",
+      "sha256": "6c7409057572011d55f7474d05e51cf0f5b2b76adc9c9d2a45e745bf04ef8a1c",
+      "size": 10819
+    },
+    {
+      "kind": "table",
+      "name": "rbac_permissions",
+      "path": "Database/acore_auth/table-rbac_permissions.sql",
+      "schema": "acore_auth",
+      "sha256": "5a06611ca7b6e7bd7b2887f5560fb6adda2393627d72d02f386fd6101fb56077",
+      "size": 25078
+    },
+    {
+      "kind": "table",
+      "name": "realmcharacters",
+      "path": "Database/acore_auth/table-realmcharacters.sql",
+      "schema": "acore_auth",
+      "sha256": "b640211d10d8c5cb0ed84ad83db4ae6086c4f6063c0f7f7436527a733276ba6d",
+      "size": 1783
+    },
+    {
+      "kind": "table",
+      "name": "realmlist",
+      "path": "Database/acore_auth/table-realmlist.sql",
+      "schema": "acore_auth",
+      "sha256": "1364b16a815ccd3991176c2db47f70eed6dabad514bdb41e71f0382befbfb5f9",
+      "size": 2636
+    },
+    {
+      "kind": "table",
+      "name": "secret_digest",
+      "path": "Database/acore_auth/table-secret_digest.sql",
+      "schema": "acore_auth",
+      "sha256": "4bc528336dc7a7b23b28704a2ca71a6277f7d4ee2f22c73d7c35d061be02cb2b",
+      "size": 1522
+    },
+    {
+      "kind": "table",
+      "name": "updates",
+      "path": "Database/acore_auth/table-updates.sql",
+      "schema": "acore_auth",
+      "sha256": "75d180df5b2da14b50459dffdf1538a95b13b48c8b88b82e21332b5043cbb1e3",
+      "size": 3514
+    },
+    {
+      "kind": "table",
+      "name": "updates_include",
+      "path": "Database/acore_auth/table-updates_include.sql",
+      "schema": "acore_auth",
+      "sha256": "bece850b75ed44b831c186ba105ab32fe6fdee577279711aab841ee17e12c9f3",
+      "size": 2109
+    },
+    {
+      "kind": "table",
+      "name": "uptime",
+      "path": "Database/acore_auth/table-uptime.sql",
+      "schema": "acore_auth",
+      "sha256": "a23d6735d6b1f19dd3969b060665d176495251d3865c6a461193ecd838bbafa2",
+      "size": 416162
+    },
+    {
+      "kind": "table",
+      "name": "ac_virtual_satchel",
+      "path": "Database/acore_characters/table-ac_virtual_satchel.sql",
+      "schema": "acore_characters",
+      "sha256": "4b9b016cd2122d2b5f8d0e7ea3ee472da24cca8aa27c303d13eff04fb64f98fd",
+      "size": 1634
+    },
+    {
+      "kind": "table",
+      "name": "account_data",
+      "path": "Database/acore_characters/table-account_data.sql",
+      "schema": "acore_characters",
+      "sha256": "57548c0706184455eaf456974e79bf09347bd6b35c183ca711377882f4afabca",
+      "size": 10083
+    },
+    {
+      "kind": "table",
+      "name": "account_instance_times",
+      "path": "Database/acore_characters/table-account_instance_times.sql",
+      "schema": "acore_characters",
+      "sha256": "128dc79a61d0bd57bba1378a4225390d1faa1efaa3aeef0a3f4bbe3eb36dc059",
+      "size": 2843
+    },
+    {
+      "kind": "table",
+      "name": "account_leveling_challenge_rewards",
+      "path": "Database/acore_characters/table-account_leveling_challenge_rewards.sql",
+      "schema": "acore_characters",
+      "sha256": "2c8330a31909cb1d3195a00c3c6fe41874cf8a2fff7837d9142c31f66d848f52",
+      "size": 2020
+    },
+    {
+      "kind": "table",
+      "name": "account_transmog_sets",
+      "path": "Database/acore_characters/table-account_transmog_sets.sql",
+      "schema": "acore_characters",
+      "sha256": "fcdd188f7394dc13748c8c635af0654b2d01025ecb788dba5c5269f5aa6832e4",
+      "size": 3388
+    },
+    {
+      "kind": "table",
+      "name": "account_tutorial",
+      "path": "Database/acore_characters/table-account_tutorial.sql",
+      "schema": "acore_characters",
+      "sha256": "e65033929768e8cdd1aa98aa2aed39d4ebba3c7c8e1aac462bc905e597c4e4ed",
+      "size": 2196
+    },
+    {
+      "kind": "table",
+      "name": "active_arena_season",
+      "path": "Database/acore_characters/table-active_arena_season.sql",
+      "schema": "acore_characters",
+      "sha256": "3a57e56987380e15613dbe59ca69fb70bf9720a347249070437e66bbb3278af0",
+      "size": 1656
+    },
+    {
+      "kind": "table",
+      "name": "addons",
+      "path": "Database/acore_characters/table-addons.sql",
+      "schema": "acore_characters",
+      "sha256": "fb927dd18851bf4d14df24698aac80093294b05b40bee517366f83b7d5f4bc93",
+      "size": 2478
+    },
+    {
+      "kind": "table",
+      "name": "arena_team",
+      "path": "Database/acore_characters/table-arena_team.sql",
+      "schema": "acore_characters",
+      "sha256": "af4161bc6b1a8d32a0746c5ebc5ef16be6f5cca760ca8f1b3175e6ec890c8e18",
+      "size": 2749
+    },
+    {
+      "kind": "table",
+      "name": "arena_team_member",
+      "path": "Database/acore_characters/table-arena_team_member.sql",
+      "schema": "acore_characters",
+      "sha256": "0cba1f37488f27c4bf3403e245ec4c1447e895021dc14f4d1532b5c72db81060",
+      "size": 2047
+    },
+    {
+      "kind": "table",
+      "name": "attriboost_attributes",
+      "path": "Database/acore_characters/table-attriboost_attributes.sql",
+      "schema": "acore_characters",
+      "sha256": "139e11da84f507ab47a98f70c3417ec1089ae291dc17d1525b806c13229b1d86",
+      "size": 6067
+    },
+    {
+      "kind": "table",
+      "name": "auctionhouse",
+      "path": "Database/acore_characters/table-auctionhouse.sql",
+      "schema": "acore_characters",
+      "sha256": "abf29c5c88610b028025e59efea4fb2649922e844848dd0b5a50116334c6389b",
+      "size": 2503247
+    },
+    {
+      "kind": "table",
+      "name": "banned_addons",
+      "path": "Database/acore_characters/table-banned_addons.sql",
+      "schema": "acore_characters",
+      "sha256": "2d9ecec763a4788e7ca02033dbdc804a4adb9b13d38823995914d670eac201e8",
+      "size": 1781
+    },
+    {
+      "kind": "table",
+      "name": "battleground_deserters",
+      "path": "Database/acore_characters/table-battleground_deserters.sql",
+      "schema": "acore_characters",
+      "sha256": "71c233ba00f0226504c09dfdc8517686fa7584bae4b17b5a729fdbcc597497c8",
+      "size": 1638
+    },
+    {
+      "kind": "table",
+      "name": "bugreport",
+      "path": "Database/acore_characters/table-bugreport.sql",
+      "schema": "acore_characters",
+      "sha256": "1c8a76187fd73614d0dcb7c17862fe16b7967854ace80d16f4fa2fd1aa67e98a",
+      "size": 1851
+    },
+    {
+      "kind": "table",
+      "name": "calendar_events",
+      "path": "Database/acore_characters/table-calendar_events.sql",
+      "schema": "acore_characters",
+      "sha256": "1f7a7b4aa052b002d3258c28a94aa7a8228ad8030b32c0961ac5989f7c1bc4b6",
+      "size": 1948
+    },
+    {
+      "kind": "table",
+      "name": "calendar_invites",
+      "path": "Database/acore_characters/table-calendar_invites.sql",
+      "schema": "acore_characters",
+      "sha256": "2e74440aa9464fed39768e85f99e3b69362eaaa3903b43cfe71a1262a654de52",
+      "size": 1868
+    },
+    {
+      "kind": "table",
+      "name": "channels",
+      "path": "Database/acore_characters/table-channels.sql",
+      "schema": "acore_characters",
+      "sha256": "e1d549e4354a57786dd46fcb9f3051ce24cba49b659274d239a1fa51ad432737",
+      "size": 1827
+    },
+    {
+      "kind": "table",
+      "name": "channels_bans",
+      "path": "Database/acore_characters/table-channels_bans.sql",
+      "schema": "acore_characters",
+      "sha256": "6a0b08f90541c6905985e6bfc3e98469e9616aa9695830380e123d316b9315d6",
+      "size": 1552
+    },
+    {
+      "kind": "table",
+      "name": "channels_rights",
+      "path": "Database/acore_characters/table-channels_rights.sql",
+      "schema": "acore_characters",
+      "sha256": "1e83578bf4418987ae5c6ff6e98066bac9b2e376a4f87232c1e0818e9ffdfa71",
+      "size": 1858
+    },
+    {
+      "kind": "table",
+      "name": "character_account_data",
+      "path": "Database/acore_characters/table-character_account_data.sql",
+      "schema": "acore_characters",
+      "sha256": "dd86e07ef73101556ac9e799fbd112ec90ae177fd2714ebe8a4e680b3cab6e75",
+      "size": 119804
+    },
+    {
+      "kind": "table",
+      "name": "character_achievement",
+      "path": "Database/acore_characters/table-character_achievement.sql",
+      "schema": "acore_characters",
+      "sha256": "f2c9230dde8df6b672e98efb2e107891b14d958af9ed15616806c08bc9144965",
+      "size": 8629
+    },
+    {
+      "kind": "table",
+      "name": "character_achievement_offline_updates",
+      "path": "Database/acore_characters/table-character_achievement_offline_updates.sql",
+      "schema": "acore_characters",
+      "sha256": "fe4cef244e01e43d4ebc4eb342c3c797480fabd7b8b7cbbcf61963e2ff8eebec",
+      "size": 78956
+    },
+    {
+      "kind": "table",
+      "name": "character_achievement_progress",
+      "path": "Database/acore_characters/table-character_achievement_progress.sql",
+      "schema": "acore_characters",
+      "sha256": "183055af3af5bc0a63aaaee0f43249c295be56463646ecc85eae677de5cdc3b4",
+      "size": 41058
+    },
+    {
+      "kind": "table",
+      "name": "character_action",
+      "path": "Database/acore_characters/table-character_action.sql",
+      "schema": "acore_characters",
+      "sha256": "0f2990c53a754142dd6d2c752fece4b3866086d9dd6bb008c66b2895a30bc7ce",
+      "size": 6071
+    },
+    {
+      "kind": "table",
+      "name": "character_arena_stats",
+      "path": "Database/acore_characters/table-character_arena_stats.sql",
+      "schema": "acore_characters",
+      "sha256": "e57ea9a42309a0f90428c033f3ffe26f85a20bb5bef1e6d51d651532fbcbe05b",
+      "size": 1812
+    },
+    {
+      "kind": "table",
+      "name": "character_aura",
+      "path": "Database/acore_characters/table-character_aura.sql",
+      "schema": "acore_characters",
+      "sha256": "84f0589d609a352cc9203ba16db1db2dd25e2e0b966746f3e140f14d2a1f64a6",
+      "size": 6279
+    },
+    {
+      "kind": "table",
+      "name": "character_banned",
+      "path": "Database/acore_characters/table-character_banned.sql",
+      "schema": "acore_characters",
+      "sha256": "364a8cd1c812d8803d0ded76e477b783e0b272cdb0c5a2645ba811aefb7fe63e",
+      "size": 1866
+    },
+    {
+      "kind": "table",
+      "name": "character_battleground_random",
+      "path": "Database/acore_characters/table-character_battleground_random.sql",
+      "schema": "acore_characters",
+      "sha256": "00f92c357ba0165fe3c34a0fa708e23499317acfc251c39777c66957cd8d873b",
+      "size": 1546
+    },
+    {
+      "kind": "table",
+      "name": "character_bot_square_prefs",
+      "path": "Database/acore_characters/table-character_bot_square_prefs.sql",
+      "schema": "acore_characters",
+      "sha256": "e236bd67af88470380cf56498ce632af9b6d34d8056b726d38a1a59bd1950d0e",
+      "size": 1644
+    },
+    {
+      "kind": "table",
+      "name": "character_brew_of_the_month",
+      "path": "Database/acore_characters/table-character_brew_of_the_month.sql",
+      "schema": "acore_characters",
+      "sha256": "0631fdfab31a4b1818e32d19a23c58b7a886b6d158ef47ec0910589a0f60b057",
+      "size": 1576
+    },
+    {
+      "kind": "table",
+      "name": "character_declinedname",
+      "path": "Database/acore_characters/table-character_declinedname.sql",
+      "schema": "acore_characters",
+      "sha256": "9c37a0bba4c8f042826e512cb96d0ffeeb3cf5c17282111b064babb8f891a474",
+      "size": 2035
+    },
+    {
+      "kind": "table",
+      "name": "character_entry_point",
+      "path": "Database/acore_characters/table-character_entry_point.sql",
+      "schema": "acore_characters",
+      "sha256": "185cf63f02836769549d7acc862a0f8a31fc7bc504692d717cfdac0f3ffe57b2",
+      "size": 1513
+    },
+    {
+      "kind": "table",
+      "name": "character_equipmentsets",
+      "path": "Database/acore_characters/table-character_equipmentsets.sql",
+      "schema": "acore_characters",
+      "sha256": "72420889d3e172f564732d6bf7e2572b791b4c117902d02d3841ce7d788f5849",
+      "size": 2801
+    },
+    {
+      "kind": "table",
+      "name": "character_extra_glyphs",
+      "path": "Database/acore_characters/table-character_extra_glyphs.sql",
+      "schema": "acore_characters",
+      "sha256": "57239d163602325aa8b65671b5ffe10ee39d95c499bf9395da16b11517838f15",
+      "size": 1862
+    },
+    {
+      "kind": "table",
+      "name": "character_gifts",
+      "path": "Database/acore_characters/table-character_gifts.sql",
+      "schema": "acore_characters",
+      "sha256": "6ed4237a93cfd05c6fff880d2d80c6bbce1df9e3c39f909ecb0702736754d864",
+      "size": 1651
+    },
+    {
+      "kind": "table",
+      "name": "character_glyphs",
+      "path": "Database/acore_characters/table-character_glyphs.sql",
+      "schema": "acore_characters",
+      "sha256": "9495957506c460bc2ac72e4f4197b3b8c8191d6499c6a9d1c4cdb1417032519f",
+      "size": 2021
+    },
+    {
+      "kind": "table",
+      "name": "character_homebind",
+      "path": "Database/acore_characters/table-character_homebind.sql",
+      "schema": "acore_characters",
+      "sha256": "bc4908b99ddd9a4d136c7ca2787e18f5dc4b0542092629e3835aa78f518fe713",
+      "size": 2051
+    },
+    {
+      "kind": "table",
+      "name": "character_instance",
+      "path": "Database/acore_characters/table-character_instance.sql",
+      "schema": "acore_characters",
+      "sha256": "a9f652dce68cb90490bc79e7f8db28bef9ebf0245b3db822a47e5dd2f6d1e365",
+      "size": 1829
+    },
+    {
+      "kind": "table",
+      "name": "character_inventory",
+      "path": "Database/acore_characters/table-character_inventory.sql",
+      "schema": "acore_characters",
+      "sha256": "1aa57057603c287396999b7acc4730d2735c25a1f977a8bc189b18ca55741264",
+      "size": 14405
+    },
+    {
+      "kind": "table",
+      "name": "character_leveling_challenges",
+      "path": "Database/acore_characters/table-character_leveling_challenges.sql",
+      "schema": "acore_characters",
+      "sha256": "166cb2434d329d7552ca3c7973de3fe837cb906fffa462cbe5fd913f09566737",
+      "size": 2416
+    },
+    {
+      "kind": "table",
+      "name": "character_pet",
+      "path": "Database/acore_characters/table-character_pet.sql",
+      "schema": "acore_characters",
+      "sha256": "63a5cb52d70acc931765ae85d5225d29987775df7d3177268701777d8d6c7038",
+      "size": 3174
+    },
+    {
+      "kind": "table",
+      "name": "character_pet_declinedname",
+      "path": "Database/acore_characters/table-character_pet_declinedname.sql",
+      "schema": "acore_characters",
+      "sha256": "a1273308851d2a82765389c536a968ca3857a27c04e6b6bf7506394c11a5173c",
+      "size": 2092
+    },
+    {
+      "kind": "table",
+      "name": "character_queststatus",
+      "path": "Database/acore_characters/table-character_queststatus.sql",
+      "schema": "acore_characters",
+      "sha256": "e4be93441415c4634865f6ce493e11a5f1e9ecc6e5cd36dfaea24c3e683517c7",
+      "size": 3433
+    },
+    {
+      "kind": "table",
+      "name": "character_queststatus_daily",
+      "path": "Database/acore_characters/table-character_queststatus_daily.sql",
+      "schema": "acore_characters",
+      "sha256": "0c5c48a4ad92cd9a2b85c666f1bb947d823203e294f03c1a1d7aff2e7706aa6f",
+      "size": 1749
+    },
+    {
+      "kind": "table",
+      "name": "character_queststatus_monthly",
+      "path": "Database/acore_characters/table-character_queststatus_monthly.sql",
+      "schema": "acore_characters",
+      "sha256": "54df715e04bdb33a84617a43f01af5230715185282a076aca35a9af2b014e858",
+      "size": 1714
+    },
+    {
+      "kind": "table",
+      "name": "character_queststatus_rewarded",
+      "path": "Database/acore_characters/table-character_queststatus_rewarded.sql",
+      "schema": "acore_characters",
+      "sha256": "c9b2ddd4f78c5473b276e12bb91ea8bc25540372cd13dacaf1db3968c22411c4",
+      "size": 18542
+    },
+    {
+      "kind": "table",
+      "name": "character_queststatus_seasonal",
+      "path": "Database/acore_characters/table-character_queststatus_seasonal.sql",
+      "schema": "acore_characters",
+      "sha256": "8e87f819796e0355cb193c5d50cfb06da6a05030aa8b6d4bec9d8c3382644e2a",
+      "size": 1906
+    },
+    {
+      "kind": "table",
+      "name": "character_queststatus_weekly",
+      "path": "Database/acore_characters/table-character_queststatus_weekly.sql",
+      "schema": "acore_characters",
+      "sha256": "cfc9aa95c8016286bfd9537850e0dfb5c8ad0b1510204f057c97956cbac2f3ad",
+      "size": 1709
+    },
+    {
+      "kind": "table",
+      "name": "character_reforging",
+      "path": "Database/acore_characters/table-character_reforging.sql",
+      "schema": "acore_characters",
+      "sha256": "25ece14a4539a7914e608f2f9520653b785128e7fdbec0992ad44a580507c409",
+      "size": 1903
+    },
+    {
+      "kind": "table",
+      "name": "character_reputation",
+      "path": "Database/acore_characters/table-character_reputation.sql",
+      "schema": "acore_characters",
+      "sha256": "d063650e38dea3920dd2ec5f34e29157a94d0032529a388118a56a48f4e08612",
+      "size": 26585
+    },
+    {
+      "kind": "table",
+      "name": "character_settings",
+      "path": "Database/acore_characters/table-character_settings.sql",
+      "schema": "acore_characters",
+      "sha256": "6942b47156a91795dc1c968345d95b2bddec3d0a46027e9ce22ce81eb53c2a02",
+      "size": 2390
+    },
+    {
+      "kind": "table",
+      "name": "character_skills",
+      "path": "Database/acore_characters/table-character_skills.sql",
+      "schema": "acore_characters",
+      "sha256": "2fb3c295d129e7b3ec2d3ca6c03f98236dbb1aa6d4da30007fd59f8dc5d1758c",
+      "size": 9699
+    },
+    {
+      "kind": "table",
+      "name": "character_social",
+      "path": "Database/acore_characters/table-character_social.sql",
+      "schema": "acore_characters",
+      "sha256": "f9d64c315d67a50866279426539a6821a47ceb01845de8ac69b929fbdbdfa647",
+      "size": 1871
+    },
+    {
+      "kind": "table",
+      "name": "character_spell",
+      "path": "Database/acore_characters/table-character_spell.sql",
+      "schema": "acore_characters",
+      "sha256": "a4f2fedb1cd27fa509c7a11f74dd634df2403cf7b323e3c4a2917e5ed5c8bb50",
+      "size": 50829
+    },
+    {
+      "kind": "table",
+      "name": "character_spell_charges",
+      "path": "Database/acore_characters/table-character_spell_charges.sql",
+      "schema": "acore_characters",
+      "sha256": "22f51d7755cced72a706222331aefe970ebe4c358aa0e1e0ae8cb2c3234dd934",
+      "size": 1750
+    },
+    {
+      "kind": "table",
+      "name": "character_spell_cooldown",
+      "path": "Database/acore_characters/table-character_spell_cooldown.sql",
+      "schema": "acore_characters",
+      "sha256": "5b6fa3b2f87b0517e43b55e5ec9a92c066c37e81bfe6aa9d2d1dda80c7552a18",
+      "size": 1997
+    },
+    {
+      "kind": "table",
+      "name": "character_stats",
+      "path": "Database/acore_characters/table-character_stats.sql",
+      "schema": "acore_characters",
+      "sha256": "a9df09afea6b7b69455e0e3040d2c00420add069cae61a376302ef7ab8e43fde",
+      "size": 3161
+    },
+    {
+      "kind": "table",
+      "name": "character_talent",
+      "path": "Database/acore_characters/table-character_talent.sql",
+      "schema": "acore_characters",
+      "sha256": "6399a39670f427355a6bcc0685f2eda514b84b6fc887c82b84ba4588d1c8fe4d",
+      "size": 3680
+    },
+    {
+      "kind": "table",
+      "name": "character_world_discovery",
+      "path": "Database/acore_characters/table-character_world_discovery.sql",
+      "schema": "acore_characters",
+      "sha256": "e1210684281863bc65a349df72901101f7f2539177401e9c7b363a70ad6095fb",
+      "size": 9695
+    },
+    {
+      "kind": "table",
+      "name": "characters",
+      "path": "Database/acore_characters/table-characters.sql",
+      "schema": "acore_characters",
+      "sha256": "ac212d6077b4c1a8a0cedcab0e2d68c005426664b1cd2da147bc20b1336cf471",
+      "size": 26296
+    },
+    {
+      "kind": "table",
+      "name": "characters_npcbot",
+      "path": "Database/acore_characters/table-characters_npcbot.sql",
+      "schema": "acore_characters",
+      "sha256": "989b0442bf0df8edc9c36254cf04083c570bc0eaef9a5bfad0ec0a7bdcce9f3e",
+      "size": 419449
+    },
+    {
+      "kind": "table",
+      "name": "characters_npcbot_gear_set",
+      "path": "Database/acore_characters/table-characters_npcbot_gear_set.sql",
+      "schema": "acore_characters",
+      "sha256": "8e951f785e1bd475c00adf147b5c7666ad383061f92905cd6c4d9e41928011f7",
+      "size": 1714
+    },
+    {
+      "kind": "table",
+      "name": "characters_npcbot_gear_set_item",
+      "path": "Database/acore_characters/table-characters_npcbot_gear_set_item.sql",
+      "schema": "acore_characters",
+      "sha256": "2dc5e62a746ba64ed3b810ea1a3f1d81dd32c23fdd241093f490afcfbfa8f04c",
+      "size": 1764
+    },
+    {
+      "kind": "table",
+      "name": "characters_npcbot_gear_storage",
+      "path": "Database/acore_characters/table-characters_npcbot_gear_storage.sql",
+      "schema": "acore_characters",
+      "sha256": "340e2072bac7b85b040a102eecf5f10dfa1d008bffb60a66cd1d2123548062bb",
+      "size": 2041
+    },
+    {
+      "kind": "table",
+      "name": "characters_npcbot_group_member",
+      "path": "Database/acore_characters/table-characters_npcbot_group_member.sql",
+      "schema": "acore_characters",
+      "sha256": "dcf7171619bda6bed79540cfc9c31c573267c1ba2fad94b4883313d7aaefba26",
+      "size": 1706
+    },
+    {
+      "kind": "table",
+      "name": "characters_npcbot_logs",
+      "path": "Database/acore_characters/table-characters_npcbot_logs.sql",
+      "schema": "acore_characters",
+      "sha256": "5f525e881fad054462b8ed5dcdf3306cf984c166d14545ec453c7e15393b31cc",
+      "size": 37288
+    },
+    {
+      "kind": "table",
+      "name": "characters_npcbot_settings",
+      "path": "Database/acore_characters/table-characters_npcbot_settings.sql",
+      "schema": "acore_characters",
+      "sha256": "ff81fe5656edfbb616b0d3c7b21aed422c6ca94768cbab0c9fa24e4c467306f8",
+      "size": 2463
+    },
+    {
+      "kind": "table",
+      "name": "characters_npcbot_stats",
+      "path": "Database/acore_characters/table-characters_npcbot_stats.sql",
+      "schema": "acore_characters",
+      "sha256": "c1e459fbd3dc4768e88afa37c8deb1c1127d6810f10bc8b63d29cb6781c43e9b",
+      "size": 6585
+    },
+    {
+      "kind": "table",
+      "name": "characters_npcbot_transmog",
+      "path": "Database/acore_characters/table-characters_npcbot_transmog.sql",
+      "schema": "acore_characters",
+      "sha256": "8cf34cc5cf100c43d6ee18e04c49b28839a145592c64e160bf84c2639a2dbf39",
+      "size": 1749
+    },
+    {
+      "kind": "table",
+      "name": "chat_filter",
+      "path": "Database/acore_characters/table-chat_filter.sql",
+      "schema": "acore_characters",
+      "sha256": "e6e7b8e81b851e05efe865fdaa21e676084eae3e0783c5ea70984e960a3a8232",
+      "size": 1549
+    },
+    {
+      "kind": "table",
+      "name": "corpse",
+      "path": "Database/acore_characters/table-corpse.sql",
+      "schema": "acore_characters",
+      "sha256": "17808eb2ad10b8a1088f6789f5a7cfe6841444afac6d4e92e4f76031cc63fce8",
+      "size": 2439
+    },
+    {
+      "kind": "table",
+      "name": "creature_respawn",
+      "path": "Database/acore_characters/table-creature_respawn.sql",
+      "schema": "acore_characters",
+      "sha256": "e56123af2bcca414058e3f71fb969176ed1e0a20152b506b4fd5d24b494a724a",
+      "size": 19760
+    },
+    {
+      "kind": "table",
+      "name": "custom_elf_arcane_r5_migration",
+      "path": "Database/acore_characters/table-custom_elf_arcane_r5_migration.sql",
+      "schema": "acore_characters",
+      "sha256": "ba9bb8048adab3f908745d5c0a31476a370f670a23330f53a12e775c87bbe13a",
+      "size": 1752
+    },
+    {
+      "kind": "table",
+      "name": "custom_elf_paired_r7_migration",
+      "path": "Database/acore_characters/table-custom_elf_paired_r7_migration.sql",
+      "schema": "acore_characters",
+      "sha256": "19799b7079e8f100fdaed41279e539d7d165cd37919cfe6ef45d127c60ff0889",
+      "size": 1749
+    },
+    {
+      "kind": "table",
+      "name": "custom_fake_players",
+      "path": "Database/acore_characters/table-custom_fake_players.sql",
+      "schema": "acore_characters",
+      "sha256": "e9d52d4428e1ef664b70782b7fc3811e7f80f1c606b6433b583104c06bc4da88",
+      "size": 25407
+    },
+    {
+      "kind": "table",
+      "name": "custom_ip_pending_progression_zz_custom",
+      "path": "Database/acore_characters/table-custom_ip_pending_progression_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha256": "1cac74ebc56922f27d9f3b2ce8c7f4c803c2b3be0db2975d4f15d41c9fb06cec",
+      "size": 1748
+    },
+    {
+      "kind": "table",
+      "name": "custom_ip_progression_achievement_backup_zz_custom",
+      "path": "Database/acore_characters/table-custom_ip_progression_achievement_backup_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha256": "5cfb1a144f4f9777a9b20a2b1c0d4118f6ace11d3c72adf9fe0740ff059d8b54",
+      "size": 2064
+    },
+    {
+      "kind": "table",
+      "name": "custom_ip_progression_state_zz_custom",
+      "path": "Database/acore_characters/table-custom_ip_progression_state_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha256": "7e0f3d08e74ddba1bb05d6c66152dcec4ff461711ce0371138dc12f53d655aec",
+      "size": 2705
+    },
+    {
+      "kind": "table",
+      "name": "custom_transmogrification",
+      "path": "Database/acore_characters/table-custom_transmogrification.sql",
+      "schema": "acore_characters",
+      "sha256": "915456ba11acf7026f4e01a10b261f29fa8805c6639a8cfc79d70a846d7b13e2",
+      "size": 2736
+    },
+    {
+      "kind": "table",
+      "name": "custom_transmogrification_body_customization",
+      "path": "Database/acore_characters/table-custom_transmogrification_body_customization.sql",
+      "schema": "acore_characters",
+      "sha256": "b79762eb89c8183753c20ce09beafbc122d68a64e6ce0f90b2f8fc88e4852c2c",
+      "size": 2676
+    },
+    {
+      "kind": "table",
+      "name": "custom_transmogrification_character_options",
+      "path": "Database/acore_characters/table-custom_transmogrification_character_options.sql",
+      "schema": "acore_characters",
+      "sha256": "ce94f6ff3eed4e70f603066b3c3f3b96bee869ceb4a78d2f0f9c61e8f0a0c481",
+      "size": 2326
+    },
+    {
+      "kind": "table",
+      "name": "custom_transmogrification_dyes",
+      "path": "Database/acore_characters/table-custom_transmogrification_dyes.sql",
+      "schema": "acore_characters",
+      "sha256": "13938c54efcc6e4253722b8aba98ea684107f9f5e43deecc674d8e433932d609",
+      "size": 3757
+    },
+    {
+      "kind": "table",
+      "name": "custom_transmogrification_enchant_visuals",
+      "path": "Database/acore_characters/table-custom_transmogrification_enchant_visuals.sql",
+      "schema": "acore_characters",
+      "sha256": "41a364863447b9739debd6bd023489a632f005a276927d4f5e5978b4041b08a3",
+      "size": 2098
+    },
+    {
+      "kind": "table",
+      "name": "custom_transmogrification_eye_halo",
+      "path": "Database/acore_characters/table-custom_transmogrification_eye_halo.sql",
+      "schema": "acore_characters",
+      "sha256": "e982fea19e94190fef829b3aa6a71c9f303f487e5ff034e9dec9ed4c29971f89",
+      "size": 1771
+    },
+    {
+      "kind": "table",
+      "name": "custom_transmogrification_race_illusion",
+      "path": "Database/acore_characters/table-custom_transmogrification_race_illusion.sql",
+      "schema": "acore_characters",
+      "sha256": "9a10a24fd5621e6ade84345b3279422cef82e2b52407f3c8aff98850e12b22fb",
+      "size": 2124
+    },
+    {
+      "kind": "table",
+      "name": "custom_transmogrification_sets",
+      "path": "Database/acore_characters/table-custom_transmogrification_sets.sql",
+      "schema": "acore_characters",
+      "sha256": "c2e3ce04fdf5aeacb643f21dd025a614b2bdab7b1d0fed6ac2f4a3b0a02229fd",
+      "size": 1752
+    },
+    {
+      "kind": "table",
+      "name": "custom_unlocked_appearances",
+      "path": "Database/acore_characters/table-custom_unlocked_appearances.sql",
+      "schema": "acore_characters",
+      "sha256": "4448835e58e320098d02aea605ea6acaf33a6849a736ef891943b640dac36195",
+      "size": 106550
+    },
+    {
+      "kind": "table",
+      "name": "dungeonrespawn_playerinfo",
+      "path": "Database/acore_characters/table-dungeonrespawn_playerinfo.sql",
+      "schema": "acore_characters",
+      "sha256": "c060e513b45404d175b28a8d5c445726217b1e4cea5fa2489d47cbc27fca9e02",
+      "size": 1675
+    },
+    {
+      "kind": "table",
+      "name": "game_event_condition_save",
+      "path": "Database/acore_characters/table-game_event_condition_save.sql",
+      "schema": "acore_characters",
+      "sha256": "06355b5d46332a8f729d74b2cc6e7bcd60ce856cb8d8b7ace091e87794931d99",
+      "size": 1627
+    },
+    {
+      "kind": "table",
+      "name": "game_event_save",
+      "path": "Database/acore_characters/table-game_event_save.sql",
+      "schema": "acore_characters",
+      "sha256": "d09bb9c678bdbb01dcff8e8352e791e3d693a3277100fa5864fba584676db97d",
+      "size": 1581
+    },
+    {
+      "kind": "table",
+      "name": "gameobject_respawn",
+      "path": "Database/acore_characters/table-gameobject_respawn.sql",
+      "schema": "acore_characters",
+      "sha256": "4dd11c39f31eac73dfd9dc45fe38ded48308f860abc7ab46862b8984fab50a24",
+      "size": 1791
+    },
+    {
+      "kind": "table",
+      "name": "gm_subsurvey",
+      "path": "Database/acore_characters/table-gm_subsurvey.sql",
+      "schema": "acore_characters",
+      "sha256": "cf845afe01ee97a938bed8346ea99ffd5ee1053f6700bf0b0041bc449e9a1c83",
+      "size": 1690
+    },
+    {
+      "kind": "table",
+      "name": "gm_survey",
+      "path": "Database/acore_characters/table-gm_survey.sql",
+      "schema": "acore_characters",
+      "sha256": "aff7e9fa3c4f512982614f27597f474814d2139b9d6f19ae9f86108a74ba01aa",
+      "size": 1740
+    },
+    {
+      "kind": "table",
+      "name": "gm_ticket",
+      "path": "Database/acore_characters/table-gm_ticket.sql",
+      "schema": "acore_characters",
+      "sha256": "455481107f00be4c7b87f5f70cb16f7540c63421551075742782773758e1d8cb",
+      "size": 2787
+    },
+    {
+      "kind": "table",
+      "name": "group_member",
+      "path": "Database/acore_characters/table-group_member.sql",
+      "schema": "acore_characters",
+      "sha256": "1ca3371ef70e7061050c7db6be533be8a5dc03908adade3d6aaa2f5e036b36f9",
+      "size": 1670
+    },
+    {
+      "kind": "table",
+      "name": "groups",
+      "path": "Database/acore_characters/table-groups.sql",
+      "schema": "acore_characters",
+      "sha256": "9a6e284cee2bff401b839887580ecc5c07f686cda4ed9770e2a96feaef4279f4",
+      "size": 2136
+    },
+    {
+      "kind": "table",
+      "name": "guild",
+      "path": "Database/acore_characters/table-guild.sql",
+      "schema": "acore_characters",
+      "sha256": "234c2f7f3cf417d49a3cd84aa94e5ad4739a2222c92956cde90b07f534285fed",
+      "size": 2445
+    },
+    {
+      "kind": "table",
+      "name": "guild_bank_eventlog",
+      "path": "Database/acore_characters/table-guild_bank_eventlog.sql",
+      "schema": "acore_characters",
+      "sha256": "c3a189e5d5825eac9c0b10668bd211bd79373329cb2078f84a04bf2aa20d5dd6",
+      "size": 4822
+    },
+    {
+      "kind": "table",
+      "name": "guild_bank_item",
+      "path": "Database/acore_characters/table-guild_bank_item.sql",
+      "schema": "acore_characters",
+      "sha256": "577a82825593c4596d9a56e19665f52b99c5fc2345803449093367f11288b927",
+      "size": 3016
+    },
+    {
+      "kind": "table",
+      "name": "guild_bank_right",
+      "path": "Database/acore_characters/table-guild_bank_right.sql",
+      "schema": "acore_characters",
+      "sha256": "acbce125e1ec3025b74f8574eed890f68846b7cb4d4a29141ffbea5942d20273",
+      "size": 2041
+    },
+    {
+      "kind": "table",
+      "name": "guild_bank_tab",
+      "path": "Database/acore_characters/table-guild_bank_tab.sql",
+      "schema": "acore_characters",
+      "sha256": "fd8e1beefec02ecb7feb4f2856ca20a6c8c9436deb83d70d2611602983ce7e63",
+      "size": 2053
+    },
+    {
+      "kind": "table",
+      "name": "guild_eventlog",
+      "path": "Database/acore_characters/table-guild_eventlog.sql",
+      "schema": "acore_characters",
+      "sha256": "128e0c6783648294b64329434105c184bed59867ed1d43f3ea8637f3662196c4",
+      "size": 2231
+    },
+    {
+      "kind": "table",
+      "name": "guild_member",
+      "path": "Database/acore_characters/table-guild_member.sql",
+      "schema": "acore_characters",
+      "sha256": "92aec32c7c2662e5865d3b732f41f9dbfc0aec39e3315d27bca281a7ece381bc",
+      "size": 1957
+    },
+    {
+      "kind": "table",
+      "name": "guild_member_withdraw",
+      "path": "Database/acore_characters/table-guild_member_withdraw.sql",
+      "schema": "acore_characters",
+      "sha256": "35711172a0bcc17171ad59a5225c3be5098c69fe09d34d2250b304dc50fb3a20",
+      "size": 1849
+    },
+    {
+      "kind": "table",
+      "name": "guild_rank",
+      "path": "Database/acore_characters/table-guild_rank.sql",
+      "schema": "acore_characters",
+      "sha256": "2ada9caa91c99866a5fb8b863aeff3b28edff8d7a677f33a25a89485a70884c7",
+      "size": 1989
+    },
+    {
+      "kind": "table",
+      "name": "individualxp",
+      "path": "Database/acore_characters/table-individualxp.sql",
+      "schema": "acore_characters",
+      "sha256": "80f2fc73e430a584e20dcfa274e34e2f8589faf8e8a9f11a8423349ae0abffb7",
+      "size": 2060
+    },
+    {
+      "kind": "table",
+      "name": "instance",
+      "path": "Database/acore_characters/table-instance.sql",
+      "schema": "acore_characters",
+      "sha256": "ef8c6de9386fd19319e9a2e4fe90ad36dc301c2f13ec364a89ed142939229c8b",
+      "size": 2071
+    },
+    {
+      "kind": "table",
+      "name": "instance_reset",
+      "path": "Database/acore_characters/table-instance_reset.sql",
+      "schema": "acore_characters",
+      "sha256": "b52b3d349c032ebea9835e63fcd9131624dae20f28c044012e8820465559f546",
+      "size": 3531
+    },
+    {
+      "kind": "table",
+      "name": "instance_saved_go_state_data",
+      "path": "Database/acore_characters/table-instance_saved_go_state_data.sql",
+      "schema": "acore_characters",
+      "sha256": "f713082684da7f4c9de8cb2fa2c864a3e6e2be7f8c7b98828487e52c92b7c8c9",
+      "size": 1693
+    },
+    {
+      "kind": "table",
+      "name": "item_instance",
+      "path": "Database/acore_characters/table-item_instance.sql",
+      "schema": "acore_characters",
+      "sha256": "55860d7521d28f948e73c25e5ee95683f4e7c1ece1f30fa4a54670d0428d47fd",
+      "size": 43436387
+    },
+    {
+      "kind": "table",
+      "name": "item_loot_storage",
+      "path": "Database/acore_characters/table-item_loot_storage.sql",
+      "schema": "acore_characters",
+      "sha256": "7ed8134e67c1f5252753bcbfe77c96becb13afdbe135f7af8ed49b047c44dfac",
+      "size": 1975
+    },
+    {
+      "kind": "table",
+      "name": "item_refund_instance",
+      "path": "Database/acore_characters/table-item_refund_instance.sql",
+      "schema": "acore_characters",
+      "sha256": "a39fee152f8c4822aeb00bdbee548586ca93e35ec75b3b6b4efb13d217e8938e",
+      "size": 7761
+    },
+    {
+      "kind": "table",
+      "name": "item_soulbound_trade_data",
+      "path": "Database/acore_characters/table-item_soulbound_trade_data.sql",
+      "schema": "acore_characters",
+      "sha256": "83749fd66faf05508d7b453fb941218a5ab54860e2a21eea62c2245f904ac4bf",
+      "size": 2000
+    },
+    {
+      "kind": "table",
+      "name": "lag_reports",
+      "path": "Database/acore_characters/table-lag_reports.sql",
+      "schema": "acore_characters",
+      "sha256": "e3d38289387793bcc1616eec4d68db63b9fcef440fb37eb58d9b0005d5c31585",
+      "size": 1852
+    },
+    {
+      "kind": "table",
+      "name": "lfg_data",
+      "path": "Database/acore_characters/table-lfg_data.sql",
+      "schema": "acore_characters",
+      "sha256": "ac6b9c122e8a1353883ebc71fc7743d4506454fb5644b9e519edded97115706f",
+      "size": 1593
+    },
+    {
+      "kind": "table",
+      "name": "log_arena_fights",
+      "path": "Database/acore_characters/table-log_arena_fights.sql",
+      "schema": "acore_characters",
+      "sha256": "b7346fd482987ea60f758f8cfb2356a5a8e9e99b4d3c35f335b6b703ca3a57c2",
+      "size": 7558
+    },
+    {
+      "kind": "table",
+      "name": "log_arena_memberstats",
+      "path": "Database/acore_characters/table-log_arena_memberstats.sql",
+      "schema": "acore_characters",
+      "sha256": "c0e6e9e73856c5b6f107630f4ca3eb283a0d0ddff459adeef9c9a60dd8b42833",
+      "size": 5490
+    },
+    {
+      "kind": "table",
+      "name": "log_encounter",
+      "path": "Database/acore_characters/table-log_encounter.sql",
+      "schema": "acore_characters",
+      "sha256": "a2e7a512e1fb3839248c5cb2e8562c99f152478630aa455399b3710a3400a576",
+      "size": 93216
+    },
+    {
+      "kind": "table",
+      "name": "log_money",
+      "path": "Database/acore_characters/table-log_money.sql",
+      "schema": "acore_characters",
+      "sha256": "d119ed356e7a20c66bc12bcdd78f73a406b3c64c2a526968e241c054f9728df3",
+      "size": 22903
+    },
+    {
+      "kind": "table",
+      "name": "mail",
+      "path": "Database/acore_characters/table-mail.sql",
+      "schema": "acore_characters",
+      "sha256": "6c16349d36972dea7b434d5e13a4ae5f9cceab781303353b8da8ade470af8944",
+      "size": 4739
+    },
+    {
+      "kind": "table",
+      "name": "mail_items",
+      "path": "Database/acore_characters/table-mail_items.sql",
+      "schema": "acore_characters",
+      "sha256": "e4b9b188bf991745d5d9ee03acc9a3942d435a08ebbc2d08596af309d8aecc74",
+      "size": 1873
+    },
+    {
+      "kind": "table",
+      "name": "mail_server_character",
+      "path": "Database/acore_characters/table-mail_server_character.sql",
+      "schema": "acore_characters",
+      "sha256": "2d1ad0a8074ba7fdd2b027626bd523d18171eb07d362680e48d360f649195874",
+      "size": 1708
+    },
+    {
+      "kind": "table",
+      "name": "mail_server_template",
+      "path": "Database/acore_characters/table-mail_server_template.sql",
+      "schema": "acore_characters",
+      "sha256": "b4f63cc117acd29374c73d4eaf935bcf27e5ac9a86464b20a1c529e69a4331da",
+      "size": 4872
+    },
+    {
+      "kind": "table",
+      "name": "mail_server_template_conditions",
+      "path": "Database/acore_characters/table-mail_server_template_conditions.sql",
+      "schema": "acore_characters",
+      "sha256": "7d2693aac2b4bdcca02792f6dc45603ac4fd107fde56621dc26650ba929e47f7",
+      "size": 3062
+    },
+    {
+      "kind": "table",
+      "name": "mail_server_template_items",
+      "path": "Database/acore_characters/table-mail_server_template_items.sql",
+      "schema": "acore_characters",
+      "sha256": "8a8bcdbc9b3385cb65cbe2ad0cab7c7d517c1a250737bf95b5d753cbe2d49299",
+      "size": 2366
+    },
+    {
+      "kind": "table",
+      "name": "mod_auctionator_market_price",
+      "path": "Database/acore_characters/table-mod_auctionator_market_price.sql",
+      "schema": "acore_characters",
+      "sha256": "082d578a48a338efa5431e31bdb41ad8cf0efe40fc5b8c80a8fb45593c8d1e1d",
+      "size": 243242
+    },
+    {
+      "kind": "table",
+      "name": "mod_boost60_claims",
+      "path": "Database/acore_characters/table-mod_boost60_claims.sql",
+      "schema": "acore_characters",
+      "sha256": "142f49ff5e798e7bcb864f4b2571bfe9d7e198d6e873d898561d4c7319ec8d0a",
+      "size": 1787
+    },
+    {
+      "kind": "table",
+      "name": "mod_gearbank_item",
+      "path": "Database/acore_characters/table-mod_gearbank_item.sql",
+      "schema": "acore_characters",
+      "sha256": "5a418f7917812f1d0ef9086061546a8309c6f2252283e20f1d17b7f3e8c0151e",
+      "size": 17779
+    },
+    {
+      "kind": "table",
+      "name": "mod_gearbank_revision",
+      "path": "Database/acore_characters/table-mod_gearbank_revision.sql",
+      "schema": "acore_characters",
+      "sha256": "145f4e7edfbf340b248af16c3423639de4c205af044e5dd4cd71e4eb526e4f21",
+      "size": 1828
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_paperdoll_consumable",
+      "path": "Database/acore_characters/table-mod_npcbot_paperdoll_consumable.sql",
+      "schema": "acore_characters",
+      "sha256": "0260b272892e4e9b3c06f6707647b8260fc1f97f71ad551b39ed089e416831b3",
+      "size": 4717
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_paperdoll_consumable_receipt",
+      "path": "Database/acore_characters/table-mod_npcbot_paperdoll_consumable_receipt.sql",
+      "schema": "acore_characters",
+      "sha256": "5400b20e28a51dce41a816f770f17b6b5cf7b70d7f7af981189c434b3a828e09",
+      "size": 1674
+    },
+    {
+      "kind": "table",
+      "name": "mod_pocket_pals_pending_move",
+      "path": "Database/acore_characters/table-mod_pocket_pals_pending_move.sql",
+      "schema": "acore_characters",
+      "sha256": "718ae5f1249809083271ed5182ec0102a2840d65ac5398f714d3cb577be98f65",
+      "size": 1943
+    },
+    {
+      "kind": "table",
+      "name": "mod_pocket_pals_pet",
+      "path": "Database/acore_characters/table-mod_pocket_pals_pet.sql",
+      "schema": "acore_characters",
+      "sha256": "91d693cbf0ffbcf5457b8dee88173975a0568b48d7aac5451da45f5d5c8b9414",
+      "size": 2222
+    },
+    {
+      "kind": "table",
+      "name": "mod_pocket_pals_pet_equipment",
+      "path": "Database/acore_characters/table-mod_pocket_pals_pet_equipment.sql",
+      "schema": "acore_characters",
+      "sha256": "c3ed24c81bd8e395f33a969902077ab3477bd1d8ec8d9ad1525727465e01d2d1",
+      "size": 1816
+    },
+    {
+      "kind": "table",
+      "name": "mod_pocket_pals_pet_move",
+      "path": "Database/acore_characters/table-mod_pocket_pals_pet_move.sql",
+      "schema": "acore_characters",
+      "sha256": "992c9e4363a406c5774935e850305dfb63b64c36064ac7b7b9c34a423521ffd7",
+      "size": 2133
+    },
+    {
+      "kind": "table",
+      "name": "mod_pocket_pals_pet_unlock",
+      "path": "Database/acore_characters/table-mod_pocket_pals_pet_unlock.sql",
+      "schema": "acore_characters",
+      "sha256": "97428c979a832a9b86b927e95f0793de2af03b573dff3847ff043f5282fa345b",
+      "size": 2030
+    },
+    {
+      "kind": "table",
+      "name": "mod_pocket_pals_profile",
+      "path": "Database/acore_characters/table-mod_pocket_pals_profile.sql",
+      "schema": "acore_characters",
+      "sha256": "99db6ad3157b9800ac79507307c8908697f60cdbca4785b2ceedcefc36038092",
+      "size": 2105
+    },
+    {
+      "kind": "table",
+      "name": "mod_pocket_pals_team",
+      "path": "Database/acore_characters/table-mod_pocket_pals_team.sql",
+      "schema": "acore_characters",
+      "sha256": "163ba790f768479664a8e5b8bf0a9001766ca60bdbee9fa513b7bdeab4e78040",
+      "size": 1893
+    },
+    {
+      "kind": "table",
+      "name": "mod_reagent_bank_account",
+      "path": "Database/acore_characters/table-mod_reagent_bank_account.sql",
+      "schema": "acore_characters",
+      "sha256": "b474a993f71ea95160b6db461a168e37bc298332a65d4b097bc8f949f62e5396",
+      "size": 10959
+    },
+    {
+      "kind": "table",
+      "name": "mod_reagent_bank_account_meta",
+      "path": "Database/acore_characters/table-mod_reagent_bank_account_meta.sql",
+      "schema": "acore_characters",
+      "sha256": "f90211f252779a29a10b12ffd18c22725e1bb914be50cc7af5307a514baebd22",
+      "size": 1803
+    },
+    {
+      "kind": "table",
+      "name": "mod_reagent_bank_account_player_settings",
+      "path": "Database/acore_characters/table-mod_reagent_bank_account_player_settings.sql",
+      "schema": "acore_characters",
+      "sha256": "11593ddc76527cf829f36467ece8a7b9567189eb2a93603d498d04b8da40732e",
+      "size": 1881
+    },
+    {
+      "kind": "table",
+      "name": "mod_reagent_bank_share_invites",
+      "path": "Database/acore_characters/table-mod_reagent_bank_share_invites.sql",
+      "schema": "acore_characters",
+      "sha256": "f54654645492e2f6e7388364df9a61da633712d6b6b8a4f1b69e783a43ffab52",
+      "size": 1655
+    },
+    {
+      "kind": "table",
+      "name": "mod_reagent_bank_share_members",
+      "path": "Database/acore_characters/table-mod_reagent_bank_share_members.sql",
+      "schema": "acore_characters",
+      "sha256": "9d5290cda75cf0aad0a7db950e605907445c958716a4335ccdeafa8d5e2e9e8b",
+      "size": 1719
+    },
+    {
+      "kind": "table",
+      "name": "mod_reward_all_quest_choices_pending",
+      "path": "Database/acore_characters/table-mod_reward_all_quest_choices_pending.sql",
+      "schema": "acore_characters",
+      "sha256": "04e640b58143f8cfd36868c32d0a4419a35d5f532aa8c61aae78ed07ae1a3c49",
+      "size": 5417
+    },
+    {
+      "kind": "table",
+      "name": "pet_aura",
+      "path": "Database/acore_characters/table-pet_aura.sql",
+      "schema": "acore_characters",
+      "sha256": "fcd17bf772c7023a4457b87d13258e55a70698353a572d3535351e53759d2bb0",
+      "size": 2185
+    },
+    {
+      "kind": "table",
+      "name": "pet_spell",
+      "path": "Database/acore_characters/table-pet_spell.sql",
+      "schema": "acore_characters",
+      "sha256": "e20dcd5205386017a5eb674da4d2100acff875a1f96bd4c9685c436fc75d1a23",
+      "size": 1908
+    },
+    {
+      "kind": "table",
+      "name": "pet_spell_cooldown",
+      "path": "Database/acore_characters/table-pet_spell_cooldown.sql",
+      "schema": "acore_characters",
+      "sha256": "ea6fa1a7c6cef77f82f20e497f13f3f65f019477622694c4392212569c2377d8",
+      "size": 1702
+    },
+    {
+      "kind": "table",
+      "name": "petition",
+      "path": "Database/acore_characters/table-petition.sql",
+      "schema": "acore_characters",
+      "sha256": "49f034ff69c1a1d207d17d09ac541f29badf2f6d3b0a23d28c077a8bc5bf99f0",
+      "size": 1812
+    },
+    {
+      "kind": "table",
+      "name": "petition_sign",
+      "path": "Database/acore_characters/table-petition_sign.sql",
+      "schema": "acore_characters",
+      "sha256": "fd9de79befebe92318bc9f74db2ea5bd2140df28e28783c0fa2aa1aec4cbf3a9",
+      "size": 1840
+    },
+    {
+      "kind": "table",
+      "name": "pool_quest_save",
+      "path": "Database/acore_characters/table-pool_quest_save.sql",
+      "schema": "acore_characters",
+      "sha256": "a69f969be27dc20c03abd166dcd98448330a5cf26f8588ef8829219d8eba4ed9",
+      "size": 2248
+    },
+    {
+      "kind": "table",
+      "name": "profanity_name",
+      "path": "Database/acore_characters/table-profanity_name.sql",
+      "schema": "acore_characters",
+      "sha256": "c956663da894385f458d8b65ea1b352ce4f3e8f54e39b5549ef65faa0235b06e",
+      "size": 1500
+    },
+    {
+      "kind": "table",
+      "name": "pvpstats_battlegrounds",
+      "path": "Database/acore_characters/table-pvpstats_battlegrounds.sql",
+      "schema": "acore_characters",
+      "sha256": "3647f35e6c5222f3962609de621bb9f9288ea43fe77e726482be49b906a615e1",
+      "size": 1660
+    },
+    {
+      "kind": "table",
+      "name": "pvpstats_players",
+      "path": "Database/acore_characters/table-pvpstats_players.sql",
+      "schema": "acore_characters",
+      "sha256": "9d6c36f609dcbf22b03fa9c70c5bd45a6d19d38d322f498ae8a44ab31507caeb",
+      "size": 2075
+    },
+    {
+      "kind": "table",
+      "name": "quest_tracker",
+      "path": "Database/acore_characters/table-quest_tracker.sql",
+      "schema": "acore_characters",
+      "sha256": "e3377fe3c8fac4708a6ee976fb7f3d112fb367418aa6ba64ec3444eae064e73f",
+      "size": 1981
+    },
+    {
+      "kind": "table",
+      "name": "recovery_item",
+      "path": "Database/acore_characters/table-recovery_item.sql",
+      "schema": "acore_characters",
+      "sha256": "0177ac4f6b0f67f290d6088df9f422212877e7a8c700cb73a5b2e4c23a00fecd",
+      "size": 1668
+    },
+    {
+      "kind": "table",
+      "name": "reserved_name",
+      "path": "Database/acore_characters/table-reserved_name.sql",
+      "schema": "acore_characters",
+      "sha256": "be219383580b36029f3a66b184c0e1a6b62ac9f840075d0683ea8d277e0a7195",
+      "size": 1527
+    },
+    {
+      "kind": "table",
+      "name": "shared_professions_account_skills",
+      "path": "Database/acore_characters/table-shared_professions_account_skills.sql",
+      "schema": "acore_characters",
+      "sha256": "49d13606e988f656d0bf61df3fec962fbd7cfa04c9262081e10d266592c99541",
+      "size": 3535
+    },
+    {
+      "kind": "table",
+      "name": "shared_professions_account_spells",
+      "path": "Database/acore_characters/table-shared_professions_account_spells.sql",
+      "schema": "acore_characters",
+      "sha256": "dc267d2896cbd2a063530665ebc5629ed4c186f61fb406c483308a674c607bcf",
+      "size": 34503
+    },
+    {
+      "kind": "table",
+      "name": "spam_reports",
+      "path": "Database/acore_characters/table-spam_reports.sql",
+      "schema": "acore_characters",
+      "sha256": "9cd239ec321b766ac15641f3ff8bee985bd0335d20fb343ca664b4efec2c038e",
+      "size": 1990
+    },
+    {
+      "kind": "table",
+      "name": "updates",
+      "path": "Database/acore_characters/table-updates.sql",
+      "schema": "acore_characters",
+      "sha256": "1b597105105ca55abb0cfe5bb34b3e8e5f4afa6e8bc033177aefefa3d912bc7b",
+      "size": 8569
+    },
+    {
+      "kind": "table",
+      "name": "updates_include",
+      "path": "Database/acore_characters/table-updates_include.sql",
+      "schema": "acore_characters",
+      "sha256": "83ed4d4fd8bc575d8b0b97470faac7eb431ae851896d55f2b85e4a1c6edee4ce",
+      "size": 2145
+    },
+    {
+      "kind": "table",
+      "name": "warden_action",
+      "path": "Database/acore_characters/table-warden_action.sql",
+      "schema": "acore_characters",
+      "sha256": "cc38bb3b3ec1482ac1726abca439d9a5300e5d593a3ef601cfb7b38947e5711b",
+      "size": 1581
+    },
+    {
+      "kind": "table",
+      "name": "world_state",
+      "path": "Database/acore_characters/table-world_state.sql",
+      "schema": "acore_characters",
+      "sha256": "3b11d9d21cd66eb05ac9e3d3e639eee6c2a2faace1bcd371cc5117b0e6874490",
+      "size": 1656
+    },
+    {
+      "kind": "table",
+      "name": "worldstates",
+      "path": "Database/acore_characters/table-worldstates.sql",
+      "schema": "acore_characters",
+      "sha256": "abcb4a54ab3bcc378aeca9afa13cb1ba0ba9e34afa626906f6d68e39c7148704",
+      "size": 6590
+    },
+    {
+      "kind": "table",
+      "name": "achievement_category_dbc",
+      "path": "Database/acore_world/table-achievement_category_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "61360bf7572ff3caa47896aa9ac6d627b20c6fefcfeb42f93857401f5c7a2117",
+      "size": 3178
+    },
+    {
+      "kind": "table",
+      "name": "achievement_criteria_data",
+      "path": "Database/acore_world/table-achievement_criteria_data.sql",
+      "schema": "acore_world",
+      "sha256": "06142b87228a290735606f347b75d72fcf622c1de534c1fb12b667655c8d8326",
+      "size": 80469
+    },
+    {
+      "kind": "table",
+      "name": "achievement_criteria_dbc",
+      "path": "Database/acore_world/table-achievement_criteria_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "857573a2ff5a23ef26cbe1629538ae83a4114cd34e1dd26d25678cc423bf1518",
+      "size": 3765
+    },
+    {
+      "kind": "table",
+      "name": "achievement_dbc",
+      "path": "Database/acore_world/table-achievement_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "628fcf53a0e62835932bc7bae93db0f0298abf14a9bbc37018f85ecbce9fc532",
+      "size": 29468
+    },
+    {
+      "kind": "table",
+      "name": "achievement_reward",
+      "path": "Database/acore_world/table-achievement_reward.sql",
+      "schema": "acore_world",
+      "sha256": "be2e83ed2cac0eede3bac824e5bf726226c92d645afc02487fbaa066bccda651",
+      "size": 21959
+    },
+    {
+      "kind": "table",
+      "name": "achievement_reward_locale",
+      "path": "Database/acore_world/table-achievement_reward_locale.sql",
+      "schema": "acore_world",
+      "sha256": "0cc1919b09c17e71066cbb57873541a30a525250040f6b2468a8b092eaee6df7",
+      "size": 81307
+    },
+    {
+      "kind": "table",
+      "name": "acore_string",
+      "path": "Database/acore_world/table-acore_string.sql",
+      "schema": "acore_world",
+      "sha256": "b330f03995993eba8a2a3a8c57b504b996140bf0427eb3d084884ce55270cb71",
+      "size": 382505
+    },
+    {
+      "kind": "table",
+      "name": "active_chat_line",
+      "path": "Database/acore_world/table-active_chat_line.sql",
+      "schema": "acore_world",
+      "sha256": "7498289df7b64bc026848ab253f5875acde5f2d52cb296cfcd5e40c36d31332e",
+      "size": 58658
+    },
+    {
+      "kind": "table",
+      "name": "active_chat_name",
+      "path": "Database/acore_world/table-active_chat_name.sql",
+      "schema": "acore_world",
+      "sha256": "b9517f1a9b687bbe6437280e81f12c06b67194d6d5c8fd66421eb2f5bf97a77b",
+      "size": 12259
+    },
+    {
+      "kind": "table",
+      "name": "active_chat_scene",
+      "path": "Database/acore_world/table-active_chat_scene.sql",
+      "schema": "acore_world",
+      "sha256": "5bc1420e367f35cf04b5476ae20c7ea2306bd1ba514de4092de8d57e92ba7461",
+      "size": 17934
+    },
+    {
+      "kind": "table",
+      "name": "active_chat_scene_step",
+      "path": "Database/acore_world/table-active_chat_scene_step.sql",
+      "schema": "acore_world",
+      "sha256": "fefe855eee00336e25fbbe23e1a1b881a48bec13555db59062c655d692df4692",
+      "size": 77728
+    },
+    {
+      "kind": "table",
+      "name": "active_chat_token",
+      "path": "Database/acore_world/table-active_chat_token.sql",
+      "schema": "acore_world",
+      "sha256": "7aa603f6684338c55d0013c27a8390498d82d81312983fcffa603e900d290827",
+      "size": 14959
+    },
+    {
+      "kind": "table",
+      "name": "antidos_opcode_policies",
+      "path": "Database/acore_world/table-antidos_opcode_policies.sql",
+      "schema": "acore_world",
+      "sha256": "8ada465ade1555ee71a361e922b32ee1cb74474f9bfaf70bf94c3a4b64029360",
+      "size": 3311
+    },
+    {
+      "kind": "table",
+      "name": "areagroup_dbc",
+      "path": "Database/acore_world/table-areagroup_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "d8654d93599edfb55ae93bf2f691a5af74b462b1505b82e6374ec9ee004592c3",
+      "size": 1725
+    },
+    {
+      "kind": "table",
+      "name": "areapoi_dbc",
+      "path": "Database/acore_world/table-areapoi_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "e06cac4c4ece6ba78ac6bc7a8218ec59022872a9523c324185191798f7ea9f84",
+      "size": 5468
+    },
+    {
+      "kind": "table",
+      "name": "areatable_dbc",
+      "path": "Database/acore_world/table-areatable_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "31391d0242d37124d5c89c0ba9313757a48b7331cddb633974c83f5710a59d3c",
+      "size": 3914
+    },
+    {
+      "kind": "table",
+      "name": "areatrigger",
+      "path": "Database/acore_world/table-areatrigger.sql",
+      "schema": "acore_world",
+      "sha256": "8557dfeb16df50c5d90090caf9455ae73c023fbc5fd7ab18514460caa1a6afa6",
+      "size": 79757
+    },
+    {
+      "kind": "table",
+      "name": "areatrigger_involvedrelation",
+      "path": "Database/acore_world/table-areatrigger_involvedrelation.sql",
+      "schema": "acore_world",
+      "sha256": "3e4f24e76dc61f4b204c2de795943275536dfb50a30085723fd96a3f84dc4458",
+      "size": 2597
+    },
+    {
+      "kind": "table",
+      "name": "areatrigger_scripts",
+      "path": "Database/acore_world/table-areatrigger_scripts.sql",
+      "schema": "acore_world",
+      "sha256": "796f3cfcd171fe3a5d9803bfca6dab025823409b27c6bdb36f701e7b8badcfce",
+      "size": 7394
+    },
+    {
+      "kind": "table",
+      "name": "areatrigger_tavern",
+      "path": "Database/acore_world/table-areatrigger_tavern.sql",
+      "schema": "acore_world",
+      "sha256": "864c8c7cf3b68e87f6b8c569537ea64f0350ad7232323bff5427a58c5d7d5067",
+      "size": 5717
+    },
+    {
+      "kind": "table",
+      "name": "areatrigger_teleport",
+      "path": "Database/acore_world/table-areatrigger_teleport.sql",
+      "schema": "acore_world",
+      "sha256": "667dcededf8b3cfc83e0670173c6f5eb9ae965a5a6c6f404152ba7102af080c3",
+      "size": 48323
+    },
+    {
+      "kind": "table",
+      "name": "arena_season_reward",
+      "path": "Database/acore_world/table-arena_season_reward.sql",
+      "schema": "acore_world",
+      "sha256": "b4ba0e10b66c2eea51dfac9a704b88e1d90196a4bfc497f5fe82fc3dffb7075c",
+      "size": 3135
+    },
+    {
+      "kind": "table",
+      "name": "arena_season_reward_group",
+      "path": "Database/acore_world/table-arena_season_reward_group.sql",
+      "schema": "acore_world",
+      "sha256": "bcaa5cb81b651b1e4f4c1181fbfbfcf984bcc928c75f51176b0319f82684b2cf",
+      "size": 4427
+    },
+    {
+      "kind": "table",
+      "name": "auctionhouse_dbc",
+      "path": "Database/acore_world/table-auctionhouse_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "c56feccf300f66dadd78d7a70ae43c70455eab8c7a874f222bb249ac89da6201",
+      "size": 3179
+    },
+    {
+      "kind": "table",
+      "name": "bankbagslotprices_dbc",
+      "path": "Database/acore_world/table-bankbagslotprices_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "a07f4c1f268606b564329229a9b8d419fd1ab1aa439c3364e10cf619b25ebac8",
+      "size": 1519
+    },
+    {
+      "kind": "table",
+      "name": "barbershopstyle_dbc",
+      "path": "Database/acore_world/table-barbershopstyle_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "5984208252cac2edcd4d1c3c8107c85af911fceb90dcb0067df0bf02efd9a384",
+      "size": 5081
+    },
+    {
+      "kind": "table",
+      "name": "battleground_template",
+      "path": "Database/acore_world/table-battleground_template.sql",
+      "schema": "acore_world",
+      "sha256": "aa9d857d88f29a7e70c2f73fbdcfae806c14800159866b371363bac8153def49",
+      "size": 3536
+    },
+    {
+      "kind": "table",
+      "name": "battlemaster_entry",
+      "path": "Database/acore_world/table-battlemaster_entry.sql",
+      "schema": "acore_world",
+      "sha256": "0efefc0b36e2ed183be7d468fb107b74915d22f28c233d7881da5f61598d7fd3",
+      "size": 3718
+    },
+    {
+      "kind": "table",
+      "name": "battlemasterlist_dbc",
+      "path": "Database/acore_world/table-battlemasterlist_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "ae5b2abda9f57d825317b00cda37b5d5aa7bf7c4a5f79b257329612f6529ae81",
+      "size": 3642
+    },
+    {
+      "kind": "table",
+      "name": "broadcast_text",
+      "path": "Database/acore_world/table-broadcast_text.sql",
+      "schema": "acore_world",
+      "sha256": "43113060fbf1280eae9632588593b5a22b0faf93ead29d0c10796bed351293f0",
+      "size": 10386289
+    },
+    {
+      "kind": "table",
+      "name": "broadcast_text_locale",
+      "path": "Database/acore_world/table-broadcast_text_locale.sql",
+      "schema": "acore_world",
+      "sha256": "a3c5f056f2b4629e1e46e4a335fdeb0d9cb2ae2891969ec1c1d7d3a3edbb818f",
+      "size": 114784040
+    },
+    {
+      "kind": "table",
+      "name": "charstartoutfit_dbc",
+      "path": "Database/acore_world/table-charstartoutfit_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "87c7c3769e7846c4dabff4a9ba3831db5dfc9e569352d89b44ed8dabcf3749d5",
+      "size": 142479
+    },
+    {
+      "kind": "table",
+      "name": "chartitles_dbc",
+      "path": "Database/acore_world/table-chartitles_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "b08de3fd4dd54b6dea8b817e017b3c8f600ff5a7c89d9573f5d926a853bb15f4",
+      "size": 14263
+    },
+    {
+      "kind": "table",
+      "name": "chatchannels_dbc",
+      "path": "Database/acore_world/table-chatchannels_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "4b3257c2005e6ba3b8d16ecb705d9ae1c363fc7d42b0638d0720320d15608796",
+      "size": 4787
+    },
+    {
+      "kind": "table",
+      "name": "chrclasses_dbc",
+      "path": "Database/acore_world/table-chrclasses_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "baeb5e5e59db547862da4e29998d198de31bdd99353c48706c18b3d4847b0a0f",
+      "size": 6822
+    },
+    {
+      "kind": "table",
+      "name": "chrraces_dbc",
+      "path": "Database/acore_world/table-chrraces_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "27f8c44781fe2fc00bfddea4114cb211721f2a0e1112586c7d02626db84b15e5",
+      "size": 7461
+    },
+    {
+      "kind": "table",
+      "name": "cinematiccamera_dbc",
+      "path": "Database/acore_world/table-cinematiccamera_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "844dbc9b283c5f86dd690f007e4eef3744e7de8138442fe6d87ff53bc6b787f2",
+      "size": 1804
+    },
+    {
+      "kind": "table",
+      "name": "cinematicsequences_dbc",
+      "path": "Database/acore_world/table-cinematicsequences_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "545242bed91f12d046349c829102c897892b4aee0872cffc7a6ecf0d22beac98",
+      "size": 1847
+    },
+    {
+      "kind": "table",
+      "name": "command",
+      "path": "Database/acore_world/table-command.sql",
+      "schema": "acore_world",
+      "sha256": "0d5b27719fa3b447ecd35ccbe12009c7be89e4e5b845611554934a43317e82e2",
+      "size": 115131
+    },
+    {
+      "kind": "table",
+      "name": "conditions",
+      "path": "Database/acore_world/table-conditions.sql",
+      "schema": "acore_world",
+      "sha256": "7fdbafe85117607a6091eda31327056b9c2e9b457d9eaee0a5e91e4de29fbde0",
+      "size": 1824639
+    },
+    {
+      "kind": "table",
+      "name": "creature",
+      "path": "Database/acore_world/table-creature.sql",
+      "schema": "acore_world",
+      "sha256": "461bb45b55f87cba76d492ea200926a80f32577eac5e88947a6a2f29f93b6dbb",
+      "size": 26062503
+    },
+    {
+      "kind": "table",
+      "name": "creature_addon",
+      "path": "Database/acore_world/table-creature_addon.sql",
+      "schema": "acore_world",
+      "sha256": "3e9b0a8a903938c9f96fb83914de3e2b98142c0497cd325f293c5ac74b038152",
+      "size": 1319975
+    },
+    {
+      "kind": "table",
+      "name": "creature_classlevelstats",
+      "path": "Database/acore_world/table-creature_classlevelstats.sql",
+      "schema": "acore_world",
+      "sha256": "07f5e32e09bbc5773f6e3a6bad6ab5d132a9130df179ee9090a0c7a98f1d3d5f",
+      "size": 76613
+    },
+    {
+      "kind": "table",
+      "name": "creature_default_trainer",
+      "path": "Database/acore_world/table-creature_default_trainer.sql",
+      "schema": "acore_world",
+      "sha256": "1c2bfe0453d85414eee4b5154b78a7a399dc9cdc26f46ce1035f7dab8e1c5fba",
+      "size": 14191
+    },
+    {
+      "kind": "table",
+      "name": "creature_equip_template",
+      "path": "Database/acore_world/table-creature_equip_template.sql",
+      "schema": "acore_world",
+      "sha256": "ea14e0485930ea12955dd861e89d5031f9a21e5f0dcd318cc7f7b121f135063d",
+      "size": 776656
+    },
+    {
+      "kind": "table",
+      "name": "creature_formations",
+      "path": "Database/acore_world/table-creature_formations.sql",
+      "schema": "acore_world",
+      "sha256": "68a7be90be93065f1f11acd5a60d4d7f6f32e817243c38bf3cb85735c0c31281",
+      "size": 221940
+    },
+    {
+      "kind": "table",
+      "name": "creature_immunities",
+      "path": "Database/acore_world/table-creature_immunities.sql",
+      "schema": "acore_world",
+      "sha256": "2b5681f0c244a3a68db88535b0c5e575418324eb16830546cb692aa58be255d4",
+      "size": 117629
+    },
+    {
+      "kind": "table",
+      "name": "creature_loot_template",
+      "path": "Database/acore_world/table-creature_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "3d14526bd08eb84dbf4194003d039b9f72e9c94069ab14b18ca4a74d799cba29",
+      "size": 7897278
+    },
+    {
+      "kind": "table",
+      "name": "creature_model_info",
+      "path": "Database/acore_world/table-creature_model_info.sql",
+      "schema": "acore_world",
+      "sha256": "2eb0e752fc7e3ec32e657cccdc7d0c0d2e48bffdd9b33f42265eeb00bce28d36",
+      "size": 795060
+    },
+    {
+      "kind": "table",
+      "name": "creature_movement_override",
+      "path": "Database/acore_world/table-creature_movement_override.sql",
+      "schema": "acore_world",
+      "sha256": "04cdf8f51ef62373a02b7bc5a1a5f78fc78f19625ee2e119025d7edc6ea6ceb4",
+      "size": 2452
+    },
+    {
+      "kind": "table",
+      "name": "creature_multispawn",
+      "path": "Database/acore_world/table-creature_multispawn.sql",
+      "schema": "acore_world",
+      "sha256": "0c99437bad0d18e6d0212ec48a31e99bddd5ccb30774533b2e1aa8f888be96a8",
+      "size": 20217
+    },
+    {
+      "kind": "table",
+      "name": "creature_onkill_reputation",
+      "path": "Database/acore_world/table-creature_onkill_reputation.sql",
+      "schema": "acore_world",
+      "sha256": "a03e47d08c1f33654dce6d9e44c482e98863d1dcf329168a523d12e1ed208f56",
+      "size": 90480
+    },
+    {
+      "kind": "table",
+      "name": "creature_questender",
+      "path": "Database/acore_world/table-creature_questender.sql",
+      "schema": "acore_world",
+      "sha256": "2cb9fc518073f01af514c9298b749bb7f585217d03282a2ea3ce88f45935d41f",
+      "size": 140664
+    },
+    {
+      "kind": "table",
+      "name": "creature_questitem",
+      "path": "Database/acore_world/table-creature_questitem.sql",
+      "schema": "acore_world",
+      "sha256": "207cba6e170a7d1199f6e60e7379606dc7907cc6318c6c6bf98ed51d5cb6881e",
+      "size": 104028
+    },
+    {
+      "kind": "table",
+      "name": "creature_queststarter",
+      "path": "Database/acore_world/table-creature_queststarter.sql",
+      "schema": "acore_world",
+      "sha256": "5616f5113239a2289c9f17e54d41c6635469c2bae5c8451fd35a13d256be9638",
+      "size": 132791
+    },
+    {
+      "kind": "table",
+      "name": "creature_sparring",
+      "path": "Database/acore_world/table-creature_sparring.sql",
+      "schema": "acore_world",
+      "sha256": "5ca1bab382e618b5208435f2711ccdbc9ac59cc0520d55301e1e2d49844a22c1",
+      "size": 1674
+    },
+    {
+      "kind": "table",
+      "name": "creature_summon_groups",
+      "path": "Database/acore_world/table-creature_summon_groups.sql",
+      "schema": "acore_world",
+      "sha256": "c625e678fe5598dadac8504ae69cb2587f6c379d55c829bb3dd811561e06c848",
+      "size": 227228
+    },
+    {
+      "kind": "table",
+      "name": "creature_template",
+      "path": "Database/acore_world/table-creature_template.sql",
+      "schema": "acore_world",
+      "sha256": "2b157830f4ee10231dcdb5a140351b2a6576761e79263a86f3a3ab016dbba8e1",
+      "size": 14628692
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_addon",
+      "path": "Database/acore_world/table-creature_template_addon.sql",
+      "schema": "acore_world",
+      "sha256": "0845605f79455b46678b861329278ab0563e125464d25ab93e48b4d7cc705747",
+      "size": 431987
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_locale",
+      "path": "Database/acore_world/table-creature_template_locale.sql",
+      "schema": "acore_world",
+      "sha256": "7721e4b73b1b4358b2af364afe975a9aee39738c9b31d4cba2881b93fea9218b",
+      "size": 14983683
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_model",
+      "path": "Database/acore_world/table-creature_template_model.sql",
+      "schema": "acore_world",
+      "sha256": "89a09dfa39eb7830744503da3eb4cd24d2f8b4d2b781b7b28705c3234cade713",
+      "size": 1799204
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_movement",
+      "path": "Database/acore_world/table-creature_template_movement.sql",
+      "schema": "acore_world",
+      "sha256": "363c904905319e125d28d856400666fb679f8f42853bfec3bdd3c25b0588a189",
+      "size": 159764
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_npcbot_appearance",
+      "path": "Database/acore_world/table-creature_template_npcbot_appearance.sql",
+      "schema": "acore_world",
+      "sha256": "b823e110ba64ffec68fb913e8f781eb0f41b0ebc58d08c609294725b59dc52d7",
+      "size": 493408
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_npcbot_disabled_items",
+      "path": "Database/acore_world/table-creature_template_npcbot_disabled_items.sql",
+      "schema": "acore_world",
+      "sha256": "31373bfd3e0b83f73d9b2e2be65cec2a19cc11790668e6d3fc91f3fe82bb9fef",
+      "size": 882080
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_npcbot_extras",
+      "path": "Database/acore_world/table-creature_template_npcbot_extras.sql",
+      "schema": "acore_world",
+      "sha256": "d7e1b8a409adb477fbdbabe979159da4ffd9a9c74e5cdaba83a13ae66e38cb78",
+      "size": 207485
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_npcbot_wander_nodes",
+      "path": "Database/acore_world/table-creature_template_npcbot_wander_nodes.sql",
+      "schema": "acore_world",
+      "sha256": "88b1c8c74ea96aa2724361afb004db6c8cc674b0d2242f5e309509e7963e67c7",
+      "size": 1212207
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_outfits",
+      "path": "Database/acore_world/table-creature_template_outfits.sql",
+      "schema": "acore_world",
+      "sha256": "013201c07d874b1539d4975b2336322bf5f917bd9c1970be131720aa072f256b",
+      "size": 2760
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_resistance",
+      "path": "Database/acore_world/table-creature_template_resistance.sql",
+      "schema": "acore_world",
+      "sha256": "1ad27e35e546da65446232e989d2ef081754cfa3318a52ba8890f61a46e2d2b1",
+      "size": 107701
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_spell",
+      "path": "Database/acore_world/table-creature_template_spell.sql",
+      "schema": "acore_world",
+      "sha256": "7f59bd6e14ce705ae604dc30d43e029c4523b632a69a77926547eb3d0a789293",
+      "size": 263591
+    },
+    {
+      "kind": "table",
+      "name": "creature_template_spell_editor_shim",
+      "path": "Database/acore_world/table-creature_template_spell_editor_shim.sql",
+      "schema": "acore_world",
+      "sha256": "653662a9b937337d04be9b20ef2133e84108ea3552cd5791b27c71c15b0c0692",
+      "size": 144932
+    },
+    {
+      "kind": "table",
+      "name": "creature_text",
+      "path": "Database/acore_world/table-creature_text.sql",
+      "schema": "acore_world",
+      "sha256": "f559faca7f5bf930f2a5a48d071616aed8bb6f6e6d57357271c53d3c5731b76c",
+      "size": 2515345
+    },
+    {
+      "kind": "table",
+      "name": "creature_text_locale",
+      "path": "Database/acore_world/table-creature_text_locale.sql",
+      "schema": "acore_world",
+      "sha256": "b41f4b082105f3113da2242582cd22b5a0fea21bccfb7251a9b742fc10880ff6",
+      "size": 2201141
+    },
+    {
+      "kind": "table",
+      "name": "creature_text_option_sets",
+      "path": "Database/acore_world/table-creature_text_option_sets.sql",
+      "schema": "acore_world",
+      "sha256": "f8e05d7cf5e9330eacb02351bbbacd69a055123f4352c8cd511153872af620eb",
+      "size": 2413
+    },
+    {
+      "kind": "table",
+      "name": "creature_text_options",
+      "path": "Database/acore_world/table-creature_text_options.sql",
+      "schema": "acore_world",
+      "sha256": "02550e79a21e364acdcac2abc29f2d77d29a63471d4a761d06f77b32fed2d212",
+      "size": 2510
+    },
+    {
+      "kind": "table",
+      "name": "creaturedisplayinfo_dbc",
+      "path": "Database/acore_world/table-creaturedisplayinfo_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "b502b538013c5a93c9d30c8e6960adf6ff63d4f9952e35f7b15d1e71327b6bf5",
+      "size": 5595
+    },
+    {
+      "kind": "table",
+      "name": "creaturedisplayinfoextra_dbc",
+      "path": "Database/acore_world/table-creaturedisplayinfoextra_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "a19a5fde3969b7f565ecc3b0e959d0bcb8449c5c68a6d9f359dc479301e6b22b",
+      "size": 2635
+    },
+    {
+      "kind": "table",
+      "name": "creaturefamily_dbc",
+      "path": "Database/acore_world/table-creaturefamily_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "090cafbf3b3c0c030c0395fa2395f709030a74a211df100a3dbac3e3b33b218e",
+      "size": 3542
+    },
+    {
+      "kind": "table",
+      "name": "creaturemodeldata_dbc",
+      "path": "Database/acore_world/table-creaturemodeldata_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "6af2fa4212272ee3c9fa8d80be4eebb7b5d88072878a600883935698b361ebd6",
+      "size": 10019
+    },
+    {
+      "kind": "table",
+      "name": "creaturespelldata_dbc",
+      "path": "Database/acore_world/table-creaturespelldata_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "347b2997a4c2a1d40255e5500c4dad58b6bbed5169e60d43827f1bfebb5df608",
+      "size": 1827
+    },
+    {
+      "kind": "table",
+      "name": "creaturetype_dbc",
+      "path": "Database/acore_world/table-creaturetype_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "fd3ab8c4f4efdce5033baef28b646486c32c34b9a6c85fabcb26d1b55d1b84fc",
+      "size": 3085
+    },
+    {
+      "kind": "table",
+      "name": "currencytypes_dbc",
+      "path": "Database/acore_world/table-currencytypes_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "353e68dd5535986601617f8d8fb129fbc912e4700f06c72ff28d96a894775730",
+      "size": 1690
+    },
+    {
+      "kind": "table",
+      "name": "custom_grobbulus_edge_points",
+      "path": "Database/acore_world/table-custom_grobbulus_edge_points.sql",
+      "schema": "acore_world",
+      "sha256": "0d81e2babd93ef27fe3a0426c3ee5f7d6f12ca6093b788ec3aef298681c8bb90",
+      "size": 2031
+    },
+    {
+      "kind": "table",
+      "name": "custom_item_damage_mod",
+      "path": "Database/acore_world/table-custom_item_damage_mod.sql",
+      "schema": "acore_world",
+      "sha256": "dc38ac4f313ff7c9a818ea1a3cda64678eec77c3e0d873c40df84dcb6e896273",
+      "size": 1778
+    },
+    {
+      "kind": "table",
+      "name": "custom_quest_xp",
+      "path": "Database/acore_world/table-custom_quest_xp.sql",
+      "schema": "acore_world",
+      "sha256": "aa1d1ec6243417c1459c8296da24d6dd1e147664091e995076cd5836348a2661",
+      "size": 89678
+    },
+    {
+      "kind": "table",
+      "name": "custom_sod_revision2_before",
+      "path": "Database/acore_world/table-custom_sod_revision2_before.sql",
+      "schema": "acore_world",
+      "sha256": "64411462c65e9ad9baec50f89050a970ac17efb62a94330bd22b4728bc1797e3",
+      "size": 4238036
+    },
+    {
+      "kind": "table",
+      "name": "custom_sod_vanilla_stats_backup_20260920",
+      "path": "Database/acore_world/table-custom_sod_vanilla_stats_backup_20260920.sql",
+      "schema": "acore_world",
+      "sha256": "cff83fc9ed0968a753ceca93e30a5ae1465e78af69168d67e4e5bd2bbe7c3b2e",
+      "size": 914217
+    },
+    {
+      "kind": "table",
+      "name": "custom_zone_auras",
+      "path": "Database/acore_world/table-custom_zone_auras.sql",
+      "schema": "acore_world",
+      "sha256": "605b49e7d8f6d7b4a9a8e3d7650748ccf6484224ae50c81c57582b13bdaad488",
+      "size": 2111
+    },
+    {
+      "kind": "table",
+      "name": "destructiblemodeldata_dbc",
+      "path": "Database/acore_world/table-destructiblemodeldata_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "15596481cc2ef1c4951e1c5d331bd4b11bc8f81ef9dea47335e476bca07aa6fd",
+      "size": 2429
+    },
+    {
+      "kind": "table",
+      "name": "disables",
+      "path": "Database/acore_world/table-disables.sql",
+      "schema": "acore_world",
+      "sha256": "6742ccc410b8db849ae7c5b188eac3e1434e037e0d56e0bdd4ceffae3ef7ad25",
+      "size": 46099
+    },
+    {
+      "kind": "table",
+      "name": "disenchant_loot_template",
+      "path": "Database/acore_world/table-disenchant_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "9747d5f098de8a39c263883efc29d0927e6b9abd538c90fdcfbf2a9621084e90",
+      "size": 9325
+    },
+    {
+      "kind": "table",
+      "name": "dungeon_access_requirements",
+      "path": "Database/acore_world/table-dungeon_access_requirements.sql",
+      "schema": "acore_world",
+      "sha256": "eeb7c6acdd9baf44b76b6274ef69693e70172e16979e7822fa29da7694f519e0",
+      "size": 6993
+    },
+    {
+      "kind": "table",
+      "name": "dungeon_access_template",
+      "path": "Database/acore_world/table-dungeon_access_template.sql",
+      "schema": "acore_world",
+      "sha256": "ce7cf22523cbfe891425664865410a0ade48f8e39979ff0ba4142758449afa3c",
+      "size": 8988
+    },
+    {
+      "kind": "table",
+      "name": "dungeonencounter_dbc",
+      "path": "Database/acore_world/table-dungeonencounter_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "eec06cf28e7db6a4e9320157e39c8046506551378d5972abe487746c3e01b8fa",
+      "size": 6029
+    },
+    {
+      "kind": "table",
+      "name": "durabilitycosts_dbc",
+      "path": "Database/acore_world/table-durabilitycosts_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "333ea93e05cc8cdf2e7fbe8134938b07d9903de3909e1a04169b6b1ca9312e2e",
+      "size": 2985
+    },
+    {
+      "kind": "table",
+      "name": "durabilityquality_dbc",
+      "path": "Database/acore_world/table-durabilityquality_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "1dc241adde51d98003cdfe55868931569bc9dca5f8b55d4218842beed27f3494",
+      "size": 1521
+    },
+    {
+      "kind": "table",
+      "name": "emotes_dbc",
+      "path": "Database/acore_world/table-emotes_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "833ecaf43a2875824d37e5e7d545f49703daac4535820c43b8120b886cb23302",
+      "size": 1746
+    },
+    {
+      "kind": "table",
+      "name": "emotestext_dbc",
+      "path": "Database/acore_world/table-emotestext_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "3832c97e821f3240353ec52ba4e5bf1a80ea057cfce7e49f5fa5a29866284274",
+      "size": 2268
+    },
+    {
+      "kind": "table",
+      "name": "event_scripts",
+      "path": "Database/acore_world/table-event_scripts.sql",
+      "schema": "acore_world",
+      "sha256": "7bab05fd18277cfca5fc15eba062511739190089c685674a0188f740b054b38d",
+      "size": 31642
+    },
+    {
+      "kind": "table",
+      "name": "exploration_basexp",
+      "path": "Database/acore_world/table-exploration_basexp.sql",
+      "schema": "acore_world",
+      "sha256": "158f61890771605cbc3e49b59c8c41ee8f5d1a7af8bad4a8cb549086843f4b10",
+      "size": 2648
+    },
+    {
+      "kind": "table",
+      "name": "faction_dbc",
+      "path": "Database/acore_world/table-faction_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "da8690185d28398cdf73aa1dde26e3458a0d025cef58cad8f5e5d32090035a4b",
+      "size": 5838
+    },
+    {
+      "kind": "table",
+      "name": "factiontemplate_dbc",
+      "path": "Database/acore_world/table-factiontemplate_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "373aa4cb6cb26e22dbb130106f26f705bb8e01cb83fe5f25c39864398fd0dcfa",
+      "size": 47890
+    },
+    {
+      "kind": "table",
+      "name": "fishing_loot_template",
+      "path": "Database/acore_world/table-fishing_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "577c2a07ee3e8b23ae1246c67c4c3a31dbdc1072fcc13f8534ced08978a6b7f0",
+      "size": 17967
+    },
+    {
+      "kind": "table",
+      "name": "game_event",
+      "path": "Database/acore_world/table-game_event.sql",
+      "schema": "acore_world",
+      "sha256": "6489a32677c8a236eed2f2e05aa7e077fe41ebf9218f93db52a5a277bb2972e7",
+      "size": 23502
+    },
+    {
+      "kind": "table",
+      "name": "game_event_arena_seasons",
+      "path": "Database/acore_world/table-game_event_arena_seasons.sql",
+      "schema": "acore_world",
+      "sha256": "5033d390782cbe16bfbcdf31ab5dcb222bb0c90276c36ce5add13eda5cefd877",
+      "size": 1795
+    },
+    {
+      "kind": "table",
+      "name": "game_event_battleground_holiday",
+      "path": "Database/acore_world/table-game_event_battleground_holiday.sql",
+      "schema": "acore_world",
+      "sha256": "049dfd95a0e120c1a1a13e07877a5e91cf7a7f3b29bb99174a4730c1e19e284b",
+      "size": 1789
+    },
+    {
+      "kind": "table",
+      "name": "game_event_condition",
+      "path": "Database/acore_world/table-game_event_condition.sql",
+      "schema": "acore_world",
+      "sha256": "7249d841437efbec36fe741909fdc4ed502b8b3cce495745694daac8e1a02e7e",
+      "size": 1863
+    },
+    {
+      "kind": "table",
+      "name": "game_event_creature",
+      "path": "Database/acore_world/table-game_event_creature.sql",
+      "schema": "acore_world",
+      "sha256": "46f0a3117a3e08e1e42284c0b7f21f09767ab8eea82af1569587657fcc57f76f",
+      "size": 180101
+    },
+    {
+      "kind": "table",
+      "name": "game_event_creature_quest",
+      "path": "Database/acore_world/table-game_event_creature_quest.sql",
+      "schema": "acore_world",
+      "sha256": "d1170149939e8bc5f139bd2c6528fb9ff567bb4254c96ffa71a594198b167625",
+      "size": 6466
+    },
+    {
+      "kind": "table",
+      "name": "game_event_gameobject",
+      "path": "Database/acore_world/table-game_event_gameobject.sql",
+      "schema": "acore_world",
+      "sha256": "dd9e6c3cca026753e3c2353e9c6df8422968381627aab91ca8e33f10cf73f00d",
+      "size": 478488
+    },
+    {
+      "kind": "table",
+      "name": "game_event_gameobject_quest",
+      "path": "Database/acore_world/table-game_event_gameobject_quest.sql",
+      "schema": "acore_world",
+      "sha256": "3156eeb097f437b5d974ea7a37d801953e32ff51a023d7e4cdcd07aad44a7624",
+      "size": 3463
+    },
+    {
+      "kind": "table",
+      "name": "game_event_model_equip",
+      "path": "Database/acore_world/table-game_event_model_equip.sql",
+      "schema": "acore_world",
+      "sha256": "df1041910b007c3bfb941d833cd7066575bde5319c6956bf21319918278fc67b",
+      "size": 1684
+    },
+    {
+      "kind": "table",
+      "name": "game_event_npc_vendor",
+      "path": "Database/acore_world/table-game_event_npc_vendor.sql",
+      "schema": "acore_world",
+      "sha256": "2bbf35b7a2eecbfd7c4edf076610377203d702104cc994b20a94596746001817",
+      "size": 2451
+    },
+    {
+      "kind": "table",
+      "name": "game_event_npcflag",
+      "path": "Database/acore_world/table-game_event_npcflag.sql",
+      "schema": "acore_world",
+      "sha256": "d79c9d753f97b8c416d006bf353af6507a3be9fe144f1af49b77eb9cadbd84b1",
+      "size": 1798
+    },
+    {
+      "kind": "table",
+      "name": "game_event_pool",
+      "path": "Database/acore_world/table-game_event_pool.sql",
+      "schema": "acore_world",
+      "sha256": "9f18f32011bd6595479bd12d5ad1b42dd27300332783765b5df41c7ae4ef3df2",
+      "size": 1787
+    },
+    {
+      "kind": "table",
+      "name": "game_event_prerequisite",
+      "path": "Database/acore_world/table-game_event_prerequisite.sql",
+      "schema": "acore_world",
+      "sha256": "395777582f4312e998edab5cd4cf4b382ecf1d4ac622762b29feb8ae956e39c9",
+      "size": 1612
+    },
+    {
+      "kind": "table",
+      "name": "game_event_quest_condition",
+      "path": "Database/acore_world/table-game_event_quest_condition.sql",
+      "schema": "acore_world",
+      "sha256": "7b921a0973c7bafede3c2e32dacea87044c67a8ff9a25df6b12c8ed539c87c92",
+      "size": 1682
+    },
+    {
+      "kind": "table",
+      "name": "game_event_seasonal_questrelation",
+      "path": "Database/acore_world/table-game_event_seasonal_questrelation.sql",
+      "schema": "acore_world",
+      "sha256": "1a98c778a0ff9f12f618455ce1413965260fa5b8c7dd9873caf599ef31fdeec8",
+      "size": 11641
+    },
+    {
+      "kind": "table",
+      "name": "game_graveyard",
+      "path": "Database/acore_world/table-game_graveyard.sql",
+      "schema": "acore_world",
+      "sha256": "24aa9f1e0bae40b810dc38c27d8ac5c34b985fac211d60ceb1d0be30e5098b04",
+      "size": 104121
+    },
+    {
+      "kind": "table",
+      "name": "game_tele",
+      "path": "Database/acore_world/table-game_tele.sql",
+      "schema": "acore_world",
+      "sha256": "7b74db83c888ce0ad03523b92deeb5f9ffdd93d894e05c2db6719b122871cc71",
+      "size": 275838
+    },
+    {
+      "kind": "table",
+      "name": "game_weather",
+      "path": "Database/acore_world/table-game_weather.sql",
+      "schema": "acore_world",
+      "sha256": "524ffd92542b900326814fae3682e499210365714966c5da4e9556b3f359470c",
+      "size": 4813
+    },
+    {
+      "kind": "table",
+      "name": "gameobject",
+      "path": "Database/acore_world/table-gameobject.sql",
+      "schema": "acore_world",
+      "sha256": "28752ba5263588ca266813ff4735838dfb445145bddbce64ecbe294179f3fbc4",
+      "size": 18698627
+    },
+    {
+      "kind": "table",
+      "name": "gameobject_addon",
+      "path": "Database/acore_world/table-gameobject_addon.sql",
+      "schema": "acore_world",
+      "sha256": "3a5b5557d06e825a0e608ec06fc1d99665f66948c22c41e2c6dbdae4971463ef",
+      "size": 6339
+    },
+    {
+      "kind": "table",
+      "name": "gameobject_loot_template",
+      "path": "Database/acore_world/table-gameobject_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "1fb70069a01081b63837dd2f6bf3b6784c666d255e8bdf90a0e7b4ee96fb95d6",
+      "size": 1492660
+    },
+    {
+      "kind": "table",
+      "name": "gameobject_questender",
+      "path": "Database/acore_world/table-gameobject_questender.sql",
+      "schema": "acore_world",
+      "sha256": "5bac54d2fc611d8dedbc3438fa2db5663e729992a4519b88a1303ccd31b83dfd",
+      "size": 9926
+    },
+    {
+      "kind": "table",
+      "name": "gameobject_questitem",
+      "path": "Database/acore_world/table-gameobject_questitem.sql",
+      "schema": "acore_world",
+      "sha256": "c3161bcfea72bc342f212be52fa6e395fba82889fd0d04234ea8257f1fd5a538",
+      "size": 22837
+    },
+    {
+      "kind": "table",
+      "name": "gameobject_queststarter",
+      "path": "Database/acore_world/table-gameobject_queststarter.sql",
+      "schema": "acore_world",
+      "sha256": "00be5240d342f50ee5a2070a49bb73529ed1005beea2bd19c65a054e77dc2c90",
+      "size": 9852
+    },
+    {
+      "kind": "table",
+      "name": "gameobject_summon_groups",
+      "path": "Database/acore_world/table-gameobject_summon_groups.sql",
+      "schema": "acore_world",
+      "sha256": "a438b5de1fcd4bed2714dec2bf9dd44aa75b8812f8852c99d2c5f0b8f0f594f7",
+      "size": 16828
+    },
+    {
+      "kind": "table",
+      "name": "gameobject_template",
+      "path": "Database/acore_world/table-gameobject_template.sql",
+      "schema": "acore_world",
+      "sha256": "a848c2f1af5c022660246d198e7373b158dbf9821e8adfa2040dc76c34c4d3db",
+      "size": 6049558
+    },
+    {
+      "kind": "table",
+      "name": "gameobject_template_addon",
+      "path": "Database/acore_world/table-gameobject_template_addon.sql",
+      "schema": "acore_world",
+      "sha256": "3153da67a3a9ac2a75287d490d67522ce0fe4ecf6c60dd10da27acb6994e9c55",
+      "size": 780112
+    },
+    {
+      "kind": "table",
+      "name": "gameobject_template_locale",
+      "path": "Database/acore_world/table-gameobject_template_locale.sql",
+      "schema": "acore_world",
+      "sha256": "043c2eb49e6c76603b2799ae550aa48cd081e458d884b9647c1ad9325de6c909",
+      "size": 9248258
+    },
+    {
+      "kind": "table",
+      "name": "gameobjectartkit_dbc",
+      "path": "Database/acore_world/table-gameobjectartkit_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "e7563a0a78cb9e45f9777336a78715cb4ba0e484bc7a0fd562865b1e7e6955df",
+      "size": 1785
+    },
+    {
+      "kind": "table",
+      "name": "gameobjectdisplayinfo_dbc",
+      "path": "Database/acore_world/table-gameobjectdisplayinfo_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "b878224791c02c4b5df52243a8f3b05b1654acab93f6105b9bbabd53740b0a6d",
+      "size": 4324
+    },
+    {
+      "kind": "table",
+      "name": "gemproperties_dbc",
+      "path": "Database/acore_world/table-gemproperties_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "effaa91fd79607fedf4c5c62be30949d9002518fbeca037d56651ca5a54b7e13",
+      "size": 1630
+    },
+    {
+      "kind": "table",
+      "name": "glyphproperties_dbc",
+      "path": "Database/acore_world/table-glyphproperties_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "7dcf2cae00838169b93de0a5904db4c967d3a53316d630f560a8cbcaab2e11ef",
+      "size": 1747
+    },
+    {
+      "kind": "table",
+      "name": "glyphslot_dbc",
+      "path": "Database/acore_world/table-glyphslot_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "be16f309d8e436d6bad22deae83bc7e4080f226a0c2b64411dcb9befe3aebae1",
+      "size": 1518
+    },
+    {
+      "kind": "table",
+      "name": "gm_item_template_delete_log",
+      "path": "Database/acore_world/table-gm_item_template_delete_log.sql",
+      "schema": "acore_world",
+      "sha256": "6db5ddcc68a2862c9ee2691830dd33ab4a8d57b8e1908f96d5188eb03de4ff4b",
+      "size": 2079
+    },
+    {
+      "kind": "table",
+      "name": "gossip_menu",
+      "path": "Database/acore_world/table-gossip_menu.sql",
+      "schema": "acore_world",
+      "sha256": "9b283349d7c2e98ff95aeb614f51c26451acdbd23dd28ad5bb78dcbe59f23d98",
+      "size": 103513
+    },
+    {
+      "kind": "table",
+      "name": "gossip_menu_option",
+      "path": "Database/acore_world/table-gossip_menu_option.sql",
+      "schema": "acore_world",
+      "sha256": "0b5bb7f64376d1be1a42bb85c8d888851b7adfacff63b38aeeb9480d84650078",
+      "size": 433864
+    },
+    {
+      "kind": "table",
+      "name": "gossip_menu_option_locale",
+      "path": "Database/acore_world/table-gossip_menu_option_locale.sql",
+      "schema": "acore_world",
+      "sha256": "fe48ef352652ad2305132b3ba62ef84cafe303f58f2c5c0670ec90d125ba4537",
+      "size": 3318395
+    },
+    {
+      "kind": "table",
+      "name": "graveyard_zone",
+      "path": "Database/acore_world/table-graveyard_zone.sql",
+      "schema": "acore_world",
+      "sha256": "9429d095c8df4917f0bdc54bc405ea8b4887a3621aa2acbe565f4864f02ae0fb",
+      "size": 48405
+    },
+    {
+      "kind": "table",
+      "name": "gtbarbershopcostbase_dbc",
+      "path": "Database/acore_world/table-gtbarbershopcostbase_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "ffcc5d867112ece00fbf0a5d49848415ed4cc98747a5ef577d36c59f45b1c875",
+      "size": 3053
+    },
+    {
+      "kind": "table",
+      "name": "gtchancetomeleecrit_dbc",
+      "path": "Database/acore_world/table-gtchancetomeleecrit_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "e450febea23ed4b982e3b50a34ee9af64831890de3c0d84aa220210dc9e57034",
+      "size": 21995
+    },
+    {
+      "kind": "table",
+      "name": "gtchancetomeleecritbase_dbc",
+      "path": "Database/acore_world/table-gtchancetomeleecritbase_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "432a8637ee3fca8fd91a5fc38abcda5fdc92bb77e7f2d1799c4328e1b2f2bef1",
+      "size": 1809
+    },
+    {
+      "kind": "table",
+      "name": "gtchancetospellcrit_dbc",
+      "path": "Database/acore_world/table-gtchancetospellcrit_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "b835381c4d2d555048583c843d98b853f3bf31f1468b36439227526001613838",
+      "size": 19600
+    },
+    {
+      "kind": "table",
+      "name": "gtchancetospellcritbase_dbc",
+      "path": "Database/acore_world/table-gtchancetospellcritbase_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "e4069286a43462560ae4f06e5824514022685e04bad403b6878d6b0641e3498f",
+      "size": 1786
+    },
+    {
+      "kind": "table",
+      "name": "gtcombatratings_dbc",
+      "path": "Database/acore_world/table-gtcombatratings_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "97cbf66dcc4f78bafc891da3a5dc9d95a8f1fc53679a656d0cebbb17cdf37b16",
+      "size": 56286
+    },
+    {
+      "kind": "table",
+      "name": "gtnpcmanacostscaler_dbc",
+      "path": "Database/acore_world/table-gtnpcmanacostscaler_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "692e104a7054855b9246f400857a6070de2ca38a76d021ba098977b5ab413916",
+      "size": 3086
+    },
+    {
+      "kind": "table",
+      "name": "gtoctclasscombatratingscalar_dbc",
+      "path": "Database/acore_world/table-gtoctclasscombatratingscalar_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "cbb509df2983a44a4eea750b2848b211aeeeb67e8bdf1b1f9ad2fb460a09d67c",
+      "size": 5804
+    },
+    {
+      "kind": "table",
+      "name": "gtoctregenhp_dbc",
+      "path": "Database/acore_world/table-gtoctregenhp_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "bef98490c7b1f6062902c7bfddea46ae9b04a582a9e9314c3c3465e896b80b20",
+      "size": 20485
+    },
+    {
+      "kind": "table",
+      "name": "gtregenhpperspt_dbc",
+      "path": "Database/acore_world/table-gtregenhpperspt_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "dbe40a015d1f5d3ad53d7e35429de0c9f6a632959a0d7ea81cd05f60011e266c",
+      "size": 19974
+    },
+    {
+      "kind": "table",
+      "name": "gtregenmpperspt_dbc",
+      "path": "Database/acore_world/table-gtregenmpperspt_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "1ac42d2c3af36d9c15b9ce13521e1a5ecca3ac921203150a7f9c243bef8c2fb8",
+      "size": 19485
+    },
+    {
+      "kind": "table",
+      "name": "holidays_dbc",
+      "path": "Database/acore_world/table-holidays_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "80a31a578871dabfea0b715f1a501fe7cc990915d35d1c186c5e00a8b28f0380",
+      "size": 3733
+    },
+    {
+      "kind": "table",
+      "name": "instance_encounters",
+      "path": "Database/acore_world/table-instance_encounters.sql",
+      "schema": "acore_world",
+      "sha256": "4640c529b01aeffb9f88d61dbba5a8fb4194d25be032559ed0c58a374722c25a",
+      "size": 27713
+    },
+    {
+      "kind": "table",
+      "name": "instance_template",
+      "path": "Database/acore_world/table-instance_template.sql",
+      "schema": "acore_world",
+      "sha256": "48335a123c8a262561c255e59c1997f4ab801284a1798080019ca925f8c57ec0",
+      "size": 5243
+    },
+    {
+      "kind": "table",
+      "name": "item_dbc",
+      "path": "Database/acore_world/table-item_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "e4a4515e0208cb27b9307ed1584e7f3b67a33dcc3e6b537057a5618d33863730",
+      "size": 65940
+    },
+    {
+      "kind": "table",
+      "name": "item_enchantment_template",
+      "path": "Database/acore_world/table-item_enchantment_template.sql",
+      "schema": "acore_world",
+      "sha256": "9f6030a3431ab760c453097442962d8d62b4c893a7a7c83ba400c8eae3b2477d",
+      "size": 595061
+    },
+    {
+      "kind": "table",
+      "name": "item_loot_template",
+      "path": "Database/acore_world/table-item_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "8c645f6549c512ae80e3de70b0407e0ae308ca1631623152b8c55aa04b7aeac4",
+      "size": 518493
+    },
+    {
+      "kind": "table",
+      "name": "item_origin_manifest",
+      "path": "Database/acore_world/table-item_origin_manifest.sql",
+      "schema": "acore_world",
+      "sha256": "2182167d6342eb7935df26a1bc46927e4c90bc1a30f0d017301bda2cb629a8ee",
+      "size": 2106205
+    },
+    {
+      "kind": "table",
+      "name": "item_set_names",
+      "path": "Database/acore_world/table-item_set_names.sql",
+      "schema": "acore_world",
+      "sha256": "17c0275b54c92dc3cef6250c1d98f6a1986261ca9e4acf6db3a6a3081f319726",
+      "size": 124322
+    },
+    {
+      "kind": "table",
+      "name": "item_set_names_locale",
+      "path": "Database/acore_world/table-item_set_names_locale.sql",
+      "schema": "acore_world",
+      "sha256": "e64a1fd7869cfefc2a9f82fe2e78a90e90253a57f94a2d465b25ab5bd86f120f",
+      "size": 1078890
+    },
+    {
+      "kind": "table",
+      "name": "item_template",
+      "path": "Database/acore_world/table-item_template.sql",
+      "schema": "acore_world",
+      "sha256": "81a33011b0788977f73876a680f182b0efde24579b0fffdfb8a321842f769a46",
+      "size": 125113176
+    },
+    {
+      "kind": "table",
+      "name": "item_template_backup_vanilla_gear_before_reference_restore",
+      "path": "Database/acore_world/table-item_template_backup_vanilla_gear_before_reference_restore.sql",
+      "schema": "acore_world",
+      "sha256": "519f4356a85e287bcfc4703f078bffbb9837173a2d4883d6214307ae926b2f71",
+      "size": 4239908
+    },
+    {
+      "kind": "table",
+      "name": "item_template_gem_stack_backup",
+      "path": "Database/acore_world/table-item_template_gem_stack_backup.sql",
+      "schema": "acore_world",
+      "sha256": "58174a8a0708b0a288cebc1846165d27a1291e1c14b501dd3ea778af5a697cd8",
+      "size": 7535
+    },
+    {
+      "kind": "table",
+      "name": "item_template_locale",
+      "path": "Database/acore_world/table-item_template_locale.sql",
+      "schema": "acore_world",
+      "sha256": "6989f1aa60b6441da7e8f9ce8b4ce71788701fb7a8b56c94fa07df355c84cdf2",
+      "size": 29635925
+    },
+    {
+      "kind": "table",
+      "name": "itembagfamily_dbc",
+      "path": "Database/acore_world/table-itembagfamily_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "621cd9e1a231fdee9e36632285ec68e3030972d816bde43e7ad3657dda5b04a6",
+      "size": 3053
+    },
+    {
+      "kind": "table",
+      "name": "itemdisplayinfo_dbc",
+      "path": "Database/acore_world/table-itemdisplayinfo_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "ea9e5928f478ef52fccda0e13f717aedf7eca72cd35a2cf13652f67de1166f17",
+      "size": 238202
+    },
+    {
+      "kind": "table",
+      "name": "itemextendedcost_dbc",
+      "path": "Database/acore_world/table-itemextendedcost_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "7d07acd2714dd5941f686b95ef2e4820778c4d1a8066558c727650217339c798",
+      "size": 2123
+    },
+    {
+      "kind": "table",
+      "name": "itemlimitcategory_dbc",
+      "path": "Database/acore_world/table-itemlimitcategory_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "e2a524c0bd22de291155c40cb3f3c1ff862ef49241291e17fdbc2dd76f4d24a6",
+      "size": 3150
+    },
+    {
+      "kind": "table",
+      "name": "itemrandomproperties_dbc",
+      "path": "Database/acore_world/table-itemrandomproperties_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "a84bd3b4d91f057b8a5c658e40cf05dcaab19375110d7267de6add01e4a3333d",
+      "size": 3399
+    },
+    {
+      "kind": "table",
+      "name": "itemrandomsuffix_dbc",
+      "path": "Database/acore_world/table-itemrandomsuffix_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "d63cd82cb92302a5c622607e36f99a0b831dbbf47c4527c9d22ca1c803d5a8de",
+      "size": 3622
+    },
+    {
+      "kind": "table",
+      "name": "itemset_dbc",
+      "path": "Database/acore_world/table-itemset_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "8cd8a162f216f8d4f994c9289edee315b2219bf0abfe468d83e6f679bda67c26",
+      "size": 5901
+    },
+    {
+      "kind": "table",
+      "name": "lfg_dungeon_rewards",
+      "path": "Database/acore_world/table-lfg_dungeon_rewards.sql",
+      "schema": "acore_world",
+      "sha256": "4d467dbf52529a6e4cd710da0a5233df542f7902d16720d32cb055eb0844bc3d",
+      "size": 2358
+    },
+    {
+      "kind": "table",
+      "name": "lfg_dungeon_template",
+      "path": "Database/acore_world/table-lfg_dungeon_template.sql",
+      "schema": "acore_world",
+      "sha256": "548fb174ab6d6e0d87ae1c8388517741f4fb76a8d39115ffa81c9da708a90653",
+      "size": 5000
+    },
+    {
+      "kind": "table",
+      "name": "lfgdungeons_dbc",
+      "path": "Database/acore_world/table-lfgdungeons_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "5f397a6bba520f08a2a081c634563dadb2fc17c922f0e5e67f7fe5ae6b049f36",
+      "size": 6130
+    },
+    {
+      "kind": "table",
+      "name": "light_dbc",
+      "path": "Database/acore_world/table-light_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "d9d79027cd45bb05ec9785d066fc63333a4a87f732ddaa9184a159824d307627",
+      "size": 2037
+    },
+    {
+      "kind": "table",
+      "name": "linked_respawn",
+      "path": "Database/acore_world/table-linked_respawn.sql",
+      "schema": "acore_world",
+      "sha256": "6343113111bf5d81c30f4dba4241cf3acf1b28dd1f9096bff2895abddfd545bc",
+      "size": 96403
+    },
+    {
+      "kind": "table",
+      "name": "liquidtype_dbc",
+      "path": "Database/acore_world/table-liquidtype_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "d68211c0d9bc383e715b4f3a10b9baf588119f520df3335cd18e87561a8794e9",
+      "size": 3632
+    },
+    {
+      "kind": "table",
+      "name": "lock_dbc",
+      "path": "Database/acore_world/table-lock_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "4abd907a968c7061d2e9f8e76cdf086a1876b7bfddbcf0741c20b2abd3748d29",
+      "size": 2666
+    },
+    {
+      "kind": "table",
+      "name": "mail_level_reward",
+      "path": "Database/acore_world/table-mail_level_reward.sql",
+      "schema": "acore_world",
+      "sha256": "d34570d86c233004e0146e4bfb6e91a7cda48e2115b79e4552066d18cd78e901",
+      "size": 1930
+    },
+    {
+      "kind": "table",
+      "name": "mail_loot_template",
+      "path": "Database/acore_world/table-mail_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "0bac347f8e129b58e724ebe2072d49120a80d7c784adcc7472b278a4dce082f5",
+      "size": 9304
+    },
+    {
+      "kind": "table",
+      "name": "mailtemplate_dbc",
+      "path": "Database/acore_world/table-mailtemplate_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "ec7cee3effc5d0337b00ddf7c9860d2cae9e484a47998fff6409997bf6a9403c",
+      "size": 4689
+    },
+    {
+      "kind": "table",
+      "name": "map_dbc",
+      "path": "Database/acore_world/table-map_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "f474f2746784521d3821dfebe19c3f7fa4352a39aa1178fa4565fa5267ebafd4",
+      "size": 8505
+    },
+    {
+      "kind": "table",
+      "name": "mapdifficulty_dbc",
+      "path": "Database/acore_world/table-mapdifficulty_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "64cf97c5021378bf02a58e80288ef11010eb49ab4add17ed0de9024329d1b232",
+      "size": 4210
+    },
+    {
+      "kind": "table",
+      "name": "mcr_creature_override",
+      "path": "Database/acore_world/table-mcr_creature_override.sql",
+      "schema": "acore_world",
+      "sha256": "d02e51b0bfdfeca6113e7db03a942ac492763d022f8b07ddf760fb8bd18586e4",
+      "size": 4790
+    },
+    {
+      "kind": "table",
+      "name": "milling_loot_template",
+      "path": "Database/acore_world/table-milling_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "892fd0665c6c1dd14aab9267ecef34eb59331be35672450cb730333a4abad439",
+      "size": 5066
+    },
+    {
+      "kind": "table",
+      "name": "mod_auctionator_disabled_items",
+      "path": "Database/acore_world/table-mod_auctionator_disabled_items.sql",
+      "schema": "acore_world",
+      "sha256": "4f2ede8a8fdd072a27047397471e5ffcc8a7cff0004330aa73744d26dcf19400",
+      "size": 155375
+    },
+    {
+      "kind": "table",
+      "name": "mod_auctionator_item_class",
+      "path": "Database/acore_world/table-mod_auctionator_item_class.sql",
+      "schema": "acore_world",
+      "sha256": "7f708e5dab8b065f6eee8ec9264e2ec552d26e49780208c8e689b393e7337e7c",
+      "size": 4889
+    },
+    {
+      "kind": "table",
+      "name": "mod_auctionator_item_quality",
+      "path": "Database/acore_world/table-mod_auctionator_item_quality.sql",
+      "schema": "acore_world",
+      "sha256": "74a8cbae531428b96730b1d72f1eca4d3d8160bff5c26500d918e80c9d811afc",
+      "size": 1918
+    },
+    {
+      "kind": "table",
+      "name": "mod_auctionator_itemclass_config",
+      "path": "Database/acore_world/table-mod_auctionator_itemclass_config.sql",
+      "schema": "acore_world",
+      "sha256": "ef2071032c004f160296f537a0fb21cc6c4a3742534379e12ecf8b1241c9d7e3",
+      "size": 4114
+    },
+    {
+      "kind": "table",
+      "name": "mod_boost60_outland_overrides",
+      "path": "Database/acore_world/table-mod_boost60_outland_overrides.sql",
+      "schema": "acore_world",
+      "sha256": "47b00880d95d8515ae709f50ad24d4b2fe0d81064920392ecb3d19c713444611",
+      "size": 1709
+    },
+    {
+      "kind": "table",
+      "name": "mod_configurable_boss_loot_once",
+      "path": "Database/acore_world/table-mod_configurable_boss_loot_once.sql",
+      "schema": "acore_world",
+      "sha256": "ecf3432b13c4d560eda0a5b7f7ef6f99d4c4c12a0177c5c5d464997ab66a16b2",
+      "size": 2013
+    },
+    {
+      "kind": "table",
+      "name": "mod_dead_means_dead_respawns",
+      "path": "Database/acore_world/table-mod_dead_means_dead_respawns.sql",
+      "schema": "acore_world",
+      "sha256": "60ed2a863894856d9d260e7a6ad21c3f4a4c20f0fe8d201b1097eea966eafc3d",
+      "size": 1880
+    },
+    {
+      "kind": "table",
+      "name": "mod_dress_npc_outfit",
+      "path": "Database/acore_world/table-mod_dress_npc_outfit.sql",
+      "schema": "acore_world",
+      "sha256": "1498fb5d4437cd29ba31e38ac99af5bcac8e6ad29129c84a1fed4d5d50eb1fd7",
+      "size": 87718
+    },
+    {
+      "kind": "table",
+      "name": "mod_fake_player_ambience_go_target",
+      "path": "Database/acore_world/table-mod_fake_player_ambience_go_target.sql",
+      "schema": "acore_world",
+      "sha256": "688b8abaddc7cbf95aa619d0da4f6853f5a2d67cbf780a0231e5444fdbf56adf",
+      "size": 2301
+    },
+    {
+      "kind": "table",
+      "name": "mod_fake_player_ambience_mount",
+      "path": "Database/acore_world/table-mod_fake_player_ambience_mount.sql",
+      "schema": "acore_world",
+      "sha256": "1a73972cb8a0c68ca54f3b42b7a549b18882218a60b26074b87fec5a7d1126f7",
+      "size": 97829
+    },
+    {
+      "kind": "table",
+      "name": "mod_fake_player_ambience_npc_target",
+      "path": "Database/acore_world/table-mod_fake_player_ambience_npc_target.sql",
+      "schema": "acore_world",
+      "sha256": "e63462463e77cece1ce45522f6412546c2b4cd3a1a29a828c47a4b3af3687138",
+      "size": 2815
+    },
+    {
+      "kind": "table",
+      "name": "mod_fake_player_ambience_profile",
+      "path": "Database/acore_world/table-mod_fake_player_ambience_profile.sql",
+      "schema": "acore_world",
+      "sha256": "31e11066b8aeba2ccc70c3970ee5f8b42e6e895843198eabfea0a1404b2bb8f5",
+      "size": 139373
+    },
+    {
+      "kind": "table",
+      "name": "mod_fake_player_ambience_spell",
+      "path": "Database/acore_world/table-mod_fake_player_ambience_spell.sql",
+      "schema": "acore_world",
+      "sha256": "19ca25ffdb7b2f995ee91bd5b51bebabf1b4188fa8e0e3cea016d8e3ccde816c",
+      "size": 254162
+    },
+    {
+      "kind": "table",
+      "name": "mod_fake_player_ambience_text",
+      "path": "Database/acore_world/table-mod_fake_player_ambience_text.sql",
+      "schema": "acore_world",
+      "sha256": "e7b3405f17f9d9a81d571b1ba8782f5e297fdfe6cd984a81da2a076d8f21cf64",
+      "size": 69987
+    },
+    {
+      "kind": "table",
+      "name": "mod_geddon_once_drop",
+      "path": "Database/acore_world/table-mod_geddon_once_drop.sql",
+      "schema": "acore_world",
+      "sha256": "dc00c983c9d81ab90077deae747cf8f3c8063364e439a9384a35b3df264cbfa8",
+      "size": 1740
+    },
+    {
+      "kind": "table",
+      "name": "mod_go_spawn_replacer_backup",
+      "path": "Database/acore_world/table-mod_go_spawn_replacer_backup.sql",
+      "schema": "acore_world",
+      "sha256": "66a3a9fcadb5a8e68ec2b5390bd8ddc8d3d0ef25dc506c7f6d3b9514ff05dfcb",
+      "size": 14789
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_emote_responses",
+      "path": "Database/acore_world/table-mod_npcbot_banter_emote_responses.sql",
+      "schema": "acore_world",
+      "sha256": "76ffb8107f04623117a6e63a8862f389817033051a8c3a2fdec7c1d31aa4870f",
+      "size": 9135
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_events",
+      "path": "Database/acore_world/table-mod_npcbot_banter_events.sql",
+      "schema": "acore_world",
+      "sha256": "a3be50cd2bd4efa60a548a5b169008ba779e8e89c50ba46dd282cb44cbdbe655",
+      "size": 3077
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_lines",
+      "path": "Database/acore_world/table-mod_npcbot_banter_lines.sql",
+      "schema": "acore_world",
+      "sha256": "136413cd87c7632142f5b7ae53246f2c42725379d0a619bed3b2702a91ce048e",
+      "size": 231510
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_names",
+      "path": "Database/acore_world/table-mod_npcbot_banter_names.sql",
+      "schema": "acore_world",
+      "sha256": "8d430ff917a62082b75c41feabfcb96446048b27ac6e3712b003c3295f92d7a0",
+      "size": 20645
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_proximity_lines",
+      "path": "Database/acore_world/table-mod_npcbot_banter_proximity_lines.sql",
+      "schema": "acore_world",
+      "sha256": "462c3d4e1a3db65436e3bc69701b65076f12e873175e8c0638b66f57c0ab6a7c",
+      "size": 35431
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_response_intents",
+      "path": "Database/acore_world/table-mod_npcbot_banter_response_intents.sql",
+      "schema": "acore_world",
+      "sha256": "91124270a3b61dd00134e174dcf5e36913a4d6e968cdc9f431cb21f2df8334ab",
+      "size": 13673
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_response_lines",
+      "path": "Database/acore_world/table-mod_npcbot_banter_response_lines.sql",
+      "schema": "acore_world",
+      "sha256": "e16ad4180d7cc42152ff4e52b157c6a8893647e88ff4fcbd9eb94bedf7db7b8a",
+      "size": 229458
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_response_triggers",
+      "path": "Database/acore_world/table-mod_npcbot_banter_response_triggers.sql",
+      "schema": "acore_world",
+      "sha256": "c0b77c25c65bdde5be7a54485d3b16d4627e03b1ef498bed6155caf80acb645d",
+      "size": 208569
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_sequence_steps",
+      "path": "Database/acore_world/table-mod_npcbot_banter_sequence_steps.sql",
+      "schema": "acore_world",
+      "sha256": "a0fb078420eb5024418f42fee6fa58bcc77bcb10866d8c99a22821b7352f3004",
+      "size": 44630
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_sequences",
+      "path": "Database/acore_world/table-mod_npcbot_banter_sequences.sql",
+      "schema": "acore_world",
+      "sha256": "8892407a0872473e2d86489ac4d578db4a6078f0ad2b689ef1a682af87f8aba6",
+      "size": 9149
+    },
+    {
+      "kind": "table",
+      "name": "mod_npcbot_banter_speakers",
+      "path": "Database/acore_world/table-mod_npcbot_banter_speakers.sql",
+      "schema": "acore_world",
+      "sha256": "87cdb74bada63dcfcaa6448ac1daa7367446cfa0442a59e8ba9b90b663bbfb94",
+      "size": 2601
+    },
+    {
+      "kind": "table",
+      "name": "mod_reagent_bank_account_deposit_exclusions_zz_custom",
+      "path": "Database/acore_world/table-mod_reagent_bank_account_deposit_exclusions_zz_custom.sql",
+      "schema": "acore_world",
+      "sha256": "d97fb429c6ea70adf78762552cbb5cb4e879932f783de5276f0f83bfe2fa6e34",
+      "size": 1959
+    },
+    {
+      "kind": "table",
+      "name": "mod_timewalking_aura_pool",
+      "path": "Database/acore_world/table-mod_timewalking_aura_pool.sql",
+      "schema": "acore_world",
+      "sha256": "6981e15977de6eb4582b36fc0c63396ef50e2022fdf4e08a92d4e4f867171423",
+      "size": 2177
+    },
+    {
+      "kind": "table",
+      "name": "mod_timewalking_boss_reward",
+      "path": "Database/acore_world/table-mod_timewalking_boss_reward.sql",
+      "schema": "acore_world",
+      "sha256": "2e9a2f04f13f792f5b86fb5c316e37b713a422764282392bb00d67fe31466ba8",
+      "size": 12499
+    },
+    {
+      "kind": "table",
+      "name": "mod_timewalking_map",
+      "path": "Database/acore_world/table-mod_timewalking_map.sql",
+      "schema": "acore_world",
+      "sha256": "2afddaae7a259ac9a1756e5236897d654952b2f90fd90513be5ab100ec4bff9f",
+      "size": 6741
+    },
+    {
+      "kind": "table",
+      "name": "mod_timewalking_schedule",
+      "path": "Database/acore_world/table-mod_timewalking_schedule.sql",
+      "schema": "acore_world",
+      "sha256": "e6c664be0da7e9cfb19893c801d482ad4c04c5228a131195fda6dfa0fdf8ea00",
+      "size": 3047
+    },
+    {
+      "kind": "table",
+      "name": "mod_timewalking_spell_swap",
+      "path": "Database/acore_world/table-mod_timewalking_spell_swap.sql",
+      "schema": "acore_world",
+      "sha256": "6e52db5aeea93f6c8ef0426c03d4edbf28d10af09b44e0c61669ac696c4a0410",
+      "size": 2584
+    },
+    {
+      "kind": "table",
+      "name": "mod_warcraftxl_go_edit_history",
+      "path": "Database/acore_world/table-mod_warcraftxl_go_edit_history.sql",
+      "schema": "acore_world",
+      "sha256": "193cc27235c6ed04b5d56e5fe6ca00832ed657cd85b1c5297021984e6cd8ffe8",
+      "size": 109850
+    },
+    {
+      "kind": "table",
+      "name": "mod_warcraftxl_go_template_size_history",
+      "path": "Database/acore_world/table-mod_warcraftxl_go_template_size_history.sql",
+      "schema": "acore_world",
+      "sha256": "e66850385c578b182ce1a6b5902872fb903f0ff11f2569960088585142dd3ace",
+      "size": 2054
+    },
+    {
+      "kind": "table",
+      "name": "module_string",
+      "path": "Database/acore_world/table-module_string.sql",
+      "schema": "acore_world",
+      "sha256": "e500e245b484cfb51d47af47a10c0c36c5de3770f25e0a5637dcebd3633dd491",
+      "size": 7377
+    },
+    {
+      "kind": "table",
+      "name": "module_string_locale",
+      "path": "Database/acore_world/table-module_string_locale.sql",
+      "schema": "acore_world",
+      "sha256": "6d17cdd8a905b065f9f0163b6a9cd14014499eb949c69a4e378a6c563abf15df",
+      "size": 70726
+    },
+    {
+      "kind": "table",
+      "name": "movie_dbc",
+      "path": "Database/acore_world/table-movie_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "d1aa9ebd99a9be3c09a52d2302f93698c15ca7f8c17b546641f187648b82fa0b",
+      "size": 1551
+    },
+    {
+      "kind": "table",
+      "name": "namesprofanity_dbc",
+      "path": "Database/acore_world/table-namesprofanity_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "fda353899c49790e8666c4721e48c0ac8d48f58b8a6e03641c8ba79b43e53d5d",
+      "size": 1581
+    },
+    {
+      "kind": "table",
+      "name": "namesreserved_dbc",
+      "path": "Database/acore_world/table-namesreserved_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "74cdee17eda26eb2b2391aee91c83a39ce64dd5ef28f0efaf9fb77d0c30ac3e4",
+      "size": 1576
+    },
+    {
+      "kind": "table",
+      "name": "npc_spellclick_spells",
+      "path": "Database/acore_world/table-npc_spellclick_spells.sql",
+      "schema": "acore_world",
+      "sha256": "058f3651417c38dc1808c9245272e86289ab9205e22d09cc3ea90bdf238454d7",
+      "size": 10104
+    },
+    {
+      "kind": "table",
+      "name": "npc_text",
+      "path": "Database/acore_world/table-npc_text.sql",
+      "schema": "acore_world",
+      "sha256": "07c206c144b6a0014615e22c6efd8be04d65b03371d1bdbedfe7e733ba143afb",
+      "size": 4435298
+    },
+    {
+      "kind": "table",
+      "name": "npc_text_locale",
+      "path": "Database/acore_world/table-npc_text_locale.sql",
+      "schema": "acore_world",
+      "sha256": "76f4fbace848ea22fb4aa577878570234cdc24b7b1f64d700128c6906fcb3ba1",
+      "size": 10247980
+    },
+    {
+      "kind": "table",
+      "name": "npc_vendor",
+      "path": "Database/acore_world/table-npc_vendor.sql",
+      "schema": "acore_world",
+      "sha256": "7931a54ed60a5229fae7922721bdeef877640e1c0631b137b1014d4d5072bc17",
+      "size": 1819865
+    },
+    {
+      "kind": "table",
+      "name": "outdoorpvp_template",
+      "path": "Database/acore_world/table-outdoorpvp_template.sql",
+      "schema": "acore_world",
+      "sha256": "5e0a9842f5e16c5d10836e68adbca35e5ffeb51bb11e256a125f5eaa9dd909ec",
+      "size": 2041
+    },
+    {
+      "kind": "table",
+      "name": "overridespelldata_dbc",
+      "path": "Database/acore_world/table-overridespelldata_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "36db0deda2a76a6944c0831543c81a0d5fd410c6b87bacae0362b9dae5c90100",
+      "size": 1921
+    },
+    {
+      "kind": "table",
+      "name": "page_text",
+      "path": "Database/acore_world/table-page_text.sql",
+      "schema": "acore_world",
+      "sha256": "6e52b3073da9f151415c5dbe4158ffb5e4c22645ed41d8b1da6cd2dcb1b3fab4",
+      "size": 748224
+    },
+    {
+      "kind": "table",
+      "name": "page_text_locale",
+      "path": "Database/acore_world/table-page_text_locale.sql",
+      "schema": "acore_world",
+      "sha256": "f7fcfb04194e8559c95ee239b58803096be2f5d61c7db315ca18951ab0906aea",
+      "size": 6834761
+    },
+    {
+      "kind": "table",
+      "name": "pet_levelstats",
+      "path": "Database/acore_world/table-pet_levelstats.sql",
+      "schema": "acore_world",
+      "sha256": "aff2474099e7fb9f1ff9d86ed25dcb145ae5f636c8e8f931204ec976cfcc15a0",
+      "size": 157972
+    },
+    {
+      "kind": "table",
+      "name": "pet_name_generation",
+      "path": "Database/acore_world/table-pet_name_generation.sql",
+      "schema": "acore_world",
+      "sha256": "91ec97765db1ab1ea143c6c0cb5ecbd6e6c472d01903698a87cb33fb2745fd4d",
+      "size": 9609
+    },
+    {
+      "kind": "table",
+      "name": "pet_name_generation_locale",
+      "path": "Database/acore_world/table-pet_name_generation_locale.sql",
+      "schema": "acore_world",
+      "sha256": "84e00041f8a969a330c8e0fdb26ee4358848196e34472852872ef728c44a3bad",
+      "size": 5886
+    },
+    {
+      "kind": "table",
+      "name": "pickpocketing_loot_template",
+      "path": "Database/acore_world/table-pickpocketing_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "1dccf8ec68ed27ef851396106d48d84e927d804503b3c7fec39b1800b41329d6",
+      "size": 1116326
+    },
+    {
+      "kind": "table",
+      "name": "player_class_stats",
+      "path": "Database/acore_world/table-player_class_stats.sql",
+      "schema": "acore_world",
+      "sha256": "3707d52e0a55d80236de63363e45bf694aba8ad6052d7929c021f684493233fe",
+      "size": 33292
+    },
+    {
+      "kind": "table",
+      "name": "player_factionchange_achievement",
+      "path": "Database/acore_world/table-player_factionchange_achievement.sql",
+      "schema": "acore_world",
+      "sha256": "c894b65c1cd5ef488d82c05f33d9541fb8c3813778a64d97bf16c5e015b36486",
+      "size": 9490
+    },
+    {
+      "kind": "table",
+      "name": "player_factionchange_items",
+      "path": "Database/acore_world/table-player_factionchange_items.sql",
+      "schema": "acore_world",
+      "sha256": "0f84e686af6af71d2fc67007ac3bf2ef6e94f5b380993c2b54898f1d5ccbe5b3",
+      "size": 113836
+    },
+    {
+      "kind": "table",
+      "name": "player_factionchange_quests",
+      "path": "Database/acore_world/table-player_factionchange_quests.sql",
+      "schema": "acore_world",
+      "sha256": "6cd9bab87e57cfc58569a037f785c82cf9fa83a9044f0214016b43836dd55461",
+      "size": 6902
+    },
+    {
+      "kind": "table",
+      "name": "player_factionchange_reputations",
+      "path": "Database/acore_world/table-player_factionchange_reputations.sql",
+      "schema": "acore_world",
+      "sha256": "8cbc88dbe8f4fc5cb00da91e1fcd583c1571c00c071a8021cbdc66bbc817315a",
+      "size": 2619
+    },
+    {
+      "kind": "table",
+      "name": "player_factionchange_spells",
+      "path": "Database/acore_world/table-player_factionchange_spells.sql",
+      "schema": "acore_world",
+      "sha256": "33562ee43b0e7e774523cd2235e7003e133aaa3b87fb7e3f2cec526441b4a82c",
+      "size": 8762
+    },
+    {
+      "kind": "table",
+      "name": "player_factionchange_titles",
+      "path": "Database/acore_world/table-player_factionchange_titles.sql",
+      "schema": "acore_world",
+      "sha256": "cdfb77eb4961ec45a187f2bd13dd6c7b85009d21c97bbbc79241579a02539799",
+      "size": 3075
+    },
+    {
+      "kind": "table",
+      "name": "player_loot_template",
+      "path": "Database/acore_world/table-player_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "10f2f86fc47d233eedd6a351cf5bee37220ecc41d5ab8689253388a20ad3041b",
+      "size": 4565
+    },
+    {
+      "kind": "table",
+      "name": "player_race_stats",
+      "path": "Database/acore_world/table-player_race_stats.sql",
+      "schema": "acore_world",
+      "sha256": "b5e5fd3100281120f96da97c6ddbec45183029ac115d59d70fe846b51bcdc939",
+      "size": 2246
+    },
+    {
+      "kind": "table",
+      "name": "player_shapeshift_model",
+      "path": "Database/acore_world/table-player_shapeshift_model.sql",
+      "schema": "acore_world",
+      "sha256": "f03ae97928bc88ae8c1e774e5e5af8c46a2f6f94151ee5a8bb1f75ead428c23a",
+      "size": 6785
+    },
+    {
+      "kind": "table",
+      "name": "player_totem_model",
+      "path": "Database/acore_world/table-player_totem_model.sql",
+      "schema": "acore_world",
+      "sha256": "601d9646d0b009548d135406ff1bebff8f886dfb2adc06c39536857eb7f62555",
+      "size": 2902
+    },
+    {
+      "kind": "table",
+      "name": "player_xp_for_level",
+      "path": "Database/acore_world/table-player_xp_for_level.sql",
+      "schema": "acore_world",
+      "sha256": "349f4f3e23dc12859f03a088766022c93d248fa26a3898e2275b3623c85c3248",
+      "size": 2797
+    },
+    {
+      "kind": "table",
+      "name": "playercreateinfo",
+      "path": "Database/acore_world/table-playercreateinfo.sql",
+      "schema": "acore_world",
+      "sha256": "f0babef2a7dfb67318f141e4c1cb955ebc8df3c618265e902c3a9920fe0bd459",
+      "size": 11381
+    },
+    {
+      "kind": "table",
+      "name": "playercreateinfo_action",
+      "path": "Database/acore_world/table-playercreateinfo_action.sql",
+      "schema": "acore_world",
+      "sha256": "a387ea78f1c74648bad99b31a444ae9fe3a53d01f457dec82cbb29f7fd82bc0c",
+      "size": 29172
+    },
+    {
+      "kind": "table",
+      "name": "playercreateinfo_cast_spell",
+      "path": "Database/acore_world/table-playercreateinfo_cast_spell.sql",
+      "schema": "acore_world",
+      "sha256": "84bad94af4fdf5929e992af28c9aa2aa1f3366bb5af11990a79dce82d4f2eae5",
+      "size": 1874
+    },
+    {
+      "kind": "table",
+      "name": "playercreateinfo_item",
+      "path": "Database/acore_world/table-playercreateinfo_item.sql",
+      "schema": "acore_world",
+      "sha256": "1295176825cc18015152b7cd44668ae16b50c93ca8e8e6c79e95ac7b29061548",
+      "size": 2006
+    },
+    {
+      "kind": "table",
+      "name": "playercreateinfo_skills",
+      "path": "Database/acore_world/table-playercreateinfo_skills.sql",
+      "schema": "acore_world",
+      "sha256": "906b2f0648e655b15c707e15d289a01ec7c7567f1d259941e73c97f303e07c0d",
+      "size": 10803
+    },
+    {
+      "kind": "table",
+      "name": "playercreateinfo_spell_custom",
+      "path": "Database/acore_world/table-playercreateinfo_spell_custom.sql",
+      "schema": "acore_world",
+      "sha256": "0540206536b3412f12e1da2ea760adf593c838199069510308773409bb318a87",
+      "size": 31087
+    },
+    {
+      "kind": "table",
+      "name": "points_of_interest",
+      "path": "Database/acore_world/table-points_of_interest.sql",
+      "schema": "acore_world",
+      "sha256": "216c21bbcad3abc23fcb9f55861f438b536daf71cec8a35384bccfe40c5031e2",
+      "size": 53427
+    },
+    {
+      "kind": "table",
+      "name": "points_of_interest_locale",
+      "path": "Database/acore_world/table-points_of_interest_locale.sql",
+      "schema": "acore_world",
+      "sha256": "cb195ce7ec06c7429fbea50b8e10adf9a52e3fc561ca838803ca367df2459f97",
+      "size": 146449
+    },
+    {
+      "kind": "table",
+      "name": "pool_creature",
+      "path": "Database/acore_world/table-pool_creature.sql",
+      "schema": "acore_world",
+      "sha256": "7a2c532478d6563d5bb4b9fdad3af904bfcc148eb835151bf254a3e2ec882401",
+      "size": 97959
+    },
+    {
+      "kind": "table",
+      "name": "pool_gameobject",
+      "path": "Database/acore_world/table-pool_gameobject.sql",
+      "schema": "acore_world",
+      "sha256": "8db5f91980ebe5bef36accd9ad3e5a8075481e9e0c718aa351154a01b6512250",
+      "size": 2122932
+    },
+    {
+      "kind": "table",
+      "name": "pool_pool",
+      "path": "Database/acore_world/table-pool_pool.sql",
+      "schema": "acore_world",
+      "sha256": "d467b5bbae4cb79f789899f14728a13fd466c990fc33f6021922435b00c938e9",
+      "size": 580484
+    },
+    {
+      "kind": "table",
+      "name": "pool_quest",
+      "path": "Database/acore_world/table-pool_quest.sql",
+      "schema": "acore_world",
+      "sha256": "5f3fa0423bfd2d72444decb053b0c043150f751713d4383ee6bdc50b0c82519a",
+      "size": 9459
+    },
+    {
+      "kind": "table",
+      "name": "pool_template",
+      "path": "Database/acore_world/table-pool_template.sql",
+      "schema": "acore_world",
+      "sha256": "85541772dae18d1441a93ef80e2f13280452de3bab2d41f188de57040fdb2b5f",
+      "size": 603135
+    },
+    {
+      "kind": "table",
+      "name": "powerdisplay_dbc",
+      "path": "Database/acore_world/table-powerdisplay_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "54074c2a49d320bd38367752dbb013bb50f2c68eba34d8ce4f4a7155b10a0314",
+      "size": 1748
+    },
+    {
+      "kind": "table",
+      "name": "prospecting_loot_template",
+      "path": "Database/acore_world/table-prospecting_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "4b7d32a31cb269f5ca2852607e63abe112e7e3eb653c8deefff91f8eabdafab3",
+      "size": 4794
+    },
+    {
+      "kind": "table",
+      "name": "pvpdifficulty_dbc",
+      "path": "Database/acore_world/table-pvpdifficulty_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "1a8e1b47901753d226fc1b07249ef467d8488c6060c6b7da188132926f508f4a",
+      "size": 4856
+    },
+    {
+      "kind": "table",
+      "name": "quest_details",
+      "path": "Database/acore_world/table-quest_details.sql",
+      "schema": "acore_world",
+      "sha256": "ba117e9e004471a73284877257d3380a625be2683a961fd520fce14369644b40",
+      "size": 117668
+    },
+    {
+      "kind": "table",
+      "name": "quest_greeting",
+      "path": "Database/acore_world/table-quest_greeting.sql",
+      "schema": "acore_world",
+      "sha256": "46c2212dc603d0f57cb46c5d7993ab71ed232c7807887c4b06e8e05fe0057e12",
+      "size": 32405
+    },
+    {
+      "kind": "table",
+      "name": "quest_greeting_locale",
+      "path": "Database/acore_world/table-quest_greeting_locale.sql",
+      "schema": "acore_world",
+      "sha256": "38c4b6c97dc854c0eadaba396334c4deeae2f124c8bd72f5257c7643731392ce",
+      "size": 17259
+    },
+    {
+      "kind": "table",
+      "name": "quest_mail_sender",
+      "path": "Database/acore_world/table-quest_mail_sender.sql",
+      "schema": "acore_world",
+      "sha256": "3403c1d273f1190104b70494f11a874d27851f236d22fe36a61181445320101f",
+      "size": 1919
+    },
+    {
+      "kind": "table",
+      "name": "quest_money_reward",
+      "path": "Database/acore_world/table-quest_money_reward.sql",
+      "schema": "acore_world",
+      "sha256": "0edac3553f6229c8104461face5b5d6df5302b66d823d3e13dfb7848ed2781e7",
+      "size": 6975
+    },
+    {
+      "kind": "table",
+      "name": "quest_offer_reward",
+      "path": "Database/acore_world/table-quest_offer_reward.sql",
+      "schema": "acore_world",
+      "sha256": "ab39fbf345878e53333b2a43f6d4ceb94b42d1233467d4b16563c04820c7c68a",
+      "size": 2076149
+    },
+    {
+      "kind": "table",
+      "name": "quest_offer_reward_locale",
+      "path": "Database/acore_world/table-quest_offer_reward_locale.sql",
+      "schema": "acore_world",
+      "sha256": "0698ca641d1517a90fe02c2c9b6d8b8a34aff8502591fac2998921dbc03c24f8",
+      "size": 16461062
+    },
+    {
+      "kind": "table",
+      "name": "quest_poi",
+      "path": "Database/acore_world/table-quest_poi.sql",
+      "schema": "acore_world",
+      "sha256": "7df219edb617c6befbff548819b2cd7a23eb443d2e946fdcf199ada8c91ecebc",
+      "size": 707004
+    },
+    {
+      "kind": "table",
+      "name": "quest_poi_points",
+      "path": "Database/acore_world/table-quest_poi_points.sql",
+      "schema": "acore_world",
+      "sha256": "c2909393d49cd38a89bbcdf2c2ed86a61644f6a1e4527a6d5bac2019fd46c3dc",
+      "size": 1836992
+    },
+    {
+      "kind": "table",
+      "name": "quest_request_items",
+      "path": "Database/acore_world/table-quest_request_items.sql",
+      "schema": "acore_world",
+      "sha256": "8c9ec1641fd6d1955aa124da566e3d8a1d75f50605163bc1dc9aa2b1f1584fbd",
+      "size": 830364
+    },
+    {
+      "kind": "table",
+      "name": "quest_request_items_locale",
+      "path": "Database/acore_world/table-quest_request_items_locale.sql",
+      "schema": "acore_world",
+      "sha256": "88a9ce8b7dfb5f053753948d9c663a6e95ac4f725aa3d07280a6f85f2b825f44",
+      "size": 5988522
+    },
+    {
+      "kind": "table",
+      "name": "quest_template",
+      "path": "Database/acore_world/table-quest_template.sql",
+      "schema": "acore_world",
+      "sha256": "dc582221011cd1418c8d6a5a416b5e8f9d7f80dc8f7876d98ec6db611cbb1562",
+      "size": 8110158
+    },
+    {
+      "kind": "table",
+      "name": "quest_template_addon",
+      "path": "Database/acore_world/table-quest_template_addon.sql",
+      "schema": "acore_world",
+      "sha256": "1b9771ad2b5833f4f737cad5e6d97bd7693cdd2a8431618a694f8910656058bd",
+      "size": 614000
+    },
+    {
+      "kind": "table",
+      "name": "quest_template_locale",
+      "path": "Database/acore_world/table-quest_template_locale.sql",
+      "schema": "acore_world",
+      "sha256": "60644bd14ea53328a485cde2ce95497ffdc24a2e9e80af04e0635ea8570824a1",
+      "size": 56795798
+    },
+    {
+      "kind": "table",
+      "name": "questfactionreward_dbc",
+      "path": "Database/acore_world/table-questfactionreward_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "1f0776818bc1f3153d49dd5fec5fe27793c59940815a84371e7d64b6f23a1ca5",
+      "size": 1929
+    },
+    {
+      "kind": "table",
+      "name": "questsort_dbc",
+      "path": "Database/acore_world/table-questsort_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "25813b982ac44393b0c15ee6baf6b07ae230d42bc20d208d24597a06f54d4b4f",
+      "size": 3101
+    },
+    {
+      "kind": "table",
+      "name": "questxp_dbc",
+      "path": "Database/acore_world/table-questxp_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "2e1bc2be9b3822bf25cb12179f0e6d31061485a1427b555f38d814f762a13df2",
+      "size": 1874
+    },
+    {
+      "kind": "table",
+      "name": "randproppoints_dbc",
+      "path": "Database/acore_world/table-randproppoints_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "a28afd40f9f2e5b8e1092c320cd69ab4ac7c91546de2e4cbd0e9288810003f4c",
+      "size": 2058
+    },
+    {
+      "kind": "table",
+      "name": "reference_loot_template",
+      "path": "Database/acore_world/table-reference_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "1c66991a05f33bccbc159f5491f4d7dd3062c4d5ff2f9d781dfbce4023339215",
+      "size": 1720820
+    },
+    {
+      "kind": "table",
+      "name": "reputation_reward_rate",
+      "path": "Database/acore_world/table-reputation_reward_rate.sql",
+      "schema": "acore_world",
+      "sha256": "493447f8e856afb3bd92e790daa6fdc95faa2c280f6a52db1484a2f14710c6cb",
+      "size": 2609
+    },
+    {
+      "kind": "table",
+      "name": "reputation_spillover_template",
+      "path": "Database/acore_world/table-reputation_spillover_template.sql",
+      "schema": "acore_world",
+      "sha256": "4ed98f728269323ba07ee776c2c21a045e993d7dbdf970bf4fce5d253cf66ecc",
+      "size": 4928
+    },
+    {
+      "kind": "table",
+      "name": "scalingstatdistribution_dbc",
+      "path": "Database/acore_world/table-scalingstatdistribution_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "88dc0eb691edc4e346a6835eb7beabca663cd9f054958c38932a26abe1c2a135",
+      "size": 2345
+    },
+    {
+      "kind": "table",
+      "name": "scalingstatvalues_dbc",
+      "path": "Database/acore_world/table-scalingstatvalues_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "b034272357cbf3d7ff91e0ce93f512d59fd732f9a3e49679ab38825923424654",
+      "size": 2537
+    },
+    {
+      "kind": "table",
+      "name": "script_waypoint",
+      "path": "Database/acore_world/table-script_waypoint.sql",
+      "schema": "acore_world",
+      "sha256": "0c66ef0fe09afbe50c57b742f3c66edd75e3d017d0a1ef9065b6390dc7042bee",
+      "size": 114388
+    },
+    {
+      "kind": "table",
+      "name": "skill_discovery_template",
+      "path": "Database/acore_world/table-skill_discovery_template.sql",
+      "schema": "acore_world",
+      "sha256": "bc98d19c6b281706c8825931d6877d3d227c768e0b74cad28d1029ab91eb5de2",
+      "size": 11242
+    },
+    {
+      "kind": "table",
+      "name": "skill_extra_item_template",
+      "path": "Database/acore_world/table-skill_extra_item_template.sql",
+      "schema": "acore_world",
+      "sha256": "fed2ee465bd665285e6f782f55121ee59cfa9caa5ab9bddc306df830b5323c15",
+      "size": 7696
+    },
+    {
+      "kind": "table",
+      "name": "skill_fishing_base_level",
+      "path": "Database/acore_world/table-skill_fishing_base_level.sql",
+      "schema": "acore_world",
+      "sha256": "f6f4750e9d632d7b69d27d9875512dc232fcd83192b44c211a52c8b72aa2bf92",
+      "size": 3050
+    },
+    {
+      "kind": "table",
+      "name": "skill_perfect_item_template",
+      "path": "Database/acore_world/table-skill_perfect_item_template.sql",
+      "schema": "acore_world",
+      "sha256": "4531f43e65037812e7028aa988dba5f97296b5e1d8e93f5bd513a5eaabe1ffd8",
+      "size": 4137
+    },
+    {
+      "kind": "table",
+      "name": "skillline_dbc",
+      "path": "Database/acore_world/table-skillline_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "ebaf77094ae6e08ea41725b7443e7fef3a60fcb698d4fa76dc7a97bca31d6830",
+      "size": 6772
+    },
+    {
+      "kind": "table",
+      "name": "skilllineability_dbc",
+      "path": "Database/acore_world/table-skilllineability_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "778e03083cabd1ee8e9d6edfce1779f7f83b76301f94ef778b69f66cd71991d1",
+      "size": 2780
+    },
+    {
+      "kind": "table",
+      "name": "skillraceclassinfo_dbc",
+      "path": "Database/acore_world/table-skillraceclassinfo_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "7678d4585cdb5fdc66ef4e36859b0c94dfe297e9b66472310b04176ff64b446b",
+      "size": 1774
+    },
+    {
+      "kind": "table",
+      "name": "skilltiers_dbc",
+      "path": "Database/acore_world/table-skilltiers_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "bcdc10ce050ff69b69b04003d65da81f24aad0d5aecfcae59f7c5c7b950d8910",
+      "size": 2694
+    },
+    {
+      "kind": "table",
+      "name": "skinning_loot_template",
+      "path": "Database/acore_world/table-skinning_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "fae0d86e59fa663b36f7d635e5121ed11634195f40fa5f2b331842c692c78d37",
+      "size": 142850
+    },
+    {
+      "kind": "table",
+      "name": "smart_scripts",
+      "path": "Database/acore_world/table-smart_scripts.sql",
+      "schema": "acore_world",
+      "sha256": "8b11ee7753fa3fc7ca87178d80359078d2c9a8b9f24676dad98fa277db8e067d",
+      "size": 12132536
+    },
+    {
+      "kind": "table",
+      "name": "soundentries_dbc",
+      "path": "Database/acore_world/table-soundentries_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "9701fc9d11f4e455d314c798932261a22a335f8790d1324ab171b5fc6b78c703",
+      "size": 10237
+    },
+    {
+      "kind": "table",
+      "name": "spawn_group",
+      "path": "Database/acore_world/table-spawn_group.sql",
+      "schema": "acore_world",
+      "sha256": "1a44b645b42bba33918ba9dab6547d13a0d0a26d6c52e3f9ff0ba1e1466732cb",
+      "size": 2603
+    },
+    {
+      "kind": "table",
+      "name": "spawn_group_template",
+      "path": "Database/acore_world/table-spawn_group_template.sql",
+      "schema": "acore_world",
+      "sha256": "395bc0cd00f96e1ab6e6399c7e4e78fd7b899ced02395fdb0466b79bee24beb8",
+      "size": 1976
+    },
+    {
+      "kind": "table",
+      "name": "spell_area",
+      "path": "Database/acore_world/table-spell_area.sql",
+      "schema": "acore_world",
+      "sha256": "2834c7eda68638a0674b6e5f4cffc3087772a6a14e092a1244bfb6a29bbd4ce9",
+      "size": 34551
+    },
+    {
+      "kind": "table",
+      "name": "spell_bonus_data",
+      "path": "Database/acore_world/table-spell_bonus_data.sql",
+      "schema": "acore_world",
+      "sha256": "6b5fe2f0c5f8cdc6a06bf4c3a521fd369c3a349826d40ac7ca525aae670be81f",
+      "size": 95217
+    },
+    {
+      "kind": "table",
+      "name": "spell_charge_cooldown_links",
+      "path": "Database/acore_world/table-spell_charge_cooldown_links.sql",
+      "schema": "acore_world",
+      "sha256": "8e52c56882a2ff1808810709d17eb506ff20c52d887d51b7cbad2bb4f13ff222",
+      "size": 1946
+    },
+    {
+      "kind": "table",
+      "name": "spell_charge_cooldowns",
+      "path": "Database/acore_world/table-spell_charge_cooldowns.sql",
+      "schema": "acore_world",
+      "sha256": "6c5e1113be08b26d75176ba215f44c06384c1433d5c96f82d1d650f1658b1e8b",
+      "size": 2397
+    },
+    {
+      "kind": "table",
+      "name": "spell_cone",
+      "path": "Database/acore_world/table-spell_cone.sql",
+      "schema": "acore_world",
+      "sha256": "598a329567c7dcf91e0dd2496c6981256e36526e3dea3dcd0c6cd0530d730f07",
+      "size": 10367
+    },
+    {
+      "kind": "table",
+      "name": "spell_cooldown_overrides",
+      "path": "Database/acore_world/table-spell_cooldown_overrides.sql",
+      "schema": "acore_world",
+      "sha256": "9456d5f80180cc0e51493b3b89d8bfad3f513cef1abd58338f6beb38dbe1c0a1",
+      "size": 77744
+    },
+    {
+      "kind": "table",
+      "name": "spell_custom_attr",
+      "path": "Database/acore_world/table-spell_custom_attr.sql",
+      "schema": "acore_world",
+      "sha256": "e55b3b510eb6e513e67b5d4499460d59779d0fa19531c89d3c0471b585fc1b48",
+      "size": 12863
+    },
+    {
+      "kind": "table",
+      "name": "spell_dbc",
+      "path": "Database/acore_world/table-spell_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "ccbba9aec6377ad3d8d4fd61334d95390f514215d2011ded3994b64ca0e49e85",
+      "size": 4360394
+    },
+    {
+      "kind": "table",
+      "name": "spell_enchant_proc_data",
+      "path": "Database/acore_world/table-spell_enchant_proc_data.sql",
+      "schema": "acore_world",
+      "sha256": "008ba6ee5e6216fbfcbc895250af5147af0b817752eab31514e350ad9f033520",
+      "size": 2942
+    },
+    {
+      "kind": "table",
+      "name": "spell_group",
+      "path": "Database/acore_world/table-spell_group.sql",
+      "schema": "acore_world",
+      "sha256": "8590ab9c58992dfbf2668dc5aa6d2d94d5fdfacbc2459a91368bb6d3bec1c5ad",
+      "size": 10233
+    },
+    {
+      "kind": "table",
+      "name": "spell_group_stack_rules",
+      "path": "Database/acore_world/table-spell_group_stack_rules.sql",
+      "schema": "acore_world",
+      "sha256": "b6f847c45c50eca0d7dd52e521562e47e86910d6ff0f992f8079742db3141795",
+      "size": 4075
+    },
+    {
+      "kind": "table",
+      "name": "spell_jump_distance",
+      "path": "Database/acore_world/table-spell_jump_distance.sql",
+      "schema": "acore_world",
+      "sha256": "af8df84808ca9d1bcb173cab0585153df18e5518e8fcc7c6c9d34b86eb05feb2",
+      "size": 1713
+    },
+    {
+      "kind": "table",
+      "name": "spell_linked_spell",
+      "path": "Database/acore_world/table-spell_linked_spell.sql",
+      "schema": "acore_world",
+      "sha256": "d9cac5acf77d5466e565e50635004292816241f37833b4189b625a21cec2b133",
+      "size": 36996
+    },
+    {
+      "kind": "table",
+      "name": "spell_loot_template",
+      "path": "Database/acore_world/table-spell_loot_template.sql",
+      "schema": "acore_world",
+      "sha256": "61efe7bedb17e2ac5a46af9120a2bf9c901f63dd0ab567068ff5cc641223ee69",
+      "size": 11846
+    },
+    {
+      "kind": "table",
+      "name": "spell_mixology",
+      "path": "Database/acore_world/table-spell_mixology.sql",
+      "schema": "acore_world",
+      "sha256": "bb05be2b9480aa2bb63f08f802b248f87c195a28f59717b95d5ad3001f090b68",
+      "size": 1918
+    },
+    {
+      "kind": "table",
+      "name": "spell_pet_auras",
+      "path": "Database/acore_world/table-spell_pet_auras.sql",
+      "schema": "acore_world",
+      "sha256": "4d31be0a45a3f7c102a6f5d1d674e0c0d13f654e77479c560310c2334a490fa3",
+      "size": 2998
+    },
+    {
+      "kind": "table",
+      "name": "spell_proc",
+      "path": "Database/acore_world/table-spell_proc.sql",
+      "schema": "acore_world",
+      "sha256": "c6c772f9d7fba3984e1642cfa3595cbcaca03f98813a9bfe817702acea8d8c0f",
+      "size": 61299
+    },
+    {
+      "kind": "table",
+      "name": "spell_ranks",
+      "path": "Database/acore_world/table-spell_ranks.sql",
+      "schema": "acore_world",
+      "sha256": "c9c9b2470b6abca5ccfaf4b1691e1a4df0e1f2a52b5d1b0030983f80bc06418f",
+      "size": 74257
+    },
+    {
+      "kind": "table",
+      "name": "spell_required",
+      "path": "Database/acore_world/table-spell_required.sql",
+      "schema": "acore_world",
+      "sha256": "e49124748e111e9d1fe71e4da644fbba0f1da77ef376201461b99db2fca5f517",
+      "size": 2424
+    },
+    {
+      "kind": "table",
+      "name": "spell_script_names",
+      "path": "Database/acore_world/table-spell_script_names.sql",
+      "schema": "acore_world",
+      "sha256": "5d4d17c13b8f4b27a4f7f998ecda15f1fb1b4d0118cd376ebca7ef3adad3c6ec",
+      "size": 139213
+    },
+    {
+      "kind": "table",
+      "name": "spell_scripts",
+      "path": "Database/acore_world/table-spell_scripts.sql",
+      "schema": "acore_world",
+      "sha256": "e55e8442d7e05c6da7d6fd008d13ad76a62963d0e40553c6eb45c79f86f241b8",
+      "size": 8026
+    },
+    {
+      "kind": "table",
+      "name": "spell_target_position",
+      "path": "Database/acore_world/table-spell_target_position.sql",
+      "schema": "acore_world",
+      "sha256": "b9de6a67e73356eef36871c326c0a8fa8e523b8ff8a67cba706f1f2eb182eaee",
+      "size": 39798
+    },
+    {
+      "kind": "table",
+      "name": "spell_threat",
+      "path": "Database/acore_world/table-spell_threat.sql",
+      "schema": "acore_world",
+      "sha256": "3bc2d78cdebeea993460cf1ec462e94b2dfe6a7544d981d14461d06375e38017",
+      "size": 4073
+    },
+    {
+      "kind": "table",
+      "name": "spellcasttimes_dbc",
+      "path": "Database/acore_world/table-spellcasttimes_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "6ba5107ad0ece7066525b8392bf1fe46ef7ae22bc32a7394206c66825c982623",
+      "size": 1583
+    },
+    {
+      "kind": "table",
+      "name": "spellcategory_dbc",
+      "path": "Database/acore_world/table-spellcategory_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "19ddc782902ef109dbd98eb1a2bbcfd8903a5a682bf2428cf543b5f0a60b7da9",
+      "size": 1500
+    },
+    {
+      "kind": "table",
+      "name": "spelldifficulty_dbc",
+      "path": "Database/acore_world/table-spelldifficulty_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "97c5d309889be188ad63eae8740968a9dbbe9e77051227dad9a9f8cb586a3311",
+      "size": 20668
+    },
+    {
+      "kind": "table",
+      "name": "spellduration_dbc",
+      "path": "Database/acore_world/table-spellduration_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "c4ac6c8a104cdc3b26f6008a5d47fde3d73a95062e29b5142365fe57fd73fcfa",
+      "size": 1594
+    },
+    {
+      "kind": "table",
+      "name": "spellfocusobject_dbc",
+      "path": "Database/acore_world/table-spellfocusobject_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "c11635655d86869c3e1cd12ab74a1af9d9adda9d59bc0df57f336d1be16de64b",
+      "size": 3068
+    },
+    {
+      "kind": "table",
+      "name": "spellitemenchantment_dbc",
+      "path": "Database/acore_world/table-spellitemenchantment_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "46cfafb6788718399d44ad6f1d465394a48ae4efbd72c5fdf1f58c9f79d3bf31",
+      "size": 4855
+    },
+    {
+      "kind": "table",
+      "name": "spellitemenchantmentcondition_dbc",
+      "path": "Database/acore_world/table-spellitemenchantmentcondition_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "413907a0e51879fdbaa3e40cdada8c59116516454e2d78f7ea6e56d1363b91a5",
+      "size": 3128
+    },
+    {
+      "kind": "table",
+      "name": "spellradius_dbc",
+      "path": "Database/acore_world/table-spellradius_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "aeaf4451b92c7375b0e659186205d3713d88dcbbeb0c6f2eeaca47190dcff29a",
+      "size": 1819
+    },
+    {
+      "kind": "table",
+      "name": "spellrange_dbc",
+      "path": "Database/acore_world/table-spellrange_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "97d02792bb6b31029dc9b9e2e4dc5bec92650af1da21a43f36dd4b67b27fc9ad",
+      "size": 4492
+    },
+    {
+      "kind": "table",
+      "name": "spellrunecost_dbc",
+      "path": "Database/acore_world/table-spellrunecost_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "9d0667e9690194285e135f909868372aecc8b9bff029644528cc9796cb069724",
+      "size": 1617
+    },
+    {
+      "kind": "table",
+      "name": "spellshapeshiftform_dbc",
+      "path": "Database/acore_world/table-spellshapeshiftform_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "de22e3b02e4863311758ccdcfab1d38ee6b831e891e4a7e1f814a14e03205772",
+      "size": 3881
+    },
+    {
+      "kind": "table",
+      "name": "spellvisual_dbc",
+      "path": "Database/acore_world/table-spellvisual_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "55a56ecdcfd393772dcfb6bfe8b1cac1df6a52091c556e209fe7f4f34165d75d",
+      "size": 12334
+    },
+    {
+      "kind": "table",
+      "name": "stableslotprices_dbc",
+      "path": "Database/acore_world/table-stableslotprices_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "08ee24a9b61da1210bdef1d6fdbe9e7964055621aaa3f20144c673536de13ac8",
+      "size": 1514
+    },
+    {
+      "kind": "table",
+      "name": "statbooster_enchant_scores",
+      "path": "Database/acore_world/table-statbooster_enchant_scores.sql",
+      "schema": "acore_world",
+      "sha256": "aec5eeef6805b133bac571d13d31835baca2d00b47d426e5ea092bfba72fa3b4",
+      "size": 3630
+    },
+    {
+      "kind": "table",
+      "name": "statbooster_enchant_template",
+      "path": "Database/acore_world/table-statbooster_enchant_template.sql",
+      "schema": "acore_world",
+      "sha256": "9504fbedecf0a7677fa5c7525ce7c92b3d3bf6695abbe45655e53a4dadddf9f3",
+      "size": 45596
+    },
+    {
+      "kind": "table",
+      "name": "summonproperties_dbc",
+      "path": "Database/acore_world/table-summonproperties_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "0e3adc99a0af9b080eb8d2d90ee17b2bddee7d70c1dd4c61b1214174f5b1ee61",
+      "size": 1666
+    },
+    {
+      "kind": "table",
+      "name": "talent_dbc",
+      "path": "Database/acore_world/table-talent_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "8b6ad73f879bc2bf3102ce714e419ffae236d92a19844eb50e84b129573d6935",
+      "size": 2379
+    },
+    {
+      "kind": "table",
+      "name": "talenttab_dbc",
+      "path": "Database/acore_world/table-talenttab_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "8f15a6a47c8daaa0214b0dfa85295ae92af1da1217c6a855783f409412cbede7",
+      "size": 3340
+    },
+    {
+      "kind": "table",
+      "name": "taxinodes_dbc",
+      "path": "Database/acore_world/table-taxinodes_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "06b17d8de1b0cd068a23442f999f1d12ec8e96198bf4b671f66e978c7401a815",
+      "size": 3279
+    },
+    {
+      "kind": "table",
+      "name": "taxipath_dbc",
+      "path": "Database/acore_world/table-taxipath_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "0583122c409ac86ecb653a03fbd0289265c9747eb25623091a9b5142dc44686d",
+      "size": 1560
+    },
+    {
+      "kind": "table",
+      "name": "taxipathnode_dbc",
+      "path": "Database/acore_world/table-taxipathnode_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "19ba2eb18dd315e14fcbe8941a7d8669a57288cf5bfac20038b880461cf86be1",
+      "size": 1862
+    },
+    {
+      "kind": "table",
+      "name": "teamcontributionpoints_dbc",
+      "path": "Database/acore_world/table-teamcontributionpoints_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "1b72129fc5425637426e2718f210de9008e7cf9ef55068c79df3f21fbd625116",
+      "size": 1546
+    },
+    {
+      "kind": "table",
+      "name": "totemcategory_dbc",
+      "path": "Database/acore_world/table-totemcategory_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "51d96411a25f2e212d2be13fbf2817202ac85a76f0ad9febfdd0616eeb687f25",
+      "size": 3151
+    },
+    {
+      "kind": "table",
+      "name": "trainer",
+      "path": "Database/acore_world/table-trainer.sql",
+      "schema": "acore_world",
+      "sha256": "01868e9f21685f0736d692ddac3b6d58af42da5a5683dbfdb0975cf2d3c95898",
+      "size": 12628
+    },
+    {
+      "kind": "table",
+      "name": "trainer_locale",
+      "path": "Database/acore_world/table-trainer_locale.sql",
+      "schema": "acore_world",
+      "sha256": "ea73f009ad6b706a78a6f40b96b604f098275666bed751edf4004248ddb7ba90",
+      "size": 79203
+    },
+    {
+      "kind": "table",
+      "name": "trainer_spell",
+      "path": "Database/acore_world/table-trainer_spell.sql",
+      "schema": "acore_world",
+      "sha256": "17e31fa7e0eb8c33666cd8a06017c5bddbfa837e1c29228dd26849bb49939390",
+      "size": 348529
+    },
+    {
+      "kind": "table",
+      "name": "transportanimation_dbc",
+      "path": "Database/acore_world/table-transportanimation_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "d1a1d576d3f9f67dcf1980c2a7783a433286270af02d58f2fc89837a3ad6c239",
+      "size": 1728
+    },
+    {
+      "kind": "table",
+      "name": "transportrotation_dbc",
+      "path": "Database/acore_world/table-transportrotation_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "e144871aca17a07e117b7f8d314ebde5b9af32afc737b0ec0a91d413f7dabe32",
+      "size": 1721
+    },
+    {
+      "kind": "table",
+      "name": "transports",
+      "path": "Database/acore_world/table-transports.sql",
+      "schema": "acore_world",
+      "sha256": "0faff0a8e98c25249f778233f831d408b1d11e434729fe56a505477391abb777",
+      "size": 4043
+    },
+    {
+      "kind": "table",
+      "name": "updates",
+      "path": "Database/acore_world/table-updates.sql",
+      "schema": "acore_world",
+      "sha256": "287a55774f84675a87bad83f17eef421caca8de396fddd6a31316bc82ebd69a6",
+      "size": 357627
+    },
+    {
+      "kind": "table",
+      "name": "updates_include",
+      "path": "Database/acore_world/table-updates_include.sql",
+      "schema": "acore_world",
+      "sha256": "b99e74c4a39b253ae7996c9a88825061650a26c2f66cf370c382acd346621bf0",
+      "size": 2115
+    },
+    {
+      "kind": "table",
+      "name": "vehicle_accessory",
+      "path": "Database/acore_world/table-vehicle_accessory.sql",
+      "schema": "acore_world",
+      "sha256": "1247f1dc8628ca9ee612641f1a5a11d2bc6bf7dd6c355efa35a552ab9e883815",
+      "size": 2139
+    },
+    {
+      "kind": "table",
+      "name": "vehicle_dbc",
+      "path": "Database/acore_world/table-vehicle_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "c1aa760c27faa50dbcd02eaa4e62b235520d5593ff3e1827d4b1d3a720f134b8",
+      "size": 3520
+    },
+    {
+      "kind": "table",
+      "name": "vehicle_seat_addon",
+      "path": "Database/acore_world/table-vehicle_seat_addon.sql",
+      "schema": "acore_world",
+      "sha256": "77acaf80c88e8288d322a31e1f1d9215f3bd5b2a3793e8eacb3b96ccb979ec2e",
+      "size": 3036
+    },
+    {
+      "kind": "table",
+      "name": "vehicle_template_accessory",
+      "path": "Database/acore_world/table-vehicle_template_accessory.sql",
+      "schema": "acore_world",
+      "sha256": "e2787b15a5e577fa466ec9139160bcc2ab0461f9d0d6a27d9556bb54bde6f176",
+      "size": 15152
+    },
+    {
+      "kind": "table",
+      "name": "vehicleseat_dbc",
+      "path": "Database/acore_world/table-vehicleseat_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "0fa7edb39cce51901a33348e4e2550eed190140ba1029b47a4a144259c8e30f4",
+      "size": 4214
+    },
+    {
+      "kind": "table",
+      "name": "version",
+      "path": "Database/acore_world/table-version.sql",
+      "schema": "acore_world",
+      "sha256": "b75360d880fb9750ce0d14106803f709165ba7e0fcf066a30490d21c2b5c86fa",
+      "size": 2083
+    },
+    {
+      "kind": "table",
+      "name": "warden_checks",
+      "path": "Database/acore_world/table-warden_checks.sql",
+      "schema": "acore_world",
+      "sha256": "bef6c8e165ffef303066aeca4b399e2450cb3338fb247aeea89c17683a06d8cc",
+      "size": 74612
+    },
+    {
+      "kind": "table",
+      "name": "waypoint_data",
+      "path": "Database/acore_world/table-waypoint_data.sql",
+      "schema": "acore_world",
+      "sha256": "200ac6011db316866f46817f9e0179847e77744ab52a1e5f676e6a2050a75961",
+      "size": 13881292
+    },
+    {
+      "kind": "table",
+      "name": "waypoint_data_addon",
+      "path": "Database/acore_world/table-waypoint_data_addon.sql",
+      "schema": "acore_world",
+      "sha256": "a7804bae73e4eadd1b79a9acb0f76ac6a697d2d6dfa8fbd75a9ac1a13cbe0553",
+      "size": 1717
+    },
+    {
+      "kind": "table",
+      "name": "waypoint_scripts",
+      "path": "Database/acore_world/table-waypoint_scripts.sql",
+      "schema": "acore_world",
+      "sha256": "701743b8af79149752cdf0f2ab5c474dafe40d58ee73736e34b2d69827df8438",
+      "size": 28239
+    },
+    {
+      "kind": "table",
+      "name": "waypoints",
+      "path": "Database/acore_world/table-waypoints.sql",
+      "schema": "acore_world",
+      "sha256": "f64da462ab544b76b39dc2ebebc7fa12cd29d967b2a53f80d8856a3d07c83c33",
+      "size": 1782990
+    },
+    {
+      "kind": "table",
+      "name": "wmoareatable_dbc",
+      "path": "Database/acore_world/table-wmoareatable_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "5c2301a914685c502daa5fe2eb17cff0f81be6ce2d3c8add2c92431ccec42f2a",
+      "size": 3549
+    },
+    {
+      "kind": "table",
+      "name": "world_discovery_template",
+      "path": "Database/acore_world/table-world_discovery_template.sql",
+      "schema": "acore_world",
+      "sha256": "e573e036c0103f731b311ae514ded93a8d73b499a275f14d675b1ee1bd0a415f",
+      "size": 10405
+    },
+    {
+      "kind": "table",
+      "name": "worldmaparea_dbc",
+      "path": "Database/acore_world/table-worldmaparea_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "2078723380f36e6dcb52c90f89af2205fcecab94f21a61202981e45d2e1fa2fa",
+      "size": 1726
+    },
+    {
+      "kind": "table",
+      "name": "worldmapoverlay_dbc",
+      "path": "Database/acore_world/table-worldmapoverlay_dbc.sql",
+      "schema": "acore_world",
+      "sha256": "23c6f850a8a1cf23ae7dce1594221bacb69b61aaa8914151e593eb449c29fa2f",
+      "size": 2190
+    },
+    {
+      "kind": "trigger",
+      "name": "trg_ct_spellshim_bi",
+      "path": "Database/acore_world/trigger-trg_ct_spellshim_bi.sql",
+      "schema": "acore_world",
+      "sha256": "b83b5138c0907a3500ca5a4fcdbaff8f4b1d1588a3fa0d1a36aebd4581d34083",
+      "size": 2385
+    }
+  ],
+  "formatVersion": 1,
+  "purpose": "fresh-disposable-full-seed-only",
+  "receiptConcatLimitBytes": 1048576,
+  "requiredProviderVersion": "12.3.2",
+  "schemas": [
+    {
+      "eventCount": 0,
+      "name": "acore_auth",
+      "receiptBytes": 851,
+      "receiptCount": 12,
+      "receiptSha256": "cc4fa8656304e66ea4ae3347dac9f8ecfb9494aba60d4018ce3b6cc0e5d6a84c",
+      "routineCount": 0,
+      "tableCount": 27,
+      "triggerNames": []
+    },
+    {
+      "eventCount": 0,
+      "name": "acore_characters",
+      "receiptBytes": 4367,
+      "receiptCount": 50,
+      "receiptSha256": "25533c68ae708253f1b685769badc53b8df0b23a46d3ac06d5065b7d183ecb9f",
+      "routineCount": 0,
+      "tableCount": 165,
+      "triggerNames": []
+    },
+    {
+      "eventCount": 0,
+      "name": "acore_world",
+      "receiptBytes": 227261,
+      "receiptCount": 3191,
+      "receiptSha256": "69ac5acd8b29aed1fbdc20249cea2665733d7a02f524f5fc710fd2f7a9debc19",
+      "routineCount": 0,
+      "tableCount": 371,
+      "triggerNames": [
+        "trg_ct_spellshim_bi"
+      ]
+    }
+  ],
+  "seedBytes": 626293162
+}

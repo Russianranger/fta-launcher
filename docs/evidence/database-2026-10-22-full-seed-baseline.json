@@ -1,0 +1,59 @@
+{
+  "accountCharacterRowsOrCountsPublished": false,
+  "androidExecutionQualified": false,
+  "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+  "canonicalLockSha256": "2a7aa4a8fad7d18b6bcf52cbf4acc5c5244dabe422f000de083e9103f1d42e0d",
+  "canonicalReceiptFormat": "UTF-8(name + TAB + exact-case hash + TAB + state + LF), ordered by BINARY name; no timestamp or speed",
+  "date": "2026-10-22",
+  "engineVersion": "12.3.2-MariaDB",
+  "formatVersion": 1,
+  "maximumSeedFileBytes": 125113176,
+  "productionKotlinCompiled": true,
+  "productionParseValidationPassed": true,
+  "qualification": "Linux x86_64 host proof of the Android diagnostic SQL and receipt parser; no Bionic ARM64 or Thor full-seed qualification",
+  "receiptMetadata": [
+    {
+      "name": "acore_auth",
+      "receiptBytes": 851,
+      "receiptCount": 12,
+      "receiptSha256": "cc4fa8656304e66ea4ae3347dac9f8ecfb9494aba60d4018ce3b6cc0e5d6a84c"
+    },
+    {
+      "name": "acore_characters",
+      "receiptBytes": 4367,
+      "receiptCount": 50,
+      "receiptSha256": "25533c68ae708253f1b685769badc53b8df0b23a46d3ac06d5065b7d183ecb9f"
+    },
+    {
+      "name": "acore_world",
+      "receiptBytes": 227261,
+      "receiptCount": 3191,
+      "receiptSha256": "69ac5acd8b29aed1fbdc20249cea2665733d7a02f524f5fc710fd2f7a9debc19"
+    }
+  ],
+  "receiptMetadataUnchanged": true,
+  "runtimeSqlApplied": false,
+  "schemas": [
+    {
+      "name": "acore_auth",
+      "outputBytes": 170,
+      "sqlSha256": "424c3e572f786fde489b0d4b032ffa397225155a4edef9e5395f1985bf10e421"
+    },
+    {
+      "name": "acore_characters",
+      "outputBytes": 172,
+      "sqlSha256": "4db2ea4d0fca26a44a5a065d330d8253599e7f381a93d30673d32591ee89419d"
+    },
+    {
+      "name": "acore_world",
+      "outputBytes": 178,
+      "sqlSha256": "cd6e907c042c522740a45f6c463ceb328a6de5d7ec3a007528118a7b3f2db81f"
+    }
+  ],
+  "scope": "host-only exact production Kotlin full-seed metadata SQL",
+  "seedBytes": 626293162,
+  "sourceSha256": "854ac15e78b5c10857a7fbc10916c89da12a40381a1b4217ddfa5e68fc496a33",
+  "tableScriptsImported": 563,
+  "triggerScriptsImported": 1,
+  "validationFlagsPassed": 15
+}
