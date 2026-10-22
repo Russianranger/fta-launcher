@@ -98,3 +98,11 @@ auth execution remains unqualified on Thor. See
 [`native-build.md`](native-build.md) for the regression and
 [`evidence/android-2026-10-22-private-auth-socket-apk.json`](evidence/android-2026-10-22-private-auth-socket-apk.json)
 for the exact APK identity.
+
+The current `android-arm64-resolver-v3` stage passed with authserver SHA256
+`7e901a2bbb4efa5c239c44242578bd587aff194d30ed6aed810d5576ceaf9ce4`.
+Private version 5 passed all 91 Android tests, lint, clean assembly, signing,
+alignment and 114 exact packaged-file checks. Its Android-only resolver flag
+correction preserves the seed, filter, updater and permissions. Physical Thor
+dry-run confirmation remains required; see
+[`evidence/android-2026-10-22-private-auth-resolver-apk.json`](evidence/android-2026-10-22-private-auth-resolver-apk.json).

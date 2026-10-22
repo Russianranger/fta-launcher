@@ -1,0 +1,18 @@
+SPDX-License-Identifier: GPL-2.0-or-later
+Source: From the Ashes customized AzerothCore; original file notices remain intact.
+
+--- a/src/common/Asio/Resolver.h
++++ b/src/common/Asio/Resolver.h
+@@ -35,7 +35,12 @@
+         Optional<boost::asio::ip::tcp::endpoint> Resolve(boost::asio::ip::tcp const& protocol, std::string const& host, std::string const& service)
+         {
+             boost::system::error_code ec;
++#if defined(__ANDROID__)
++            // Bionic rejects AI_ALL before numeric parsing; IPv4 needs no mapping flags.
++            boost::asio::ip::resolver_base::flags flagsResolver{};
++#else
+             boost::asio::ip::resolver_base::flags flagsResolver = boost::asio::ip::resolver_base::all_matching;
++#endif
+             boost::asio::ip::tcp::resolver::results_type results = _impl.resolve(protocol, host, service, flagsResolver, ec);
+             if (results.begin() == results.end() || ec)
+                 return {};

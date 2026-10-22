@@ -51,8 +51,8 @@ python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth --dry-run
 python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth
-python3 tools/build_native.py --source /private/fta-android-source \
-  --port-profile android-arm64-socket-v2 \
+python3 tools/build_native.py --source /private/fta-android-resolver-source \
+  --port-profile android-arm64-resolver-v3 \
   --build-dir /private/fta-build-android --platform android --stage world \
   --toolchain /private/android-ndk-r28c/build/cmake/android.toolchain.cmake \
   --dependency-prefix /private/android-dependencies \
@@ -248,9 +248,60 @@ The corrected ARM64 auth build passed compile/link with source tree
 Its 30,655,016-byte ELF has SHA256
 `bfa532f7c91d59410c10104a2b7e5ce40d5763c59dad36f16c625bf152f3428c`;
 the ARM64/API-33, C++20/static settings, 16 KiB segment alignment and dynamic
-dependency list match the earlier build. Device execution of this corrected
-artifact remains a separate gate. Use the v2 profile and this source directory
-with the auth build command above for the current socket-based diagnostic.
+dependency list match the earlier build. The v2 Thor run now confirms its socket
+pool opens and its original updater reports up to date; its final dry run fails
+at realm lookup. The v2 profile reproduces this socket-corrected stage; the
+resolver profile below is used for the current diagnostic.
+
+## Bionic resolver correction
+
+The socket-corrected Thor run opened the auth database pool and the original
+updater reported it up to date, then auth exited because no realm was accepted.
+The unchanged seed has an eligible realm and numeric IPv4 address fields.
+The original resolver passes Boost's `all_matching` flag, which maps to
+`AI_ALL=0x100` on Android. Android 13 Bionic's supported `AI_MASK=0x40f` excludes
+that flag, and `getaddrinfo` rejects it before numeric parsing. This is a
+deterministic platform incompatibility in the original helper.
+
+`android-arm64-resolver-v3` adds only an Android zero-flags branch to that helper.
+Other platforms keep the original flag, and the existing Boost resolver, realm
+eligibility query, seed rows, updater, listener configuration and app permissions
+remain unchanged. Bionic parses the numeric IPv4/empty-service case locally and
+returns before its DNS proxy path; no INTERNET permission or custom numeric
+parser is needed for this diagnostic.
+
+Primary implementation evidence is the Android 13
+[Bionic flag mask](https://android.googlesource.com/platform/bionic/+/refs/tags/android-13.0.0_r1/libc/include/netdb.h)
+and [getaddrinfo implementation](https://android.googlesource.com/platform/bionic/+/refs/tags/android-13.0.0_r1/libc/dns/net/getaddrinfo.c).
+The checked source hashes and regression scope are recorded in
+`native-port/qualification.json`.
+
+```sh
+python3 tools/fta_port.py /private/fta-source /private/fta-android-resolver-source \
+  --profile android-arm64-resolver-v3
+python3 native-port/check-resolver.py --source /private/fta-android-resolver-source \
+  --boost-include /private/android-dependencies/include
+python3 native-port/check-socket-route.py --source /private/fta-android-resolver-source \
+  --profile android-arm64-resolver-v3
+```
+
+The resolver regression compiles the exact production helper and IoContext with
+real Boost 1.83. An interposed `getaddrinfo` models Android's allowed flags and
+delegates only strict numeric IPv4 work to host libc with name lookup disabled.
+Its 16 cases reproduce the old flag rejection, accept the three seed address
+fields with Android flags zero, retain numeric service ports, and reject invalid
+or nonnumeric inputs. It observed zero interposed network socket calls and
+opened no listener. This is host policy emulation, not Android libc execution or
+device qualification. Use v3 and its source path with the auth build command for
+the current diagnostic; all earlier profiles and artifact hashes are retained.
+
+The v3 ARM64 auth compile/link passed with source tree
+`671245955b368e2f6996fc0dd6fd542efb13901c25cb50a3a3a95ece3e101ced`.
+Its 30,655,008-byte ELF has SHA256
+`7e901a2bbb4efa5c239c44242578bd587aff194d30ed6aed810d5576ceaf9ce4`.
+Release/C++20/static settings, 16 KiB load alignment and dependency closure are
+unchanged. The socket regression also passed against this exact profile.
+The corrected artifact's Thor dry run remains unqualified until measured.
 
 ## Next worldserver gate
 

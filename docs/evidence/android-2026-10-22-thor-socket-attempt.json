@@ -1,0 +1,39 @@
+{
+  "formatVersion": 1,
+  "evidenceKind": "user-exported-physical-device-report",
+  "sourceReportSha256": "e7170123b4ebf666114687143ad139f0c53c8991bc7103e372ab58dde9c05be7",
+  "apkSha256": "75e127898c972cf9d2d7e54400cb06c59b37c24ba9dd9ad5e93b3f1a3fc33eb5",
+  "appVersionName": "0.3.1-auth-socket-diagnostic",
+  "appVersionCode": 4,
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "authserverSha256": "bfa532f7c91d59410c10104a2b7e5ce40d5763c59dad36f16c625bf152f3428c",
+  "authTablesImported": 27,
+  "nativeEvidenceAvailable": true,
+  "nativeInvocations": 39,
+  "droppedInvocations": 0,
+  "databaseReadinessObserved": true,
+  "databaseSqlShutdownRequested": true,
+  "databaseCleanShutdownObserved": true,
+  "databaseExitCode": 0,
+  "authNativeExitCode": 1,
+  "authTimedOut": false,
+  "authDurationMs": 103,
+  "authPoolOpened": true,
+  "originalUpdaterReportedUpToDate": true,
+  "noValidRealmsReported": true,
+  "authDryRunPassed": false,
+  "fullSeedQualified": false,
+  "worldserverQualified": false,
+  "measuredResolverErrorCode": null,
+  "sourceDefectIdentifiedSeparately": "The original resolver passes Boost all_matching (AI_ALL). Official Android 13 Bionic rejects that unsupported flag before numeric address resolution. This explains a confirmed portability defect consistent with this report; the exact device resolver error was not exported."
+}

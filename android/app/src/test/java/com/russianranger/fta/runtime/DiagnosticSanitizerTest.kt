@@ -211,4 +211,44 @@ class DiagnosticSanitizerTest {
         assertEquals(listOf("A required native operation was denied."),
             DiagnosticSanitizer.summarize("exec operation: Operation not permitted /private/binary"))
     }
+
+    @Test fun originalRealmResolverErrorsExposeOnlyTheFixedFieldCategory() {
+        val privateHost = "hidden-private-host.internal.example"
+        val privateRealm = "Secret Realm Name"
+        val privateId = "917352"
+        val cases = listOf(
+            "address" to "Realm address resolution failed.",
+            "localAddress" to "Realm local address resolution failed.",
+            "localSubnetMask" to "Realm local subnet mask resolution failed."
+        )
+        cases.forEach { (field, expected) ->
+            val line = "Could not resolve $field $privateHost for realm \"$privateRealm\" id $privateId password=do-not-export"
+            val result = DiagnosticSanitizer.summarize(line)
+            assertEquals(listOf(expected), result)
+            assertFalse(result.joinToString().contains(privateHost))
+            assertFalse(result.joinToString().contains(privateRealm))
+            assertFalse(result.joinToString().contains(privateId))
+            assertFalse(result.joinToString().contains("do-not-export"))
+        }
+    }
+
+    @Test fun originalNoncriticalConfigDefaultsAreNotReportedAsRequiredFailures() {
+        val privateProperty = "PrivateLogSetting"
+        val privateDefault = "sensitive-default-value"
+        val privateConfig = "/data/private/auth-secret.conf"
+        val warning = "> Config: Missing property $privateProperty in config file $privateConfig, add \"$privateProperty = $privateDefault\" to this file or define 'PRIVATE_ENV_SETTING' as an environment variable."
+        val result = DiagnosticSanitizer.summarize(warning)
+        assertEquals(listOf("An authserver setting used its default."), result)
+        for (privateValue in listOf(privateProperty, privateDefault, privateConfig, "PRIVATE_ENV_SETTING")) {
+            assertFalse(result.joinToString().contains(privateValue))
+        }
+        assertEquals(listOf("An authserver setting used its default."),
+            DiagnosticSanitizer.summarize("> Config: Bad value defined for name '$privateProperty', going to use '$privateDefault' instead"))
+        assertEquals(listOf("An authserver setting used its default."),
+            DiagnosticSanitizer.summarize("Server Config (Name: $privateProperty) failed validation check 'private-validation'. Default value '$privateDefault' will be used instead."))
+        assertEquals(listOf("Authserver configuration is missing or has an invalid required setting."),
+            DiagnosticSanitizer.summarize("FATAL ERROR: Missing property $privateProperty in config file $privateConfig, add \"$privateProperty = $privateDefault\" to this file"))
+        assertEquals(listOf("Authserver configuration could not be loaded or parsed."),
+            DiagnosticSanitizer.summarize("> Config::LoadFile: Failed open file '$privateConfig'"))
+    }
 }

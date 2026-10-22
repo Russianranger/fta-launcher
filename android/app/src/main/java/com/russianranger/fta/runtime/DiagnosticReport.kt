@@ -49,6 +49,8 @@ object DiagnosticReport {
                 .put("authTcpListener", false).put("dryRunPassed", auth.optBoolean("dryRunPassed"))
                 .put("startedAtEpochMs", auth.optLong("startedAtEpochMs"))
                 .put("completedAtEpochMs", auth.optLong("completedAtEpochMs"))
+            RealmEligibilityEvidence.forward(RealmEligibilityEvidence.fields.associateWith { auth.opt(it) })
+                .forEach { (field, observed) -> safe.put(field, observed) }
             val executableHash = auth.optString("authExecutableSha256")
             if (executableHash.matches(Regex("[a-f0-9]{64}"))) safe.put("authExecutableSha256", executableHash)
             result.put("authUpdaterDiagnostic", safe)

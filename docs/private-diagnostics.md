@@ -28,6 +28,13 @@ private paths remain omitted. A fresh attempt identity binds the status, auth
 receipt and journal; older session logs are not exported as the current test.
 Journal write failures cannot prevent native cleanup.
 
+Realm eligibility evidence is read-only and exposes only three booleans: whether
+realm rows exist, whether any remain eligible after the core's offline flag, and
+whether every eligible candidate's three address fields are numeric IPv4.
+No realm names, addresses, identifiers, rows or counts are exported. Ordinary
+missing-property warnings that explicitly use defaults are distinguished from
+fatal configuration failures.
+
 ## Signing and updates
 
 Private test APKs use a persistent development signing key. Its private capsule
@@ -59,3 +66,8 @@ and payload evidence is in
 [`evidence/android-2026-10-22-private-auth-socket-apk.json`](evidence/android-2026-10-22-private-auth-socket-apk.json).
 Update it over version 3 to retain imports. Future private updates must increase
 the version code beyond 4.
+
+Latest: version code 5, `0.3.2-auth-resolver-diagnostic`, uses the same certificate
+and the Android resolver correction. Its evidence is in
+[`evidence/android-2026-10-22-private-auth-resolver-apk.json`](evidence/android-2026-10-22-private-auth-resolver-apk.json).
+Future private updates must use a version code greater than 5.

@@ -128,5 +128,96 @@
     "auth_dry_run": "failed",
     "native_failure_cause_confirmed": false,
     "corrected_socket_artifact_tested": false
+  },
+  "android_auth_resolver_fix": {
+    "status": "cross-build-passed",
+    "port_profile": "android-arm64-resolver-v3",
+    "source_tree_sha256": "671245955b368e2f6996fc0dd6fd542efb13901c25cb50a3a3a95ece3e101ced",
+    "abi": "arm64-v8a",
+    "configuration": {
+      "CMAKE_BUILD_TYPE": "Release",
+      "CMAKE_CXX_STANDARD": "20",
+      "SCRIPTS": "static",
+      "MODULES": "static",
+      "ANDROID_ABI": "arm64-v8a",
+      "ANDROID_PLATFORM": "android-33",
+      "ANDROID_STL": "c++_static",
+      "CMAKE_SYSTEM_NAME": "Android",
+      "APPS_BUILD": "auth-only"
+    },
+    "binary_sha256": "7e901a2bbb4efa5c239c44242578bd587aff194d30ed6aed810d5576ceaf9ce4",
+    "binary_bytes": 30655008,
+    "elf": {
+      "machine": "AArch64",
+      "interpreter": "/system/bin/linker64",
+      "type": "PIE",
+      "minimum_load_alignment": 16384,
+      "needed": [
+        "libmariadb.so",
+        "libz.so",
+        "libssl.so.3",
+        "libcrypto.so.3",
+        "libm.so",
+        "libdl.so",
+        "libc.so"
+      ],
+      "shared_cxx_runtime": false
+    },
+    "execution_qualified": false,
+    "parameter_regression": {
+      "status": "passed",
+      "socket_opens": 9,
+      "tcp_ports": 3,
+      "rejected_ports": 12,
+      "rejected_empty_sockets": 1,
+      "updater_routes": 3,
+      "actual_source_tree_sha256": "671245955b368e2f6996fc0dd6fd542efb13901c25cb50a3a3a95ece3e101ced",
+      "body_sha256": [
+        "e2dd614e42f2c804c3b4b4476cc6a25eb680b42e11c4b752e3971c0fbc507027",
+        "01a110805b9fba0f9130729b2299815bf76e199ce45e867120911c96dae93e52"
+      ],
+      "scope": "compiled exact connection/updater functions; stub C API/process; no DB or SQL execution"
+    },
+    "local_unix_socket_database_integration": "unavailable: host socket(AF_UNIX) returns EPERM",
+    "resolver_regression": {
+      "status": "passed",
+      "cases_per_branch": 8,
+      "branches": [
+        "non-Android",
+        "Android"
+      ],
+      "network_socket_calls": 0,
+      "actual_source_tree_sha256": "671245955b368e2f6996fc0dd6fd542efb13901c25cb50a3a3a95ece3e101ced",
+      "resolver_header_sha256": "83702abc86427fcc859fe6d51db8fc4de5ef150369a33a8ca21e948b704eb4fa",
+      "boost_version": "1.83.0",
+      "boost_version_header_sha256": "a547ee7eddf1b96695027922345b471feba8bcba79a8572399d282247c02e4ab",
+      "scope": "exact Resolver.h and real Boost; interposed Android AI_MASK; numeric-only host libc; no DNS/listener/device execution"
+    },
+    "primary_android13_resolver_evidence": [
+      {
+        "url": "https://android.googlesource.com/platform/bionic/+/refs/tags/android-13.0.0_r1/libc/include/netdb.h",
+        "sha256": "f878ac55b02c2fca742ccd7e33776e3af955adc76f3785eb75941d64af818102",
+        "finding": "AI_ALL=0x100 excluded from supported AI_MASK=0x40f"
+      },
+      {
+        "url": "https://android.googlesource.com/platform/bionic/+/refs/tags/android-13.0.0_r1/libc/dns/net/getaddrinfo.c",
+        "sha256": "2ebeccfd986134c281cb127002f9040f72bc17990af0fbfa022be1ce97846a9d",
+        "finding": "unsupported flags rejected before numeric parsing; numeric IPv4 success returns before DNS proxy"
+      }
+    ]
+  },
+  "thor_apk4_auth_attempt": {
+    "apk_version_code": 4,
+    "apk_sha256": "75e127898c972cf9d2d7e54400cb06c59b37c24ba9dd9ad5e93b3f1a3fc33eb5",
+    "auth_binary_sha256": "bfa532f7c91d59410c10104a2b7e5ce40d5763c59dad36f16c625bf152f3428c",
+    "auth_tables_imported": 27,
+    "database_pool": "opened",
+    "original_auth_updater": "reported up to date",
+    "auth_dry_run_exit_code": 1,
+    "auth_dry_run_duration_ms": 103,
+    "failure_category": "no valid realms",
+    "source_identified_blocker": "unsupported Bionic AI_ALL resolver flag",
+    "device_resolver_error_code_exported": false,
+    "corrected_resolver_artifact_tested": false
   }
 }

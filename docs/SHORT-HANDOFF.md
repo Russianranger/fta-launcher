@@ -5,12 +5,30 @@ Assessment. Repository: `Russianranger/fta-launcher`, integration branch `main`.
 The owner authorizes creating and pushing files here. Reference repositories
 are read-only unless separately authorized.
 
+## Current checkpoint
+
+Latest private Thor diagnostic: **0.3.2-auth-resolver-diagnostic**, version code
+**5**, with profile `android-arm64-resolver-v3`. Its clean build passed 91 Android
+tests, lint, signing/alignment and all 114 packaged-file identity checks.
+APK SHA256: `468d9896a614ae8c3a1bf0b9ac33805d47455187d8d9f0fcf48976d2a0d1d913`.
+See `docs/evidence/android-2026-10-22-private-auth-resolver-apk.json`.
+Use this private APK for auth tests; public CI releases remain database-only.
+Reuse the persistent private signing key and increase future version codes
+beyond 5. Imports survive an ordinary update from versions 3 or 4.
+
+Thor version 4 proved database readiness, 27 auth imports, pool opening and SQL
+shutdown with exit 0. Its original updater reported up to date, but the dry run
+failed realm lookup. Version 5 fixes Android resolver flags and adds read-only
+realm eligibility booleans; its device dry-run result remains unqualified.
+
 ## Preserve these constraints
 
 - Target Android 13 ARM64/Bionic on AYN Thor; preserve core C++20 and all 52
   module directories. Do not substitute Pocket Realm's CMaNGOS/1.12 core.
-- Database compatibility on Android is unproven. The source documents MySQL 8; the proposed
-  Android provider is MariaDB 12.3.2. A host import is not Android qualification.
+- Full-seed compatibility on Android remains unproven. The source documents
+  MySQL 8; the Android provider is MariaDB 12.3.2. Thor has passed its bootstrap,
+  socket, credential, collation/transaction and shutdown checks plus 27 auth
+  imports. A host import does not qualify the remaining Android gates.
 - Seed is populated and destructive: fresh empty installation only. Never
   distribute the seed or automatically apply it to an existing user database.
 - Runtime SQL must remain beside `Data/data/sql`; preserve updater checks,
@@ -98,8 +116,8 @@ and preserves the old profile for version 3 provenance. Exact function-body
 tests passed repeated opens/reconnects, port validation and updater client
 routing. The corrected ARM64 authserver rebuilt successfully with SHA256
 `bfa532f7c91d59410c10104a2b7e5ce40d5763c59dad36f16c625bf152f3428c`.
-Its device execution remains unverified. The next diagnostic also records native
-invocation outcomes and safe auth error categories.
+Version 4 now supplies physical-device evidence for its socket connection pool.
+It also records native invocation outcomes and safe auth error categories.
 
 The corrected private APK is `0.3.1-auth-socket-diagnostic`, version code 4,
 SHA256 `75e127898c972cf9d2d7e54400cb06c59b37c24ba9dd9ad5e93b3f1a3fc33eb5`.
@@ -109,13 +127,28 @@ matches version 3, permitting an ordinary update with imports retained. Use a
 version code greater than 4 and the same private key for later builds. See
 `docs/evidence/android-2026-10-22-private-auth-socket-apk.json`.
 
+The exact version 4 Thor report confirms database readiness and SQL shutdown
+with exit 0. All 27 auth tables imported, the connection pool opened, and the
+original updater reported the auth database up to date. Authserver then exited 1
+with no valid realms; the dry run remains unqualified. See
+`docs/evidence/android-2026-10-22-thor-socket-attempt.json`.
+
+Source inspection found a second portability defect: Boost `all_matching`
+passes `AI_ALL`, which Android 13 Bionic rejects before resolving numeric
+addresses. The private seed's realm remains eligible and its addresses are
+numeric IPv4. An Android-only zero-flags resolver branch preserves the existing
+resolver, seed, realm filter and network restrictions. Do not add a synthetic
+realm, rewrite its address or grant network permission to bypass this failure.
+The exact Thor resolver error was not exported; the source defect is consistent
+with the reported realm lookup failure.
+
 Direct measurement corrected one assessment count: **563 seed tables total**
 (27 auth, 165 characters, 371 world), plus one world trigger, and 236 runtime
 SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 
 ## Next concrete work
 
-1. Retest the original auth updater using the corrected private version 4 APK on
+1. Retest the original auth updater using the corrected private version 5 APK on
    Thor. Export the current-attempt report to confirm native exit, dry-run
    completion and database clean shutdown, or identify the next exact failure.
    The imported database ZIP can remain in place; a source ZIP is not needed.

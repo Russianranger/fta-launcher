@@ -31,6 +31,13 @@ same explicit socket. Invalid numeric ports fail before connection. Run
 reviewed connection/updater bodies with inert C API/process endpoints. This
 checks parameters and reconnects without connecting to a database or running SQL.
 
+`android-arm64-resolver-v3` adds Android-supported resolver flags. Bionic rejects
+the original `AI_ALL` flag before parsing even numeric IPv4 addresses. Only the
+Android branch uses zero flags; other platforms retain the original behavior.
+`check-resolver.py --source REVIEWED_SOURCE --boost-include BOOST_INCLUDE` tests
+the exact helper with real Boost 1.83 and an interposed Bionic flag policy. This
+is a host regression, separate from device execution.
+
 `LICENSE` preserves the original core's GPL version 2 license text; its source
 headers allow version 2 or later. The patch series and this explanation are
 GPL-2.0-or-later. The independently written probes and Python tools retain their

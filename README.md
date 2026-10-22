@@ -36,10 +36,11 @@ path installs a persistent realm or opens player saves.
   The reviewed Android port preserves all 52 module directories; auth-only
   compilation does not qualify worldserver or its modules. The private stage
   preserves the database provider and adds the measured Connector/C dependency.
-  The physical Thor test passed the database prechecks and all 27 auth imports,
-  then failed during the original auth dry-run phase. A source-proven shared
-  socket-setting defect has a reviewed fix; the previous report lacks enough
-  native error evidence to confirm the observed failure's exact cause.
+  The physical Thor follow-up passed database checks, all 27 auth imports,
+  connection-pool opening and SQL shutdown. The original updater reported the
+  auth database up to date; the dry run then failed realm lookup. Android's
+  unsupported resolver flags have a reviewed correction without changing the
+  seed or adding network permission. The corrected dry run awaits a Thor test.
 - CI: Python safety tests, Android unit tests/lint/debug compilation and an APK
   checksum. Debug artifacts are setup previews, not playable releases.
 
@@ -71,10 +72,10 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Private version `0.3.1-auth-socket-diagnostic` passed all 83
+signing and validation. Private version `0.3.2-auth-resolver-diagnostic` passed all 91
 Android unit tests, lint, assembly, signature verification and exact preservation
-of 114 packaged runtime/notice files. Its [measured APK evidence](docs/evidence/android-2026-10-22-private-auth-socket-apk.json)
-keeps execution of the corrected socket build unqualified. Public releases still package the database
+of 114 packaged runtime/notice files. Its [measured APK evidence](docs/evidence/android-2026-10-22-private-auth-resolver-apk.json)
+keeps execution of the corrected resolver build unqualified. Public releases still package the database
 diagnostic; the auth APK is provided separately to the source recipient.
 
 The app currently accepts the exact reviewed `From_The_Ashes_Source.zip` and
@@ -111,8 +112,8 @@ tables. Validation uses the measured archive inventory.
 | Exact MariaDB 12.3.2 host seed and runtime-SQL probe | Passed: 563 tables, one trigger, 236 runtime scripts |
 | Compiled host authserver and original auth updater | Passed; world/character updater remains separate |
 | Android ARM64/Bionic authserver compile and private runtime stage | Passed; private APK build/payload checks passed; auth version command ran on Thor |
-| Packaged Android database bootstrap/health/shutdown | Thor prechecks passed; final clean shutdown remains unqualified |
-| Optional private auth-only updater diagnostic | Thor imported all 27 auth tables; prior dry-run phase failed; socket fix and richer reporting await retest |
+| Packaged Android database bootstrap/health/shutdown | Passed on Thor, including observed SQL shutdown and exit 0 |
+| Optional private auth-only updater diagnostic | Thor pool opened and updater reported up to date; resolver portability fix remains for the final dry run |
 | Actual seed import on pinned Android MariaDB provider | Open |
 | Android ARM64 worldserver and all required modules | Open |
 | Supervised persistent server APK and local account provisioning | Open |

@@ -188,6 +188,12 @@ class DatabaseDiagnostic(
             receipt()
         }
         check(client("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='acore_auth';", 5_000).trim() == "27")
+        // Inspect only eligibility booleans. The original seed and updater remain unchanged.
+        setStage("AUTH_INPUT", "Checking realm eligibility without exporting realm details.")
+        RealmEligibilityEvidence.parse(client(RealmEligibilityEvidence.SQL, 5_000)).forEach { (field, value) ->
+            info.put(field, value)
+        }
+        receipt()
         val secret = ByteArray(24).also { SecureRandom().nextBytes(it) }
             .joinToString("") { "%02x".format(it.toInt() and 255) }
         client("CREATE USER 'fta_auth_diag'@'localhost' IDENTIFIED BY '$secret'; GRANT ALL PRIVILEGES ON acore_auth.* TO 'fta_auth_diag'@'localhost';", 5_000)
@@ -518,4 +524,54 @@ internal class NativeInvocationJournal(private val file: File, private val attem
             records to dropped
         }.getOrNull()
     }
+}
+
+
+/** Aggregate eligibility only; no realm name, address, identifier, count or row is retained. */
+internal object RealmEligibilityEvidence {
+    private val markers = linkedMapOf(
+        "FTA_REALM_ROWS_PRESENT" to "realmRowsPresent",
+        "FTA_REALM_ELIGIBLE_AFTER_OFFLINE_ROWS_PRESENT" to "eligibleAfterOfflineRowsPresent",
+        "FTA_REALM_ALL_THREE_IPV4" to "all3addressesNumericIPv4"
+    )
+    val fields: List<String> = markers.values.toList()
+
+    // Mirrors the original flag|OFFLINE(2), then flag<>3 candidate filter. Numeric
+    // IPv4 checks cover the three address fields of every eligible candidate.
+    // With no eligible candidate, all3addressesNumericIPv4 is explicitly false.
+    val SQL = """
+        SELECT CONCAT('FTA_REALM_ROWS_PRESENT=',EXISTS(SELECT 1 FROM acore_auth.realmlist));
+        SELECT CONCAT('FTA_REALM_ELIGIBLE_AFTER_OFFLINE_ROWS_PRESENT=',
+            EXISTS(SELECT 1 FROM acore_auth.realmlist WHERE (flag | 2) <> 3));
+        SELECT CONCAT('FTA_REALM_ALL_THREE_IPV4=',
+            EXISTS(SELECT 1 FROM acore_auth.realmlist WHERE (flag | 2) <> 3) AND
+            NOT EXISTS(SELECT 1 FROM acore_auth.realmlist WHERE (flag | 2) <> 3 AND
+                (COALESCE(IS_IPV4(address),0) <> 1 OR COALESCE(IS_IPV4(localAddress),0) <> 1
+                    OR COALESCE(IS_IPV4(localSubnetMask),0) <> 1)));
+    """.trimIndent()
+
+    fun parse(output: String): Map<String, Boolean> {
+        require(output.length <= 512) { "Realm eligibility result exceeds its limit" }
+        val values = linkedMapOf<String, Boolean>()
+        output.lineSequence().filter { it.isNotBlank() }.forEach { line ->
+            val parts = line.trim().split('=')
+            require(parts.size == 2 && parts[1] in setOf("0", "1")) { "Unexpected realm eligibility result" }
+            val field = markers[parts[0]] ?: throw IllegalArgumentException("Unexpected realm eligibility field")
+            require(field !in values) { "Duplicate realm eligibility field" }
+            values[field] = parts[1] == "1"
+        }
+        require(values.size == fields.size && consistent(values)) { "Incomplete or inconsistent realm eligibility result" }
+        return values
+    }
+
+    /** A report accepts the complete consistent boolean set, never coerced strings or rows. */
+    fun forward(values: Map<String, Any?>): Map<String, Boolean> {
+        if (fields.any { values[it] !is Boolean }) return emptyMap()
+        val result = fields.associateWith { values.getValue(it) as Boolean }
+        return if (consistent(result)) result else emptyMap()
+    }
+
+    private fun consistent(values: Map<String, Boolean>) =
+        (values["eligibleAfterOfflineRowsPresent"] != true || values["realmRowsPresent"] == true) &&
+            (values["all3addressesNumericIPv4"] != true || values["eligibleAfterOfflineRowsPresent"] == true)
 }
