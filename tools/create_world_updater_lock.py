@@ -395,7 +395,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path)
     parser.add_argument("--source", type=Path, required=True, help="Exact staged reviewed Android source profile")
-    parser.add_argument("--source-profile", default="android-arm64-world-v8")
+    parser.add_argument("--source-profile", default="android-arm64-world-v13")
     parser.add_argument("--measurement", type=Path, required=True, help="Private metadata-only host expected-result fixture")
     parser.add_argument("--measure-host-policy", action="store_true")
     parser.add_argument("--output", type=Path, default=Path("manifests/world-updater-lock.json"))

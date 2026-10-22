@@ -7,15 +7,36 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private Thor diagnostic: **0.4.1-charset-diagnostic**, version code **7**.
-Its clean build passed all **108 Android tests**, lint, signing/alignment, 114
-exact provider/notice files and the canonical full-seed metadata asset.
-APK SHA256: `6ef5d5fd1bde576ec30e876128777e497e62670aa153afe013c86030cb4993d5`.
-See `docs/evidence/android-2026-10-22-private-charset-apk.json`.
-Install over version 6 to keep the verified Database.zip; a source ZIP is not
+Latest private Thor diagnostic: **0.5.0-compiled-updater-diagnostic**, version
+code **8**. The complete ARM64 worldserver built with C++20, all 52 modules,
+static scripts/modules and default static Lua 5.2. Final profile:
+`android-arm64-world-v13`, tree
+`847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064`.
+World ELF: 62,661,136 bytes, SHA256
+`97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766`.
+Actual source, report, archives, ELF and private stage passed independent review.
+
+The clean private APK passed **136 Android tests** with no failures/skips,
+**142 tooling tests**, lint, signing/alignment, all **221** exact runtime/notice
+inputs and canonical seed/updater locks. APK SHA256:
+`a5130209ce410ec7941a7768b12a59ed14167743063cfd2826dd51d342c8decd`.
+See `docs/evidence/android-2026-10-22-private-world-apk.json` and the private-stage
+receipt. Deliver this private APK together with its matching corresponding-source
+companion. The companion is not needed on the device.
+
+Install over version 7 to retain the verified Database.zip; a source ZIP is not
 required. Reuse the persistent private signing key and future version codes
-**greater than 7**. Public CI snapshots use disposable debug signing and package
+**greater than 8**. Public CI snapshots use disposable debug signing and package
 only the database provider; use the private APK for this upgrade.
+
+**Next substantial physical test:** with at least 3 GiB free, select
+**Test compiled three-database updater**, allow its fresh import and original
+compiled updater to finish, then export the JSON report. The gate has a 40-minute
+overall deadline and a 10-minute world-process deadline. It requires the exact
+three-schema update/prepared-statement completion sequence, original expected
+missing-map exit and exact post-run fingerprints, followed by clean SQL shutdown.
+Compiled updater execution, persistent services and gameplay are not yet
+qualified; the original missing-map boundary is deliberate.
 
 Physical version 6 imported **158 tables**, then failed on the first ASCII column
 with MariaDB error **1115** at line 19. The native client exited 1 in 83 ms;
@@ -184,50 +205,33 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
    Later updater diagnostics must first repeat its fresh import and original
    three-schema/receipt baseline checks before applying runtime SQL. Keep the
    early ASCII probe, bounded current-attempt evidence and observed SQL shutdown.
-3. Continue the separate world build with the verified Android toolchain.
-   Readline now cross builds, full world configuration passes and compiler-led
-   fixes are recorded in `docs/native-build.md`. The current world source profile
-   is `android-arm64-world-v11`, tree
-   `882a152345a18d6d4ce480457cbe3aacbb4c20d3e2a119c5ce59c9f0812b3679`.
-   The Android-only ncurses link selection fixes a reproduced NDK linker error;
-   a real Readline/ncurses probe passes. Fresh compilation has passed the large
-   NPC bot sources and continues through the world graph; the complete world
-   compilation and link have not finished. Later compiler-led fixes preserve
-   signed 64-bit packet serialization and supply missing direct script headers.
-   The reviewed v11 patch adds 22 includes to 17 files, preserving all other bytes
-   and line endings. Sixteen corrected translation units compiled; a secondary
-   owning-header failure remains in the other file. A bounded unchanged-source
-   diagnostic pass is collecting further direct-header
-   failures while retaining successful objects; it cannot qualify a completed
-   world build. Actual CMake evidence checks source
-   entries for all 52 modules, static scripts/Lua and 49 original config names.
-   Preserve C++20, all 52 modules,
-   default static Lua 5.2 and static scripts/modules; auth must build first.
-   World compilation is incomplete. Use one heavy build at a time and record
-   actual compiler blockers as bounded reviewed patches.
-4. After a successful world build, qualify the compiled three-database updater
-   through original normal startup and the original missing-map boundary, with
-   exact post-run receipt/error checks. **Do not use world `--dry-run` for this
-   gate**: failed SQL can write receipts before its final error-counter check,
-   which missing DBCs prevent reaching. Follow `docs/world-updater-gate.md`.
-   World readiness still requires every module and matching DBC/maps/vmaps/mmaps;
-   those assets were not supplied. Only then package controlled persistent
-   services, account provisioning and restart-safe database installation.
+3. Preserve the complete v13 native build, actual private stage and version 8 APK
+   evidence. Compiler-led patches preserve C++20/all 52 modules, signed 64-bit
+   timestamp values and atomic shared-settings semantics. Link-time debug
+   stripping keeps the unchanged final ELF within Android runtime size bounds;
+   symbols remain available. See `docs/native-build.md` and `docs/world-runtime.md`.
+4. Obtain the physical version 8 compiled three-database updater report before
+   treating Android updater execution as qualified. The mode first repeats the
+   passing full-seed gate, then runs original **normal** world startup through
+   the missing-map boundary. **Do not use world `--dry-run` for this gate**:
+   failed SQL can write receipts before a final error-counter check that missing
+   DBCs prevent reaching. Follow `docs/world-updater-gate.md`.
+5. After that gate passes, qualify abnormal lifecycle/cancellation/process-death
+   cleanup and matching DBC/maps/vmaps/mmaps before persistent services or realm
+   gameplay. No game assets were supplied. Later work includes controlled
+   database → auth → world startup, account provisioning and restart-safe storage.
 
-The optional compiled-updater Android mode and private world stager are now
-implemented behind the actual world capability and signed source/ELF/lock
-bindings. The real Database.zip staging proof passed among 136 standalone JVM
-tests; the reviewed v11 checkpoint passed all 138 tooling tests. The world diagnostic uses ordinary process
-priority and the original World Inspector environment override with a fresh
-private empty queue. Prepared-statement error exports discard SQL continuations.
-Host source-policy measurements also passed
-using only three-schema privileges and the original utf8 client setting, with
-exact post-run schema/receipt fingerprints. These are preparation evidence;
-all 24 production Kotlin SQL/parser checks and 783 extracted-source host
-statement preparations passed. The latter only prepared and deallocated queries;
-they did not execute their bodies or the original Bionic connection pools.
-No world ELF, world APK or device compiled-updater success is claimed yet.
-Follow `docs/world-runtime.md` for private staging and corresponding source.
+The diagnostic uses ordinary process priority, the original World Inspector
+queue-directory environment override with a fresh empty private queue, and
+bounded SQL-safe error exports. All 49 original module configurations are kept.
+The actual Database.zip regression ran among all 136 clean Gradle JVM tests.
+All 24 production Kotlin SQL/parser checks and 783 extracted-source host
+statement preparations passed previously; final SQL bytes remain identical.
+The latter only prepared/deallocated queries, without executing their bodies or
+Bionic connection pools. The final ELF contains all 763 registration variants
+(753 distinct SQL strings) and the original branch query. Final bindings reuse
+those host measurements without claiming a SQL rerun. Only the physical report
+can qualify this compiled updater on Android.
 
 Static startup review also found an original gameplay-cache issue to investigate
 before realm qualification: `modules/Attriboost/src/Attriboost.cpp:284` reads
@@ -248,8 +252,8 @@ build, a setup APK or a CI artifact with a successful Thor runtime test.
 The initial shell lacked build tools; host tools/dependencies are now staged
 privately and the exact host database gate has run. Do not repeat that old
 missing-tools status as a current blocker. ARM64 auth compilation, private staging and the physical auth dry run passed;
-world compilation and the remaining compiled-updater/lifecycle diagnostics require
-their own measured evidence. Inspect the exact commit's GitHub CI results before
+the compiled-updater and lifecycle diagnostics require their own physical
+evidence. The complete v13 world cross-build and private APK checks passed. Inspect the exact commit's GitHub CI results before
 reporting setup APK checks as passed; native compilation has its own build report.
 
 Workspace recovery: previous scratch bytes and world objects were pruned by
@@ -257,5 +261,10 @@ maintenance. The exact Android toolchain was restored and the private runtime
 recovered byte-for-byte from the saved version 6 APK; the signing capsule was
 reused. Do not claim the old world object cache is still present. The original
 source archive was recovered and profile v7 reproduced exactly before
-resuming native work. Target dependencies are being reproduced from pinned inputs.
+resuming native work. Target dependencies were reproduced from pinned inputs. During the final native
+check, a stale scripts archive was detected and refused. A sole-owner targeted
+normal rebuild repaired it; three subsequent complete checks matched source,
+report, artifacts and seven affected archive members. Keep native/Gradle builds
+under one filesystem owner with all other workspace activity paused to avoid
+recurrence; the underlying replacement cause was not conclusively established.
 Saved artifact identities and existing source profiles remain authoritative.

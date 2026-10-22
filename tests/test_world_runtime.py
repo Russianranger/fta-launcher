@@ -63,6 +63,7 @@ class WorldRuntimeTests(unittest.TestCase):
                          'module_compilation_counts': {name: 1 for name in self.inventory['modules']},
                          'static_modules': True, 'static_scripts': True, 'lua_version': 'lua52',
                          'lua_static': True, 'cxx_standard': 20,
+                         'debug_section_policy': 'linker-strip-debug',
                          'linked_static_targets': ['modules', 'scripts', 'lualib'],
                          'module_configuration_files': ['fixture.conf'], 'configuration_directory': 'configs',
                          'target_artifacts': targets, 'execution_qualified': False}
@@ -73,7 +74,8 @@ class WorldRuntimeTests(unittest.TestCase):
                                          'MODULES': 'static', 'SCRIPTS': 'static', 'CMAKE_SYSTEM_NAME': 'Android',
                                          'APPS_BUILD': 'all', 'LUA_VERSION': 'lua52', 'LUA_STATIC': 'ON',
                                          'CONF_DIR': 'configs', 'ANDROID_STL': 'c++_static',
-                                         'ANDROID_PLATFORM': 'android-33', 'ANDROID_ABI': 'arm64-v8a'},
+                                         'ANDROID_PLATFORM': 'android-33', 'ANDROID_ABI': 'arm64-v8a',
+                                         'CMAKE_EXE_LINKER_FLAGS': '-Wl,--strip-debug'},
                        'artifacts': {'worldserver': {'path': str(self.binary), **record(self.binary)},
                                      'authserver': {'path': str(self.auth_binary), **record(self.auth_binary)}},
                        'compiled_world_evidence': self.compiled}
@@ -212,7 +214,9 @@ class WorldRuntimeTests(unittest.TestCase):
                 self.verify_report({**self.report, key: value})
         for key, value in [('CMAKE_CXX_STANDARD', '17'), ('MODULES', 'none'), ('SCRIPTS', 'none'),
                            ('LUA_VERSION', 'lua54'), ('LUA_STATIC', 'OFF'), ('ANDROID_STL', 'c++_shared'),
-                           ('CONF_DIR', '/host/configs'), ('ANDROID_PLATFORM', 'android-35'), ('ANDROID_ABI', 'x86_64')]:
+                           ('CONF_DIR', '/host/configs'), ('ANDROID_PLATFORM', 'android-35'), ('ANDROID_ABI', 'x86_64'),
+                           ('CMAKE_EXE_LINKER_FLAGS', ''), ('CMAKE_EXE_LINKER_FLAGS', '-Wl,--strip-all'),
+                           ('CMAKE_EXE_LINKER_FLAGS', '-Wl,--strip-debug -Wl,--strip-all')]:
             changed = deepcopy(self.report)
             changed['configuration'][key] = value
             with self.subTest(configuration=key), self.assertRaises(world.ProviderError):
@@ -227,6 +231,39 @@ class WorldRuntimeTests(unittest.TestCase):
         archive.write_bytes(b'changed static module artifact')
         with self.assertRaises(world.ProviderError):
             self.verify_report()
+
+    def test_link_evidence_must_confirm_debug_only_stripping(self):
+        for policy in ('unchanged', 'strip-all', None):
+            self.compiled['debug_section_policy'] = policy
+            with self.subTest(policy=policy), self.assertRaises(world.ProviderError):
+                self.verify_report()
+
+    def test_android_runtime_size_boundaries_include_exact_totals(self):
+        maximum = world.MAX_RUNTIME_FILE_BYTES
+        self.assertEqual(world.runtime_bounds([{'size': maximum}] * 4), world.MAX_RUNTIME_TOTAL_BYTES)
+        for files in ([{'size': maximum + 1}], [{'size': maximum}] * 4 + [{'size': 1}],
+                      [{'size': -1}], [{'size': True}], [{'size': 0}] * 4097):
+            with self.subTest(entries=len(files)), self.assertRaises(world.ProviderError):
+                world.runtime_bounds(files)
+
+    def test_large_private_archive_has_a_separate_bound_and_is_never_a_runtime_payload(self):
+        # Sparse size fixtures exercise bounds without allocating or hashing GiB.
+        archive = self.root / 'large-private-archive.a'
+        length = world.MAX_RUNTIME_FILE_BYTES + 1
+        with archive.open('wb') as stream:
+            stream.truncate(length)
+        pin = {'size': length, 'sha256': 'a' * 64}
+        with mock.patch.object(world, 'digest', return_value=pin['sha256']) as hash_file:
+            with self.assertRaises(world.ProviderError):
+                world.verified_file(archive, pin)
+            hash_file.assert_not_called()
+            world.verified_file(archive, pin, maximum=world.MAX_BUILD_ARCHIVE_BYTES)
+            hash_file.assert_called_once_with(archive)
+        with mock.patch.object(world, 'digest') as hash_file:
+            with self.assertRaises(world.ProviderError):
+                world.verified_file(archive, {**pin, 'size': world.MAX_BUILD_ARCHIVE_BYTES + 1},
+                                    maximum=world.MAX_BUILD_ARCHIVE_BYTES)
+            hash_file.assert_not_called()
 
     def test_artifact_or_source_profile_identity_drift_is_refused(self):
         with self.assertRaises(world.ProviderError):
@@ -372,6 +409,8 @@ class WorldRuntimeTests(unittest.TestCase):
         self.assertFalse(proof['correspondingSourceDeliveryQualified'])
         self.assertEqual(proof['addedLibraries'], [self.dependency])
         self.assertFalse(proof['worldBuild']['preservedBaseAuthRebuilt'])
+        self.assertEqual(proof['packagedRuntimeBytes'], sum(item['size'] for item in after['files']))
+        self.assertFalse(any(path.name.endswith('.a') for path in output.rglob('*')))
 
     def test_output_reuse_input_nesting_and_failed_stage_leave_no_partial_output(self):
         output = self.root / 'output'

@@ -98,6 +98,9 @@ def check_cache(cache: dict[str, str], target_platform: str, *, configured: bool
             raise BuildError('Android build did not configure ARM64 ABI')
         if target_platform == 'android' and cache.get('CONF_DIR') != 'configs':
             raise BuildError('Android build does not use supervised relative module configuration path')
+        if (target_platform == 'android' and cache.get('APPS_BUILD') == 'all'
+                and cache.get('CMAKE_EXE_LINKER_FLAGS') != '-Wl,--strip-debug'):
+            raise BuildError('Android world build does not use debug-section-only linker stripping')
 
 
 def world_build_evidence(build: Path, source: Path, module_names: list[str]) -> dict:
@@ -181,7 +184,18 @@ def world_build_evidence(build: Path, source: Path, module_names: list[str]) -> 
         if not groups or any(group.get('languageStandard', {}).get('standard') != '20' for group in groups):
             raise BuildError(f'World target {name} does not compile as C++20')
     dependencies = {}
+    debug_sections = 'unchanged'
     if cache.get('CMAKE_SYSTEM_NAME') == 'Android':
+        linker_options = []
+        for token in link_tokens:
+            if token.startswith('-Wl,'):
+                linker_options.extend(token[4:].split(','))
+            else:
+                linker_options.append(token.removeprefix('-Xlinker='))
+        if ('--strip-debug' not in linker_options
+                or any(token in ('-s', '--strip-all') for token in linker_options)):
+            raise BuildError('Android world link does not preserve the debug-section-only stripping policy')
+        debug_sections = 'linker-strip-debug'
         path = Path(cache.get('ANDROID_NCURSES_LIBRARY', ''))
         if not path.is_file() or path.resolve() not in linked_paths:
             raise BuildError('World link lacks its resolved Android ncurses library')
@@ -193,6 +207,7 @@ def world_build_evidence(build: Path, source: Path, module_names: list[str]) -> 
             'static_modules': True, 'static_scripts': True, 'lua_version': cache['LUA_VERSION'],
             'lua_static': cache['LUA_STATIC'] == 'ON', 'cxx_standard': 20,
             'linked_static_targets': ['modules', 'scripts', 'lualib'],
+            'debug_section_policy': debug_sections,
             'target_artifacts': artifacts, 'target_dependency_artifacts': dependencies,
             'execution_qualified': False}
 
@@ -230,6 +245,9 @@ def commands(args: argparse.Namespace) -> list[list[str]]:
         if args.dependency_prefix:
             # NDK package searches are rooted; explicitly admit only this target prefix.
             configure.append('-DCMAKE_FIND_ROOT_PATH=' + str(args.dependency_prefix.resolve()))
+        if args.stage == 'world':
+            # Keep code and the symbol table while bounding the packaged executable size.
+            configure.append('-DCMAKE_EXE_LINKER_FLAGS:STRING=-Wl,--strip-debug')
     elif args.toolchain:
         raise BuildError('Use --platform android for a cross toolchain; host results are not Android qualification')
     for field, variable in [('dependency_prefix','CMAKE_PREFIX_PATH'), ('mysql_library','MYSQL_LIBRARY'),
@@ -306,7 +324,7 @@ def main() -> int:
             'CMAKE_CXX_COMPILER', 'ANDROID_ABI', 'CMAKE_ANDROID_ARCH_ABI',
             'ANDROID_PLATFORM', 'ANDROID_STL', 'CMAKE_ANDROID_STL_TYPE',
             'CMAKE_SYSTEM_NAME', 'APPS_BUILD', 'LUA_VERSION', 'LUA_STATIC', 'CONF_DIR',
-            'ANDROID_NCURSES_LIBRARY') if key in cache}
+            'ANDROID_NCURSES_LIBRARY', 'CMAKE_EXE_LINKER_FLAGS') if key in cache}
         if args.platform == 'android':
             report['target_abi'] = cache.get('CMAKE_ANDROID_ARCH_ABI', cache.get('ANDROID_ABI'))
         if not args.configure_only:

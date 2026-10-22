@@ -7,23 +7,27 @@ and dependency evidence, and adds the world payload, original module defaults,
 updater metadata and notices in a new private stage. The stager never starts a
 native process or imports a database.
 
-The real world build and subsequent packaging are still being completed. This
-document does not yet record a successful world stage or a device updater run.
-Fixture tests establish packaging checks only.
+The completed original Android world build and actual private staging passed
+under reviewed profile `android-arm64-world-v13`. The private stage was verified
+against the original source, completed CMake target evidence and pinned base.
+See [the stage receipt](evidence/android-2026-10-22-private-world-stage.json).
+APK packaging and the physical-device updater run remain separate milestones.
 
 | Evidence | Current status |
 | --- | --- |
-| Final world source profile and completed all-module build report | Reviewed `android-arm64-world-v11`; completed build pending |
-| World ELF SHA256, byte length and inspected dependency closure | Pending final artifact |
-| Private world-stage inventory and preservation verification | Pending real staging |
+| Final world source profile and completed all-module build report | Passed `android-arm64-world-v13`; tree `847f2e60…bd0e064` |
+| World ELF SHA256, byte length and inspected dependency closure | Passed; 62,661,136 bytes; SHA256 `97e578f7…e67766` |
+| Private world-stage inventory and preservation verification | Passed; 221 APK input files; all 96 base runtime and 17 base legal files unchanged |
 | Signed world diagnostic APK SHA256 and packaged-file verification | Pending APK build |
 | Compiled Login/Character/World updater execution on Android | Pending physical-device milestone |
 | World initialization, listener, game login and gameplay | Unqualified |
 
-The canonical updater lock retains its measured v9 source binding while the
-compiler-led world work continues. Before actual staging, regenerate its source
-binding and audit pins for the completed final profile. The stager refuses a
-lock/build mismatch; the current checkpoint does not produce a world runtime.
+The final canonical updater lock binds the same v13 source profile/tree and has
+SHA256 `466c1c6673d7f939b14c4b6f4dc787efa58ac6c8fa91e982c76151a3f1f8c02f`.
+The verified stage has 148 runtime files (15 native and 133 data), 72 legal files
+and the runtime manifest. All 49 original module defaults are included. The
+historical resolver-v3 authserver remains unchanged; the newly compiled world
+build's auth prerequisite is recorded separately and is not packaged over it.
 
 ## Inputs and command
 
@@ -120,6 +124,12 @@ the real source inventory, artifacts and CMake file-API/link evidence:
   `compiled_world_evidence.target_dependency_artifacts.ncurses`; its actual
   regular file, byte length and SHA256 must match the preserved base
   `libncursesw.so.6`. A library name or reported link flag alone is insufficient.
+- Android executable linking must use the exact configuration flag
+  `-Wl,--strip-debug`; actual CMake link evidence must confirm the
+  `linker-strip-debug` policy and refuse full-strip flags. The final linked ELF
+  is copied unchanged. Packaged runtime files are limited to 512 MiB each and
+  2 GiB total, with a 1 MiB manifest. Private static build archives have a
+  separate 4 GiB verification bound and are never copied into the runtime.
 - Every native payload must be ELF64 AArch64 with at least 16 KiB `PT_LOAD`
   alignment. Executables must be Android PIEs using `/system/bin/linker64`;
   shared libraries must have no interpreter. New world ELF/library inputs must

@@ -101,6 +101,24 @@ class WorldBuildEvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(BuildError, 'lacks target artifact worldserver'):
             self.evidence()
 
+    def test_android_world_requires_actual_debug_only_linker_stripping(self):
+        ncurses = self.build / 'libncursesw.so'
+        ncurses.write_bytes(b'target fixture')
+        with (self.build / 'CMakeCache.txt').open('a') as cache:
+            cache.write(f'CMAKE_SYSTEM_NAME:STRING=Android\nCONF_DIR:STRING=configs\nANDROID_NCURSES_LIBRARY:FILEPATH={ncurses}\n')
+        fragments = self.targets['worldserver']['link']['commandFragments']
+        fragments.append({'fragment': str(ncurses), 'role': 'libraries'})
+        with self.assertRaisesRegex(BuildError, 'debug-section-only'):
+            self.evidence()
+        fragments.append({'fragment': '-Wl,--strip-debug', 'role': 'flags'})
+        self.assertEqual(self.evidence()['debug_section_policy'], 'linker-strip-debug')
+        for flag in ('-s', '-Wl,--strip-all', '-Wl,--strip-all,-z,relro', '-Wl,-s,-z,relro', '-Xlinker=-s'):
+            with self.subTest(flag=flag):
+                fragments.append({'fragment': flag, 'role': 'flags'})
+                with self.assertRaisesRegex(BuildError, 'debug-section-only'):
+                    self.evidence()
+                fragments.pop()
+
 
 if __name__ == '__main__':
     unittest.main()

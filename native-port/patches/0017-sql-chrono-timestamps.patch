@@ -1,0 +1,55 @@
+--- a/src/server/game/Entities/Pet/Pet.cpp
++++ b/src/server/game/Entities/Pet/Pet.cpp
+@@ -582,7 +582,7 @@
+         stmt->SetData(12, curhealth);
+         stmt->SetData(13, curmana);
+         stmt->SetData(14, GetPower(POWER_HAPPINESS));
+-        stmt->SetData(15, GameTime::GetGameTime().count());
++        stmt->SetData(15, static_cast<int64>(GameTime::GetGameTime().count()));
+         stmt->SetData(16, actionBar);
+ 
+         trans->Append(stmt);
+--- a/src/server/game/Handlers/CalendarHandler.cpp
++++ b/src/server/game/Handlers/CalendarHandler.cpp
+@@ -765,7 +765,7 @@
+         stmt->SetData(4, 0);
+         stmt->SetData(5, 0);
+         stmt->SetData(6, "EventId: " + std::to_string(packet.EventId));
+-        stmt->SetData(7, GameTime::GetGameTime().count());
++        stmt->SetData(7, static_cast<int64>(GameTime::GetGameTime().count()));
+ 
+         CharacterDatabase.Execute(stmt);
+     }
+--- a/src/server/game/Handlers/MiscHandler.cpp
++++ b/src/server/game/Handlers/MiscHandler.cpp
+@@ -1280,7 +1280,7 @@
+         stmt->SetData(4, packet.ChannelId);
+         stmt->SetData(5, packet.SecondsSinceMessage);
+         stmt->SetData(6, packet.Description);
+-        stmt->SetData(7, GameTime::GetGameTime().count());
++        stmt->SetData(7, static_cast<int64>(GameTime::GetGameTime().count()));
+ 
+         CharacterDatabase.Execute(stmt);
+     }
+--- a/src/server/game/Handlers/TicketHandler.cpp
++++ b/src/server/game/Handlers/TicketHandler.cpp
+@@ -273,7 +273,7 @@
+     stmt->SetData (4, y);
+     stmt->SetData (5, z);
+     stmt->SetData(6, GetLatency());
+-    stmt->SetData(7, GameTime::GetGameTime().count());
++    stmt->SetData(7, static_cast<int64>(GameTime::GetGameTime().count()));
+     CharacterDatabase.Execute(stmt);
+ }
+ 
+--- a/src/server/scripts/Commands/cs_quest.cpp
++++ b/src/server/scripts/Commands/cs_quest.cpp
+@@ -638,7 +638,7 @@
+                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
+                 stmt->SetData(0, guid);
+                 stmt->SetData(1, entry);
+-                stmt->SetData(2, GameTime::GetGameTime().count());
++                stmt->SetData(2, static_cast<int64>(GameTime::GetGameTime().count()));
+                 trans->Append(stmt);
+             }
+             else if (quest->IsWeekly())

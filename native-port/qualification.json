@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "recorded_at_utc": "2026-10-22T19:11:46.113646+00:00",
+  "recorded_at_utc": "2026-10-22T21:18:22.043979+00:00",
   "source_archive_sha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
   "host_auth": {
     "status": "passed",
@@ -53,8 +53,8 @@
     },
     "execution_qualified": false
   },
-  "worldserver_compiled": false,
-  "all_52_modules_compiled": false,
+  "worldserver_compiled": true,
+  "all_52_modules_compiled": true,
   "thor_tested": true,
   "world_ready": false,
   "dependency_driver": {
@@ -256,7 +256,7 @@
     "fresh_recipe_rebuild_scope": "Complete unmodified build-world-dependencies.py fresh-output driver: pinned ncurses headers and Readline8.3.3; provider ELFs unchanged"
   },
   "android_world_compile_progress": {
-    "status": "full-world-compile-in-progress",
+    "status": "cross-build-passed",
     "all_module_directories": 52,
     "cpp_compilation_edges": 1439,
     "c_compilation_edges": 50,
@@ -267,8 +267,8 @@
     "scripts": "static",
     "modules": "static",
     "cxx_standard": 20,
-    "current_profile": "android-arm64-world-v11",
-    "source_tree_sha256": "882a152345a18d6d4ce480457cbe3aacbb4c20d3e2a119c5ce59c9f0812b3679",
+    "current_profile": "android-arm64-world-v13",
+    "source_tree_sha256": "847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064",
     "pristine_profile_reproduction": "passed",
     "compiler_blockers": [
       {
@@ -296,7 +296,7 @@
         "error": "Original world link uses -lncurses which NDK cannot resolve; actual target flag probe failed",
         "fix_patch": "patches/0010-android-ncurses-target.patch",
         "fixed_probe": "Pinned Readline and ncursesw full-path link passed with rl_initialize/initscr and --no-undefined",
-        "full_world_link_passed": false
+        "full_world_link_passed": true
       },
       {
         "profile": "android-arm64-world-v8",
@@ -317,11 +317,50 @@
         "affected_source_files": 17,
         "owning_header_includes": 22,
         "script_body_changes": 0,
-        "full_translation_units_recompiled": false
+        "full_translation_units_recompiled": true
+      },
+      {
+        "profile": "android-arm64-world-v11",
+        "error": "Ten additional actual script translation units lack their owning declaration/template headers with NOPCH",
+        "fix_patch": "patches/0014-script-direct-headers-continued.patch",
+        "affected_source_files": 10,
+        "owning_header_includes": 16,
+        "script_body_changes": 0,
+        "full_translation_units_recompiled": true
+      },
+      {
+        "profile": "android-arm64-world-v11",
+        "error": "NDK libc++ lacks the C++20 atomic<shared_ptr> specialization used by actual mod-aoe-loot and mod-junk-to-gold translation units",
+        "fix_patch": "patches/0015-atomic-shared-settings.patch",
+        "memory_order_preserved": "seq_cst",
+        "immutable_snapshot_ownership_preserved": true,
+        "production_module_files": 2,
+        "original_integration_fixture_files": 1,
+        "full_translation_units_recompiled": true
+      },
+      {
+        "profile": "android-arm64-world-v12",
+        "error": "Actual full world link exposes five private lambda grid-searcher Visit definitions missing from two script translation units",
+        "fix_patch": "patches/0016-private-grid-searcher-templates.patch",
+        "affected_source_files": 2,
+        "owning_header_includes": 2,
+        "script_body_changes": 0,
+        "full_translation_units_recompiled": true
+      },
+      {
+        "profile": "android-arm64-world-v12",
+        "error": "Actual full world link and llvm-nm identify exactly five scalar GameTime seconds callers requiring unavailable SetValidData<long long> instead of canonical signed int64 binding",
+        "fix_patch": "patches/0017-sql-chrono-timestamps.patch",
+        "affected_source_files": 5,
+        "timestamp_width_bits_preserved": 64,
+        "mysql_type_preserved": "MYSQL_TYPE_LONGLONG",
+        "is_unsigned_preserved": false,
+        "sql_text_changes": 0,
+        "full_translation_units_recompiled": true
       }
     ],
-    "worldserver_compiled": false,
-    "all_modules_compiled": false,
+    "worldserver_compiled": true,
+    "all_modules_compiled": true,
     "execution_qualified": false,
     "lua_flags_regression": {
       "status": "passed",
@@ -342,7 +381,11 @@
       "world-v8 authserver prerequisite compile/link",
       "world-v8 complete NPC bot translation units including bot_ai.cpp and botspell.cpp",
       "world-v9 full Unit.cpp translation unit after signed64 packet timestamp conversion",
-      "world-v10 full dark_portal_siege.cpp translation unit after direct CreatureScript include"
+      "world-v10 full dark_portal_siege.cpp translation unit after direct CreatureScript include",
+      "world-v12 all twelve previously failed full translation units including both atomic settings modules",
+      "world-v12 complete static modules archive with all52 module directories/C++20/default static Lua52",
+      "world-v12 complete static scripts archive",
+      "world-v13 complete ARM64/API33 worldserver link with all52 static modules/scripts/default Lua52 and source-bound completed CMake target evidence"
     ],
     "gsoap_strerror_regression": {
       "status": "passed",
@@ -425,6 +468,527 @@
       "private_template_warning_verified_in_actual_target_object": true,
       "worldserver_compiled": false,
       "execution_qualified": false
+    },
+    "continued_grouped_header_diagnostics": {
+      "profile": "android-arm64-world-v11",
+      "source_tree_sha256": "882a152345a18d6d4ce480457cbe3aacbb4c20d3e2a119c5ce59c9f0812b3679",
+      "mode": "bounded Ninja keep-going diagnostics",
+      "jobs": 2,
+      "maximum_failed_build_edges": 16,
+      "processed_build_edges": 548,
+      "scheduled_build_edges": 551,
+      "failed_build_edges": 12,
+      "exit_code": 1,
+      "source_verified_unchanged_after": true,
+      "available_graph_exhausted": true,
+      "worldserver_compiled": false,
+      "execution_qualified": false
+    },
+    "final_link_attempt": {
+      "profile": "android-arm64-world-v12",
+      "source_tree_sha256": "cd48814d5faf774c56369a719fde1e42e41a041341ca3d46e3720fefa074385a",
+      "normal_driver_exit_code": 1,
+      "processed_build_edges": 16,
+      "scheduled_build_edges": 16,
+      "modules_archive_linked": true,
+      "scripts_archive_linked": true,
+      "world_link_attempted": true,
+      "unresolved_symbols": 6,
+      "worldserver_compiled": false,
+      "execution_qualified": false
     }
+  },
+  "atomic_shared_settings_regression": {
+    "status": "passed",
+    "portProfile": "android-arm64-world-v12",
+    "sourceTreeSha256": "cd48814d5faf774c56369a719fde1e42e41a041341ca3d46e3720fefa074385a",
+    "patchSha256": "2a1155fffb000ac55b4de256c37c3d0f704b310520bbd49fd5b2964b09d59521",
+    "files": {
+      "modules/mod-aoe-loot/src/aoe_loot.cpp": {
+        "before_sha256": "a79986a0705d1efbaee8edbdec294546ce7ae34b74706266d113c65b344247fe",
+        "after_sha256": "33295f5e9ce64b4382da0890bc11bcdb64d1bf66c2e8a14e5d8e94ce640e76f2"
+      },
+      "modules/mod-junk-to-gold/src/mod_junk_to_gold.cpp": {
+        "before_sha256": "891854219c1f29b66c2f085fdea18a71bbf22fc75a5647dce12a79d2020739d6",
+        "after_sha256": "dc8f2a9597f29aff4216eb06e5650bc766c35af7846466de78231909507bc9f0"
+      },
+      "modules/mod-aoe-loot/tests/IntegrationTests.cpp": {
+        "before_sha256": "cd6a2db6de25448feeda239bc3f2fe516511857645ee3b60629df92766fe41f1",
+        "after_sha256": "cf7a2c1f5b2a7e6b127a3616d140d2a74bb3913519cd40ae66c7368761293d65"
+      }
+    },
+    "fixtureInputs": {
+      "modules/mod-aoe-loot/tests/stubs/Fixture.h": "6cd280339bd0da22293684ffeb1dbccf6d22ad0998af80453a5b4f218677f240",
+      "src/common/Utilities/DataMap.h": "ea5d30ac8ed263cf3c1bc16d17111895888902646db3764a97ae351479369361"
+    },
+    "memoryOrder": "seq_cst",
+    "productionLoads": 4,
+    "productionMoveStores": 2,
+    "fixtureCopyStores": 3,
+    "readersPerModule": 4,
+    "publicationsPerModule": 10000,
+    "snapshotConsistency": true,
+    "initialDefaults": true,
+    "heldSnapshotLifetime": true,
+    "exactlyOnceTrackedDestruction": true,
+    "copyAndMoveOwnershipPreserved": true,
+    "host": [
+      {
+        "variant": "original",
+        "publicationPassed": true,
+        "fixtureChecks": 101,
+        "harnessSha256": "825d3a642c327f4663f2f7d8245d697ca502ae2cd3595bad8fa7f61277bfec6f",
+        "binarySha256": "b441ff864d662e7c8bf851e7c891b7ab489e3f519307240ecac4fa9b0dd99a35",
+        "fixtureBinarySha256": "7cb24f578d2b8aed1258ada1e7596241c174cb15cc0fa72adb42af14ae5be28e"
+      },
+      {
+        "variant": "fixed",
+        "publicationPassed": true,
+        "fixtureChecks": 101,
+        "harnessSha256": "b643b1015432f8798c71003208b506ea8e0ff75677ed238a1505a546307197e3",
+        "binarySha256": "ec97a57977a137dc6baeee1091c0b24d95a4265f66cf709cd202c82278c43e49",
+        "fixtureBinarySha256": "f7d7b56f9860f7d0a364a06af614dfa4e323385b7faea818e6affa568992b332"
+      }
+    ],
+    "ndk": {
+      "revision": "28.2.13676358",
+      "api": 33,
+      "target": "aarch64-linux-android33",
+      "compilerSha256": "3595c5be995a83260aae29e549d2eea0f33f751556d7a53a0446dfe75065f515",
+      "headers": {
+        "__memory/shared_ptr.h": "cc357876048992543a9ab32a65354debcf6c33dcbf5680d39344a99ab25bff2a",
+        "__atomic/atomic.h": "cbb6cfad8768ffe1bb99379a51b354663fb2159e97797d279bbb72c55b0d0810",
+        "__atomic/cxx_atomic_impl.h": "03395c2fbcb835cc7fdadc6555498db16bf3bec8b294b444c779f2a391cd1cfd",
+        "version": "8316daff501cfb6c5c7880a4277ca5e61f3a4987d7d8b56682252455117b107f"
+      },
+      "libcxxStaticSha256": "111648eb99781b8a734f3557aa1bd1efbd875af6b35b545eae1d89d75cd41b2a"
+    },
+    "targetElf": {
+      "sha256": "3ee7ee8d24c7b207d6f00ec254677401975f011a89c1c8a0e444d20c1f6ee6f9",
+      "size": 1696088,
+      "machine": "AArch64",
+      "class": "ELF64",
+      "needed": [
+        "libc.so",
+        "libdl.so",
+        "libm.so"
+      ],
+      "loadAlignments": [
+        16384,
+        16384,
+        16384,
+        16384
+      ],
+      "page16kCompatible": true,
+      "sharedPtrAtomicHelpersResolved": true,
+      "sourceSha256": "fa713c4bfc31d710c9b8d08fd2ecf7676f0cd4055924f33705e0a6b3a9cb26a6",
+      "executed": false
+    },
+    "targetExecuted": false,
+    "worldBuildQualified": false,
+    "gameplayQualified": false,
+    "scope": "host original/fixed extracted settings concurrency and existing production-module fixture with source stubs; NDK original specialization failure and fixed static-libc++ compile/link only",
+    "script": "native-port/check-atomic-shared-settings.py"
+  },
+  "sql_chrono_regression": {
+    "formatVersion": 1,
+    "status": "passed",
+    "portProfile": "android-arm64-world-v13",
+    "sourceTreeSha256": "847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064",
+    "moduleCount": 52,
+    "cxxStandard": 20,
+    "patchSha256": "09d7594e4a719f4202c07512d73b51ac031c7f750cce70cb60f0ebeabc2493a0",
+    "files": {
+      "src/server/game/Entities/Pet/Pet.cpp": {
+        "before_sha256": "aa70f955598479a586ce9fee56209c89661160ee2250e112fceaef3cf16f5819",
+        "after_sha256": "80a51fd5c8ef9bd50260c722dcb5ea575aeb43257eea1a696293ff4172cafd88"
+      },
+      "src/server/game/Handlers/CalendarHandler.cpp": {
+        "before_sha256": "8e24403fa6d9de9c672fb5f31682c140534f39098c809df048905eeb2a0bf115",
+        "after_sha256": "5f2c9b281e6036fd406a804274714a96dc9fc3c4a092250379110f2574e84a30"
+      },
+      "src/server/game/Handlers/MiscHandler.cpp": {
+        "before_sha256": "28ccce0c1d828a752438fb1c4d7de3956403134bb0a841add5671aae9204bc3d",
+        "after_sha256": "b4590a9e12d3bd02a44e8f826a9baedbd09ea3e75ee756b298abc20af111244f"
+      },
+      "src/server/game/Handlers/TicketHandler.cpp": {
+        "before_sha256": "698d64a63a4f5a5ad1beb80f0cd19b530b43f80ffa83c5edeaf128ad9780cc4a",
+        "after_sha256": "b8956170bd38b1a5e17adde60dfaa7ed0f64763c2b26005373a1d80e4f64f93f"
+      },
+      "src/server/scripts/Commands/cs_quest.cpp": {
+        "before_sha256": "d2e9377ee2cdfb2b8057ff18759fe7000da9581e05fd8c6a3c5c1aca798885f8",
+        "after_sha256": "ebcc3332a966cefba07a5f91f080d8995d45b6f1aa9c41b58216767a71f712e9"
+      }
+    },
+    "headers": {
+      "src/server/database/Database/PreparedStatement.h": "861a8e260b9953189353308d8f629053bb5dac6b7c57d1f187e6a7d4d030fd93",
+      "src/server/database/Database/SQLOperation.h": "6bc3d52f43e09feea0338813a278555e08df16c7c3abd9a5ed895c802f36ae82",
+      "src/server/database/Database/DatabaseEnvFwd.h": "1117a911b63088abebceb7347a0b8b336d6d62614afff60354f931c4ce55c054",
+      "src/common/Define.h": "b7b3efb5fd8fd9061cf27435112ca3b149bafbfedbe96f0ddd96d82fe57ed9a6",
+      "src/common/CompilerDefs.h": "d15fc32a75011ef0c77395f5f7296528121ce7416a676e3620f0f0ce02846960",
+      "src/common/Utilities/Duration.h": "b973178cea66928ba0c1c0cd2e27c35b8d8a3380eaf4439b047d868d84251df3",
+      "src/server/game/Time/GameTime.h": "07d259cdffdabe90466d31876e9e50da3767cc1d33acb1bf92da2882bee0571d"
+    },
+    "wirePolicy": {
+      "path": "src/server/database/Database/MySQLPreparedStatement.cpp",
+      "sha256": "4cc5942e262324922937d47ddc304b9c3f391662fd752b8c20c8d2467a35a0b3",
+      "sourceAuditOnly": true,
+      "canonicalType": "MYSQL_TYPE_LONGLONG",
+      "signed": true,
+      "widthBytes": 8
+    },
+    "definition": {
+      "fileSha256": "9d74fab2c2ca182a300e32ff8baf67c0b13f1db059f2d2de014cbc80d8a3d43c",
+      "extractedSha256": "418c0e887315333fe7df3b4137a7a0c36ac61d8e96500d0b39ceff62928dbfcb",
+      "constructorSha256": "2b9eb069f5223d2f4428a7d89bce151a1fe240e89e68ffb8764c15d2eace7f84",
+      "destructorSha256": "8f6f741f246f16c6544c090bcf03c64226467fd9d3f4c5aa8693d456d8687ede",
+      "bindingSha256": "41caf7423b3f9814353337e1615e3849c7595086db68be7a3e09be63873f75d1",
+      "instantiationSha256": "de32a2ea50d0c38e450c11e47bf81eb21722d154f17947e256a0e7ca353eb568"
+    },
+    "useTranslationUnits": {
+      "original": "94aee9c045758db83d99b51203c6e73e515e22b35d3f9a6f46af330a2e6336f6",
+      "fixed": "a193185fdc60c73390ecfb45afcc73a4a11cc9c3799e0439c5fe4953c97278f8"
+    },
+    "separateTranslationUnits": true,
+    "callerCount": 5,
+    "hostValuesPerCaller": 8,
+    "hostVariantChecksPerVersion": 40,
+    "canonicalVariantIndex": 8,
+    "canonicalValueType": "signed64 int64",
+    "hostOriginalFixedValuesEqual": true,
+    "hostBinaries": {
+      "original": "19a23b3380b96d5964d43fc9fe9d170486f598e68e4c78e477b3ef592da36cef",
+      "fixed": "62a1eb58072448110392213ea189deb9373590b4179f90401d8842af2d2e39da"
+    },
+    "hostCompilerSha256": "52f1ddb33fe78b9441e0f42e9cd22c571f1101938e046c8a26582494e041cc73",
+    "ndkCompilerSha256": "3595c5be995a83260aae29e549d2eea0f33f751556d7a53a0446dfe75065f515",
+    "ndkRevision": "28.2.13676358",
+    "originalNdkCompilePassed": true,
+    "originalNdkMissingLongLongLinkReproduced": true,
+    "fixedNdkCanonicalInt64LinkPassed": true,
+    "targetElf": {
+      "sha256": "942468aace7e19cd75192661e697ed07d4c920fe27cb826ad4b15a5ff5449ca6",
+      "size": 5763232,
+      "class": "ELF64",
+      "machine": "AArch64",
+      "loadAlignments": [
+        16384,
+        16384,
+        16384,
+        16384
+      ],
+      "page16kCompatible": true,
+      "executed": false,
+      "needed": [
+        "libc.so",
+        "libdl.so",
+        "libm.so"
+      ]
+    },
+    "targetExecuted": false,
+    "sqlExecuted": false,
+    "serverQualified": false,
+    "scope": "exact five caller statements and actual PreparedStatement/GameTime headers; extracted constructor/destructor/binding/explicit int64 definition in a separate TU; synthetic host variant values; NDK compile/link only"
+  },
+  "android_world_build": {
+    "status": "cross-build-passed",
+    "platform": "android",
+    "abi": "arm64-v8a",
+    "api": 33,
+    "port_profile": "android-arm64-world-v13",
+    "source_tree_sha256": "847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064",
+    "normal_driver_report_sha256": "5a786854d67f13e1afefac83e1c9412b2b183dc97fa169bfbb897f00c50791be",
+    "configuration": {
+      "CMAKE_BUILD_TYPE": "Release",
+      "CMAKE_CXX_STANDARD": "20",
+      "SCRIPTS": "static",
+      "MODULES": "static",
+      "ANDROID_ABI": "arm64-v8a",
+      "ANDROID_PLATFORM": "android-33",
+      "ANDROID_STL": "c++_static",
+      "CMAKE_SYSTEM_NAME": "Android",
+      "APPS_BUILD": "all",
+      "LUA_VERSION": "lua52",
+      "LUA_STATIC": "ON",
+      "CONF_DIR": "configs",
+      "CMAKE_EXE_LINKER_FLAGS": "-Wl,--strip-debug"
+    },
+    "cxx_standard": 20,
+    "module_count": 52,
+    "module_names": [
+      "Attriboost",
+      "StatBooster",
+      "mod-ale",
+      "mod-aoe-loot",
+      "mod-auctionator",
+      "mod-aura-timers",
+      "mod-auto-gather-tracking",
+      "mod-autofish",
+      "mod-azercore-ops",
+      "mod-bg-reward",
+      "mod-boost-60-outland",
+      "mod-craftspeed",
+      "mod-daily-dungeon-rewards",
+      "mod-dbm-fta-bridge",
+      "mod-dress-npc",
+      "mod-dynamic-loot-browser",
+      "mod-dynamic-xp",
+      "mod-easy-respawn",
+      "mod-emerald-dreamway",
+      "mod-go-spawn-replacer",
+      "mod-goblin-glider",
+      "mod-guildfunds",
+      "mod-individual-progression",
+      "mod-individual-xp",
+      "mod-item-drop-multiplier",
+      "mod-junk-to-gold",
+      "mod-loot-beam",
+      "mod-map-gold-multiplier",
+      "mod-mount-requirements",
+      "mod-multitrainer",
+      "mod-npcbot-banter",
+      "mod-ony-naxx-logout-teleport",
+      "mod-pocket-pals",
+      "mod-profession-experience",
+      "mod-quartermaster-ledger",
+      "mod-quest-loot-party",
+      "mod-questie-bridge",
+      "mod-rdf-expansion",
+      "mod-reagent-bank-account",
+      "mod-reforging",
+      "mod-reset-raid-cooldowns",
+      "mod-reward-all-quest-choices",
+      "mod-shared-professions",
+      "mod-solo-lfg",
+      "mod-starter-food-water",
+      "mod-starting-pet",
+      "mod-talisman-of-binding-shard",
+      "mod-timewalking",
+      "mod-transmog",
+      "mod-warcraftxl-gameobject-editor",
+      "mod-warcraftxl-ui-tracker",
+      "mod-world-inspector-runtime"
+    ],
+    "module_compilation_counts": {
+      "Attriboost": 2,
+      "StatBooster": 5,
+      "mod-ale": 28,
+      "mod-aoe-loot": 2,
+      "mod-auctionator": 7,
+      "mod-aura-timers": 2,
+      "mod-auto-gather-tracking": 2,
+      "mod-autofish": 2,
+      "mod-azercore-ops": 18,
+      "mod-bg-reward": 2,
+      "mod-boost-60-outland": 2,
+      "mod-craftspeed": 2,
+      "mod-daily-dungeon-rewards": 2,
+      "mod-dbm-fta-bridge": 3,
+      "mod-dress-npc": 3,
+      "mod-dynamic-loot-browser": 2,
+      "mod-dynamic-xp": 2,
+      "mod-easy-respawn": 4,
+      "mod-emerald-dreamway": 2,
+      "mod-go-spawn-replacer": 2,
+      "mod-goblin-glider": 2,
+      "mod-guildfunds": 4,
+      "mod-individual-progression": 51,
+      "mod-individual-xp": 2,
+      "mod-item-drop-multiplier": 2,
+      "mod-junk-to-gold": 1,
+      "mod-loot-beam": 2,
+      "mod-map-gold-multiplier": 2,
+      "mod-mount-requirements": 4,
+      "mod-multitrainer": 2,
+      "mod-npcbot-banter": 2,
+      "mod-ony-naxx-logout-teleport": 2,
+      "mod-pocket-pals": 2,
+      "mod-profession-experience": 2,
+      "mod-quartermaster-ledger": 3,
+      "mod-quest-loot-party": 2,
+      "mod-questie-bridge": 2,
+      "mod-rdf-expansion": 2,
+      "mod-reagent-bank-account": 2,
+      "mod-reforging": 7,
+      "mod-reset-raid-cooldowns": 3,
+      "mod-reward-all-quest-choices": 2,
+      "mod-shared-professions": 2,
+      "mod-solo-lfg": 2,
+      "mod-starter-food-water": 2,
+      "mod-starting-pet": 2,
+      "mod-talisman-of-binding-shard": 2,
+      "mod-timewalking": 3,
+      "mod-transmog": 8,
+      "mod-warcraftxl-gameobject-editor": 2,
+      "mod-warcraftxl-ui-tracker": 2,
+      "mod-world-inspector-runtime": 2
+    },
+    "module_configuration_files": [
+      "AuraTimers.conf",
+      "BGReward_multi.conf",
+      "DBMFTABridge.conf",
+      "PocketPals.conf",
+      "SoloLfg.conf",
+      "TimeWalking.conf",
+      "WarcraftXLGameObjectEditor.conf",
+      "WarcraftXLUITracker.conf",
+      "WorldInspectorRuntime.conf",
+      "attriboost.conf",
+      "boost60_outland.conf",
+      "daily_dungeon_rewards.conf",
+      "dynamic_loot_browser.conf",
+      "dynamicxp.conf",
+      "go_spawn_replacer.conf",
+      "individualProgression.conf",
+      "individual_xp.conf",
+      "item_drop_multiplier.conf",
+      "map_gold_multiplier.conf",
+      "mod-profession-experience.conf",
+      "mod-quest-loot-party.conf",
+      "mod-rdf-expansion.conf",
+      "mod-talisman-of-binding-shard.conf",
+      "mod_ale.conf",
+      "mod_aoe_loot.conf",
+      "mod_auctionator.conf",
+      "mod_auto_gather_tracking.conf",
+      "mod_autofish.conf",
+      "mod_craftspeed.conf",
+      "mod_dress_npc.conf",
+      "mod_easy_respawn.conf",
+      "mod_emerald_dreamway.conf",
+      "mod_goblin_glider.conf",
+      "mod_guildfunds.conf",
+      "mod_junk_to_gold.conf",
+      "mod_loot_beam.conf",
+      "mod_mount_requirements.conf",
+      "mod_multitrainer.conf",
+      "mod_npcbot_banter.conf",
+      "mod_reagent_bank_account.conf",
+      "mod_reforging.conf",
+      "mod_reward_all_quest_choices.conf",
+      "mod_shared_professions.conf",
+      "mod_starter_food_water.conf",
+      "mod_startingpet.conf",
+      "quartermaster_ledger.conf",
+      "reset_raid_cooldowns.conf",
+      "statbooster.conf",
+      "transmog.conf"
+    ],
+    "static_modules": true,
+    "static_scripts": true,
+    "lua_version": "lua52",
+    "lua_static": true,
+    "debug_section_policy": "linker-strip-debug",
+    "linked_static_targets": [
+      "modules",
+      "scripts",
+      "lualib"
+    ],
+    "target_artifacts": {
+      "worldserver": {
+        "name": "worldserver",
+        "type": "EXECUTABLE",
+        "size": 62661136,
+        "sha256": "97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766"
+      },
+      "modules": {
+        "name": "libmodules.a",
+        "type": "STATIC_LIBRARY",
+        "size": 288575722,
+        "sha256": "bd369a8fe42c8c1ae8db89098a719350544ab7ef31000e2ffad57ac1f377a864"
+      },
+      "scripts": {
+        "name": "libscripts.a",
+        "type": "STATIC_LIBRARY",
+        "size": 1076471776,
+        "sha256": "6043eb017d1b368ad5228901d3b1f95cf15224fea06c85ad03accbddfa3872c3"
+      },
+      "lualib": {
+        "name": "liblua52.a",
+        "type": "STATIC_LIBRARY",
+        "size": 2236600,
+        "sha256": "10ee71458a09eb8c445759ca3e5f55d549dc3f9749798d3d4edcee49cd71dd08"
+      }
+    },
+    "target_dependency_artifacts": {
+      "ncurses": {
+        "name": "libncursesw.so.6",
+        "size": 384496,
+        "sha256": "795f855f5a988d9e89116847b2c9aa03720cedbc02026259ca735be25398c4c5"
+      }
+    },
+    "executables": {
+      "authserver": {
+        "sha256": "103720640531c2aca52c2a098f747707409b9149d9c0dad5d0c065c60ee0e229",
+        "size": 2697920,
+        "elf_class": "ELF64",
+        "machine": "AArch64",
+        "interpreter": "/system/bin/linker64",
+        "pie": true,
+        "load_alignments": [
+          16384,
+          16384,
+          16384,
+          16384
+        ],
+        "congruent_16k": true,
+        "needed": [
+          "libmariadb.so",
+          "libz.so",
+          "libssl.so.3",
+          "libcrypto.so.3",
+          "libz.so.1",
+          "libm.so",
+          "libdl.so",
+          "libc.so"
+        ],
+        "rpath_or_runpath": false,
+        "symbol_table_retained": true,
+        "debug_sections_present": false,
+        "executed": false
+      },
+      "worldserver": {
+        "sha256": "97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766",
+        "size": 62661136,
+        "elf_class": "ELF64",
+        "machine": "AArch64",
+        "interpreter": "/system/bin/linker64",
+        "pie": true,
+        "load_alignments": [
+          16384,
+          16384,
+          16384,
+          16384
+        ],
+        "congruent_16k": true,
+        "needed": [
+          "libncursesw.so.6",
+          "libreadline.so.8",
+          "libdl.so",
+          "libm.so",
+          "libmariadb.so",
+          "libz.so",
+          "libssl.so.3",
+          "libcrypto.so.3",
+          "libz.so.1",
+          "libc.so"
+        ],
+        "rpath_or_runpath": false,
+        "symbol_table_retained": true,
+        "debug_sections_present": false,
+        "executed": false
+      }
+    },
+    "artifact_consistency_repair": {
+      "observed_archive_replacement_after_report": true,
+      "cause_established": false,
+      "normal_driver_targeted_rebuild_passed": true,
+      "report_manually_edited": false,
+      "repeated_consistency_passes": 3,
+      "seven_archive_members_equal_actual_objects": true
+    },
+    "execution_qualified": false,
+    "thor_world_qualified": false,
+    "world_ready": false
   }
 }

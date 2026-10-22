@@ -18,7 +18,7 @@ import tempfile
 
 from stage_android_provider import CHUNK, ProviderError, digest, inspect_elf, safe_name
 from stage_auth_runtime import (AUTH_SYSTEM_LIBS, collect_libraries, dependency_records,
-                                stage_path, strict_json, verified_file)
+                                stage_path, strict_json)
 from fta_source import SourceError, verify_source_tree
 from build_native import BuildError, world_build_evidence
 
@@ -31,6 +31,35 @@ WORLD_NAME = 'libfta_worldserver.so'
 UPDATER_PATH = 'data/metadata/world-updater-lock.json'
 CONFIG_PREFIX = 'data/world-config/modules/'
 MIN_ALIGNMENT = 16384
+MAX_RUNTIME_FILE_BYTES = 512 * CHUNK
+MAX_RUNTIME_TOTAL_BYTES = 2048 * CHUNK
+MAX_BUILD_ARCHIVE_BYTES = 4096 * CHUNK
+MAX_MANIFEST_BYTES = CHUNK
+
+
+def verified_file(path: Path, record: dict, *, maximum: int = MAX_RUNTIME_FILE_BYTES) -> None:
+    """Verify identity with separate packaged-runtime and private-archive limits."""
+    size = record.get('size')
+    sha256 = record.get('sha256')
+    if (type(size) is not int or not 0 <= size <= maximum or not isinstance(sha256, str)
+            or not re.fullmatch(r'[0-9a-f]{64}', sha256) or path.is_symlink() or not path.is_file()
+            or path.stat().st_size != size or digest(path) != sha256):
+        raise ProviderError('File differs from its recorded identity or applicable size bound')
+
+
+def runtime_bounds(files: list[dict]) -> int:
+    """Mirror the Android manifest's 512 MiB/file and 2 GiB/runtime ceilings."""
+    if not files or len(files) > 4096:
+        raise ProviderError('World runtime file inventory exceeds the Android entry bound')
+    total = 0
+    for record in files:
+        size = record.get('size')
+        if type(size) is not int or not 0 <= size <= MAX_RUNTIME_FILE_BYTES:
+            raise ProviderError('World runtime file exceeds the Android 512 MiB bound')
+        total += size
+        if total > MAX_RUNTIME_TOTAL_BYTES:
+            raise ProviderError('World runtime exceeds the Android 2 GiB total bound')
+    return total
 
 
 def regular_directory(path: Path) -> None:
@@ -142,7 +171,7 @@ def verify_build_report(report: dict, worldserver: Path, authserver: Path,
     expected_config = {'CMAKE_BUILD_TYPE': 'Release', 'CMAKE_CXX_STANDARD': '20',
                        'MODULES': 'static', 'SCRIPTS': 'static', 'CMAKE_SYSTEM_NAME': 'Android',
                        'APPS_BUILD': 'all', 'LUA_VERSION': 'lua52', 'LUA_STATIC': 'ON', 'CONF_DIR': 'configs',
-                       'ANDROID_PLATFORM': 'android-33'}
+                       'ANDROID_PLATFORM': 'android-33', 'CMAKE_EXE_LINKER_FLAGS': '-Wl,--strip-debug'}
     if any(configuration.get(key) != expected for key, expected in expected_config.items()):
         raise ProviderError('World build does not preserve C++20/all modules/static scripts/default static Lua 5.2')
     if configuration.get('ANDROID_STL', configuration.get('CMAKE_ANDROID_STL_TYPE')) != 'c++_static':
@@ -176,8 +205,9 @@ def verify_build_report(report: dict, worldserver: Path, authserver: Path,
             or compiled.get('static_modules') is not True or compiled.get('static_scripts') is not True
             or compiled.get('lua_version') != 'lua52' or compiled.get('lua_static') is not True
             or compiled.get('cxx_standard') != 20
+            or compiled.get('debug_section_policy') != 'linker-strip-debug'
             or compiled.get('linked_static_targets') != ['modules', 'scripts', 'lualib']):
-        raise ProviderError('World compiled evidence omits a required module/static target')
+        raise ProviderError('World compiled evidence omits a required module/static target or debug-only link policy')
     required_targets = {'worldserver': 'EXECUTABLE', 'modules': 'STATIC_LIBRARY',
                         'scripts': 'STATIC_LIBRARY', 'lualib': 'STATIC_LIBRARY'}
     for name, kind in required_targets.items():
@@ -185,7 +215,7 @@ def verify_build_report(report: dict, worldserver: Path, authserver: Path,
         path = Path(target.get('path', ''))
         if target.get('type') != kind or not path.resolve().is_relative_to(build_dir.resolve()):
             raise ProviderError('World target evidence has an invalid artifact route/type')
-        verified_file(path, target)
+        verified_file(path, target, maximum=MAX_RUNTIME_FILE_BYTES if name == 'worldserver' else MAX_BUILD_ARCHIVE_BYTES)
     if compiled['target_artifacts']['worldserver']['sha256'] != digest(worldserver):
         raise ProviderError('World CMake target and staged ELF have different identities')
     ncurses = compiled.get('target_dependency_artifacts', {}).get('ncurses')
@@ -358,6 +388,9 @@ def stage(base_stage: Path, worldserver: Path, authserver: Path, target_libs: Pa
     added, sources = extend_closure(worldserver, native, collect_libraries(target_libs, readelf), dep_evidence, readelf)
     legal = legal_inputs(source, source_archive, source_archives, dependency_notices, ndk, inventory)
     configs = module_configs(source, build)
+    data = configs + [({'path': UPDATER_PATH, 'role': 'data', 'sha256': digest(updater_lock),
+                       'size': updater_lock.stat().st_size}, updater_lock)]
+    runtime_size = runtime_bounds(manifest['files'] + added + [record for record, _ in data])
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = Path(tempfile.mkdtemp(prefix='.fta-world-runtime-', dir=output.parent))
     try:
@@ -369,8 +402,6 @@ def stage(base_stage: Path, worldserver: Path, authserver: Path, target_libs: Pa
                 raise ProviderError('World stage would replace a preserved native payload')
             shutil.copyfile(path, target)
             target.chmod(0o755)
-        data = configs + [({'path': UPDATER_PATH, 'role': 'data', 'sha256': digest(updater_lock),
-                           'size': updater_lock.stat().st_size}, updater_lock)]
         for record, path in data:
             target = stage_path(staged, record)
             if target.exists():
@@ -401,7 +432,10 @@ def stage(base_stage: Path, worldserver: Path, authserver: Path, target_libs: Pa
                                  'cxxStandard': 20, 'staticModules': True, 'staticScripts': True,
                                  'luaVersion': 'lua52', 'luaStatic': True,
                                  'compiledUpdaterLockSha256': digest(updater_lock), 'configurationDirectory': 'configs'}
-        (staged / 'assets/fta-runtime-manifest.json').write_text(json.dumps(updated, indent=2) + '\n')
+        encoded_manifest = (json.dumps(updated, indent=2) + '\n').encode('utf-8')
+        if len(encoded_manifest) > MAX_MANIFEST_BYTES:
+            raise ProviderError('World runtime manifest exceeds the Android 1 MiB metadata bound')
+        (staged / 'assets/fta-runtime-manifest.json').write_bytes(encoded_manifest)
         proof = {'formatVersion': 1, 'distribution': 'private-original-source-owner-only',
                  'publicDistributionQualified': False, 'androidRuntimeExecuted': False,
                  'worldserverIncluded': True, 'worldReady': False, 'worldBuild': build,
@@ -411,6 +445,7 @@ def stage(base_stage: Path, worldserver: Path, authserver: Path, target_libs: Pa
                  'baseLegalFilesPreserved': len(base_provenance['legalFiles']),
                  'basePayloadsPreserved': True, 'baseProviderProvenance': base_provenance,
                  'compiledUpdaterLockSha256': digest(updater_lock), 'moduleConfigFiles': [record for record, _ in configs],
+                 'packagedRuntimeBytes': runtime_size,
                  'sourceEvidenceSha256': digest(SOURCE_EVIDENCE), 'correspondingSourceInputsVerified': True,
                  'correspondingSourceDeliveryQualified': False,
                  'coreLicenseElection': 'GPL-3.0-or-later', 'legalFilesAdded': [record for record, _ in legal],

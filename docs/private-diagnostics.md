@@ -84,7 +84,7 @@ replaying runtime SQL or starting auth/world listeners. See
 [exact build evidence](evidence/android-2026-10-22-private-full-seed-apk.json).
 Future private builds must use a version code greater than 6 and the same key.
 
-Latest: version code 7, `0.4.1-charset-diagnostic`, is signed with the same key.
+Charset checkpoint: version code 7, `0.4.1-charset-diagnostic`, is signed with the same key.
 It corrects charset-data routing after version 6 failed on the first ASCII
 column, following 158 successful table imports. The existing XML files and all
 provider native bytes are preserved. The early database check now creates an
@@ -100,3 +100,29 @@ The report qualifies disposable seed compatibility; runtime SQL was not applied.
 The next substantial diagnostic will exercise the actual compiled worldserver's
 three-database updater through the original missing-map startup boundary.
 Use the same key and a version code greater than 7 for future private builds.
+
+
+## Compiled three-database updater checkpoint
+
+Latest private version code **8**, `0.5.0-compiled-updater-diagnostic`, adds the
+actual completed ARM64 worldserver. All 52 modules, C++20, static scripts/modules
+and default Lua 5.2 remain present. The clean APK passed all 136 Android unit
+tests (including the real private Database.zip regression), lint, assembly,
+signature/alignment and 221 exact staged runtime/notice inputs. See the
+[exact APK evidence](evidence/android-2026-10-22-private-world-apk.json) and
+[stage evidence](evidence/android-2026-10-22-private-world-stage.json).
+
+Install as an update over version 7 with the same persistent certificate. Keep
+Database.zip imported and at least 3 GiB free, then select
+**Test compiled three-database updater** and export its JSON report. A source ZIP
+is not required on the device. The attempt has a 40-minute overall deadline and
+a 10-minute world-process deadline. It repeats the full-seed baseline, stages
+original runtime SQL and all 49 unchanged module configurations, and runs the
+normal compiled updater to its deliberate missing-map boundary. Exact receipts,
+prepared-statement completion and shutdown are required; any unrelated error
+fails the gate. No auth/world listener is requested.
+
+Deliver the APK with its matching private corresponding-source companion. This
+checkpoint qualifies the build and packaged bytes only. Android compiled-updater
+execution, persistent services and gameplay require their own measured evidence.
+Future private updates must reuse this key and use a version code greater than 8.

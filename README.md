@@ -73,10 +73,16 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version `0.4.1-charset-diagnostic`
-passed all 108 Android tests, lint, clean assembly, signing/alignment, 114 exact
-runtime/notice files and the canonical full-seed metadata asset. See its
-[measured APK evidence](docs/evidence/android-2026-10-22-private-charset-apk.json).
+signing and validation. Latest private version `0.5.0-compiled-updater-diagnostic`
+(code 8) contains the completed original ARM64 worldserver with all 52 modules,
+C++20 and default static Lua 5.2. Its clean build passed 136 Android tests,
+142 tooling tests, lint, signing/alignment and 221 exact runtime/notice inputs.
+See its [measured APK evidence](docs/evidence/android-2026-10-22-private-world-apk.json).
+The next physical gate is **Test compiled three-database updater**, using a fresh
+seed and original normal startup through the expected missing-map boundary.
+Compiled updater execution and gameplay remain unqualified. Private delivery
+includes the matching corresponding-source companion; no source ZIP is needed
+on the device.
 The original auth updater/dry-run gate already
 [passed on physical Thor in version 5](docs/evidence/android-2026-10-22-thor-resolver-pass.json);
 version 6 reached 158 seed tables, then failed on its first ASCII column.

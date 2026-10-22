@@ -1,0 +1,20 @@
+--- a/src/server/scripts/Custom/Custom_Npc_Bots/gluth_director.cpp
++++ b/src/server/scripts/Custom/Custom_Npc_Bots/gluth_director.cpp
+@@ -32,6 +32,7 @@
+ 
+ #include "bot_ai.h"
+ #include "botmgr.h"
++#include "GridNotifiersImpl.h"
+ 
+ #include <chrono>
+ #include <list>
+--- a/src/server/scripts/Custom/Custom_NPC/fake_player_ambience.cpp
++++ b/src/server/scripts/Custom/Custom_NPC/fake_player_ambience.cpp
+@@ -51,6 +51,7 @@
+ #include "StringFormat.h"
+ #include "Tokenize.h"
+ #include "World.h"
++#include "GridNotifiersImpl.h"
+ 
+ #include <algorithm>
+ #include <atomic>

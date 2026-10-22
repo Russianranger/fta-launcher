@@ -166,6 +166,11 @@ class BuildTests(unittest.TestCase):
             self.assertIn('-DANDROID_STL=c++_static', plan[0])
             self.assertIn('-DCONF_DIR:STRING=configs', plan[0])
             self.assertIn('-DBoost_USE_STATIC_RUNTIME=ON', plan[0])
+            self.assertNotIn('-DCMAKE_EXE_LINKER_FLAGS:STRING=-Wl,--strip-debug', plan[0])
+            world = commands(self.arguments(platform='android', toolchain=toolchain, stage='world',
+                             dependency_prefix=Path('/target'), mysql_library=Path('/target/lib/libmariadb.so'),
+                             mysql_include=Path('/target/include/mariadb')))
+            self.assertIn('-DCMAKE_EXE_LINKER_FLAGS:STRING=-Wl,--strip-debug', world[0])
             with self.assertRaises(BuildError):
                 check_cache({'MYSQL_CONFIG':'/usr/bin/mysql_config'}, 'android', configured=False)
 

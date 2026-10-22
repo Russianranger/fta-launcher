@@ -27,6 +27,33 @@
     "sourceSha256": "9ec1cbea3b6d876c231fd05904df7d370a42f23d6d048ef7fad80ed46eb2ef23"
   },
   "date": "2026-10-22",
+  "finalWorldElfLiteralBinding": {
+    "actualNormalBuildReportSha256": "5a786854d67f13e1afefac83e1c9412b2b183dc97fa169bfbb897f00c50791be",
+    "additionalSqlExecutionPerformed": false,
+    "allRegistrationVariantBytesNulTerminatedInFinalElf": true,
+    "canonicalLockSha256": "466c1c6673d7f939b14c4b6f4dc787efa58ac6c8fa91e982c76151a3f1f8c02f",
+    "canonicalRegistrationInventory": "UTF-8(schema TAB index TAB flags TAB branch TAB SQL byte length TAB SQL SHA256 LF); schema order auth/characters/world, selected index order then alternate index order",
+    "canonicalRegistrationInventorySha256": "558584ccabe85b2347e9c031bbde0be8731626feba53f7622709578d4a000c9a",
+    "distinctSqlByteStringCount": 753,
+    "elfClass": 64,
+    "elfType": "ET_DYN",
+    "evidenceScope": "literal presence in the actual completed native executable; no core CAPI, Bionic pool or Android execution qualification",
+    "machine": "AArch64",
+    "originalBranchMetadataQueryBytesNulTerminatedInFinalElf": true,
+    "originalBranchMetadataQueryCount": 1,
+    "originalBranchMetadataQuerySha256": "ae7b2ea4535f3ee56e5d55adb1961df2ff01ee66910cc753105f4c4c9150fd13",
+    "poolRegistrationVariantCounts": {
+      "acore_auth": 106,
+      "acore_characters": 555,
+      "acore_world": 102
+    },
+    "registrationVariantCount": 763,
+    "sourceProfile": "android-arm64-world-v13",
+    "sourceTreeSha256": "847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064",
+    "status": "all-source-statement-literals-present",
+    "worldElfBytes": 62661136,
+    "worldElfSha256": "97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766"
+  },
   "formatVersion": 1,
   "gameplayQualified": false,
   "globalPrivilegesGranted": false,

@@ -148,13 +148,17 @@ class, query and metadata-output hashes plus fixed flags:
 the host SQL/parser integration and does not execute the compiled native updater
 or establish Android execution.
 
-The canonical source binding subsequently advanced from world-v8 to world-v9
-for an explicit signed 64-bit packet serialization cast in `Unit.cpp`. The
-guarded fixture confirms that all audited updater/startup/ALE source hashes
-remain unchanged. Actual production Kotlin re-emitted all three queries from
-the v9 lock and each query is byte-identical to the host-tested v8 query. The
-public proof preserves the historical v8 host lock identity and records this
-metadata-only binding advance separately; it does not claim another SQL run.
+The final canonical lock binds `android-arm64-world-v13`, source tree
+`847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064`.
+Its SHA256 is
+`466c1c6673d7f939b14c4b6f4dc787efa58ac6c8fa91e982c76151a3f1f8c02f`.
+The guarded historical fixture confirms that its nine updater/startup/ALE
+source identities remain unchanged; the final audit adds the queue-helper pin
+described below. Actual production Kotlin accepted the ten-pin metadata and
+re-emitted all three queries from this final lock. Each query is byte-identical
+to its host-tested v8 query. The public proof retains the historical v8 host
+execution identity and records the final source/profile rebinding separately.
+No additional SQL execution was performed.
 
 The original prepared-statement registrations were checked separately against
 host MariaDB 12.3.2 after a fresh unchanged seed and updater model. A small C++20
@@ -182,10 +186,14 @@ unchanged and SQL shutdown exited 0.
 
 World's original enum additionally declares unused index 65,
 `WORLD_SEL_GAMEOBJECT_TARGET`; the full original source/module inventory contains
-only that declaration. No registration or SQL was invented for it. All 763
-selected/alternate SQL byte strings plus NUL terminators were also found in the
-three actual AArch64 target object files, tying literal contents to the native
-compile without claiming execution. Source/function/query hashes, indices,
+only that declaration. No registration or SQL was invented for it. The 763
+selected/alternate registration variants contain 753 distinct SQL byte strings.
+Every variant's bytes plus a NUL terminator, and the original branch metadata
+query, were found in both the three actual AArch64 target object files and the
+completed final world ELF. That 62,661,136-byte executable has SHA256
+`97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766`.
+This binds literal contents to the completed native compile without claiming
+execution. Source/function/query hashes, indices,
 connection flags and outcomes are recorded in
 `docs/evidence/database-2026-10-22-host-prepared-statements.json`. This is
 extracted-source host preparation evidence; the real Bionic pools, their
@@ -288,6 +296,7 @@ does not remove that requirement.
 | `src/server/database/Updater/UpdateFetcher.cpp` | `9b153a1a637f11613dd6ea00a68d4b5b2e3d47c33d6b8ca7ab5fd5bf38a5259a` |
 | `modules/mod-ale/CMakeLists.txt` | `3077bd31d5b803f147635aa3c512fe5d9f1902ca63271885d7c8411bf7adfd81` |
 | `modules/mod-ale/src/lualib/lua/CMakeLists.txt` | `7bd0b1acbd763d1d3759a493bd4244edb3cef87174a0d0f3137d959aee54769c` |
+| `modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp` | `dd31bb4522aff0c33fbd50c3b49697584187f3c41a7e751064e9e218424eb0cd` |
 
 These are original-source audit hashes. A future port can change a source hash;
 its reviewed profile and build evidence must describe that change separately.

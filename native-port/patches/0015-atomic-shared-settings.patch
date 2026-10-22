@@ -1,0 +1,100 @@
+--- a/modules/mod-aoe-loot/src/aoe_loot.cpp
++++ b/modules/mod-aoe-loot/src/aoe_loot.cpp
+@@ -33,7 +33,7 @@
+         uint32 maxCorpses = 10;
+     };
+ 
+-    std::atomic<std::shared_ptr<Settings const>> Config{std::make_shared<Settings>()};
++    std::shared_ptr<Settings const> Config{std::make_shared<Settings>()};
+     char const* const PreferenceKey = "mod-aoe-loot.preference";
+ 
+     struct Preference : DataMap::Base
+@@ -195,7 +195,7 @@
+ 
+     void OnPlayerLogin(Player* player) override
+     {
+-        auto const config = AoeLoot::Config.load();
++        auto const config = std::atomic_load_explicit(&AoeLoot::Config, std::memory_order_seq_cst);
+         if (config->enabled && config->message)
+             ChatHandler(player->GetSession()).SendSysMessage(
+                 "AOE loot is enabled. Use .aoeloot off or .aoeloot on for this login session.");
+@@ -203,7 +203,7 @@
+ 
+     void OnPlayerBeforeSendLoot(Player* player, ObjectGuid guid, Loot* loot) override
+     {
+-        auto const config = AoeLoot::Config.load();
++        auto const config = std::atomic_load_explicit(&AoeLoot::Config, std::memory_order_seq_cst);
+         auto const preference = player->CustomData.Get<AoeLoot::Preference>(AoeLoot::PreferenceKey);
+         if (!config->enabled || (preference && !preference->enabled) || !guid.IsCreatureOrVehicle() ||
+             !loot || loot->loot_type != LOOT_CORPSE || !player->IsAlive() ||
+@@ -266,7 +266,7 @@
+         config->maxCorpses = std::clamp(sConfigMgr->GetOption<uint32>("AOELoot.MaxCorpses", 10), 1u, 50u);
+         LOG_INFO("module", "mod-aoe-loot: {} ({} yards, {} additional corpses, native NPCBot/group loot rules)",
+             config->enabled ? "enabled" : "disabled", config->range, config->maxCorpses);
+-        AoeLoot::Config.store(std::move(config));
++        std::atomic_store_explicit(&AoeLoot::Config, std::shared_ptr<AoeLoot::Settings const>(std::move(config)), std::memory_order_seq_cst);
+     }
+ };
+ 
+--- a/modules/mod-junk-to-gold/src/mod_junk_to_gold.cpp
++++ b/modules/mod-junk-to-gold/src/mod_junk_to_gold.cpp
+@@ -31,7 +31,7 @@
+         std::unordered_set<uint32> keepItems;
+     };
+ 
+-    std::atomic<std::shared_ptr<Settings const>> Config{std::make_shared<Settings>()};
++    std::shared_ptr<Settings const> Config{std::make_shared<Settings>()};
+     char const* const StateKey = "mod-junk-to-gold.state";
+ 
+     struct PendingSale
+@@ -71,7 +71,7 @@
+         // at the next player update (or before logout); no raw pointer survives the loot callback.
+         std::vector<PendingSale> sales;
+         sales.swap(state->sales);
+-        auto const config = Config.load();
++        auto const config = std::atomic_load_explicit(&Config, std::memory_order_seq_cst);
+         if (!config->enabled || !state->enabled)
+             return;
+ 
+@@ -127,7 +127,7 @@
+ 
+     void OnPlayerLootItem(Player* player, Item* item, uint32 count, ObjectGuid /*lootGuid*/) override
+     {
+-        auto const config = JunkToGold::Config.load();
++        auto const config = std::atomic_load_explicit(&JunkToGold::Config, std::memory_order_seq_cst);
+         if (!config->enabled || !count || !JunkToGold::CanSell(player, item, *config))
+             return;
+         auto state = player->CustomData.GetDefault<JunkToGold::State>(JunkToGold::StateKey);
+@@ -190,7 +190,7 @@
+             LOG_WARN("module", "mod-junk-to-gold: stopped parsing malformed JunkToGold.KeepItems list");
+         LOG_INFO("module", "mod-junk-to-gold: {} (new grey loot only, native economic challenges, {} exclusions)",
+             config->enabled ? "enabled" : "disabled", config->keepItems.size());
+-        JunkToGold::Config.store(std::move(config));
++        std::atomic_store_explicit(&JunkToGold::Config, std::shared_ptr<JunkToGold::Settings const>(std::move(config)), std::memory_order_seq_cst);
+     }
+ };
+ 
+--- a/modules/mod-aoe-loot/tests/IntegrationTests.cpp
++++ b/modules/mod-aoe-loot/tests/IntegrationTests.cpp
+@@ -45,10 +45,10 @@
+             ConfigManagerInstance = {};
+             auto aoeConfig = std::make_shared<AoeLoot::Settings>();
+             aoeConfig->enabled = true;
+-            AoeLoot::Config.store(aoeConfig);
++            std::atomic_store_explicit(&AoeLoot::Config, std::shared_ptr<AoeLoot::Settings const>(aoeConfig), std::memory_order_seq_cst);
+             auto junkConfig = std::make_shared<JunkToGold::Settings>();
+             junkConfig->enabled = true;
+-            JunkToGold::Config.store(junkConfig);
++            std::atomic_store_explicit(&JunkToGold::Config, std::shared_ptr<JunkToGold::Settings const>(junkConfig), std::memory_order_seq_cst);
+             player.map = &map;
+             other.map = &map;
+             map.players = {{&player}, {&other}};
+@@ -334,7 +334,7 @@
+             auto config = std::make_shared<AoeLoot::Settings>();
+             config->enabled = true;
+             config->maxCorpses = 1;
+-            AoeLoot::Config.store(config);
++            std::atomic_store_explicit(&AoeLoot::Config, std::shared_ptr<AoeLoot::Settings const>(config), std::memory_order_seq_cst);
+             Creature nearer;
+             nearer.guid = ObjectGuid{1002};
+             nearer.recipient = &f.player;

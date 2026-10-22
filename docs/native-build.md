@@ -52,7 +52,7 @@ python3 tools/build_native.py --source /private/fta-source \
 python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth
 python3 tools/build_native.py --source /private/fta-android-world-source \
-  --port-profile android-arm64-world-v11 \
+  --port-profile android-arm64-world-v13 \
   --build-dir /private/fta-build-android --platform android --stage world \
   --toolchain /private/android-ndk-r28c/build/cmake/android.toolchain.cmake \
   --dependency-prefix /private/android-dependencies \
@@ -422,9 +422,9 @@ reproduced that failure, while calling both Readline and ncurses functions and
 linking the pinned libraries by full path passed with `--no-undefined`. The
 Android CMake branch now resolves target `ncursesw` explicitly; other platforms
 retain their original linker flags. The complete v8 profile reproduced from the
-pristine source and its auth prerequisite linked. Full world compilation is
-running, with all NPC bot translation units past the compiler. This remains an
-incomplete world build until the complete target links and its ELF is inspected.
+pristine source and its auth prerequisite linked. At that checkpoint, full world compilation was running, with all NPC bot
+translation units past the compiler. It did not qualify a completed world build;
+the final v13 result below supersedes this intermediate status.
 
 The `android-arm64-world-v9` packet portability tree is
 `a1ba6d040406bd252628f39e63e4027a2c722fcbf68c2425f98c632e6e90272d`.
@@ -450,7 +450,7 @@ The complete source profile reproduced from pristine source, and the full
 ARM64/API33 translation unit then compiled successfully. The complete world
 target continues; this header fix alone does not establish a linked worldserver.
 
-The current `android-arm64-world-v11` tree is
+The `android-arm64-world-v11` tree is
 `882a152345a18d6d4ce480457cbe3aacbb4c20d3e2a119c5ce59c9f0812b3679`.
 A bounded two-job Ninja diagnostic pass on unchanged v10 reached 285 of 827
 remaining build edges before its configured 16 failed-edge limit; it returned
@@ -462,6 +462,82 @@ original line endings and every script body. `CellImpl.h` supplies the actual
 `Cell::VisitObjects` template bodies for four diagnosed grid-search callers.
 The complete profile reproduces from pristine source. The normal world build
 must recompile these units and finish linking before compilation is qualified.
+
+The `android-arm64-world-v12` tree is
+`cd48814d5faf774c56369a719fde1e42e41a041341ca3d46e3720fefa074385a`.
+The unchanged v11 diagnostic pass exhausted its reachable graph at 548 of 551
+remaining edges and returned 1 with twelve actual failed translation units.
+Patch 0014 supplies 16 direct owning-header includes to ten script files;
+every other byte and original line ending is preserved. Patch 0015 replaces
+unsupported `atomic<shared_ptr<const Settings>>` specializations in AoE Loot
+and Junk to Gold with the supported shared-pointer atomic load/store APIs.
+Every dynamic access remains sequentially consistent. The same initialized
+immutable snapshots are published with the original move ownership; three
+original integration-fixture stores retain their copy ownership.
+
+`check-atomic-shared-settings.py` verifies the complete pinned before/after
+files and extracts their actual settings and access statements. Original and
+fixed host tests pass with four readers, 10,000 publications per module, a
+required midpoint snapshot, retained old snapshots through reader joins and
+exactly-once destruction. The unchanged original production fixture with its
+source stubs passes 101 checks for both variants. Each original Android atomic
+declaration reproduces the specialization error; the fixed API links against
+static NDK libc++ with no undefined symbols. Its AArch64 ELF has 16 KiB LOAD
+alignment and resolved atomic helpers. No Android probe is executed, and these
+focused host checks do not qualify module gameplay. The full source profile
+reproduces from pristine source before the normal world build resumes.
+
+The current `android-arm64-world-v13` tree is
+`847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064`.
+The normal v12 build compiled every previously failed unit and completed both
+static module and script archives. Its first complete world link then exposed
+six unresolved symbols. Patch 0016 supplies `GridNotifiersImpl.h` to two scripts
+whose private lambda searchers require those template definitions. Patch 0017
+casts five scalar GameTime SQL timestamps to canonical `int64`; Android's
+chrono representation is `long long`, while its signed 64-bit SQL variant and
+explicit binding instantiation use `long`. The original signed 64-bit values,
+parameter indices and `MYSQL_TYPE_LONGLONG` / `is_unsigned=false` binding remain
+unchanged. No generic SQL API, statement text or schema changes.
+
+`check-sql-chrono.py` uses the actual PreparedStatement/GameTime headers and
+exact five caller statements, with the original binding implementation in a
+separate translation unit. Original and fixed host versions agree on 40
+actual signed 64-bit variant bindings, including values above 32 bits and both
+signed extremes. Both original Android units compile, then reproduce the exact
+missing `SetValidData<long long>` link failure. The fixed canonical binding
+links with static NDK libc++ and 16 KiB LOAD alignment. No SQL or Android binary
+is executed by this probe. The complete v13 profile reproduces from pristine.
+
+Android world-stage builds set `CMAKE_EXE_LINKER_FLAGS=-Wl,--strip-debug` during
+CMake configuration. The linker omits debug sections while retaining code and
+the symbol table; completed executable hashes describe those actual linked
+bytes. World-stage auth prerequisites use the same recipe; historical qualified
+base-provider bytes are preserved separately. Host and auth-only build recipes
+are unchanged. Full debug objects and archives remain private. The final world
+must fit the existing 512 MiB runtime-file bound without a post-stage ELF edit;
+the recorded CMake cache and actual world link graph must both confirm this
+debug-only policy and reject full symbol stripping.
+
+The complete normal ARM64/API33 world build now **passes**, including the
+actual final executable link, all 52 static modules, static scripts, default
+static Lua 5.2 and C++20. CMake target evidence verifies every module directory
+has compiled sources, all three required archives are in the world link and
+all 49 original module configuration names match. The linked world executable
+is 62,661,136 bytes with SHA256
+`97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766`.
+It is an AArch64 PIE using `/system/bin/linker64`, with four congruent 16 KiB
+LOAD segments, retained symbol table, no debug sections, no RPATH/RUNPATH and
+no shared C++ runtime dependency. This is the actual CMake-linked artifact;
+packaging does not rewrite it.
+
+A final audit caught a scripts archive differing from its completed report.
+A controlled sole-owner rebuild recreated all seven affected objects, the
+relevant archives and world target through the normal driver. Three sequential
+checks then confirmed the complete source, report, all target artifact hashes
+and all seven archive members match their objects. The archive replacement's
+cause remains unestablished; no report hash was manually refreshed. Final
+qualification records the consistent rebuilt artifacts. Android execution,
+the compiled updater device gate and gameplay remain separate requirements.
 
 Runtime world readiness additionally needs matching user-supplied maps, vmaps,
 mmaps and DBCs. See `docs/world-updater-gate.md` for the original startup ordering

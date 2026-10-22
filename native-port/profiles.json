@@ -3959,6 +3959,1064 @@
           }
         ]
       }
+    },
+    "android-arm64-world-v12": {
+      "description": "Android ARM64 world profile: preserved v11 plus owning headers for ten actual script TU failures and supported seq_cst shared_ptr atomic publication APIs for two actual libc++ specialization failures; immutable snapshot ownership, original integration fixture ownership, all52modules/C++20/static Lua52/scripts preserved.",
+      "patches": [
+        {
+          "path": "patches/0001-mariadb-connector-api.patch",
+          "sha256": "dcf28f36ab243d39d84e36936a9a650f0e4eff25c2515e2075fc42eb3b57f22a",
+          "files": {
+            "src/cmake/macros/FindMySQL.cmake": {
+              "before_sha256": "cf9d3ba16eefec6e643396ed3043eed9b976c42f6fb648fedb36baa537c296ee",
+              "after_sha256": "3b18bc056c87ec1e6d9a28c4f9b2463ffe493e0b121f7644b7f0c4ae9a5bfcbf"
+            },
+            "src/server/database/Database/DatabaseWorkerPool.cpp": {
+              "before_sha256": "5b9009993bd2367a4e010d49fa56676a35c463e07a0606851494dd17ef0fe77c",
+              "after_sha256": "2320a559ba1e7d9429738d007ca3e4357b6799aaa4d075744a42b62ad5a9fc71"
+            },
+            "src/server/database/Database/MySQLConnection.cpp": {
+              "before_sha256": "811446bd01b3b2709e98be6f909f3fca4ab8ceeddb6252a505dfbf3f92465e5a",
+              "after_sha256": "9b24cb3a7aa5e1e808d478960dbf13b1f0139c749b8e38d0c530e61c4d4207c0"
+            }
+          }
+        },
+        {
+          "path": "patches/0002-bionic-cpu-affinity.patch",
+          "sha256": "9b493a34dafaf04bd2ca6d7174df72436e1b3a9f1bbb1cbcbade8fc76a19c987",
+          "files": {
+            "src/common/Threading/ProcessPriority.cpp": {
+              "before_sha256": "0b9a55d0bb2f605a6a305b9d011eef6fb1433c90d4edced336fff92986c53924",
+              "after_sha256": "87eb812413099e1b637660896a283b1bd429504d0b3fbab8d8cd9f0de8f8b8dc"
+            }
+          }
+        },
+        {
+          "path": "patches/0003-chrono-sql-timestamp.patch",
+          "sha256": "6e02fb9a114d11f3a3d78b6cfb60c6502639ff5f9a1723bdbd4b7e85777693a5",
+          "files": {
+            "src/server/database/Logging/AppenderDB.cpp": {
+              "before_sha256": "29a60b0af9a0ef2b58fb7926e2c04139dffcfd041ee7a760640f4b6162d47e8e",
+              "after_sha256": "da0a31c38cf74748d909d00a62237e7ab51f77f5eff02cab7d92e9c4955762cf"
+            }
+          }
+        },
+        {
+          "path": "patches/0004-immutable-unix-socket-route.patch",
+          "sha256": "1d4c1db9ffb0d45df3e7f472aa231bc2a7596d5f4240a0d9f42756686c6ca91f",
+          "files": {
+            "src/server/database/Database/MySQLConnection.cpp": {
+              "before_sha256": "9b24cb3a7aa5e1e808d478960dbf13b1f0139c749b8e38d0c530e61c4d4207c0",
+              "after_sha256": "4ea2e2a3035e728eef4fa0731bb1a203e976f4a32e046c504b262ec125eae64e"
+            },
+            "src/server/database/Updater/DBUpdater.cpp": {
+              "before_sha256": "a091e4dc6b83457eef7f63ef7cf973ccc63ab1344154dc69010704e2e5f79019",
+              "after_sha256": "0005dbd7f807de9159dcdfd12aeae0824268ff7549456032118f4ea80882405a"
+            }
+          }
+        },
+        {
+          "path": "patches/0005-bionic-resolver-flags.patch",
+          "sha256": "71ec7fdfe7466a61aa9d6a7c93104fa162640270bcdff31f3c83b5e68902d6ab",
+          "files": {
+            "src/common/Asio/Resolver.h": {
+              "before_sha256": "d78e59efd79f2ab4f40ad38e15ea4cab1c3e7bb41a02a0502ca381e3dacf577a",
+              "after_sha256": "83702abc86427fcc859fe6d51db8fc4de5ef150369a33a8ca21e948b704eb4fa"
+            }
+          }
+        },
+        {
+          "path": "patches/0006-lua-warning-flags.patch",
+          "sha256": "c71cbef47869ecb21eda55524aff2d568c9d1bf847a9850029b63c67add2aefd",
+          "files": {
+            "modules/mod-ale/src/lualib/lua/CMakeLists.txt": {
+              "before_sha256": "7bd0b1acbd763d1d3759a493bd4244edb3cef87174a0d0f3137d959aee54769c",
+              "after_sha256": "e9d0631f1980ec6823cd63ddc299d9bca330e1b5bc46b0fbfaf5d38d6727a7e8"
+            }
+          }
+        },
+        {
+          "path": "patches/0007-object-logging-include.patch",
+          "sha256": "d486468770a505284f6cabc40d91c12d270ce74ab04ad17e358c12dd8749c8f2",
+          "files": {
+            "src/server/game/Entities/Object/Object.h": {
+              "before_sha256": "c9d0faea6c93ee973c830ed66714028df830ae2a340089ce7d9a427e3f17068b",
+              "after_sha256": "9a28c0580cc60a22d09046557ca139844d990a3756f6b1e0c0ea0178668d9222"
+            }
+          }
+        },
+        {
+          "path": "patches/0008-bionic-gsoap-strerror.patch",
+          "sha256": "a4cfff9ab1314296d3621a8e63b6082852f3c046e6d3be2b436766b4787e9089",
+          "files": {
+            "deps/gsoap/stdsoap2.cpp": {
+              "before_sha256": "dd05286b57c59835cfd2240f002937f631c7ac8ade251de472f112811839ccc2",
+              "after_sha256": "e461e390b76ce699f6e728e30b8b74938cabd4edf59b39195265a02fe3361928"
+            }
+          }
+        },
+        {
+          "path": "patches/0009-botspell-cstddef.patch",
+          "sha256": "0614d7b7f68106adc5a91ddd2418bd810b2a4bf956c630bae444a9af678b0d3c",
+          "files": {
+            "src/server/game/AI/NpcBots/botspell.h": {
+              "before_sha256": "94b30cd7b8ea2fe9b9e64f085d2edd995b8063f911f83f662116ce7ef0a645e7",
+              "after_sha256": "cb260135f81ab5d1721e56f12212fd91dd72316e2b9c09c9c0a5aa070847416c"
+            }
+          }
+        },
+        {
+          "path": "patches/0010-android-ncurses-target.patch",
+          "sha256": "a8aceee6c08e5a808c48d8066584d85b291d19253f6702c54373334e8d9c6268",
+          "files": {
+            "src/server/apps/CMakeLists.txt": {
+              "before_sha256": "bc2d239302d335ed50bc9d1f929d2b9d1c5321efb374325ac90278415eddbd45",
+              "after_sha256": "77c56ae92c13f7df8129a887b11b071b8627f08c6088f60a21b0e1b387168a0d"
+            }
+          }
+        },
+        {
+          "path": "patches/0011-chrono-packet-timestamp.patch",
+          "sha256": "b25d032177b4d0535e007dad8d869dc34659af46a4b88a07844e71b80431f433",
+          "files": {
+            "src/server/game/Entities/Unit/Unit.cpp": {
+              "before_sha256": "09547aaab7b55bb358603690111213ab2a8cd729664138661bf8e00151f6c769",
+              "after_sha256": "a77bf561f5cd458fffc43d45980f709693fe5e0b89065387bec5544f8688cdad"
+            }
+          }
+        },
+        {
+          "path": "patches/0012-dark-portal-creature-script.patch",
+          "sha256": "f25ff7fee27667ad69c4ac87bc57567fc650fc80c18cba196a90265d5fdb3a6d",
+          "files": {
+            "src/server/scripts/Custom/dark_portal_siege.cpp": {
+              "before_sha256": "af62048901c69731c293fcb97afdce0cf886a7dd35922bb493b380422e791b4a",
+              "after_sha256": "05e79132bf00fe4b01f76e7bef1eba00e88b02ba75c1f61b7515b62377ca678c"
+            }
+          }
+        },
+        {
+          "path": "patches/0013-script-direct-headers.patch",
+          "sha256": "b3fef1e8dce7d81cb8a0d21995aee4715e6ef5b21de538ece42dcf57e5b15426",
+          "files": {
+            "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp": {
+              "before_sha256": "3d0ffe3f806c27a72c29cb59e067d421f5ace3628d28ad942a257c23076af651",
+              "after_sha256": "6841095604de4d2122e30ea97908b0c1f40caee4067d90f3b0901230fee05180"
+            },
+            "src/server/scripts/Custom/Custom_Misc/Hackfixes.cpp": {
+              "before_sha256": "272adc2ce51bbc7e69821e14a13bc2470089afd9e5b3bbee97ec58752396589f",
+              "after_sha256": "59bc955c1c0e6489189343e9e5220968030315569060583f0234fbbe8500b38b"
+            },
+            "src/server/scripts/Custom/Custom_Misc/lockpick_game.cpp": {
+              "before_sha256": "5cac72baf2f543d64e0952f60d2c9f4af3e7cd7d666d5de62944cc399e98733d",
+              "after_sha256": "26ffef1e09e1f07ef6b11db514ec69070c9ebc5a12cc6e7ba1271b4ad397ebfe"
+            },
+            "src/server/scripts/Custom/Custom_NPC/Naxx40/boss_kelthuzad_40_custom.cpp": {
+              "before_sha256": "6f20d230214001fe0c153de169a2f72660d3c22bdcfd928bbbbb93b28d2cdb12",
+              "after_sha256": "d1ebb793c8403eb9355462e6d358d38bc34b063888e5f47842084602fc2dad88"
+            },
+            "src/server/scripts/Custom/Custom_NPC/Naxx40/boss_sapphiron_40_custom.cpp": {
+              "before_sha256": "2d9423b17099a91b674812588538ff4f703933b13d1ac982813fbb3083c45e85",
+              "after_sha256": "7edd14a6173e7bffc5c10718bfa4398749b14121e93ecce5bcd6f15b135f9ab9"
+            },
+            "src/server/scripts/Custom/Custom_Npc_Bots/npcbot_auto_hide_on_logout.cpp": {
+              "before_sha256": "6c5de4e1f8a26087333eb38d08372c6836b14bd5cb95d5bf3e793d804145186d",
+              "after_sha256": "f51a9fe458a6ecd79d9697b0d6e0d9792ed3307061c39d531fdd60efa6ea158a"
+            },
+            "src/server/scripts/Custom/Custom_Player_Scripts/mod_spectral_repop_mounts.cpp": {
+              "before_sha256": "e153e2e860424231ca9914893604d85c2c8a087057802657223d048a94116bd8",
+              "after_sha256": "b247a0e6d8d4c5bcd1bc5f3b097cdcbb6a7855b70312d11a795c1278ee0f540a"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/generic_custom_spells.cpp": {
+              "before_sha256": "0257039ae1a8d9d904a4731bf18238a59f864c2efbce319e38cfd7317260e80b",
+              "after_sha256": "123ccdd635af191696df436bfe5f796859c265150c4923f027df2014d586b0d9"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/item_custom_spells.cpp": {
+              "before_sha256": "ee3f6ff46653a8e61b4e69ee355cd09cba947f678a6c34aab82196a0bbc95097",
+              "after_sha256": "7806649788434cf30af277593743929eb20ecefedab203574c8b5c152859e1f2"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/mage_custom_spells.cpp": {
+              "before_sha256": "3a71965ad02eeeceb2d8e38c53a43c60d132474f6a0e21a7fa55321194f12da2",
+              "after_sha256": "07af922e629a5683969eef758ce5f80400a6fe1a14384c7f89646f4978d6c3f7"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/meta_gem_scripts.cpp": {
+              "before_sha256": "a7d1d4bc7c326ca7ce4c25969659df038f16e2bb090355523c061122e74507db",
+              "after_sha256": "64a0b0d51d23664f61325d8397c884afe9c13b1cb9002cb4eabdac9329969293"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/shaman_custom_spells.cpp": {
+              "before_sha256": "4777dd668a2e646327445e217ae918756e3fac89972a1c8de48ae185d1fd4cfe",
+              "after_sha256": "5638caa0c536772d4a80e38814a1b5e1eef1f4307f46d0ed72a0d57968ed9158"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/shattered_sun_neck_scripts.cpp": {
+              "before_sha256": "555597bbd67a7d9c6372b57272dfc8782b397ca66f3bef61d33e92d1c51dec5e",
+              "after_sha256": "3d76b48453b0d509f587f30f4161abb6c0e04b14f060f60abb6a015f5467f3e5"
+            },
+            "src/server/scripts/Custom/WellOfEternity/well_of_eternity_palace.cpp": {
+              "before_sha256": "9e0d6c6474ce21b11fc2ad8e3969f33aef32be607ff50cdf1f802aef23bcd1f5",
+              "after_sha256": "d13867dbb8f256dfbc10eb26622a671dffb9893b49030cc64abecafe2d593439"
+            },
+            "src/server/scripts/EasternKingdoms/SunwellPlateau/boss_brutallus.cpp": {
+              "before_sha256": "de9314ed74b5fde1c281e406208c15b787345aa9cb2220eb15aed7463ebf5cca",
+              "after_sha256": "855b9c047180d2cb7eb564033412d54a82de9960d093fcff932a9632b055bce1"
+            },
+            "src/server/scripts/EasternKingdoms/ZulGurub/boss_jindo.cpp": {
+              "before_sha256": "fa88d0be7a10855398601453ac9b92f40a7b4e7f8c0b01421e842e8a7f4980b4",
+              "after_sha256": "4164d825f5113b4af4e199eb43852605b33e0e39a6aa0bade937ea9c05377987"
+            },
+            "src/server/scripts/Kalimdor/RuinsOfAhnQiraj/boss_ayamiss.cpp": {
+              "before_sha256": "94f567a97600b18ba4e41b975df40eb1498262e2e9e9263932077d7c66d77f4c",
+              "after_sha256": "77561cb966300c942bf1cc300c846ab0703dc5b01b3962911241badb6e01ceda"
+            }
+          }
+        },
+        {
+          "path": "patches/0014-script-direct-headers-continued.patch",
+          "sha256": "7c59ff6d9471b58b4b21b1dd789a8bbf7bee456f3e0876fc38d5eb457d26c648",
+          "files": {
+            "src/server/scripts/Custom/Custom_Player_Scripts/mod_spectral_repop_mounts.cpp": {
+              "before_sha256": "b247a0e6d8d4c5bcd1bc5f3b097cdcbb6a7855b70312d11a795c1278ee0f540a",
+              "after_sha256": "bc66dfb58fe6f6bede019dfe0094f4892cfe201399fb78f7f61f167d2be9bcc9"
+            },
+            "src/server/scripts/Kalimdor/RuinsOfAhnQiraj/ruins_of_ahnqiraj.cpp": {
+              "before_sha256": "e36a1101de5748e89b46a038ecbba5e426324450e2925595a818249aa2ef5246",
+              "after_sha256": "4f1ada0eaff6537e301a87fb764d72010c40699e094369e180f0d7522d25056a"
+            },
+            "src/server/scripts/Kalimdor/TempleOfAhnQiraj/boss_cthun.cpp": {
+              "before_sha256": "38ddc7a88c2f2b483ef595d1a2dfe86bb443fd07b2395bba15724bde36bcad0e",
+              "after_sha256": "9685f66f9b7c90d94e52498323d77a43a93ae419cea3b018905ab75e13728db4"
+            },
+            "src/server/scripts/Kalimdor/TempleOfAhnQiraj/boss_fankriss.cpp": {
+              "before_sha256": "bd111975a4bf9e2afe759deb672d44a4281dd5ef62090996d9bbbcd27126414f",
+              "after_sha256": "6b772be46e631786020c55dee084259603bfea15e49a012489ff81e4a2ada35e"
+            },
+            "src/server/scripts/Kalimdor/TempleOfAhnQiraj/temple_of_ahnqiraj.cpp": {
+              "before_sha256": "7251f229bd4221e48f07837899ecabbbfc173d4f0736882ad65d0fcd99c539bd",
+              "after_sha256": "23bb85e2e7ed9ab0014f73b7b815cf335d2fcd685dca03203b81b47a5882e417"
+            },
+            "src/server/scripts/Kalimdor/TempleOfAhnQiraj/instance_temple_of_ahnqiraj.cpp": {
+              "before_sha256": "911eeeebaaedecd93dd0d23b3816596465fd4deadd37765924838834a0efa557",
+              "after_sha256": "150af2cfa2108b2fbc479c325fa964e2e1c9a62da8a4a08654ad475af6866927"
+            },
+            "src/server/scripts/Outland/CoilfangReservoir/underbog/boss_ghazan.cpp": {
+              "before_sha256": "1ccadacdfa9794e1f523744e9a96dfb9f9990997036de9e5b6a5ce0efced91c4",
+              "after_sha256": "f3fec1e12da7b2cfaa28f7a8a90618f5976d25a6d4d56d8cb9600362112c4e01"
+            },
+            "src/server/scripts/Outland/HellfireCitadel/HellfireRamparts/boss_vazruden_the_herald.cpp": {
+              "before_sha256": "f2e8cdd1ea52a11c7d6e70916b4f6c227e8453bd9180a566a6d6f3c9925bbfe3",
+              "after_sha256": "7700911814fbe094d06db12941c1ec7cfffd241422651063ffb379a50fa05174"
+            },
+            "src/server/scripts/Outland/TempestKeep/Eye/boss_kaelthas.cpp": {
+              "before_sha256": "d9d572fb131aa991639abe32c627d9d6c8aef908d7f4ef034b4ba2c2c648c08a",
+              "after_sha256": "95cea47688b9b6b07f0108fd500ecaa4e9952c79da2ab7c3b92c03d2b9642f86"
+            },
+            "src/server/scripts/Spells/spell_shaman.cpp": {
+              "before_sha256": "4e33547e91629098f997bc99654013bf8ca217b72bb0d30e2dbf69d2b4147722",
+              "after_sha256": "849646d96864a698b88530a658d1f1172608f1eb392224b1e70419815bcd33da"
+            }
+          }
+        },
+        {
+          "path": "patches/0015-atomic-shared-settings.patch",
+          "sha256": "2a1155fffb000ac55b4de256c37c3d0f704b310520bbd49fd5b2964b09d59521",
+          "files": {
+            "modules/mod-aoe-loot/src/aoe_loot.cpp": {
+              "before_sha256": "a79986a0705d1efbaee8edbdec294546ce7ae34b74706266d113c65b344247fe",
+              "after_sha256": "33295f5e9ce64b4382da0890bc11bcdb64d1bf66c2e8a14e5d8e94ce640e76f2"
+            },
+            "modules/mod-junk-to-gold/src/mod_junk_to_gold.cpp": {
+              "before_sha256": "891854219c1f29b66c2f085fdea18a71bbf22fc75a5647dce12a79d2020739d6",
+              "after_sha256": "dc8f2a9597f29aff4216eb06e5650bc766c35af7846466de78231909507bc9f0"
+            },
+            "modules/mod-aoe-loot/tests/IntegrationTests.cpp": {
+              "before_sha256": "cd6a2db6de25448feeda239bc3f2fe516511857645ee3b60629df92766fe41f1",
+              "after_sha256": "cf7a2c1f5b2a7e6b127a3616d140d2a74bb3913519cd40ae66c7368761293d65"
+            }
+          }
+        }
+      ],
+      "result_inventory": {
+        "root": "AzerothCore_Linux",
+        "file_count": 5551,
+        "uncompressed_file_bytes": 365987531,
+        "tree_sha256": "cd48814d5faf774c56369a719fde1e42e41a041341ca3d46e3720fefa074385a",
+        "modules": [
+          "Attriboost",
+          "StatBooster",
+          "mod-ale",
+          "mod-aoe-loot",
+          "mod-auctionator",
+          "mod-aura-timers",
+          "mod-auto-gather-tracking",
+          "mod-autofish",
+          "mod-azercore-ops",
+          "mod-bg-reward",
+          "mod-boost-60-outland",
+          "mod-craftspeed",
+          "mod-daily-dungeon-rewards",
+          "mod-dbm-fta-bridge",
+          "mod-dress-npc",
+          "mod-dynamic-loot-browser",
+          "mod-dynamic-xp",
+          "mod-easy-respawn",
+          "mod-emerald-dreamway",
+          "mod-go-spawn-replacer",
+          "mod-goblin-glider",
+          "mod-guildfunds",
+          "mod-individual-progression",
+          "mod-individual-xp",
+          "mod-item-drop-multiplier",
+          "mod-junk-to-gold",
+          "mod-loot-beam",
+          "mod-map-gold-multiplier",
+          "mod-mount-requirements",
+          "mod-multitrainer",
+          "mod-npcbot-banter",
+          "mod-ony-naxx-logout-teleport",
+          "mod-pocket-pals",
+          "mod-profession-experience",
+          "mod-quartermaster-ledger",
+          "mod-quest-loot-party",
+          "mod-questie-bridge",
+          "mod-rdf-expansion",
+          "mod-reagent-bank-account",
+          "mod-reforging",
+          "mod-reset-raid-cooldowns",
+          "mod-reward-all-quest-choices",
+          "mod-shared-professions",
+          "mod-solo-lfg",
+          "mod-starter-food-water",
+          "mod-starting-pet",
+          "mod-talisman-of-binding-shard",
+          "mod-timewalking",
+          "mod-transmog",
+          "mod-warcraftxl-gameobject-editor",
+          "mod-warcraftxl-ui-tracker",
+          "mod-world-inspector-runtime"
+        ],
+        "license_files": [
+          {
+            "path": "LICENSE",
+            "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+          },
+          {
+            "path": "deps/SFMT/LICENSE.txt",
+            "sha256": "9d6db9b6702bf80c926b36d61f6282bf48d0a9a8044db2bd31e524aa08ccac0f"
+          },
+          {
+            "path": "deps/acore/joiner/LICENSE",
+            "sha256": "d8de517917a591daa447d6be28ffb2fac866703e4feb65e86221be9a22d3033a"
+          },
+          {
+            "path": "deps/argon2/LICENSE",
+            "sha256": "220f8736a89ff51c92ef3d497f413b48e6cf1df3d6278bc909c6308c78e1718e"
+          },
+          {
+            "path": "deps/bzip2/LICENSE",
+            "sha256": "4919cfb14a73cd64fcef67b107613970cf1659a09aa675dba31314f373bc7204"
+          },
+          {
+            "path": "deps/fmt/LICENSE",
+            "sha256": "07580f2a3b35709ce703d523f447b242f6dfec7582a8c0df102c7fa2849375f8"
+          },
+          {
+            "path": "deps/g3dlite/source/license.cpp",
+            "sha256": "2080b875973930021fc646446552fa188c1c0908e249dd9ce1737de193d06781"
+          },
+          {
+            "path": "deps/jemalloc/COPYING",
+            "sha256": "94aa2caa98c25d942f58b956c71dba6a99ff98fc3a31cbc669fe2a4cd0268b53"
+          },
+          {
+            "path": "deps/jsonpath/LICENSE.APACHE2",
+            "sha256": "e8734448285a2dd773d40136ed5d5e8163a70701dd540cdc796cfca232f67d55"
+          },
+          {
+            "path": "deps/jsonpath/LICENSE.MIT",
+            "sha256": "d72dea1a8cdf3f4dfa2f594253d0c5b37baefc76e806f5ecb0e426393edcd505"
+          },
+          {
+            "path": "deps/libmpq/COPYING",
+            "sha256": "58530d09b6fcb91ae27071be0081af90e6c2d7fdf991d34a29e234a2a5e75455"
+          },
+          {
+            "path": "deps/recastnavigation/License.txt",
+            "sha256": "5881db2682bc4871837e36b5af4460f59905a7944848221406f841eaa3fda8c4"
+          },
+          {
+            "path": "deps/semver_bash/LICENSE",
+            "sha256": "5dfbc658d4eda74c18acd89ea205c7c23d2d6b47ff455dc5167371ee86257a39"
+          },
+          {
+            "path": "modules/Attriboost/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/StatBooster/LICENSE",
+            "sha256": "4a59014059435fd1f99b1e2d2a7e45f032701c1584483f3d32b6102bc2736cb5"
+          },
+          {
+            "path": "modules/mod-ale/LICENSE",
+            "sha256": "589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2"
+          },
+          {
+            "path": "modules/mod-ale/src/LuaEngine/extensions/StackTracePlus/LICENSE",
+            "sha256": "5288be437f496001ee58dc5c8a5e926af8286adf2db003cdc72087e7bb576512"
+          },
+          {
+            "path": "modules/mod-aoe-loot/LICENSE",
+            "sha256": "76a97c878c9c7a8321bb395c2b44d3fe2f8d81314d219b20138ed0e2dddd5182"
+          },
+          {
+            "path": "modules/mod-auctionator/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-autofish/LICENSE",
+            "sha256": "05a2eaa1f5321bbf1a4850dab876c6da69b52687bfe02dfcfbee4d438ef40631"
+          },
+          {
+            "path": "modules/mod-azercore-ops/LICENSE",
+            "sha256": "a0ee746064b06d09cab0768116ec265fd0d45261d4087c9ad2c698a07c7aac0e"
+          },
+          {
+            "path": "modules/mod-craftspeed/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-dynamic-xp/LICENSE",
+            "sha256": "5b13ccff3f2d082ac5c9c45dc28f94ddeec0e27ca6e1feecd4d6a9192b14eb02"
+          },
+          {
+            "path": "modules/mod-easy-respawn/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-emerald-dreamway/LICENSE",
+            "sha256": "11c4a8b414a534365f02da7dad9dc3e471d35b15ed31df9d4006fb2a144c4443"
+          },
+          {
+            "path": "modules/mod-guildfunds/LICENSE",
+            "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+          },
+          {
+            "path": "modules/mod-individual-progression/LICENSE",
+            "sha256": "4a59014059435fd1f99b1e2d2a7e45f032701c1584483f3d32b6102bc2736cb5"
+          },
+          {
+            "path": "modules/mod-individual-xp/LICENSE",
+            "sha256": "76a97c878c9c7a8321bb395c2b44d3fe2f8d81314d219b20138ed0e2dddd5182"
+          },
+          {
+            "path": "modules/mod-junk-to-gold/LICENSE",
+            "sha256": "6f1e622c82a380075843bb084a7ec3b1f1d12a4a02526d75e78b0924a860aa75"
+          },
+          {
+            "path": "modules/mod-loot-beam/LICENSE",
+            "sha256": "230184f60bae2feaf244f10a8bac053c8ff33a183bcc365b4d8b876d2b7f4809"
+          },
+          {
+            "path": "modules/mod-mount-requirements/LICENSE",
+            "sha256": "ca7839af1f15ba7e1eb74f000ebee36649ed34fac59600558d3130b99f87ca3a"
+          },
+          {
+            "path": "modules/mod-ony-naxx-logout-teleport/LICENSE",
+            "sha256": "7d6ad99a69f261f87a6d4502d0345a78de530ffa10bd7c2a8f5d272f4778b588"
+          },
+          {
+            "path": "modules/mod-profession-experience/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-quest-loot-party/LICENSE",
+            "sha256": "76a97c878c9c7a8321bb395c2b44d3fe2f8d81314d219b20138ed0e2dddd5182"
+          },
+          {
+            "path": "modules/mod-rdf-expansion/LICENSE",
+            "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+          },
+          {
+            "path": "modules/mod-reagent-bank-account/LICENSE",
+            "sha256": "4a59014059435fd1f99b1e2d2a7e45f032701c1584483f3d32b6102bc2736cb5"
+          },
+          {
+            "path": "modules/mod-reforging/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-reset-raid-cooldowns/LICENSE",
+            "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+          },
+          {
+            "path": "modules/mod-reward-all-quest-choices/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-solo-lfg/LICENSE",
+            "sha256": "5b13ccff3f2d082ac5c9c45dc28f94ddeec0e27ca6e1feecd4d6a9192b14eb02"
+          },
+          {
+            "path": "modules/mod-starting-pet/LICENSE",
+            "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+          },
+          {
+            "path": "modules/mod-talisman-of-binding-shard/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-transmog/LICENSE",
+            "sha256": "76a97c878c9c7a8321bb395c2b44d3fe2f8d81314d219b20138ed0e2dddd5182"
+          }
+        ]
+      }
+    },
+    "android-arm64-world-v13": {
+      "description": "Android ARM64 world profile: preserved v12 plus owning GridNotifiersImpl definitions for actual private-lambda link failures and five signed64 SQL timestamp caller casts for actual NDK chrono rep linkage; all52modules/C++20/static Lua52/scripts and SQL binding categories preserved.",
+      "patches": [
+        {
+          "path": "patches/0001-mariadb-connector-api.patch",
+          "sha256": "dcf28f36ab243d39d84e36936a9a650f0e4eff25c2515e2075fc42eb3b57f22a",
+          "files": {
+            "src/cmake/macros/FindMySQL.cmake": {
+              "before_sha256": "cf9d3ba16eefec6e643396ed3043eed9b976c42f6fb648fedb36baa537c296ee",
+              "after_sha256": "3b18bc056c87ec1e6d9a28c4f9b2463ffe493e0b121f7644b7f0c4ae9a5bfcbf"
+            },
+            "src/server/database/Database/DatabaseWorkerPool.cpp": {
+              "before_sha256": "5b9009993bd2367a4e010d49fa56676a35c463e07a0606851494dd17ef0fe77c",
+              "after_sha256": "2320a559ba1e7d9429738d007ca3e4357b6799aaa4d075744a42b62ad5a9fc71"
+            },
+            "src/server/database/Database/MySQLConnection.cpp": {
+              "before_sha256": "811446bd01b3b2709e98be6f909f3fca4ab8ceeddb6252a505dfbf3f92465e5a",
+              "after_sha256": "9b24cb3a7aa5e1e808d478960dbf13b1f0139c749b8e38d0c530e61c4d4207c0"
+            }
+          }
+        },
+        {
+          "path": "patches/0002-bionic-cpu-affinity.patch",
+          "sha256": "9b493a34dafaf04bd2ca6d7174df72436e1b3a9f1bbb1cbcbade8fc76a19c987",
+          "files": {
+            "src/common/Threading/ProcessPriority.cpp": {
+              "before_sha256": "0b9a55d0bb2f605a6a305b9d011eef6fb1433c90d4edced336fff92986c53924",
+              "after_sha256": "87eb812413099e1b637660896a283b1bd429504d0b3fbab8d8cd9f0de8f8b8dc"
+            }
+          }
+        },
+        {
+          "path": "patches/0003-chrono-sql-timestamp.patch",
+          "sha256": "6e02fb9a114d11f3a3d78b6cfb60c6502639ff5f9a1723bdbd4b7e85777693a5",
+          "files": {
+            "src/server/database/Logging/AppenderDB.cpp": {
+              "before_sha256": "29a60b0af9a0ef2b58fb7926e2c04139dffcfd041ee7a760640f4b6162d47e8e",
+              "after_sha256": "da0a31c38cf74748d909d00a62237e7ab51f77f5eff02cab7d92e9c4955762cf"
+            }
+          }
+        },
+        {
+          "path": "patches/0004-immutable-unix-socket-route.patch",
+          "sha256": "1d4c1db9ffb0d45df3e7f472aa231bc2a7596d5f4240a0d9f42756686c6ca91f",
+          "files": {
+            "src/server/database/Database/MySQLConnection.cpp": {
+              "before_sha256": "9b24cb3a7aa5e1e808d478960dbf13b1f0139c749b8e38d0c530e61c4d4207c0",
+              "after_sha256": "4ea2e2a3035e728eef4fa0731bb1a203e976f4a32e046c504b262ec125eae64e"
+            },
+            "src/server/database/Updater/DBUpdater.cpp": {
+              "before_sha256": "a091e4dc6b83457eef7f63ef7cf973ccc63ab1344154dc69010704e2e5f79019",
+              "after_sha256": "0005dbd7f807de9159dcdfd12aeae0824268ff7549456032118f4ea80882405a"
+            }
+          }
+        },
+        {
+          "path": "patches/0005-bionic-resolver-flags.patch",
+          "sha256": "71ec7fdfe7466a61aa9d6a7c93104fa162640270bcdff31f3c83b5e68902d6ab",
+          "files": {
+            "src/common/Asio/Resolver.h": {
+              "before_sha256": "d78e59efd79f2ab4f40ad38e15ea4cab1c3e7bb41a02a0502ca381e3dacf577a",
+              "after_sha256": "83702abc86427fcc859fe6d51db8fc4de5ef150369a33a8ca21e948b704eb4fa"
+            }
+          }
+        },
+        {
+          "path": "patches/0006-lua-warning-flags.patch",
+          "sha256": "c71cbef47869ecb21eda55524aff2d568c9d1bf847a9850029b63c67add2aefd",
+          "files": {
+            "modules/mod-ale/src/lualib/lua/CMakeLists.txt": {
+              "before_sha256": "7bd0b1acbd763d1d3759a493bd4244edb3cef87174a0d0f3137d959aee54769c",
+              "after_sha256": "e9d0631f1980ec6823cd63ddc299d9bca330e1b5bc46b0fbfaf5d38d6727a7e8"
+            }
+          }
+        },
+        {
+          "path": "patches/0007-object-logging-include.patch",
+          "sha256": "d486468770a505284f6cabc40d91c12d270ce74ab04ad17e358c12dd8749c8f2",
+          "files": {
+            "src/server/game/Entities/Object/Object.h": {
+              "before_sha256": "c9d0faea6c93ee973c830ed66714028df830ae2a340089ce7d9a427e3f17068b",
+              "after_sha256": "9a28c0580cc60a22d09046557ca139844d990a3756f6b1e0c0ea0178668d9222"
+            }
+          }
+        },
+        {
+          "path": "patches/0008-bionic-gsoap-strerror.patch",
+          "sha256": "a4cfff9ab1314296d3621a8e63b6082852f3c046e6d3be2b436766b4787e9089",
+          "files": {
+            "deps/gsoap/stdsoap2.cpp": {
+              "before_sha256": "dd05286b57c59835cfd2240f002937f631c7ac8ade251de472f112811839ccc2",
+              "after_sha256": "e461e390b76ce699f6e728e30b8b74938cabd4edf59b39195265a02fe3361928"
+            }
+          }
+        },
+        {
+          "path": "patches/0009-botspell-cstddef.patch",
+          "sha256": "0614d7b7f68106adc5a91ddd2418bd810b2a4bf956c630bae444a9af678b0d3c",
+          "files": {
+            "src/server/game/AI/NpcBots/botspell.h": {
+              "before_sha256": "94b30cd7b8ea2fe9b9e64f085d2edd995b8063f911f83f662116ce7ef0a645e7",
+              "after_sha256": "cb260135f81ab5d1721e56f12212fd91dd72316e2b9c09c9c0a5aa070847416c"
+            }
+          }
+        },
+        {
+          "path": "patches/0010-android-ncurses-target.patch",
+          "sha256": "a8aceee6c08e5a808c48d8066584d85b291d19253f6702c54373334e8d9c6268",
+          "files": {
+            "src/server/apps/CMakeLists.txt": {
+              "before_sha256": "bc2d239302d335ed50bc9d1f929d2b9d1c5321efb374325ac90278415eddbd45",
+              "after_sha256": "77c56ae92c13f7df8129a887b11b071b8627f08c6088f60a21b0e1b387168a0d"
+            }
+          }
+        },
+        {
+          "path": "patches/0011-chrono-packet-timestamp.patch",
+          "sha256": "b25d032177b4d0535e007dad8d869dc34659af46a4b88a07844e71b80431f433",
+          "files": {
+            "src/server/game/Entities/Unit/Unit.cpp": {
+              "before_sha256": "09547aaab7b55bb358603690111213ab2a8cd729664138661bf8e00151f6c769",
+              "after_sha256": "a77bf561f5cd458fffc43d45980f709693fe5e0b89065387bec5544f8688cdad"
+            }
+          }
+        },
+        {
+          "path": "patches/0012-dark-portal-creature-script.patch",
+          "sha256": "f25ff7fee27667ad69c4ac87bc57567fc650fc80c18cba196a90265d5fdb3a6d",
+          "files": {
+            "src/server/scripts/Custom/dark_portal_siege.cpp": {
+              "before_sha256": "af62048901c69731c293fcb97afdce0cf886a7dd35922bb493b380422e791b4a",
+              "after_sha256": "05e79132bf00fe4b01f76e7bef1eba00e88b02ba75c1f61b7515b62377ca678c"
+            }
+          }
+        },
+        {
+          "path": "patches/0013-script-direct-headers.patch",
+          "sha256": "b3fef1e8dce7d81cb8a0d21995aee4715e6ef5b21de538ece42dcf57e5b15426",
+          "files": {
+            "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp": {
+              "before_sha256": "3d0ffe3f806c27a72c29cb59e067d421f5ace3628d28ad942a257c23076af651",
+              "after_sha256": "6841095604de4d2122e30ea97908b0c1f40caee4067d90f3b0901230fee05180"
+            },
+            "src/server/scripts/Custom/Custom_Misc/Hackfixes.cpp": {
+              "before_sha256": "272adc2ce51bbc7e69821e14a13bc2470089afd9e5b3bbee97ec58752396589f",
+              "after_sha256": "59bc955c1c0e6489189343e9e5220968030315569060583f0234fbbe8500b38b"
+            },
+            "src/server/scripts/Custom/Custom_Misc/lockpick_game.cpp": {
+              "before_sha256": "5cac72baf2f543d64e0952f60d2c9f4af3e7cd7d666d5de62944cc399e98733d",
+              "after_sha256": "26ffef1e09e1f07ef6b11db514ec69070c9ebc5a12cc6e7ba1271b4ad397ebfe"
+            },
+            "src/server/scripts/Custom/Custom_NPC/Naxx40/boss_kelthuzad_40_custom.cpp": {
+              "before_sha256": "6f20d230214001fe0c153de169a2f72660d3c22bdcfd928bbbbb93b28d2cdb12",
+              "after_sha256": "d1ebb793c8403eb9355462e6d358d38bc34b063888e5f47842084602fc2dad88"
+            },
+            "src/server/scripts/Custom/Custom_NPC/Naxx40/boss_sapphiron_40_custom.cpp": {
+              "before_sha256": "2d9423b17099a91b674812588538ff4f703933b13d1ac982813fbb3083c45e85",
+              "after_sha256": "7edd14a6173e7bffc5c10718bfa4398749b14121e93ecce5bcd6f15b135f9ab9"
+            },
+            "src/server/scripts/Custom/Custom_Npc_Bots/npcbot_auto_hide_on_logout.cpp": {
+              "before_sha256": "6c5de4e1f8a26087333eb38d08372c6836b14bd5cb95d5bf3e793d804145186d",
+              "after_sha256": "f51a9fe458a6ecd79d9697b0d6e0d9792ed3307061c39d531fdd60efa6ea158a"
+            },
+            "src/server/scripts/Custom/Custom_Player_Scripts/mod_spectral_repop_mounts.cpp": {
+              "before_sha256": "e153e2e860424231ca9914893604d85c2c8a087057802657223d048a94116bd8",
+              "after_sha256": "b247a0e6d8d4c5bcd1bc5f3b097cdcbb6a7855b70312d11a795c1278ee0f540a"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/generic_custom_spells.cpp": {
+              "before_sha256": "0257039ae1a8d9d904a4731bf18238a59f864c2efbce319e38cfd7317260e80b",
+              "after_sha256": "123ccdd635af191696df436bfe5f796859c265150c4923f027df2014d586b0d9"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/item_custom_spells.cpp": {
+              "before_sha256": "ee3f6ff46653a8e61b4e69ee355cd09cba947f678a6c34aab82196a0bbc95097",
+              "after_sha256": "7806649788434cf30af277593743929eb20ecefedab203574c8b5c152859e1f2"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/mage_custom_spells.cpp": {
+              "before_sha256": "3a71965ad02eeeceb2d8e38c53a43c60d132474f6a0e21a7fa55321194f12da2",
+              "after_sha256": "07af922e629a5683969eef758ce5f80400a6fe1a14384c7f89646f4978d6c3f7"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/meta_gem_scripts.cpp": {
+              "before_sha256": "a7d1d4bc7c326ca7ce4c25969659df038f16e2bb090355523c061122e74507db",
+              "after_sha256": "64a0b0d51d23664f61325d8397c884afe9c13b1cb9002cb4eabdac9329969293"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/shaman_custom_spells.cpp": {
+              "before_sha256": "4777dd668a2e646327445e217ae918756e3fac89972a1c8de48ae185d1fd4cfe",
+              "after_sha256": "5638caa0c536772d4a80e38814a1b5e1eef1f4307f46d0ed72a0d57968ed9158"
+            },
+            "src/server/scripts/Custom/Custom_Spell_Scripts/shattered_sun_neck_scripts.cpp": {
+              "before_sha256": "555597bbd67a7d9c6372b57272dfc8782b397ca66f3bef61d33e92d1c51dec5e",
+              "after_sha256": "3d76b48453b0d509f587f30f4161abb6c0e04b14f060f60abb6a015f5467f3e5"
+            },
+            "src/server/scripts/Custom/WellOfEternity/well_of_eternity_palace.cpp": {
+              "before_sha256": "9e0d6c6474ce21b11fc2ad8e3969f33aef32be607ff50cdf1f802aef23bcd1f5",
+              "after_sha256": "d13867dbb8f256dfbc10eb26622a671dffb9893b49030cc64abecafe2d593439"
+            },
+            "src/server/scripts/EasternKingdoms/SunwellPlateau/boss_brutallus.cpp": {
+              "before_sha256": "de9314ed74b5fde1c281e406208c15b787345aa9cb2220eb15aed7463ebf5cca",
+              "after_sha256": "855b9c047180d2cb7eb564033412d54a82de9960d093fcff932a9632b055bce1"
+            },
+            "src/server/scripts/EasternKingdoms/ZulGurub/boss_jindo.cpp": {
+              "before_sha256": "fa88d0be7a10855398601453ac9b92f40a7b4e7f8c0b01421e842e8a7f4980b4",
+              "after_sha256": "4164d825f5113b4af4e199eb43852605b33e0e39a6aa0bade937ea9c05377987"
+            },
+            "src/server/scripts/Kalimdor/RuinsOfAhnQiraj/boss_ayamiss.cpp": {
+              "before_sha256": "94f567a97600b18ba4e41b975df40eb1498262e2e9e9263932077d7c66d77f4c",
+              "after_sha256": "77561cb966300c942bf1cc300c846ab0703dc5b01b3962911241badb6e01ceda"
+            }
+          }
+        },
+        {
+          "path": "patches/0014-script-direct-headers-continued.patch",
+          "sha256": "7c59ff6d9471b58b4b21b1dd789a8bbf7bee456f3e0876fc38d5eb457d26c648",
+          "files": {
+            "src/server/scripts/Custom/Custom_Player_Scripts/mod_spectral_repop_mounts.cpp": {
+              "before_sha256": "b247a0e6d8d4c5bcd1bc5f3b097cdcbb6a7855b70312d11a795c1278ee0f540a",
+              "after_sha256": "bc66dfb58fe6f6bede019dfe0094f4892cfe201399fb78f7f61f167d2be9bcc9"
+            },
+            "src/server/scripts/Kalimdor/RuinsOfAhnQiraj/ruins_of_ahnqiraj.cpp": {
+              "before_sha256": "e36a1101de5748e89b46a038ecbba5e426324450e2925595a818249aa2ef5246",
+              "after_sha256": "4f1ada0eaff6537e301a87fb764d72010c40699e094369e180f0d7522d25056a"
+            },
+            "src/server/scripts/Kalimdor/TempleOfAhnQiraj/boss_cthun.cpp": {
+              "before_sha256": "38ddc7a88c2f2b483ef595d1a2dfe86bb443fd07b2395bba15724bde36bcad0e",
+              "after_sha256": "9685f66f9b7c90d94e52498323d77a43a93ae419cea3b018905ab75e13728db4"
+            },
+            "src/server/scripts/Kalimdor/TempleOfAhnQiraj/boss_fankriss.cpp": {
+              "before_sha256": "bd111975a4bf9e2afe759deb672d44a4281dd5ef62090996d9bbbcd27126414f",
+              "after_sha256": "6b772be46e631786020c55dee084259603bfea15e49a012489ff81e4a2ada35e"
+            },
+            "src/server/scripts/Kalimdor/TempleOfAhnQiraj/temple_of_ahnqiraj.cpp": {
+              "before_sha256": "7251f229bd4221e48f07837899ecabbbfc173d4f0736882ad65d0fcd99c539bd",
+              "after_sha256": "23bb85e2e7ed9ab0014f73b7b815cf335d2fcd685dca03203b81b47a5882e417"
+            },
+            "src/server/scripts/Kalimdor/TempleOfAhnQiraj/instance_temple_of_ahnqiraj.cpp": {
+              "before_sha256": "911eeeebaaedecd93dd0d23b3816596465fd4deadd37765924838834a0efa557",
+              "after_sha256": "150af2cfa2108b2fbc479c325fa964e2e1c9a62da8a4a08654ad475af6866927"
+            },
+            "src/server/scripts/Outland/CoilfangReservoir/underbog/boss_ghazan.cpp": {
+              "before_sha256": "1ccadacdfa9794e1f523744e9a96dfb9f9990997036de9e5b6a5ce0efced91c4",
+              "after_sha256": "f3fec1e12da7b2cfaa28f7a8a90618f5976d25a6d4d56d8cb9600362112c4e01"
+            },
+            "src/server/scripts/Outland/HellfireCitadel/HellfireRamparts/boss_vazruden_the_herald.cpp": {
+              "before_sha256": "f2e8cdd1ea52a11c7d6e70916b4f6c227e8453bd9180a566a6d6f3c9925bbfe3",
+              "after_sha256": "7700911814fbe094d06db12941c1ec7cfffd241422651063ffb379a50fa05174"
+            },
+            "src/server/scripts/Outland/TempestKeep/Eye/boss_kaelthas.cpp": {
+              "before_sha256": "d9d572fb131aa991639abe32c627d9d6c8aef908d7f4ef034b4ba2c2c648c08a",
+              "after_sha256": "95cea47688b9b6b07f0108fd500ecaa4e9952c79da2ab7c3b92c03d2b9642f86"
+            },
+            "src/server/scripts/Spells/spell_shaman.cpp": {
+              "before_sha256": "4e33547e91629098f997bc99654013bf8ca217b72bb0d30e2dbf69d2b4147722",
+              "after_sha256": "849646d96864a698b88530a658d1f1172608f1eb392224b1e70419815bcd33da"
+            }
+          }
+        },
+        {
+          "path": "patches/0015-atomic-shared-settings.patch",
+          "sha256": "2a1155fffb000ac55b4de256c37c3d0f704b310520bbd49fd5b2964b09d59521",
+          "files": {
+            "modules/mod-aoe-loot/src/aoe_loot.cpp": {
+              "before_sha256": "a79986a0705d1efbaee8edbdec294546ce7ae34b74706266d113c65b344247fe",
+              "after_sha256": "33295f5e9ce64b4382da0890bc11bcdb64d1bf66c2e8a14e5d8e94ce640e76f2"
+            },
+            "modules/mod-junk-to-gold/src/mod_junk_to_gold.cpp": {
+              "before_sha256": "891854219c1f29b66c2f085fdea18a71bbf22fc75a5647dce12a79d2020739d6",
+              "after_sha256": "dc8f2a9597f29aff4216eb06e5650bc766c35af7846466de78231909507bc9f0"
+            },
+            "modules/mod-aoe-loot/tests/IntegrationTests.cpp": {
+              "before_sha256": "cd6a2db6de25448feeda239bc3f2fe516511857645ee3b60629df92766fe41f1",
+              "after_sha256": "cf7a2c1f5b2a7e6b127a3616d140d2a74bb3913519cd40ae66c7368761293d65"
+            }
+          }
+        },
+        {
+          "path": "patches/0016-private-grid-searcher-templates.patch",
+          "sha256": "59471fb0e7928096672134022647c069633717ae967bb4ef2ac07ecf0144e277",
+          "files": {
+            "src/server/scripts/Custom/Custom_Npc_Bots/gluth_director.cpp": {
+              "before_sha256": "3e6f4e6f0d671645b7ef4a0a5f28f1edb41943e80e9a2d0cac576b7e50622505",
+              "after_sha256": "b77b4ecfa60724dffdb908dcba09a17231d7ab70898fbbc9ab50ef6e3276e38d"
+            },
+            "src/server/scripts/Custom/Custom_NPC/fake_player_ambience.cpp": {
+              "before_sha256": "b5521b8e480bd470f0c029c3a6223ca5ecfd28ae937de8ad1a3014cdd7d1bfd5",
+              "after_sha256": "01ad3822bd854c5f24f8544a14333fb8d9fa451008701eac63c2ba1878c3fac7"
+            }
+          }
+        },
+        {
+          "path": "patches/0017-sql-chrono-timestamps.patch",
+          "sha256": "09d7594e4a719f4202c07512d73b51ac031c7f750cce70cb60f0ebeabc2493a0",
+          "files": {
+            "src/server/game/Entities/Pet/Pet.cpp": {
+              "before_sha256": "aa70f955598479a586ce9fee56209c89661160ee2250e112fceaef3cf16f5819",
+              "after_sha256": "80a51fd5c8ef9bd50260c722dcb5ea575aeb43257eea1a696293ff4172cafd88"
+            },
+            "src/server/game/Handlers/CalendarHandler.cpp": {
+              "before_sha256": "8e24403fa6d9de9c672fb5f31682c140534f39098c809df048905eeb2a0bf115",
+              "after_sha256": "5f2c9b281e6036fd406a804274714a96dc9fc3c4a092250379110f2574e84a30"
+            },
+            "src/server/game/Handlers/MiscHandler.cpp": {
+              "before_sha256": "28ccce0c1d828a752438fb1c4d7de3956403134bb0a841add5671aae9204bc3d",
+              "after_sha256": "b4590a9e12d3bd02a44e8f826a9baedbd09ea3e75ee756b298abc20af111244f"
+            },
+            "src/server/game/Handlers/TicketHandler.cpp": {
+              "before_sha256": "698d64a63a4f5a5ad1beb80f0cd19b530b43f80ffa83c5edeaf128ad9780cc4a",
+              "after_sha256": "b8956170bd38b1a5e17adde60dfaa7ed0f64763c2b26005373a1d80e4f64f93f"
+            },
+            "src/server/scripts/Commands/cs_quest.cpp": {
+              "before_sha256": "d2e9377ee2cdfb2b8057ff18759fe7000da9581e05fd8c6a3c5c1aca798885f8",
+              "after_sha256": "ebcc3332a966cefba07a5f91f080d8995d45b6f1aa9c41b58216767a71f712e9"
+            }
+          }
+        }
+      ],
+      "result_inventory": {
+        "root": "AzerothCore_Linux",
+        "file_count": 5551,
+        "uncompressed_file_bytes": 365987694,
+        "tree_sha256": "847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064",
+        "modules": [
+          "Attriboost",
+          "StatBooster",
+          "mod-ale",
+          "mod-aoe-loot",
+          "mod-auctionator",
+          "mod-aura-timers",
+          "mod-auto-gather-tracking",
+          "mod-autofish",
+          "mod-azercore-ops",
+          "mod-bg-reward",
+          "mod-boost-60-outland",
+          "mod-craftspeed",
+          "mod-daily-dungeon-rewards",
+          "mod-dbm-fta-bridge",
+          "mod-dress-npc",
+          "mod-dynamic-loot-browser",
+          "mod-dynamic-xp",
+          "mod-easy-respawn",
+          "mod-emerald-dreamway",
+          "mod-go-spawn-replacer",
+          "mod-goblin-glider",
+          "mod-guildfunds",
+          "mod-individual-progression",
+          "mod-individual-xp",
+          "mod-item-drop-multiplier",
+          "mod-junk-to-gold",
+          "mod-loot-beam",
+          "mod-map-gold-multiplier",
+          "mod-mount-requirements",
+          "mod-multitrainer",
+          "mod-npcbot-banter",
+          "mod-ony-naxx-logout-teleport",
+          "mod-pocket-pals",
+          "mod-profession-experience",
+          "mod-quartermaster-ledger",
+          "mod-quest-loot-party",
+          "mod-questie-bridge",
+          "mod-rdf-expansion",
+          "mod-reagent-bank-account",
+          "mod-reforging",
+          "mod-reset-raid-cooldowns",
+          "mod-reward-all-quest-choices",
+          "mod-shared-professions",
+          "mod-solo-lfg",
+          "mod-starter-food-water",
+          "mod-starting-pet",
+          "mod-talisman-of-binding-shard",
+          "mod-timewalking",
+          "mod-transmog",
+          "mod-warcraftxl-gameobject-editor",
+          "mod-warcraftxl-ui-tracker",
+          "mod-world-inspector-runtime"
+        ],
+        "license_files": [
+          {
+            "path": "LICENSE",
+            "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+          },
+          {
+            "path": "deps/SFMT/LICENSE.txt",
+            "sha256": "9d6db9b6702bf80c926b36d61f6282bf48d0a9a8044db2bd31e524aa08ccac0f"
+          },
+          {
+            "path": "deps/acore/joiner/LICENSE",
+            "sha256": "d8de517917a591daa447d6be28ffb2fac866703e4feb65e86221be9a22d3033a"
+          },
+          {
+            "path": "deps/argon2/LICENSE",
+            "sha256": "220f8736a89ff51c92ef3d497f413b48e6cf1df3d6278bc909c6308c78e1718e"
+          },
+          {
+            "path": "deps/bzip2/LICENSE",
+            "sha256": "4919cfb14a73cd64fcef67b107613970cf1659a09aa675dba31314f373bc7204"
+          },
+          {
+            "path": "deps/fmt/LICENSE",
+            "sha256": "07580f2a3b35709ce703d523f447b242f6dfec7582a8c0df102c7fa2849375f8"
+          },
+          {
+            "path": "deps/g3dlite/source/license.cpp",
+            "sha256": "2080b875973930021fc646446552fa188c1c0908e249dd9ce1737de193d06781"
+          },
+          {
+            "path": "deps/jemalloc/COPYING",
+            "sha256": "94aa2caa98c25d942f58b956c71dba6a99ff98fc3a31cbc669fe2a4cd0268b53"
+          },
+          {
+            "path": "deps/jsonpath/LICENSE.APACHE2",
+            "sha256": "e8734448285a2dd773d40136ed5d5e8163a70701dd540cdc796cfca232f67d55"
+          },
+          {
+            "path": "deps/jsonpath/LICENSE.MIT",
+            "sha256": "d72dea1a8cdf3f4dfa2f594253d0c5b37baefc76e806f5ecb0e426393edcd505"
+          },
+          {
+            "path": "deps/libmpq/COPYING",
+            "sha256": "58530d09b6fcb91ae27071be0081af90e6c2d7fdf991d34a29e234a2a5e75455"
+          },
+          {
+            "path": "deps/recastnavigation/License.txt",
+            "sha256": "5881db2682bc4871837e36b5af4460f59905a7944848221406f841eaa3fda8c4"
+          },
+          {
+            "path": "deps/semver_bash/LICENSE",
+            "sha256": "5dfbc658d4eda74c18acd89ea205c7c23d2d6b47ff455dc5167371ee86257a39"
+          },
+          {
+            "path": "modules/Attriboost/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/StatBooster/LICENSE",
+            "sha256": "4a59014059435fd1f99b1e2d2a7e45f032701c1584483f3d32b6102bc2736cb5"
+          },
+          {
+            "path": "modules/mod-ale/LICENSE",
+            "sha256": "589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2"
+          },
+          {
+            "path": "modules/mod-ale/src/LuaEngine/extensions/StackTracePlus/LICENSE",
+            "sha256": "5288be437f496001ee58dc5c8a5e926af8286adf2db003cdc72087e7bb576512"
+          },
+          {
+            "path": "modules/mod-aoe-loot/LICENSE",
+            "sha256": "76a97c878c9c7a8321bb395c2b44d3fe2f8d81314d219b20138ed0e2dddd5182"
+          },
+          {
+            "path": "modules/mod-auctionator/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-autofish/LICENSE",
+            "sha256": "05a2eaa1f5321bbf1a4850dab876c6da69b52687bfe02dfcfbee4d438ef40631"
+          },
+          {
+            "path": "modules/mod-azercore-ops/LICENSE",
+            "sha256": "a0ee746064b06d09cab0768116ec265fd0d45261d4087c9ad2c698a07c7aac0e"
+          },
+          {
+            "path": "modules/mod-craftspeed/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-dynamic-xp/LICENSE",
+            "sha256": "5b13ccff3f2d082ac5c9c45dc28f94ddeec0e27ca6e1feecd4d6a9192b14eb02"
+          },
+          {
+            "path": "modules/mod-easy-respawn/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-emerald-dreamway/LICENSE",
+            "sha256": "11c4a8b414a534365f02da7dad9dc3e471d35b15ed31df9d4006fb2a144c4443"
+          },
+          {
+            "path": "modules/mod-guildfunds/LICENSE",
+            "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+          },
+          {
+            "path": "modules/mod-individual-progression/LICENSE",
+            "sha256": "4a59014059435fd1f99b1e2d2a7e45f032701c1584483f3d32b6102bc2736cb5"
+          },
+          {
+            "path": "modules/mod-individual-xp/LICENSE",
+            "sha256": "76a97c878c9c7a8321bb395c2b44d3fe2f8d81314d219b20138ed0e2dddd5182"
+          },
+          {
+            "path": "modules/mod-junk-to-gold/LICENSE",
+            "sha256": "6f1e622c82a380075843bb084a7ec3b1f1d12a4a02526d75e78b0924a860aa75"
+          },
+          {
+            "path": "modules/mod-loot-beam/LICENSE",
+            "sha256": "230184f60bae2feaf244f10a8bac053c8ff33a183bcc365b4d8b876d2b7f4809"
+          },
+          {
+            "path": "modules/mod-mount-requirements/LICENSE",
+            "sha256": "ca7839af1f15ba7e1eb74f000ebee36649ed34fac59600558d3130b99f87ca3a"
+          },
+          {
+            "path": "modules/mod-ony-naxx-logout-teleport/LICENSE",
+            "sha256": "7d6ad99a69f261f87a6d4502d0345a78de530ffa10bd7c2a8f5d272f4778b588"
+          },
+          {
+            "path": "modules/mod-profession-experience/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-quest-loot-party/LICENSE",
+            "sha256": "76a97c878c9c7a8321bb395c2b44d3fe2f8d81314d219b20138ed0e2dddd5182"
+          },
+          {
+            "path": "modules/mod-rdf-expansion/LICENSE",
+            "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+          },
+          {
+            "path": "modules/mod-reagent-bank-account/LICENSE",
+            "sha256": "4a59014059435fd1f99b1e2d2a7e45f032701c1584483f3d32b6102bc2736cb5"
+          },
+          {
+            "path": "modules/mod-reforging/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-reset-raid-cooldowns/LICENSE",
+            "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+          },
+          {
+            "path": "modules/mod-reward-all-quest-choices/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-solo-lfg/LICENSE",
+            "sha256": "5b13ccff3f2d082ac5c9c45dc28f94ddeec0e27ca6e1feecd4d6a9192b14eb02"
+          },
+          {
+            "path": "modules/mod-starting-pet/LICENSE",
+            "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+          },
+          {
+            "path": "modules/mod-talisman-of-binding-shard/LICENSE",
+            "sha256": "203a620948410283b0ca6c696133983ebd4050f1f258c5a66bfcb7f943190d5b"
+          },
+          {
+            "path": "modules/mod-transmog/LICENSE",
+            "sha256": "76a97c878c9c7a8321bb395c2b44d3fe2f8d81314d219b20138ed0e2dddd5182"
+          }
+        ]
+      }
     }
   }
 }

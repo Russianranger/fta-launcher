@@ -61,6 +61,26 @@ warning. All script bodies and original line endings are preserved. A bounded
 v10 diagnostic pass returned nonzero; only a subsequent completed normal world
 build can qualify compilation.
 
+`android-arm64-world-v12` adds owning headers for ten further actual script
+failures and preserves atomic immutable settings publication in AoE Loot and
+Junk to Gold using supported sequentially consistent shared-pointer APIs.
+Original/fixed host concurrency, lifetime and 101 production-fixture checks
+pass; NDK original failure and fixed static compile/link are separately
+verified. The Android probes are never executed.
+
+`android-arm64-world-v13` supplies two private-lambda grid template definitions
+exposed by the complete world link and preserves five original signed 64-bit
+SQL timestamp bindings across Android's chrono type alias difference. The
+actual header/variant separate-translation-unit regression compares 40 host
+bindings per version and verifies the original NDK link failure and fixed
+static link. No SQL or Android probe execution is claimed.
+
+The final v13 ARM64/API33 normal build completes the world executable with all
+52 static modules, static scripts, default static Lua 5.2 and C++20. Qualification
+records actual artifacts and CMake graph evidence. Link-time debug stripping
+retains executable code and the symbol table while fitting the existing APK
+payload bounds. Device execution and world readiness are not yet qualified.
+
 `LICENSE` preserves the original core's GPL version 2 license text; its source
 headers allow version 2 or later. The patch series and this explanation are
 GPL-2.0-or-later. The independently written probes and Python tools retain their
