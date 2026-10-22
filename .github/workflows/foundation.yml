@@ -61,3 +61,39 @@ jobs:
             android/app/build/outputs/apk/debug/app-debug.apk.sha256
           retention-days: 14
           if-no-files-found: error
+
+  publish:
+    name: Direct APK download
+    needs: [tooling, android]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: fta-foundation-debug-${{ github.sha }}
+          path: apk
+      - name: Publish checked development APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          cd apk
+          sha256sum -c app-debug.apk.sha256
+          mv app-debug.apk FTA-Launcher-development.apk
+          sha256sum FTA-Launcher-development.apk > FTA-Launcher-development.apk.sha256
+          cat > release-notes.txt <<'NOTES'
+          Development snapshot of the From the Ashes Android launcher.
+
+          Download the APK directly from this release. See the repository README for the exact features and remaining runtime gates. This is a debug build, not a gameplay-qualified beta. No database seed, accounts, client or game assets are bundled.
+
+          Python safety tests, Android unit tests, lint and APK compilation passed for this commit. Physical Thor runtime validation is separate.
+          NOTES
+          FTA_TAG="development-${GITHUB_SHA:0:12}"
+          if gh release view "$FTA_TAG" >/dev/null 2>&1; then
+            echo 'This commit already has a download release.'
+          else
+            gh release create "$FTA_TAG" FTA-Launcher-development.apk FTA-Launcher-development.apk.sha256 --target "$GITHUB_SHA" --prerelease --title 'FTA Launcher development snapshot' --notes-file release-notes.txt
+          fi
