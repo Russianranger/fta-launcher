@@ -1,0 +1,10 @@
+--- a/src/server/game/AI/NpcBots/botspell.h
++++ b/src/server/game/AI/NpcBots/botspell.h
+@@ -2,6 +2,7 @@
+ #define BOTSPELL_H
+ 
+ #include "Define.h"
++#include <cstddef>
+ 
+ /*
+ NpcBot System by Trickerer (onlysuffering@gmail.com)

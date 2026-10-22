@@ -52,7 +52,7 @@ python3 tools/build_native.py --source /private/fta-source \
 python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth
 python3 tools/build_native.py --source /private/fta-android-world-source \
-  --port-profile android-arm64-world-v6 \
+  --port-profile android-arm64-world-v7 \
   --build-dir /private/fta-build-android --platform android --stage world \
   --toolchain /private/android-ndk-r28c/build/cmake/android.toolchain.cmake \
   --dependency-prefix /private/android-dependencies \
@@ -353,7 +353,7 @@ The actual full world configuration now passes with all 52 module directories,
 C++20, Release, static scripts/modules and default static Lua 5.2.4. Its pinned
 Lua archive is fetched by the original module CMake, not substituted by this
 driver. The world build's auth prerequisite compiled and linked successfully.
-Actual world compilation then exposed three bounded build defects:
+Actual world compilation then exposed four bounded build defects:
 
 1. The Lua module removed `-Werror` as a substring, corrupting NDK's
    `-Werror=format-security` into an invalid compiler argument. Patch 0006 removes
@@ -377,14 +377,20 @@ Actual world compilation then exposed three bounded build defects:
    C++20, GNU/XSI modes and APIs 21/33; the original API33 GNU failures were
    reproduced. The final full gSOAP source then compiled and its static library
    linked successfully. No probe or server binary was executed.
+4. `botspell.h` declared a `std::size_t` constant without including `<cstddef>`.
+   Patch 0009 adds that standard header directly; no constant or gameplay type
+   changes. The actual `botspell.cpp` translation unit then compiled for
+   ARM64/API33 with C++20, producing a 908,968-byte object with SHA256
+   `404fbd9e240077bbde09a0fc58b4f735d9ff061cfd0e7c9f2de942ca8e0f29c8`.
+   The complete source profile was reverified after compilation.
 
-The current reviewed `android-arm64-world-v6` source tree is
-`02874636d09ccc76b70495d552a5d84737dece7f70802489e5f97c4b7f22a7ef`.
+The current reviewed `android-arm64-world-v7` source tree is
+`5095554b60889f9e5a5e55951139576cfca06efd3cc9ad1f6a5c841af25d5265`.
 Every world profile reproduced exactly from the pristine source. These patches
 and successful configuration are progress toward compilation, not a completed
 world build or module qualification. The single-job build was intentionally paused after these actual compile
 checks; it still has more than 1,200 world build edges remaining. Resume its
-verified cache with v6; no game assets are required for compilation. The build driver now
+verified cache with v7; no game assets are required for compilation. The build driver now
 explicitly pins Lua 5.2 static and rejects caches that swap it for LuaJIT, another
 Lua version or dynamic linkage.
 

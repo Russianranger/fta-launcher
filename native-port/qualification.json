@@ -266,8 +266,8 @@
     "scripts": "static",
     "modules": "static",
     "cxx_standard": 20,
-    "current_profile": "android-arm64-world-v6",
-    "source_tree_sha256": "02874636d09ccc76b70495d552a5d84737dece7f70802489e5f97c4b7f22a7ef",
+    "current_profile": "android-arm64-world-v7",
+    "source_tree_sha256": "5095554b60889f9e5a5e55951139576cfca06efd3cc9ad1f6a5c841af25d5265",
     "pristine_profile_reproduction": "passed",
     "compiler_blockers": [
       {
@@ -284,6 +284,11 @@
         "profile": "android-arm64-world-v5",
         "error": "gSOAP assumes XSI int strerror_r for Bionic GNU char* mode",
         "fix_patch": "patches/0008-bionic-gsoap-strerror.patch"
+      },
+      {
+        "profile": "android-arm64-world-v6",
+        "error": "botspell.h std::size_t use lacks direct cstddef dependency with NOPCH",
+        "fix_patch": "patches/0009-botspell-cstddef.patch"
       }
     ],
     "worldserver_compiled": false,
@@ -303,7 +308,8 @@
       "world-build authserver prerequisite compile/link",
       "Attriboost first module translation unit",
       "32 Lua5.2 C sources and static Lua link",
-      "final gSOAP stdsoap2.cpp and static gSOAP link"
+      "final gSOAP stdsoap2.cpp and static gSOAP link",
+      "actual botspell.cpp translation unit under final v7 source profile"
     ],
     "pause_reason": "bounded checkpoint after actual compiler fixes; more than 1200 world build edges remain",
     "gsoap_strerror_regression": {
@@ -327,6 +333,19 @@
       "production_function_sha256": "c2a3f2df6a75c7b70ad301a5aae5482b1a94cdeddf13f708022adc1a3810d942",
       "ndk_string_header_sha256": "77ccdd315d04fde51d0b65829f78a60ad7d9bcbc65caaf5c432feeba6134b88a",
       "binaries_executed": false
+    },
+    "botspell_translation_unit_regression": {
+      "status": "translation-unit-compile-passed",
+      "profile": "android-arm64-world-v7",
+      "source_tree_sha256": "5095554b60889f9e5a5e55951139576cfca06efd3cc9ad1f6a5c841af25d5265",
+      "target": "arm64-v8a/android-33",
+      "cxx_standard": 20,
+      "translation_unit": "src/server/game/AI/NpcBots/botspell.cpp",
+      "object_sha256": "404fbd9e240077bbde09a0fc58b4f735d9ff061cfd0e7c9f2de942ca8e0f29c8",
+      "object_bytes": 908968,
+      "source_verified_after_compile": true,
+      "worldserver_compiled": false,
+      "objects_executed": false
     }
   }
 }

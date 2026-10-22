@@ -165,7 +165,11 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
    passed all 15 validations; that does not replace this physical-device gate.
 3. Continue the separate world build with the verified Android toolchain.
    Readline now cross builds, full world configuration passes and compiler-led
-   fixes are recorded in `docs/native-build.md`. Preserve C++20, all 52 modules,
+   fixes are recorded in `docs/native-build.md`. The current world source profile
+   is `android-arm64-world-v7`; its last verified translation unit is
+   `botspell.cpp`. Its four bounded portability fixes passed actual compiler
+   checks; the remaining world compilation and link have not finished.
+   Preserve C++20, all 52 modules,
    default static Lua 5.2 and static scripts/modules; auth must build first.
    World compilation is incomplete. Use one heavy build at a time and record
    actual compiler blockers as bounded reviewed patches.
