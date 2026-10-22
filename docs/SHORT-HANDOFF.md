@@ -32,7 +32,15 @@ ASCII/ascii_bin column and exact ASCII/Unicode round trips before seed import.
 No SQL or provider ELF was changed. The exact new foundation SQL and unchanged
 failing file pass on host 12.3.2. That host also succeeds without XML because its
 ASCII support is compiled in; it does not reproduce Android's negative case.
-The corrected full-seed Thor result remains unqualified.
+Physical version 7 subsequently **passed the complete full-seed gate**. All 563
+tables plus the trigger imported unchanged; import and validation took 168,931 ms.
+Every inventory,
+routine, event and original receipt check matched across all three schemas.
+All 577 current-attempt native records are present with no failure, timeout,
+cancellation or truncation. SQL shutdown was observed and MariaDB exited 0.
+Report SHA256: `2949a94aa120f89154c77a0fdab1527c65774ce15fa844dee3af3a219e455804`.
+See `docs/evidence/android-2026-10-22-thor-full-seed-pass.json`. Runtime SQL was
+not applied; compiled world/character updater and gameplay remain separate.
 
 Physical Thor version 5 **passed the original auth updater and dry run** after
 all 27 unchanged auth imports. The auth process exited 0 in 107 ms, its
@@ -46,10 +54,10 @@ full seed, worldserver, game login or abnormal lifecycle handling. See
 
 - Target Android 13 ARM64/Bionic on AYN Thor; preserve core C++20 and all 52
   module directories. Do not substitute Pocket Realm's CMaNGOS/1.12 core.
-- Full-seed compatibility on Android remains unproven. The source documents
-  MySQL 8; the Android provider is MariaDB 12.3.2. Thor has passed its bootstrap,
-  socket, credential, collation/transaction and shutdown checks plus 27 auth
-  imports. A host import does not qualify the remaining Android gates.
+- Full-seed compatibility on Android passed in private version 7. The source
+  documents MySQL 8; the Android provider is MariaDB 12.3.2. Preserve the exact
+  passing SQL and provider. A host probe does not qualify the remaining compiled
+  updater, persistent service or gameplay gates.
 - Seed is populated and destructive: fresh empty installation only. Never
   distribute the seed or automatically apply it to an existing user database.
 - Runtime SQL must remain beside `Data/data/sql`; preserve updater checks,
@@ -172,11 +180,10 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 1. Preserve the passing physical version 5 auth evidence. Still qualify explicit
    cancellation, background and process-death cleanup on Thor; the normal passing
    dry run does not establish those behaviors.
-2. Run `Test full original database seed` in private version 7 on Thor. It needs
-   at least 3 GiB free and allows 30 minutes, checks every original file and all
-   three schema/receipt baselines, then requires observed SQL shutdown. Export
-   its current-attempt report. The early ASCII probe must pass before any seed
-   import. Host SQL/parser and metadata proofs do not replace this device gate.
+2. Preserve the passing physical version 7 full-seed evidence and exact APK.
+   Later updater diagnostics must first repeat its fresh import and original
+   three-schema/receipt baseline checks before applying runtime SQL. Keep the
+   early ASCII probe, bounded current-attempt evidence and observed SQL shutdown.
 3. Continue the separate world build with the verified Android toolchain.
    Readline now cross builds, full world configuration passes and compiler-led
    fixes are recorded in `docs/native-build.md`. The current world source profile
@@ -207,13 +214,14 @@ build, a setup APK or a CI artifact with a successful Thor runtime test.
 The initial shell lacked build tools; host tools/dependencies are now staged
 privately and the exact host database gate has run. Do not repeat that old
 missing-tools status as a current blocker. ARM64 auth compilation, private staging and the physical auth dry run passed;
-world compilation and the remaining full-seed/lifecycle diagnostics still require
+world compilation and the remaining compiled-updater/lifecycle diagnostics require
 their own measured evidence. Inspect the exact commit's GitHub CI results before
 reporting setup APK checks as passed; native compilation has its own build report.
 
 Workspace recovery: previous scratch bytes and world objects were pruned by
 maintenance. The exact Android toolchain was restored and the private runtime
 recovered byte-for-byte from the saved version 6 APK; the signing capsule was
-reused. Do not claim the old world object cache is still present. Recover the
-original source archive and reproduce profile v7 before resuming native work.
+reused. Do not claim the old world object cache is still present. The original
+source archive was recovered and profile v7 reproduced exactly before
+resuming native work. Target dependencies are being reproduced from pinned inputs.
 Saved artifact identities and existing source profiles remain authoritative.

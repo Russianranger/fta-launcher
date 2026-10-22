@@ -1,0 +1,67 @@
+{
+  "formatVersion": 1,
+  "evidenceKind": "user-exported-physical-device-report",
+  "sourceReportSha256": "2949a94aa120f89154c77a0fdab1527c65774ce15fa844dee3af3a219e455804",
+  "apkSha256": "6ef5d5fd1bde576ec30e876128777e497e62670aa153afe013c86030cb4993d5",
+  "appVersionName": "0.4.1-charset-diagnostic",
+  "appVersionCode": 7,
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "processSupervisorSha256": "8a1a9726687b646fc369ce937d46816df0efbb131be510e61e2075a90fd4b9cb",
+  "providerManifestSha256": "e7edb7c72794753cb693890a2b49b8bd118a4a4fa4bbd1b8d3b141aa26538511",
+  "diagnosticState": "FULL_SEED_DIAGNOSTIC_PASSED",
+  "currentAttemptEvidenceBound": true,
+  "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+  "tablesImported": 563,
+  "triggersImported": 1,
+  "schemaChecks": {
+    "acore_auth": {
+      "tableInventoryMatches": true,
+      "triggerInventoryMatches": true,
+      "routinesMatch": true,
+      "eventsMatch": true,
+      "receiptBaselineMatches": true
+    },
+    "acore_characters": {
+      "tableInventoryMatches": true,
+      "triggerInventoryMatches": true,
+      "routinesMatch": true,
+      "eventsMatch": true,
+      "receiptBaselineMatches": true
+    },
+    "acore_world": {
+      "tableInventoryMatches": true,
+      "triggerInventoryMatches": true,
+      "routinesMatch": true,
+      "eventsMatch": true,
+      "receiptBaselineMatches": true
+    }
+  },
+  "fullSeedImported": true,
+  "seedCompatibilityQualified": true,
+  "runtimeSqlApplied": false,
+  "nativeEvidenceAvailable": true,
+  "nativeInvocations": 577,
+  "droppedInvocations": 0,
+  "invocationsTruncated": false,
+  "allNativeInvocationsExitedZero": true,
+  "anyTimeoutCancellationOrValidationFailure": false,
+  "databaseReadinessObserved": true,
+  "databaseSqlShutdownRequested": true,
+  "databaseCleanShutdownObserved": true,
+  "databaseExitCode": 0,
+  "databaseDurationMs": 170789,
+  "fullSeedDurationMs": 168931,
+  "authserverQualified": false,
+  "worldserverQualified": false,
+  "qualificationScope": "All 563 unchanged seed tables and one trigger imported into a fresh disposable database on physical Android 13 AYN Thor; exact object inventories and original receipt baselines matched for auth, characters and world; SQL shutdown and database exit 0 observed. Runtime SQL, compiled world/character updaters, persistent server lifecycle and gameplay are not qualified by this report."
+}

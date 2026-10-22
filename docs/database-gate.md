@@ -347,5 +347,15 @@ That host also succeeds with an empty charset directory because ASCII is built
 in there. This is a build-configuration limit of the host comparison; it does
 not reproduce or qualify the Android negative case. The
 [host/source evidence](evidence/database-2026-10-22-charset-path-probe.json)
-records that limit explicitly. Rerun `Test full original database seed` on Thor
-with private version 7; only a complete matching report closes the device gate.
+records that limit explicitly.
+
+Private version 7 subsequently passed on physical Android 13 AYN Thor. Its exact
+APK-bound report records all 563 unchanged table imports plus the world trigger,
+all 15 schema inventory/routine/event/receipt checks, and SQL shutdown with
+database exit 0. All 577 current-attempt native invocation records are present;
+none failed, timed out, were cancelled or were truncated. The full-seed interval
+was 168,931 ms. See the
+[bounded device evidence](evidence/android-2026-10-22-thor-full-seed-pass.json).
+This closes the disposable full-seed compatibility gate. Runtime SQL was not
+applied; the compiled three-database updater and persistent lifecycle remain
+separate gates.

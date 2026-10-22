@@ -92,4 +92,11 @@ ASCII/ascii_bin column and verifies its exact bytes before starting the seed.
 Install over version 6 and rerun `Test full original database seed`; keep the
 imported ZIP. See the [device failure evidence](evidence/android-2026-10-22-thor-full-seed-attempt.json)
 and [exact corrected APK evidence](evidence/android-2026-10-22-private-charset-apk.json).
+
+Version 7 has now [passed the complete full-seed test on physical Thor](evidence/android-2026-10-22-thor-full-seed-pass.json):
+563 tables and one trigger, all three exact schema/receipt baselines, complete
+577-record native journal, and observed SQL shutdown with database exit 0.
+The report qualifies disposable seed compatibility; runtime SQL was not applied.
+The next substantial diagnostic will exercise the actual compiled worldserver's
+three-database updater through the original missing-map startup boundary.
 Use the same key and a version code greater than 7 for future private builds.
