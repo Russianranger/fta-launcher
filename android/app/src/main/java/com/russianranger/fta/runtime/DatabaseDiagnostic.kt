@@ -24,6 +24,10 @@ class DatabaseDiagnostic(
     private var clientOptions: File? = null
     private lateinit var socket: File
     private var step = 0
+    private var currentStage = "CHECKING"
+    private var currentAttemptId: String? = null
+    private var invocationJournal: NativeInvocationJournal? = null
+    private val evidenceHandles = ConcurrentHashMap<Long, Int>()
     private val deadline = System.nanoTime() + (if (includeAuth) 420L else 300L) * 1_000_000_000L
 
     fun run(): String {
@@ -36,8 +40,13 @@ class DatabaseDiagnostic(
             ?.sortedByDescending { it.lastModified() }?.drop(2)?.forEach { it.deleteRecursively() }
         check(parent.usableSpace >= 512L * 1024 * 1024) { "At least 512 MiB free private storage is required" }
         root = File(parent, "g-${UUID.randomUUID()}").apply { check(mkdir()) }
+        val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
+        val attemptId = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
+        require(attemptId != null && NativeInvocationJournal.validAttemptId(attemptId)) { "Current diagnostic attempt identity is unavailable" }
+        currentAttemptId = attemptId
+        invocationJournal = NativeInvocationJournal(File(root, "native-invocations.properties"), attemptId)
         checkCancelled()
-        status("STAGING", "Verifying packaged database bootstrap and system data.")
+        setStage("STAGING", "Verifying packaged database bootstrap and system data.")
         val bootstrap = runtime.stageData(context, File(root, "payload"), ::checkCancelled)
         val provider = File(root, "payload/data/provider")
         val datadir = File(root, "database").apply { check(mkdir()) }
@@ -58,17 +67,17 @@ class DatabaseDiagnostic(
             "--max-allowed-packet=16M"
         )
         try {
-            status("BOOTSTRAPPING", "Initializing a fresh disposable database. Existing saves are untouched.")
+            setStage("BOOTSTRAPPING", "Initializing a fresh disposable database. Existing saves are untouched.")
             runTool("database-server", options + listOf("--bootstrap", "--log-warnings=0", "--enforce-storage-engine="), bootstrap, 180_000)
             File(datadir, "mariadb_upgrade_info").writeText("${runtime.manifest.providerVersion}-MariaDB")
             checkCancelled()
-            status("STARTING", "Starting socket-only MariaDB with bounded memory settings.")
+            setStage("STARTING", "Starting socket-only MariaDB with bounded memory settings.")
             server = launch("database-server", options, null, "server")
             val deadline = System.nanoTime() + 45_000_000_000L
             var ready = false
             while (System.nanoTime() < deadline) {
                 checkCancelled()
-                check(NativeProcessBridge.waitFor(server, 0) == Int.MIN_VALUE) { "Database exited before socket readiness" }
+                check(waitTracked(server, 0) == Int.MIN_VALUE) { "Database exited before socket readiness" }
                 if (socket.exists()) {
                     val probe = runCatching { client("SELECT 1;", 2_000) }
                     if (probe.isSuccess && probe.getOrThrow().trim() == "1") { ready = true; break }
@@ -76,7 +85,8 @@ class DatabaseDiagnostic(
                 Thread.sleep(150)
             }
             check(ready) { "Database socket did not become ready" }
-            status("CHECKING", "Testing local credentials, transactions, system tables and MySQL 8 collation alias.")
+            evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "database_ready") }
+            setStage("CHECKING", "Testing local credentials, transactions, system tables and MySQL 8 collation alias.")
             val secret = ByteArray(24).also { SecureRandom().nextBytes(it) }
                 .joinToString("") { "%02x".format(it.toInt() and 255) }
             client("ALTER USER 'root'@'localhost' IDENTIFIED BY '$secret'; FLUSH PRIVILEGES;", 10_000)
@@ -111,18 +121,27 @@ class DatabaseDiagnostic(
             check(values["FTA_UNICODE_ROWS"] == "1") { "Unicode collation round trip failed" }
             check(values["FTA_ROLLBACK_ROWS"] == "0") { "InnoDB rollback probe failed" }
             if (includeAuth) runAuthUpdaterDiagnostic()
-            status("STOPPING", "Stopping the diagnostic database with SQL SHUTDOWN.")
+            setStage("STOPPING", "Stopping the diagnostic database with SQL SHUTDOWN.")
             client("SHUTDOWN;", 10_000)
-            val stopped = NativeProcessBridge.waitFor(server, 15_000)
+            evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "sql_shutdown_requested") }
+            val stopped = waitTracked(server, 15_000)
             check(stopped != Int.MIN_VALUE && stopped == 0) { "Database did not shut down cleanly" }
+            evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "clean_shutdown") }
             owned.remove(server)
+            evidenceHandles.remove(server)
             server = 0
             return if (includeAuth)
                 "Original ARM64 authserver dry run and updater passed against the unchanged 27-table auth seed, then the disposable database shut down cleanly. No auth listener was opened. Full seed, worldserver and game login remain unqualified."
                 else "MariaDB ${runtime.manifest.providerVersion}: fresh bootstrap, private credentials, socket health, system tables, collation alias, InnoDB rollback and clean shutdown passed. Seed compatibility and AzerothCore remain unqualified."
         } finally {
             // SQL shutdown is preferred. The JNI helper owns process groups and enforces deadlines.
-            if (server != 0L && !cancelled.get()) runCatching { client("SHUTDOWN;", 3_000) }
+            if (server != 0L && !cancelled.get()) runCatching {
+                client("SHUTDOWN;", 3_000)
+                evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "sql_shutdown_requested") }
+                if (waitTracked(server, 3_000) == 0) {
+                    evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "clean_shutdown") }
+                }
+            }
             stopOwned()
             clientOptions?.delete()
             if (::socket.isInitialized) socket.delete()
@@ -136,8 +155,9 @@ class DatabaseDiagnostic(
 
     private fun runAuthUpdaterDiagnostic() {
         check("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables) { "Packaged authserver is unavailable" }
-        status("AUTH_INPUT", "Verifying the exact private database ZIP and auth-only file identities.")
-        val info = JSONObject().put("formatVersion", 1).put("archiveSha256", Inputs.database.sha256)
+        setStage("AUTH_INPUT", "Verifying the exact private database ZIP and auth-only file identities.")
+        val info = JSONObject().put("formatVersion", 1).put("attemptId", currentAttemptId)
+            .put("archiveSha256", Inputs.database.sha256)
             .put("plannedTableCount", 27).put("importedTableCount", 0).put("runtimeAuthUpdates", 0)
             .put("authTcpListener", false).put("dryRunPassed", false)
             .put("startedAtEpochMs", System.currentTimeMillis())
@@ -162,7 +182,7 @@ class DatabaseDiagnostic(
         client("CREATE DATABASE acore_auth CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;", 5_000)
         staged.tableFiles.forEachIndexed { index, file ->
             checkCancelled()
-            status("AUTH_IMPORT", "Importing verified auth table ${index + 1} of 27 into the disposable database.")
+            setStage("AUTH_IMPORT", "Importing verified auth table ${index + 1} of 27 into the disposable database.")
             runClientScript(file, 10_000, "acore_auth")
             info.put("importedTableCount", index + 1)
             receipt()
@@ -178,11 +198,17 @@ class DatabaseDiagnostic(
                 staged.runtimeDirectory, temp, "fta_auth_diag", secret))
             config.setReadable(false, false); config.setWritable(false, false)
             check(config.setReadable(true, true) && config.setWritable(true, true))
-            status("AUTH_VERSION", "Checking the packaged original authserver build identity.")
-            check(runTool("auth-server", listOf("--version"), null, 10_000).contains("AzerothCore"))
-            status("AUTH_UPDATER", "Running the original auth database updater and dry run without a network listener.")
+            setStage("AUTH_VERSION", "Checking the packaged original authserver build identity.")
+            if (!runTool("auth-server", listOf("--version"), null, 10_000).contains("AzerothCore")) {
+                invocationJournal?.validationFailure("auth-server", "AUTH_VERSION", "version_marker_missing")
+                error("Original auth version marker is missing")
+            }
+            setStage("AUTH_UPDATER", "Running the original auth database updater and dry run without a network listener.")
             val result = runTool("auth-server", listOf("--config", config.absolutePath, "--dry-run"), null, 180_000)
-            check(result.contains("Dry run completed, terminating.")) { "Original auth dry-run completion marker is missing" }
+            if (!result.contains("Dry run completed, terminating.")) {
+                invocationJournal?.validationFailure("auth-server", "AUTH_UPDATER", "completion_marker_missing")
+                error("Original auth dry-run completion marker is missing")
+            }
             check(client("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='acore_auth';", 5_000).trim() == "27")
             info.put("dryRunPassed", true).put("completedAtEpochMs", System.currentTimeMillis())
             receipt()
@@ -199,16 +225,61 @@ class DatabaseDiagnostic(
         "LD_LIBRARY_PATH=${runtime.libraryDirectory.absolutePath}:${runtime.nativeDirectory.absolutePath}"
     )
 
-    private fun launch(role: String, args: List<String>, stdin: File?, label: String): Long {
+    private fun setStage(stage: String, message: String) {
+        currentStage = stage
+        status(stage, message)
+    }
+
+    private fun logBytes(label: String, suffix: String) = File(root, "$label.$suffix").length()
+
+    private fun finishEvidence(handle: Long, outcome: String, exitCode: Int?) {
+        val id = evidenceHandles[handle] ?: return
+        val label = owned[handle] ?: return
+        invocationJournal?.finish(id, outcome, exitCode, logBytes(label, "out"), logBytes(label, "err"))
+    }
+
+    private fun waitTracked(handle: Long, timeoutMs: Long): Int {
+        return try {
+            val exit = NativeProcessBridge.waitFor(handle, timeoutMs)
+            if (exit != Int.MIN_VALUE) finishEvidence(handle, "exited", exit)
+            exit
+        } catch (failure: Exception) {
+            finishEvidence(handle, "wait_failed", null)
+            throw failure
+        }
+    }
+
+    private fun stopTracked(handle: Long, graceMs: Long, outcome: String) {
+        try {
+            NativeEvidenceCleanup.stop(
+                recordBefore = { finishEvidence(handle, outcome, null) },
+                nativeStop = { NativeProcessBridge.stop(handle, graceMs) },
+                recordAfter = { exit -> evidenceHandles[handle]?.let {
+                    invocationJournal?.terminated(it, exit.takeIf { value -> value != Int.MIN_VALUE })
+                } }
+            )
+        } finally {
+            owned.remove(handle)
+            evidenceHandles.remove(handle)
+        }
+    }
+
+    private fun launch(role: String, args: List<String>, stdin: File?, label: String, timeoutMs: Long? = null): Long {
         checkCancelled()
         val executable = runtime.executables.getValue(role)
         check(executable.canonicalFile.parentFile == runtime.nativeDirectory)
-        val handle = NativeProcessBridge.start(executable.absolutePath, args.toTypedArray(), environment(),
-            root.absolutePath, stdin?.absolutePath, File(root, "$label.out").absolutePath, File(root, "$label.err").absolutePath)
+        val evidence = invocationJournal?.begin(label, role, currentStage, timeoutMs)
+        val handle = try {
+            NativeProcessBridge.start(executable.absolutePath, args.toTypedArray(), environment(),
+                root.absolutePath, stdin?.absolutePath, File(root, "$label.out").absolutePath, File(root, "$label.err").absolutePath)
+        } catch (failure: Exception) {
+            evidence?.let { invocationJournal?.finish(it, "start_failed", null, logBytes(label, "out"), logBytes(label, "err")) }
+            throw failure
+        }
         owned[handle] = label
+        if (evidence != null) evidenceHandles[handle] = evidence
         if (cancelled.get()) {
-            runCatching { NativeProcessBridge.stop(handle, 1_000) }
-            owned.remove(handle)
+            runCatching { stopTracked(handle, 1_000, "cancelled") }
             checkCancelled()
         }
         return handle
@@ -216,22 +287,32 @@ class DatabaseDiagnostic(
 
     private fun runTool(role: String, args: List<String>, stdin: File?, timeout: Long): String {
         val label = "tool-${++step}"
-        val handle = launch(role, args, stdin, label)
+        val handle = launch(role, args, stdin, label, timeout)
+        val commandDeadline = System.nanoTime() + timeout * 1_000_000
         try {
-            val deadline = System.nanoTime() + timeout * 1_000_000
             var exit = Int.MIN_VALUE
-            while (System.nanoTime() < deadline) {
+            while (System.nanoTime() < commandDeadline) {
                 checkCancelled()
-                exit = NativeProcessBridge.waitFor(handle, minOf(200, timeout))
+                exit = waitTracked(handle, minOf(200, timeout))
                 if (exit != Int.MIN_VALUE) break
             }
+            if (exit == Int.MIN_VALUE) finishEvidence(handle, "timed_out", null)
             check(exit == 0) { "Native diagnostic command failed or timed out" }
-            owned.remove(handle)
             val output = File(root, "$label.out")
-            check(output.length() <= 64 * 1024) { "Native diagnostic output exceeded its limit" }
+            if (output.length() > 64 * 1024) {
+                invocationJournal?.validationFailure(role, currentStage, "output_limit_exceeded")
+                error("Native diagnostic output exceeded its limit")
+            }
             return output.readText()
+        } catch (failure: Exception) {
+            finishEvidence(handle, when {
+                cancelled.get() -> "cancelled"
+                System.nanoTime() >= commandDeadline || System.nanoTime() >= deadline -> "timed_out"
+                else -> "wait_failed"
+            }, null)
+            throw failure
         } finally {
-            if (owned.remove(handle) != null) runCatching { NativeProcessBridge.stop(handle, 1_000) }
+            if (owned.containsKey(handle)) runCatching { stopTracked(handle, 1_000, if (cancelled.get()) "cancelled" else "stopped") }
         }
     }
 
@@ -254,9 +335,187 @@ class DatabaseDiagnostic(
         val serverHandle = server
         val order = owned.keys.filter { it != serverHandle } + owned.keys.filter { it == serverHandle }
         order.forEach { handle ->
-            runCatching { NativeProcessBridge.stop(handle, 2_000) }
-            owned.remove(handle)
+            runCatching { stopTracked(handle, 2_000, if (cancelled.get()) "cancelled" else "stopped") }
         }
         server = 0
+    }
+}
+
+/** Fixed-schema evidence: invocation arguments, environment and private paths have no fields here. */
+internal data class NativeInvocationEvidence(
+    val id: Int,
+    val log: String,
+    val role: String,
+    val stage: String,
+    val startedAtEpochMs: Long,
+    val timeoutMs: Long?,
+    val outcome: String = "running",
+    val exitCode: Int? = null,
+    val terminationExitCode: Int? = null,
+    val timedOut: Boolean = false,
+    val cancelled: Boolean = false,
+    val durationMs: Long = 0,
+    val stdoutBytes: Long = 0,
+    val stderrBytes: Long = 0,
+    val validationFailure: String? = null,
+    val readyObserved: Boolean = false,
+    val sqlShutdownRequested: Boolean = false,
+    val cleanShutdownObserved: Boolean = false
+)
+
+/** Atomic, bounded and usable from ordinary JVM tests without invoking Android APIs. */
+internal object NativeEvidenceCleanup {
+    /** Recording errors must never prevent the owned native child from being stopped. */
+    fun <T> stop(recordBefore: () -> Unit, nativeStop: () -> T, recordAfter: (T) -> Unit): T {
+        runCatching { recordBefore() }
+        val result = nativeStop()
+        runCatching { recordAfter(result) }
+        return result
+    }
+}
+
+internal class NativeInvocationJournal(private val file: File, private val attemptId: String = UUID.randomUUID().toString()) {
+    init { require(validAttemptId(attemptId)) }
+    private val records = mutableListOf<NativeInvocationEvidence>()
+    private var nextId = 1
+    private var dropped = 0
+    private val clocks = mutableMapOf<Int, Long>()
+
+    @Synchronized fun begin(log: String, role: String, stage: String, timeoutMs: Long?): Int {
+        require(log.matches(Regex("server|tool-[0-9]{1,5}")))
+        require(role in roles && stage in stages && (timeoutMs == null || timeoutMs in 1..600_000))
+        if (records.size == MAX_RECORDS) {
+            val removable = records.indexOfFirst { it.outcome != "running" }
+            check(removable >= 0) { "Invocation evidence capacity reached" }
+            clocks.remove(records.removeAt(removable).id)
+            dropped++
+        }
+        val id = nextId++
+        clocks[id] = System.nanoTime()
+        records += NativeInvocationEvidence(id, log, role, stage, System.currentTimeMillis(), timeoutMs)
+        persist()
+        return id
+    }
+
+    @Synchronized fun finish(id: Int, outcome: String, exitCode: Int?, stdoutBytes: Long, stderrBytes: Long) {
+        require(outcome in outcomes && outcome != "running")
+        require(exitCode == null || exitCode in 0..65_535)
+        val index = records.indexOfFirst { it.id == id }
+        if (index < 0 || records[index].outcome != "running") return
+        val before = records[index]
+        records[index] = before.copy(outcome = outcome, exitCode = exitCode,
+            timedOut = outcome == "timed_out", cancelled = outcome == "cancelled",
+            durationMs = ((System.nanoTime() - (clocks[id] ?: System.nanoTime())) / 1_000_000).coerceAtLeast(0),
+            stdoutBytes = stdoutBytes.coerceIn(0, MAX_LOG_BYTES), stderrBytes = stderrBytes.coerceIn(0, MAX_LOG_BYTES))
+        persist()
+    }
+
+    @Synchronized fun terminated(id: Int, exitCode: Int?) {
+        require(exitCode == null || exitCode in 0..65_535)
+        val index = records.indexOfFirst { it.id == id }
+        if (index < 0) return
+        records[index] = records[index].copy(terminationExitCode = exitCode)
+        persist()
+    }
+
+    @Synchronized fun checkpoint(id: Int, checkpoint: String) {
+        require(checkpoint in setOf("database_ready", "sql_shutdown_requested", "clean_shutdown"))
+        val index = records.indexOfFirst { it.id == id }
+        if (index < 0) return
+        val before = records[index]
+        require(before.role == "database-server")
+        records[index] = when (checkpoint) {
+            "database_ready" -> {
+                require(before.outcome == "running")
+                before.copy(readyObserved = true)
+            }
+            "sql_shutdown_requested" -> {
+                require(before.readyObserved)
+                before.copy(sqlShutdownRequested = true)
+            }
+            else -> {
+                require(before.sqlShutdownRequested && before.exitCode == 0 && before.outcome == "exited")
+                before.copy(cleanShutdownObserved = true)
+            }
+        }
+        persist()
+    }
+
+    @Synchronized fun validationFailure(role: String, stage: String, reason: String) {
+        require(role in roles && stage in stages && reason in validations)
+        val index = records.indexOfLast { it.role == role && it.stage == stage }
+        if (index < 0) return
+        records[index] = records[index].copy(validationFailure = reason)
+        persist()
+    }
+
+    private fun persist() {
+        val properties = java.util.Properties().apply {
+            setProperty("formatVersion", "1")
+            setProperty("attemptId", attemptId)
+            setProperty("count", records.size.toString())
+            setProperty("droppedCount", dropped.toString())
+            records.forEachIndexed { index, value ->
+                fun field(name: String, content: Any?) { if (content != null) setProperty("$index.$name", content.toString()) }
+                field("id", value.id); field("log", value.log); field("role", value.role); field("stage", value.stage)
+                field("startedAtEpochMs", value.startedAtEpochMs); field("timeoutMs", value.timeoutMs)
+                field("outcome", value.outcome); field("exitCode", value.exitCode); field("terminationExitCode", value.terminationExitCode)
+                field("timedOut", value.timedOut); field("cancelled", value.cancelled); field("durationMs", value.durationMs)
+                field("stdoutBytes", value.stdoutBytes); field("stderrBytes", value.stderrBytes); field("validationFailure", value.validationFailure)
+                field("readyObserved", value.readyObserved); field("sqlShutdownRequested", value.sqlShutdownRequested); field("cleanShutdownObserved", value.cleanShutdownObserved)
+            }
+        }
+        val temporary = File(file.parentFile, ".${file.name}.new")
+        try {
+            java.io.FileOutputStream(temporary).use { output ->
+                properties.store(output, "FTA fixed-schema native invocation evidence")
+                output.fd.sync()
+            }
+            java.nio.file.Files.move(temporary.toPath(), file.toPath(),
+                java.nio.file.StandardCopyOption.ATOMIC_MOVE, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        } finally { temporary.delete() }
+    }
+
+    companion object {
+        const val MAX_RECORDS = 128
+        const val MAX_FILE_BYTES = 256 * 1024L
+        const val MAX_LOG_BYTES = 8 * 1024 * 1024L
+        private val roles = setOf("database-server", "database-client", "auth-server")
+        private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "STOPPING", "CLEANUP")
+        private val outcomes = setOf("running", "exited", "timed_out", "cancelled", "start_failed", "wait_failed", "stopped", "supervisor_failed")
+        private val validations = setOf("output_limit_exceeded", "version_marker_missing", "completion_marker_missing")
+
+        /** Returns no evidence for malformed files; never exports unvalidated stored text. */
+        fun validAttemptId(value: String) = value.matches(Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"))
+
+        fun read(file: File, expectedAttemptId: String? = null): Pair<List<NativeInvocationEvidence>, Int>? = runCatching {
+            require(java.nio.file.Files.isRegularFile(file.toPath(), java.nio.file.LinkOption.NOFOLLOW_LINKS) && file.length() <= MAX_FILE_BYTES)
+            val properties = java.util.Properties().apply { file.inputStream().use { load(it) } }
+            require(properties.getProperty("formatVersion") == "1")
+            val storedAttempt = properties.getProperty("attemptId")
+            require(validAttemptId(storedAttempt) && (expectedAttemptId == null || storedAttempt == expectedAttemptId))
+            val count = properties.getProperty("count").toInt().also { require(it in 0..MAX_RECORDS) }
+            val dropped = properties.getProperty("droppedCount").toInt().also { require(it >= 0) }
+            val records = (0 until count).map { index ->
+                fun field(name: String) = properties.getProperty("$index.$name")
+                fun number(name: String) = field(name)?.toInt()?.also { require(it in 0..65_535) }
+                fun bytes(name: String) = field(name).toLong().also { require(it in 0..MAX_LOG_BYTES) }
+                fun flag(name: String) = field(name).also { require(it == "true" || it == "false") } == "true"
+                val id = field("id").toInt().also { require(it > 0) }
+                val log = field("log").also { require(it.matches(Regex("server|tool-[0-9]{1,5}"))) }
+                val role = field("role").also { require(it in roles) }
+                val stage = field("stage").also { require(it in stages) }
+                val started = field("startedAtEpochMs").toLong().also { require(it >= 0) }
+                val timeout = field("timeoutMs")?.toLong()?.also { require(it in 1..600_000) }
+                val outcome = field("outcome").also { require(it in outcomes) }
+                val duration = field("durationMs").toLong().also { require(it in 0..86_400_000) }
+                val validation = field("validationFailure").also { require(it == null || it in validations) }
+                NativeInvocationEvidence(id, log, role, stage, started, timeout, outcome, number("exitCode"), number("terminationExitCode"),
+                    flag("timedOut"), flag("cancelled"), duration, bytes("stdoutBytes"), bytes("stderrBytes"), validation,
+                    flag("readyObserved"), flag("sqlShutdownRequested"), flag("cleanShutdownObserved"))
+            }
+            require(records.map { it.id }.toSet().size == records.size)
+            records to dropped
+        }.getOrNull()
     }
 }

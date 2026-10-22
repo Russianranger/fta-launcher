@@ -88,3 +88,13 @@ imports the pinned auth-only seed, runs authserver's original `--dry-run`, and
 shuts down its processes without opening a realm listener or touching live saves.
 Successful packaging is not a successful device diagnostic; the exact APK and
 exported device evidence remain required for that claim.
+
+The follow-up `android-arm64-socket-v2` stage also passed with authserver SHA256
+`bfa532f7c91d59410c10104a2b7e5ce40d5763c59dad36f16c625bf152f3428c`.
+It preserves the same dependencies, provider data and notices, while correcting
+pool socket routing. Private APK version 4 passed all 83 Android tests, lint,
+assembly, signature/alignment and 114 exact packaged-file checks; its corrected
+auth execution remains unqualified on Thor. See
+[`native-build.md`](native-build.md) for the regression and
+[`evidence/android-2026-10-22-private-auth-socket-apk.json`](evidence/android-2026-10-22-private-auth-socket-apk.json)
+for the exact APK identity.

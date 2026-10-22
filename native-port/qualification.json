@@ -55,7 +55,7 @@
   },
   "worldserver_compiled": false,
   "all_52_modules_compiled": false,
-  "thor_tested": false,
+  "thor_tested": true,
   "world_ready": false,
   "dependency_driver": {
     "real_pinned_input_plan": "passed",
@@ -65,5 +65,68 @@
     "fresh_ndk_clang_version_smoke": "passed",
     "full_fresh_dependency_rebuild_performed": false,
     "actual_auth_artifact_build": "recorded individual dependency and auth build steps"
+  },
+  "android_auth_socket_fix": {
+    "status": "cross-build-passed",
+    "port_profile": "android-arm64-socket-v2",
+    "source_tree_sha256": "263d23e3df271f2e8463894925f2bbd7c21efde2b6a562e64f17d2acee80e1da",
+    "abi": "arm64-v8a",
+    "configuration": {
+      "CMAKE_BUILD_TYPE": "Release",
+      "CMAKE_CXX_STANDARD": "20",
+      "SCRIPTS": "static",
+      "MODULES": "static",
+      "ANDROID_ABI": "arm64-v8a",
+      "ANDROID_PLATFORM": "android-33",
+      "ANDROID_STL": "c++_static",
+      "CMAKE_SYSTEM_NAME": "Android",
+      "APPS_BUILD": "auth-only"
+    },
+    "binary_sha256": "bfa532f7c91d59410c10104a2b7e5ce40d5763c59dad36f16c625bf152f3428c",
+    "binary_bytes": 30655016,
+    "elf": {
+      "machine": "AArch64",
+      "interpreter": "/system/bin/linker64",
+      "type": "PIE",
+      "minimum_load_alignment": 16384,
+      "needed": [
+        "libmariadb.so",
+        "libz.so",
+        "libssl.so.3",
+        "libcrypto.so.3",
+        "libm.so",
+        "libdl.so",
+        "libc.so"
+      ],
+      "shared_cxx_runtime": false
+    },
+    "execution_qualified": false,
+    "parameter_regression": {
+      "status": "passed",
+      "socket_opens": 9,
+      "tcp_ports": 3,
+      "rejected_ports": 12,
+      "rejected_empty_sockets": 1,
+      "updater_routes": 3,
+      "actual_source_tree_sha256": "263d23e3df271f2e8463894925f2bbd7c21efde2b6a562e64f17d2acee80e1da",
+      "body_sha256": [
+        "e2dd614e42f2c804c3b4b4476cc6a25eb680b42e11c4b752e3971c0fbc507027",
+        "01a110805b9fba0f9130729b2299815bf76e199ce45e867120911c96dae93e52"
+      ],
+      "scope": "compiled exact connection/updater functions; stub C API/process; no DB or SQL execution"
+    },
+    "local_unix_socket_database_integration": "unavailable: host socket(AF_UNIX) returns EPERM"
+  },
+  "thor_auth_qualified": false,
+  "thor_apk3_auth_attempt": {
+    "apk_version_code": 3,
+    "apk_sha256": "aff0b0d4b751690a8feae5aab4f272ea5133b52ffa0fa6286bf45ea90cbf8908",
+    "auth_binary_sha256": "acf186557515897a4c359ac2ceee889f52c1482f36f8b012db007a8625b5fd05",
+    "database_bootstrap": "passed",
+    "auth_tables_imported": 27,
+    "auth_version_command": "passed",
+    "auth_dry_run": "failed",
+    "native_failure_cause_confirmed": false,
+    "corrected_socket_artifact_tested": false
   }
 }

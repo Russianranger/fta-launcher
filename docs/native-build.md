@@ -52,7 +52,7 @@ python3 tools/build_native.py --source /private/fta-source \
 python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth
 python3 tools/build_native.py --source /private/fta-android-source \
-  --port-profile android-arm64-v1 \
+  --port-profile android-arm64-socket-v2 \
   --build-dir /private/fta-build-android --platform android --stage world \
   --toolchain /private/android-ndk-r28c/build/cmake/android.toolchain.cmake \
   --dependency-prefix /private/android-dependencies \
@@ -210,6 +210,47 @@ modes, all 35 NDK symlink targets and running the freshly extracted Clang's
 version command. A complete heavy rebuild through that new driver has not yet
 been rerun. A
 fresh build may differ in bytes because build paths and debug metadata differ.
+
+## Unix-socket pool correction
+
+The first Thor auth diagnostic imported all 27 auth tables and ran the ARM64
+binary's version command, then failed during the broad auth dry-run phase. Its
+exported log did not identify the native cause. Source inspection and an exact
+function-body trace found a separate definite defect: the first Unix-socket pool
+connection changed the shared host from `.` to `localhost`. The next connection
+then attempted to parse the socket path as a numeric port and dereferenced an
+empty optional. The earlier host database gate used TCP and did not cover this
+path. This defect is consistent with the report; it is not a confirmed diagnosis
+of that device attempt.
+
+`android-arm64-socket-v2` retains the complete v1 profile and adds patch 0004.
+It normalizes a local connection host while preserving the shared configuration,
+uses the same explicit socket in the updater CLI, and rejects empty socket paths
+and malformed or out-of-range numeric ports before connecting. Windows named
+pipes, SQL, updater receipts and TLS policy remain unchanged. Both earlier
+profiles and their exact source inventories remain reproducible.
+
+```sh
+python3 tools/fta_port.py /private/fta-source /private/fta-android-socket-source \
+  --profile android-arm64-socket-v2
+python3 native-port/check-socket-route.py --source /private/fta-android-socket-source
+```
+
+The checker compiles the exact reviewed `Open` and updater `ApplyFile` bodies,
+with inert database/process endpoints. It passed nine socket opens and reconnects
+across shared pool configuration, three valid TCP ports, twelve rejected invalid
+ports, an empty-socket rejection and three updater argument routes. This is
+parameter regression coverage, not an actual Unix-socket database integration:
+the local execution environment refuses AF_UNIX socket creation.
+
+The corrected ARM64 auth build passed compile/link with source tree
+`263d23e3df271f2e8463894925f2bbd7c21efde2b6a562e64f17d2acee80e1da`.
+Its 30,655,016-byte ELF has SHA256
+`bfa532f7c91d59410c10104a2b7e5ce40d5763c59dad36f16c625bf152f3428c`;
+the ARM64/API-33, C++20/static settings, 16 KiB segment alignment and dynamic
+dependency list match the earlier build. Device execution of this corrected
+artifact remains a separate gate. Use the v2 profile and this source directory
+with the auth build command above for the current socket-based diagnostic.
 
 ## Next worldserver gate
 

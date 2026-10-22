@@ -1,0 +1,103 @@
+SPDX-License-Identifier: GPL-2.0-or-later
+Source: From the Ashes customized AzerothCore; original file notices remain intact.
+
+--- a/src/server/database/Database/MySQLConnection.cpp
++++ b/src/server/database/Database/MySQLConnection.cpp
+@@ -93,8 +93,9 @@
+         return CR_UNKNOWN_ERROR;
+     }
+ 
+-    uint32 port;
+-    char const* unix_socket;
++    uint32 port = 0;
++    char const* unix_socket = nullptr;
++    char const* connection_host = m_connectionInfo.host.c_str();
+ 
+     mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8");
+ 
+@@ -103,29 +104,35 @@
+     {
+         unsigned int opt = MYSQL_PROTOCOL_PIPE;
+         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
+-        port = 0;
+-        unix_socket = 0;
+-    }
+-    else                                                    // generic case
+-    {
+-        port = *Acore::StringTo<uint32>(m_connectionInfo.port_or_socket);
+-        unix_socket = 0;
+     }
+ #else
+     if (m_connectionInfo.host == ".")                                           // socket use option (Unix/Linux)
+     {
++        if (m_connectionInfo.port_or_socket.empty())
++        {
++            LOG_ERROR("sql.driver", "Empty database Unix socket path; refusing connection");
++            mysql_close(mysqlInit);
++            return CR_UNKNOWN_ERROR;
++        }
++
+         unsigned int opt = MYSQL_PROTOCOL_SOCKET;
+         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
+-        m_connectionInfo.host = "localhost";
+-        port = 0;
++        // Pool connections share this configuration. Normalize only this call.
++        connection_host = "localhost";
+         unix_socket = m_connectionInfo.port_or_socket.c_str();
+     }
++#endif
+     else                                                    // generic case
+     {
+-        port = *Acore::StringTo<uint32>(m_connectionInfo.port_or_socket);
+-        unix_socket = nullptr;
+-    }
+-#endif
++        auto const parsedPort = Acore::StringTo<uint32>(m_connectionInfo.port_or_socket);
++        if (!parsedPort || *parsedPort > 0xFFFFu)
++        {
++            LOG_ERROR("sql.driver", "Invalid database TCP port; refusing connection");
++            mysql_close(mysqlInit);
++            return CR_UNKNOWN_ERROR;
++        }
++        port = *parsedPort;
++    }
+ 
+     if (m_connectionInfo.ssl != "")
+     {
+@@ -147,7 +154,7 @@
+ #endif
+     }
+ 
+-    m_Mysql = reinterpret_cast<MySQLHandle*>(mysql_real_connect(mysqlInit, m_connectionInfo.host.c_str(), m_connectionInfo.user.c_str(),
++    m_Mysql = reinterpret_cast<MySQLHandle*>(mysql_real_connect(mysqlInit, connection_host, m_connectionInfo.user.c_str(),
+         m_connectionInfo.password.c_str(), m_connectionInfo.database.c_str(), port, unix_socket, 0));
+ 
+     if (m_Mysql)
+--- a/src/server/database/Updater/DBUpdater.cpp
++++ b/src/server/database/Updater/DBUpdater.cpp
+@@ -488,7 +488,12 @@
+     args.emplace_back("--defaults-extra-file="+tempDir + confFileName+"");
+ 
+     // CLI Client connection info
++#ifdef _WIN32
+     args.emplace_back("-h" + host);
++#else
++    // Match the socket connection without mutating the shared pool configuration.
++    args.emplace_back("-h" + (host == "." ? std::string("localhost") : host));
++#endif
+     args.emplace_back("-u" + user);
+ 
+     // Check if we want to connect through ip or socket (Unix only)
+@@ -501,9 +506,9 @@
+ 
+ #else
+ 
+-    if (!std::isdigit(port_or_socket[0]))
+-    {
+-        // We can't check if host == "." here, because it is named localhost if socket option is enabled
++    if (host == "." || (!port_or_socket.empty() && !std::isdigit(static_cast<unsigned char>(port_or_socket[0]))))
++    {
++        // The configured host remains immutable; an explicit socket stays a socket.
+         args.emplace_back("-P0");
+         args.emplace_back("--protocol=SOCKET");
+         args.emplace_back("-S" + port_or_socket);

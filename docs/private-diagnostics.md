@@ -19,6 +19,15 @@ auth runtime update and runs the compiled original authserver's `--dry-run`.
 The listener is disabled. This does not qualify a running realm/world, player
 login, or world/character migrations.
 
+Follow-up reports include a bounded native invocation journal: role, diagnostic
+stage, completion/timeout/cancellation outcome, exit code, duration and output
+sizes. They also distinguish missing completion markers from process failures,
+record observed database readiness and SQL shutdown, and summarize known auth
+errors with fixed phrases. Arguments, environment, SQL, rows, credentials and
+private paths remain omitted. A fresh attempt identity binds the status, auth
+receipt and journal; older session logs are not exported as the current test.
+Journal write failures cannot prevent native cleanup.
+
 ## Signing and updates
 
 Private test APKs use a persistent development signing key. Its private capsule
@@ -43,3 +52,10 @@ Its signing certificate SHA256 is
 Use a larger version code for subsequent private updates. The checked APK's
 identity and qualification limits are in
 [`evidence/android-2026-10-22-private-auth-apk.json`](evidence/android-2026-10-22-private-auth-apk.json).
+
+The corrected socket diagnostic is version code 4,
+`0.3.1-auth-socket-diagnostic`, signed by the same certificate. Its measured build
+and payload evidence is in
+[`evidence/android-2026-10-22-private-auth-socket-apk.json`](evidence/android-2026-10-22-private-auth-socket-apk.json).
+Update it over version 3 to retain imports. Future private updates must increase
+the version code beyond 4.

@@ -23,6 +23,7 @@ class RuntimeDiagnosticService : Service() {
     private val cancelled = AtomicBoolean(false)
     @Volatile private var diagnostic: DatabaseDiagnostic? = null
     private var started = false
+    private var attemptId: String? = null
     private var wakeLock: PowerManager.WakeLock? = null
     @Volatile private var lastStage = "CHECKING"
 
@@ -39,6 +40,9 @@ class RuntimeDiagnosticService : Service() {
         started = true
         val includeAuth = intent?.action == ACTION_CHECK_AUTH
         val scope = File(filesDir, "runtime").apply { mkdirs() }
+        attemptId = java.util.UUID.randomUUID().toString()
+        writeAtomicText(File(scope, "diagnostic-attempt.id"), attemptId!!)
+        writeStatus("CHECKING", "Preparing a fresh native diagnostic attempt.")
         File(scope, "diagnostic-scope.txt").writeText(if (includeAuth) "auth-updater" else "database")
         if (includeAuth) AtomicFile(File(scope, "auth-diagnostic.json")).delete()
         val manager = getSystemService(NotificationManager::class.java)
@@ -90,6 +94,14 @@ class RuntimeDiagnosticService : Service() {
             output.write("$state\n${System.currentTimeMillis()}\n${message.take(4096)}".toByteArray())
             status.finishWrite(output)
         } catch (failure: Exception) { status.failWrite(output); throw failure }
+        attemptId?.let { writeAtomicText(File(directory, "diagnostic-status-attempt.id"), it) }
+    }
+
+    private fun writeAtomicText(file: File, text: String) {
+        val atomic = AtomicFile(file)
+        val output = atomic.startWrite()
+        try { output.write(text.toByteArray()); atomic.finishWrite(output) }
+        catch (failure: Exception) { atomic.failWrite(output); throw failure }
     }
 
     override fun onDestroy() {

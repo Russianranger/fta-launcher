@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "evidenceKind": "user-exported-physical-device-report",
+  "sourceReportSha256": "9ab81549a09fe351e3fe9412cf9c108d52dd5477f38933334e27728d3268c51e",
+  "apkSha256": "aff0b0d4b751690a8feae5aab4f272ea5133b52ffa0fa6286bf45ea90cbf8908",
+  "appVersionName": "0.3.0-auth-diagnostic",
+  "appVersionCode": 3,
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "processSupervisorSha256": "8a1a9726687b646fc369ce937d46816df0efbb131be510e61e2075a90fd4b9cb",
+  "providerManifestSha256": "9accace75586db195e9a99d36b67454fed9876dd186a8e9b09b85f3c4a0375ba",
+  "authserverSha256": "acf186557515897a4c359ac2ceee889f52c1482f36f8b012db007a8625b5fd05",
+  "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+  "lastState": "FAILED",
+  "failedPhase": "AUTH_UPDATER",
+  "authTablesImported": 27,
+  "authRuntimeUpdatesStaged": 1,
+  "authDryRunPassed": false,
+  "databasePrechecksCompleted": true,
+  "authVersionCommandCompleted": true,
+  "inferenceBasis": "The exact measured APK reaches AUTH_UPDATER only after database bootstrap, socket readiness, generated-credential, system-table, collation/Unicode, transaction rollback, 27-table import and auth --version checks succeed. The report does not retain individual receipts for those earlier commands.",
+  "cleanShutdownQualified": false,
+  "fullSeedQualified": false,
+  "worldserverQualified": false,
+  "nativeExitCodeRecorded": false,
+  "observedFailureCause": "Unavailable: prior report omitted native invocation exit codes and relevant auth error categories. AUTH_UPDATER spans original DB setup, updater and post-DB dry-run initialization.",
+  "sourceDefectIdentifiedSeparately": "MySQLConnection::Open mutates the pool-shared socket host after the first connection, so the next connection can incorrectly parse a socket pathname as a numeric port. This is a source-proven defect consistent with the failure, not a cause confirmed by the old device log."
+}

@@ -79,7 +79,35 @@ packaged runtime/notice files. Its SHA256 is
 `aff0b0d4b751690a8feae5aab4f272ea5133b52ffa0fa6286bf45ea90cbf8908`;
 see `docs/evidence/android-2026-10-22-private-auth-apk.json`. It uses the persistent
 private development key; reuse that key and increase the version code for later
-user builds. No Bionic server execution or physical-device success has been measured.
+user builds.
+
+The exact version 3 APK has now executed on the physical AYN Thor. Its exported
+report reached `AUTH_UPDATER` after database bootstrap, socket health, generated
+credentials, collation/Unicode and rollback checks, all 27 auth imports and the
+authserver version command. The auth dry-run diagnostic failed; the old report
+omits exit codes and useful auth error categories, so its exact cause is unknown.
+Clean shutdown, full seed and world readiness remain unqualified. See
+`docs/evidence/android-2026-10-22-thor-auth-attempt.json` for the bounded evidence.
+
+Source investigation independently found a Unix-socket pool bug: the first
+connection mutates shared host `.` to `localhost`, causing the second connection
+to parse the socket pathname as a numeric port. Preserve the original socket
+transport across every connection and reconnect; do not use TCP fallback or
+weaken updater checks. The reviewed `android-arm64-socket-v2` profile fixes this
+and preserves the old profile for version 3 provenance. Exact function-body
+tests passed repeated opens/reconnects, port validation and updater client
+routing. The corrected ARM64 authserver rebuilt successfully with SHA256
+`bfa532f7c91d59410c10104a2b7e5ce40d5763c59dad36f16c625bf152f3428c`.
+Its device execution remains unverified. The next diagnostic also records native
+invocation outcomes and safe auth error categories.
+
+The corrected private APK is `0.3.1-auth-socket-diagnostic`, version code 4,
+SHA256 `75e127898c972cf9d2d7e54400cb06c59b37c24ba9dd9ad5e93b3f1a3fc33eb5`.
+Its clean Gradle build passed all 83 Android tests, lint and assembly. Signature,
+alignment and exact checks for 114 runtime/notice files passed. The certificate
+matches version 3, permitting an ordinary update with imports retained. Use a
+version code greater than 4 and the same private key for later builds. See
+`docs/evidence/android-2026-10-22-private-auth-socket-apk.json`.
 
 Direct measurement corrected one assessment count: **563 seed tables total**
 (27 auth, 165 characters, 371 world), plus one world trigger, and 236 runtime
@@ -87,11 +115,12 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 
 ## Next concrete work
 
-1. Qualify the packaged database diagnostic on Android: exact bootstrap, socket
-   health, private credentials, collation/transaction checks and clean shutdown.
-   Then run the optional original auth updater dry run against only the pinned
-   auth seed. Export the exact APK/device report; do not infer execution from
-   compiled or packaged ELF hashes. Check stop/background/crash ownership too.
+1. Retest the original auth updater using the corrected private version 4 APK on
+   Thor. Export the current-attempt report to confirm native exit, dry-run
+   completion and database clean shutdown, or identify the next exact failure.
+   The imported database ZIP can remain in place; a source ZIP is not needed.
+   Do not infer execution from compiled or packaged ELF hashes. Check
+   stop/background/crash ownership too.
 2. Run the matching full private seed on that exact engine in a disposable Android
    environment. Record engine version, schemas, trigger/routines, receipt
    hashes/counts and exact compatibility failures without publishing records.

@@ -23,6 +23,14 @@ modify. No game logic, module content, SQL receipts or updates may be dropped to
 make a build pass. Compiler, database and physical-device qualification are
 tracked separately.
 
+`android-arm64-socket-v2` extends the preserved Android v1 profile with immutable
+shared Unix-socket routing. Each pool connection normalizes its local connect
+host, while the configured host remains unchanged; the updater CLI selects the
+same explicit socket. Invalid numeric ports fail before connection. Run
+`check-socket-route.py --source REVIEWED_SOURCE` to compile and exercise the exact
+reviewed connection/updater bodies with inert C API/process endpoints. This
+checks parameters and reconnects without connecting to a database or running SQL.
+
 `LICENSE` preserves the original core's GPL version 2 license text; its source
 headers allow version 2 or later. The patch series and this explanation are
 GPL-2.0-or-later. The independently written probes and Python tools retain their
