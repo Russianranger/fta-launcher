@@ -1,0 +1,16 @@
+{
+  "auth_binary_sha256": "d897a986532f6e7e152bf87a6d0ae11b56219993298604a636b3afa4cfdfea1c",
+  "auth_runtime_files": 1,
+  "config_section_authserver": true,
+  "database_transport": "private authenticated loopback (host Unix sockets denied)",
+  "date": "2026-10-22",
+  "dry_run_completed_marker": true,
+  "exit_code": 0,
+  "original_auth_updater_seen": true,
+  "qualification": "Host x86_64 auth-only dry run; Android Unix socket, Bionic ARM64, and Thor unproven",
+  "raw_logs_published": false,
+  "realm_server_port_fallback": -1,
+  "receipt_fingerprint_unchanged": true,
+  "seed_files_imported": 27,
+  "seed_rows_rewritten": false
+}

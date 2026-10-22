@@ -1,0 +1,31 @@
+{
+  "auth_binary_sha256": "d897a986532f6e7e152bf87a6d0ae11b56219993298604a636b3afa4cfdfea1c",
+  "date": "2026-10-22",
+  "explicit_tls_policy_refusal": {
+    "exit_code": 1,
+    "observed_new_database_connections_excluding_admin_query": 0,
+    "raw_logs_published": false,
+    "refusal_marker": true
+  },
+  "fixture": {
+    "database": "fresh disposable auth schema",
+    "raw_logs_or_seed_rows_published": false,
+    "realm_endpoints": "loopback only"
+  },
+  "listener": {
+    "exit_code_after_sigterm": 0,
+    "halt_marker": true,
+    "raw_logs_published": false,
+    "ready_local_tcp": true
+  },
+  "original_auth_updater": {
+    "completed_marker_observed": true,
+    "database_pool_started": true,
+    "dry_run_exit_code": 0,
+    "receipt_fingerprint_unchanged": true,
+    "updater_log_observed": true
+  },
+  "provider_version": "12.3.2-MariaDB",
+  "qualification": "Linux x86_64 compiled authserver and original auth updater only; no worldserver, Bionic ARM64, Android lifecycle, client login, or Thor qualification",
+  "status": "passed"
+}

@@ -14,7 +14,7 @@ def main() -> int:
     root = Path(__file__).resolve().parents[1]
     paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=root).split(b"\0")
     rejected = []
-    forbidden = {".zip", ".7z", ".sql", ".apk", ".aab", ".so", ".db", ".jks", ".keystore"}
+    forbidden = {".zip", ".7z", ".sql", ".apk", ".aab", ".so", ".db", ".jks", ".keystore", ".p12"}
     private_dirs = {"inputs", "private-work", "external", "reports"}
     for raw in paths:
         if not raw:

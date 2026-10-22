@@ -1,0 +1,221 @@
+{
+  "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+  "archiveSize": 103160479,
+  "constraints": {
+    "authTcpListener": false,
+    "charactersOrWorldSeedImport": false,
+    "freshDisposableDatadirOnly": true,
+    "liveDatabaseAccess": false,
+    "sqlContentsInManifest": false,
+    "sqlRewriting": false
+  },
+  "database": "acore_auth",
+  "directories": [
+    "Data/data/sql/archive/db_auth",
+    "Data/data/sql/custom/db_auth",
+    "Data/data/sql/updates/db_auth",
+    "Data/data/sql/updates/pending_db_auth"
+  ],
+  "files": [
+    {
+      "path": "Database/acore_auth/table-account.sql",
+      "role": "auth-table",
+      "sha256": "4c9b37b2c14ec03a790ac00bfaf7b5b0d640afd2c23005d63897764e29ab8cfa",
+      "size": 5041,
+      "targetPath": "auth-seed/table-account.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-account_access.sql",
+      "role": "auth-table",
+      "sha256": "62770055d3b429025c64b2faf53f5b0a5bb463e74fb8e24f565dd5d8e077c243",
+      "size": 1751,
+      "targetPath": "auth-seed/table-account_access.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-account_banned.sql",
+      "role": "auth-table",
+      "sha256": "76394b677732b2bccbf4941a8f4d3464ce609a66ae6e8efcf1b15337731b9e0e",
+      "size": 1826,
+      "targetPath": "auth-seed/table-account_banned.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-account_muted.sql",
+      "role": "auth-table",
+      "sha256": "9423ca85b60393a18bd423650facec10f7c841c21616aa33ebf4bf233c2ac7af",
+      "size": 1790,
+      "targetPath": "auth-seed/table-account_muted.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-account_transmog.sql",
+      "role": "auth-table",
+      "sha256": "f17ce2005657a16a7564d3006e177809f327b07cd54cd19c368b4b2a14dfd924",
+      "size": 113450,
+      "targetPath": "auth-seed/table-account_transmog.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-account_transmog_favorites.sql",
+      "role": "auth-table",
+      "sha256": "59db7d7848d20437bce9d88c9f0a256e6593211daf08f2a177634bed1276a36e",
+      "size": 1544,
+      "targetPath": "auth-seed/table-account_transmog_favorites.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-account_transmog_outfit_items.sql",
+      "role": "auth-table",
+      "sha256": "62d97119011852be5cd44938cfecfbec11f5c326d7d551021a551cb3b8ae9d54",
+      "size": 1585,
+      "targetPath": "auth-seed/table-account_transmog_outfit_items.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-account_transmog_outfits.sql",
+      "role": "auth-table",
+      "sha256": "8451b5f53d8e904d8fdf13abd4b5e655d4ac26efe8c4fe37d55d813af7f4fe30",
+      "size": 1675,
+      "targetPath": "auth-seed/table-account_transmog_outfits.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-acore_cms_subscriptions.sql",
+      "role": "auth-table",
+      "sha256": "353ded1facd2c691721f50336fd9d2829d84ce8f327d3d7ec787a1006765bcfd",
+      "size": 1560,
+      "targetPath": "auth-seed/table-acore_cms_subscriptions.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-autobroadcast.sql",
+      "role": "auth-table",
+      "sha256": "91fe33d3e1375b6320c8cead605e9e65573cbab19144682c58772c6450a67751",
+      "size": 1627,
+      "targetPath": "auth-seed/table-autobroadcast.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-autobroadcast_locale.sql",
+      "role": "auth-table",
+      "sha256": "b98a405fbab15544c9ffcb283a697e1b180cb524bbd5ef31ed301fd593e8490e",
+      "size": 1670,
+      "targetPath": "auth-seed/table-autobroadcast_locale.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-build_info.sql",
+      "role": "auth-table",
+      "sha256": "4d729ab196a115fb042ecc622de5e22bc23b20c124e42174c5d682eb23ffe4aa",
+      "size": 3125,
+      "targetPath": "auth-seed/table-build_info.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-ip_banned.sql",
+      "role": "auth-table",
+      "sha256": "7a65db1c7c7c02fdf983ebd9fbda446d4f8f3c8dbc97436c20e5ce5d1f8f2b67",
+      "size": 1803,
+      "targetPath": "auth-seed/table-ip_banned.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-logs.sql",
+      "role": "auth-table",
+      "sha256": "c07dc406351ba401d404db70abaa2de1616f3a5fa573fa62b5b457b3edca723e",
+      "size": 1605,
+      "targetPath": "auth-seed/table-logs.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-logs_ip_actions.sql",
+      "role": "auth-table",
+      "sha256": "99b08fc746ccdc6c8238a2f3c2ec6a41f25550561a7902ddac6a7636d684b6a3",
+      "size": 2149,
+      "targetPath": "auth-seed/table-logs_ip_actions.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-motd.sql",
+      "role": "auth-table",
+      "sha256": "f1a94dcbd4f2a76007aaf693a3977b61a645f5e0daa071a6ecbdc4875e955728",
+      "size": 1555,
+      "targetPath": "auth-seed/table-motd.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-motd_localized.sql",
+      "role": "auth-table",
+      "sha256": "d8a9bea78558e9222fc03b78494e1022374d082de8b195776d60b14183da25e0",
+      "size": 1604,
+      "targetPath": "auth-seed/table-motd_localized.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-rbac_account_permissions.sql",
+      "role": "auth-table",
+      "sha256": "29da003452296dd9d17489c692ea824f300c3ff7773a8c08064d3ae8d4589908",
+      "size": 2146,
+      "targetPath": "auth-seed/table-rbac_account_permissions.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-rbac_default_permissions.sql",
+      "role": "auth-table",
+      "sha256": "ebe114922d1739b2c05498d9f3f86645fa7863139386d3fd7cf24f8fe3372dc5",
+      "size": 2134,
+      "targetPath": "auth-seed/table-rbac_default_permissions.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-rbac_linked_permissions.sql",
+      "role": "auth-table",
+      "sha256": "6c7409057572011d55f7474d05e51cf0f5b2b76adc9c9d2a45e745bf04ef8a1c",
+      "size": 10819,
+      "targetPath": "auth-seed/table-rbac_linked_permissions.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-rbac_permissions.sql",
+      "role": "auth-table",
+      "sha256": "5a06611ca7b6e7bd7b2887f5560fb6adda2393627d72d02f386fd6101fb56077",
+      "size": 25078,
+      "targetPath": "auth-seed/table-rbac_permissions.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-realmcharacters.sql",
+      "role": "auth-table",
+      "sha256": "b640211d10d8c5cb0ed84ad83db4ae6086c4f6063c0f7f7436527a733276ba6d",
+      "size": 1783,
+      "targetPath": "auth-seed/table-realmcharacters.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-realmlist.sql",
+      "role": "auth-table",
+      "sha256": "1364b16a815ccd3991176c2db47f70eed6dabad514bdb41e71f0382befbfb5f9",
+      "size": 2636,
+      "targetPath": "auth-seed/table-realmlist.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-secret_digest.sql",
+      "role": "auth-table",
+      "sha256": "4bc528336dc7a7b23b28704a2ca71a6277f7d4ee2f22c73d7c35d061be02cb2b",
+      "size": 1522,
+      "targetPath": "auth-seed/table-secret_digest.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-updates.sql",
+      "role": "auth-table",
+      "sha256": "75d180df5b2da14b50459dffdf1538a95b13b48c8b88b82e21332b5043cbb1e3",
+      "size": 3514,
+      "targetPath": "auth-seed/table-updates.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-updates_include.sql",
+      "role": "auth-table",
+      "sha256": "bece850b75ed44b831c186ba105ab32fe6fdee577279711aab841ee17e12c9f3",
+      "size": 2109,
+      "targetPath": "auth-seed/table-updates_include.sql"
+    },
+    {
+      "path": "Database/acore_auth/table-uptime.sql",
+      "role": "auth-table",
+      "sha256": "a23d6735d6b1f19dd3969b060665d176495251d3865c6a461193ecd838bbafa2",
+      "size": 416162,
+      "targetPath": "auth-seed/table-uptime.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_auth/rev_1790446352_gm_level4_rbac_defaults_zz_custom.sql",
+      "role": "auth-update",
+      "sha256": "6f811376f0d6cb606688caebd9448644697abeab51e22baeb8e883fc8b3c1717",
+      "size": 384,
+      "targetPath": "Data/data/sql/updates/db_auth/rev_1790446352_gm_level4_rbac_defaults_zz_custom.sql"
+    }
+  ],
+  "formatVersion": 1,
+  "gameClientBuild": 12340,
+  "purpose": "fresh-disposable-auth-dry-run-only",
+  "sourceDirectory": "Data"
+}

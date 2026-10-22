@@ -1,9 +1,10 @@
 # Private database compatibility gate
 
 Host MariaDB 12.3.2 now imports the unchanged seed and passes the runtime SQL
-probe using the original source's changed-file policy. The test runs in its own
-disposable instance; Bionic/ARM64, compiled server integration, Android lifecycle,
-and Thor compatibility remain separate gates. A passing archive inventory alone
+probe using the original source's changed-file policy. The compiled host
+authserver also passes its original updater, local listener, and graceful stop
+probe. Each test runs in its own disposable instance; Bionic/ARM64, worldserver,
+Android lifecycle, and Thor compatibility remain separate gates. A passing archive inventory alone
 does **not** establish SQL compatibility. No database seed, credentials, account
 records, or client files belong in this public repository.
 
@@ -156,6 +157,25 @@ or SQL dumps are included. The supplied snapshot does contain seed accounts and
 characters; this host probe does not provision production credentials or make
 that snapshot safe to ship.
 
+A separate compiled host authserver probe also passed against MariaDB 12.3.2.
+The exact host binary SHA256 is
+`d897a986532f6e7e152bf87a6d0ae11b56219993298604a636b3afa4cfdfea1c`.
+It used only a disposable auth schema and private generated database credentials;
+realm endpoints were normalized to loopback inside that test fixture.
+
+- Original auth updater `--dry-run`: exit 0, database pool and updater markers
+  observed, auth receipt fingerprint unchanged.
+- Normal auth listener: local TCP readiness observed; SIGTERM produced the halt
+  marker and exit 0.
+- Explicit TLS policy: rejected with exit 1 before database authentication;
+  measured new database connections were zero after excluding the admin query.
+
+These observations exercise the compiled original **auth** updater. They do not
+qualify the compiled world/character updater, demonstrate a game account login,
+or qualify Android. The full 236-file SQL evidence above remains the documented
+Python source-policy subset. Metadata-only auth results are in
+[`database-2026-10-22-compiled-auth.json`](evidence/database-2026-10-22-compiled-auth.json).
+
 The tests use synthetic SQL and cover archive safety, refusal of nonempty or
 unknown target state, CLI error redaction, unsplit `DELIMITER` scripts, private
 loopback credentials, successful source-policy ordering, and failure without
@@ -165,6 +185,78 @@ receipt replacement:
 python3 -m unittest discover -s tests -p test_database.py -v
 ```
 
-A host MariaDB 12.3.2 SQL pass does not qualify the Bionic/ARM64 provider, Android
-process lifecycle, original compiled server updater, restart-tolerant installer,
-world startup, account creation, or Thor hardware. Those gates remain open.
+A host MariaDB 12.3.2 SQL pass and host authserver probe do not qualify the
+Bionic/ARM64 provider, Android process lifecycle, compiled world/character updater,
+restart-tolerant installer, world startup, account creation, or Thor hardware.
+Those gates remain open.
+
+
+## Optional isolated Android auth dry run
+
+The optional next diagnostic imports only the 27 auth table scripts and stages
+one auth runtime SQL file from the private archive. The public
+[`auth-seed-lock.json`](../manifests/auth-seed-lock.json) contains filenames, sizes,
+and SHA256 values only. It excludes characters/world seeds and SQL contents.
+Regenerate or verify it against the private pinned archive with:
+
+```bash
+python3 tools/create_auth_seed_lock.py /private/Database.zip
+python3 tools/create_auth_seed_lock.py /private/Database.zip --check
+```
+
+Its flat JSON contract uses `formatVersion`, `archiveSha256`, `archiveSize`,
+`files` (`path`, `role`, `targetPath`, `size`, `sha256`), `directories`, and
+`sourceDirectory`. `auth-table` entries import in filename order into a newly
+created `acore_auth` schema. The `auth-update` entry is copied unchanged to its
+`targetPath`. All four listed directories must exist, including the empty ones:
+
+```text
+Data/data/sql/archive/db_auth
+Data/data/sql/custom/db_auth
+Data/data/sql/updates/db_auth
+Data/data/sql/updates/pending_db_auth
+```
+
+The minimal config starts with `[authserver]`. Use a private generated database
+user/password, a new diagnostic datadir, a private config file, and these settings:
+
+```ini
+[authserver]
+LoginDatabaseInfo = ".;<private-socket>;<generated-user>;<generated-password>;acore_auth"
+LoginDatabase.WorkerThreads = 1
+LoginDatabase.SynchThreads = 1
+SourceDirectory = "<private-runtime>/Data"
+MySQLExecutable = "<bundled-mariadb-cli>"
+LogsDir = "<private-diagnostic>/Logs"
+PidFile = "<private-diagnostic>/auth.pid"
+Updates.EnableDatabases = 1
+Updates.AutoSetup = 1
+Updates.Redundancy = 1
+Updates.ArchivedRedundancy = 0
+Updates.AllowRehash = 1
+Updates.CleanDeadRefMaxCount = 3
+BindIP = "127.0.0.1"
+RealmServerPort = -1
+Appender.Console = 1,5,0
+Appender.Auth = 2,5,0,Auth.log,w
+Logger.root = 4,Console Auth
+EnableTOTP = 0
+TOTPMasterSecret =
+```
+
+Launch only `authserver -c <private-config> --dry-run`. The source returns from
+its dry-run branch before reading the auth TCP port; the invalid fallback port
+also refuses startup before a listener if that argument is accidentally omitted.
+No game account login or running realm is exposed. Leave the seed accounts and
+receipts unchanged in this disposable instance; production account provisioning
+is a later gate. The reviewed seed's realm addresses are already literal loopback
+addresses, so this test needs no address rewrite or external resolution.
+
+The same minimal configuration, four-directory auth-only tree, unchanged 27-table
+seed, and `--dry-run` passed on the compiled x86_64 host authserver: exit 0,
+original updater/completion markers observed, and auth receipt fingerprint
+unchanged. The host used its authenticated loopback database transport because
+Unix sockets are denied there. The Android `.;socket` database connection path,
+Bionic binary execution, and foreground-service lifecycle still need device
+qualification. Summary evidence:
+[`database-2026-10-22-minimal-auth.json`](evidence/database-2026-10-22-minimal-auth.json).

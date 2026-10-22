@@ -39,23 +39,26 @@ and rejects insufficient memory. Ninja compilation and linking have separate
 pools, with one link at a time. Precompiled headers are disabled to limit memory.
 Use isolated build directories for host and Android evidence.
 
-Cgroup availability subtracts actual memory usage and includes only clean,
-inactive file cache that the kernel can reclaim. Active cache, dirty/writeback
-pages and slab are not counted as available. This prevents staged archive caches
-from being mistaken for anonymous compiler memory while retaining a 512 MiB
-reserve plus 1,536 MiB per compiler job.
+Cgroup availability subtracts actual memory usage and includes clean inactive
+file cache plus one quarter of clean active file cache that the kernel can
+reclaim. The other three quarters of active cache, dirty/writeback pages and slab
+are not counted as available. Host `MemAvailable` also caps the result. This
+prevents staged archive caches from being mistaken for anonymous compiler memory
+while retaining a 512 MiB reserve plus 1,536 MiB per compiler job.
 
 ```sh
 python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth --dry-run
 python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth
-python3 tools/build_native.py --source /private/fta-source \
+python3 tools/build_native.py --source /private/fta-android-source \
+  --port-profile android-arm64-v1 \
   --build-dir /private/fta-build-android --platform android --stage world \
-  --toolchain /private/android-toolchain.cmake \
+  --toolchain /private/android-ndk-r28c/build/cmake/android.toolchain.cmake \
   --dependency-prefix /private/android-dependencies \
   --mysql-library /private/android-dependencies/lib/libmariadb.so \
-  --mysql-include /private/android-dependencies/include/mariadb
+  --mysql-include /private/android-dependencies/include/mariadb \
+  --mysql-executable /private/provider/jniLibs/arm64-v8a/libfta_mariadb_client.so
 ```
 
 `--stage world` configures both applications and builds authserver successfully
@@ -102,8 +105,8 @@ Android cross compilation needs target-built Boost, OpenSSL and MySQL-compatible
 headers/libraries; a host MySQL installation is insufficient. The explicit
 toolchain must configure the NDK/Bionic target. The driver disables host
 `mysql_config` probing in Android mode to avoid importing host link flags. The
-original CMake source's `FindMySQL.cmake` expects MySQL 8.x and other places may
-still need reviewed MariaDB adaptations. Do not fake versions, disable updater
+reviewed profile adapts the original CMake MySQL-only probe for Connector/C.
+Do not fake versions, disable updater
 receipts or add permissive duplicate-symbol linker flags to bypass failures.
 
 ## Initial measured status
@@ -121,10 +124,105 @@ prove fail-closed TLS semantics. The compile-only original
 API probe reproduces the missing APIs above. The corrected pinned profile then
 passed the complete host authserver compile/link and `authserver --help`
 execution. Its host ELF SHA256 is
-`d7c4840c5ece3c591edbb2ce925b2ca3137923e37b94c4090480b1ce20817a28`.
-That establishes host compilation and loader/version-check behavior only; auth
-database startup and all Android server, module and physical Thor qualification
-remain separate gates.
+`d897a986532f6e7e152bf87a6d0ae11b56219993298604a636b3afa4cfdfea1c`.
+The actual binary then passed an isolated MariaDB 12.3.2 test: original auth
+updater dry run and pool initialization, unchanged update receipts, loopback TCP
+listener, graceful SIGTERM shutdown, and rejection of an explicit TLS policy
+with zero database authentication connections. The provider-specific server
+version branch admits only the qualified 12.3.2-MariaDB release, including its
+standard optional protocol prefix; ten compiled cases reject older, future and
+unknown engines. Unsupported-version cleanup cancels the async queue before
+destroying a connection, matching the existing failed-open cleanup.
+
+## Measured Android auth build
+
+The `android-arm64-v1` profile adds two reviewed changes to the MariaDB profile:
+opaque `cpu_set_t` inspection with `CPU_ISSET`, and an explicit signed 64-bit
+conversion at the database logger's existing timestamp binding. The former
+removes a glibc-only diagnostic cast; the latter resolves libc++'s different
+`std::chrono::seconds::rep` typedef. Neither changes gameplay or updater SQL.
+The complete pinned Android source tree is
+`b621c5f063bc305240ab92b7171f3bfcb8213413df09d86437a249fa88eb2f02`.
+
+```sh
+python3 tools/fta_port.py /private/fta-source /private/fta-android-source \
+  --profile android-arm64-v1
+python3 tools/build_native.py --source /private/fta-android-source \
+  --port-profile android-arm64-v1 --platform android --stage auth \
+  --build-dir /private/fta-android-auth \
+  --toolchain /private/android-ndk-r28c/build/cmake/android.toolchain.cmake \
+  --dependency-prefix /private/android-dependencies \
+  --mysql-library /private/android-dependencies/lib/mariadb/libmariadb.so \
+  --mysql-include /private/android-dependencies/include/mariadb \
+  --mysql-executable /private/provider/jniLibs/arm64-v8a/libfta_mariadb_client.so
+```
+
+The actual NDK r28c/Clang 19.0.1, ARM64/API-33, Release/C++20 authserver compile
+and link passed with static Boost and static libc++. The 30,638,440-byte ELF has
+SHA256 `acf186557515897a4c359ac2ceee889f52c1482f36f8b012db007a8625b5fd05`.
+It is an AArch64 PIE using `/system/bin/linker64`; every load segment has at least
+16 KiB alignment. Its dynamic dependencies are Connector/C, OpenSSL 3, Android
+platform zlib, `libm`, `libdl` and `libc`. It has no shared C++ runtime dependency.
+`native-port/qualification.json` records this measured scope and exact hashes.
+
+This auth-only build preserves all 52 module directories and static build
+settings, but does not compile their worldserver translation units. Android
+execution, worldserver, all-module compilation and physical Thor qualification
+remain open gates.
+
+## Reproduce the Android dependency prefix
+
+`native-port/android-inputs.json` pins the official NDK, Boost, OpenSSL and
+Connector/C source archives and the measured output hashes. Boost and Connector/C
+were cross compiled locally. OpenSSL headers were generated for the target from
+the exact matching source; its shared libraries were reused unchanged from the
+hash-verified provider. This distinction remains recorded in the input manifest.
+
+The dependency driver needs Python 3.11+, a Linux x86_64 host, CMake, Ninja, GNU
+make, Perl, GCC and G++. Supply the four pinned archives and a previously verified
+base provider stage. It downloads nothing, uses a fresh external output directory
+and runs one compiler job. `--plan` validates every archive and provider hash and
+prints the exact command plan without creating that directory.
+
+```sh
+python3 native-port/build-dependencies.py \
+  --ndk-archive /private/inputs/android-ndk-r28c-linux.zip \
+  --boost-archive /private/inputs/boost_1_83_0.tar.gz \
+  --openssl-archive /private/inputs/openssl-3.6.3.tar.gz \
+  --connector-archive /private/inputs/mariadb-connector-c-64e9fe09.tar.gz \
+  --provider-stage /private/provider --work-root /private/rebuilt-dependencies \
+  --plan
+```
+
+Remove `--plan` to build. The resulting `android-deps` directory contains the
+target prefix; `receipt.json` records input and output hashes, commands, tool
+versions and private log paths. An explicit `--cmake` or `--ninja` path supports
+isolated host tools. A supplied `LD_LIBRARY_PATH` is retained only for their host
+runtime loader; target include/library discovery uses the explicit NDK/prefix.
+Boost's unused optional bzip2, LZMA, Zstandard and ICU adapters are disabled;
+platform zlib remains enabled.
+
+The published auth artifact came from the recorded individual build steps. The
+combined fresh-prefix driver has validation and mocked composition coverage;
+its no-write plan passed against all four real pinned archives and the real
+provider. Extraction of all four real archives also passed, including executable
+modes, all 35 NDK symlink targets and running the freshly extracted Clang's
+version command. A complete heavy rebuild through that new driver has not yet
+been rerun. A
+fresh build may differ in bytes because build paths and debug metadata differ.
+
+## Next worldserver gate
+
+Worldserver compilation can proceed without client maps or DBC files. Its console
+and the default Lua module need target GNU Readline and a terminal library;
+NDK does not supply those dependencies, and the provider's libedit is not a
+qualified substitute. These dependencies must be pinned and cross built before
+the full static module build. Retain the supplied Lua default; the optional
+LuaJIT build invokes host make without a qualified cross environment.
+
+The full world build is a separate, lengthy single-job gate. Runtime world
+readiness additionally needs matching user-supplied maps, vmaps, mmaps and DBCs;
+an auth compile or a world `--help` run cannot establish it.
 
 Build logs are private under the chosen build directory. Publish reviewed
 summaries, tool versions and binary hashes only; do not upload unfiltered logs or

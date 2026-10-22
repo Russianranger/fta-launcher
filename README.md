@@ -5,9 +5,11 @@ customized AzerothCore **WoW 3.3.5a / build 12340** distribution. Initial target
 AYN Thor, Android 13, Snapdragon 8 Gen 2, Adreno 740, ARM64.
 
 Development includes a setup application, a packaged database diagnostic and
-reproducible input/build tooling. **The app does not yet start an AzerothCore
-server or game client.** The database diagnostic creates a fresh disposable
-instance; it does not install the populated FTA seed or open player saves.
+reproducible input/build tooling. **A playable realm and game client remain
+unqualified.** The default database diagnostic creates a fresh disposable
+instance. A separately staged private auth diagnostic can import only the exact
+27-table auth seed and run the original authserver's updater dry run. Neither
+path installs a persistent realm or opens player saves.
 
 ## Current implementation
 
@@ -23,11 +25,18 @@ instance; it does not install the populated FTA seed or open player saves.
   and an isolated disposable MariaDB import runner. SQL goes through MariaDB's
   own client, preserving `DELIMITER` and stored-routine syntax.
 - Measured host compatibility: the exact MariaDB 12.3.2 engine imports all 563
-  seed tables and the trigger unchanged, then traverses all 236 runtime SQL files
+  seed tables and one world trigger unchanged, then traverses all 236 runtime SQL files
   under the source-confirmed updater policy. This is host evidence, not Android
-  or compiled-updater qualification.
+  or compiled world/character-updater qualification. A separate compiled host
+  authserver passes its original updater, local listener, graceful stop and
+  explicit TLS-policy refusal probes.
 - Memory-bounded native build driver: C++20, Release, static scripts/modules,
   authserver before worldserver, explicit host versus Android qualification.
+- Actual ARM64/Bionic authserver compile and private runtime staging passed.
+  The reviewed Android port preserves all 52 module directories; auth-only
+  compilation does not qualify worldserver or its modules. The private stage
+  preserves the database provider and adds the measured Connector/C dependency.
+  Auth execution on Android remains unverified.
 - CI: Python safety tests, Android unit tests/lint/debug compilation and an APK
   checksum. Debug artifacts are setup previews, not playable releases.
 
@@ -55,6 +64,15 @@ provider stage, then build with `-PftaProviderDir=/absolute/fta-provider-stage`.
 Without the provider, the setup app builds but its database test stays unavailable.
 Imported runtime bundles are checked inert copies and cannot replace executable
 code from the installed APK.
+
+The optional auth stage is for a private diagnostic APK, not a public release.
+See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
+identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
+signing and validation. Private version `0.3.0-auth-diagnostic` passed all 61
+Android unit tests, lint, assembly, signature verification and exact preservation
+of 114 packaged runtime/notice files. Its [measured APK evidence](docs/evidence/android-2026-10-22-private-auth-apk.json)
+keeps device execution unqualified. Public releases still package the database
+diagnostic; the auth APK is provided separately to the source recipient.
 
 The app currently accepts the exact reviewed `From_The_Ashes_Source.zip` and
 `Database.zip`. Selecting a file stores a private verified preparation input;
@@ -87,16 +105,23 @@ tables. Validation uses the measured archive inventory.
 | --- | --- |
 | Independent repository, private-input boundary and archive identity | Implemented |
 | Android setup/import foundation | Implemented; CI compilation required for each commit |
-| Exact MariaDB 12.3.2 host seed and runtime-SQL probe | Passed; compiled original updater still separate |
-| Native authserver with reviewed MariaDB API port | Host build passed; Android build remains open |
+| Exact MariaDB 12.3.2 host seed and runtime-SQL probe | Passed: 563 tables, one trigger, 236 runtime scripts |
+| Compiled host authserver and original auth updater | Passed; world/character updater remains separate |
+| Android ARM64/Bionic authserver compile and private runtime stage | Passed; private APK build/payload checks passed; device execution pending |
 | Packaged Android database bootstrap/health/shutdown | Diagnostic implemented; physical-device evidence required |
+| Optional private auth-only updater diagnostic | Implemented; device execution unverified |
 | Actual seed import on pinned Android MariaDB provider | Open |
-| Android ARM64 authserver/worldserver and all modules | Open |
+| Android ARM64 worldserver and all required modules | Open |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-Native server porting and the Android database compatibility gate are underway.
+The next device gate is the disposable database test followed by the optional
+auth-only dry run on the exact private APK. The next world build needs target
+dependencies including Readline, all required static modules and scripts, and
+separate compiled world/character-updater evidence. World startup also requires
+the matching DBC/maps/vmaps/mmaps, which were not supplied.
+
 Preserve the original SQL/update
 receipts; never restore the populated fresh-install seed over live saves.
 The Windows launcher is a behavior reference, not an Android dependency.

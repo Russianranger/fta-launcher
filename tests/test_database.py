@@ -11,10 +11,11 @@ import unittest
 from unittest.mock import patch
 import zipfile
 
-from tools.fta_database import (DatabasePlan, GateError, SqlEntry, assert_empty_targets,
+from tools.fta_database import (DATABASE_SHA256, DatabasePlan, GateError, SqlEntry, assert_empty_targets,
                                 identifier, inventory, update_action)
 
 from tools.run_database_gate import DatabaseCLI, probe_updates, sandbox
+from tools.create_auth_seed_lock import auth_seed_lock
 
 
 class ArchiveTests(unittest.TestCase):
@@ -147,6 +148,45 @@ class FreshInstallTests(unittest.TestCase):
         for receipt in ("", "c" * 40, "bad-value"):
             with self.assertRaises(GateError):
                 update_action(entry, receipt)
+
+
+class AuthSeedManifestTests(unittest.TestCase):
+    def plan(self):
+        entries = [SqlEntry(f"Database/acore_auth/table-t{i:02}.sql", "acore_auth", "table", f"t{i:02}",
+                            i + 1, "a" * 64, "b" * 40) for i in range(27)]
+        entries += [SqlEntry("Database/RuntimeSQL/Data/data/sql/updates/db_auth/auth.sql", "acore_auth", "update",
+                             "auth.sql", 20, "c" * 64, "d" * 40)]
+        # A complete archive plan may include other private schemas; none belongs
+        # in the auth-only Android lock, even when its object name looks valid.
+        entries += [SqlEntry("Database/acore_characters/table-private_fixture.sql", "acore_characters", "table",
+                             "private_fixture", 12, "e" * 64, "f" * 40)]
+        return DatabasePlan(DATABASE_SHA256, tuple(entries), 100)
+
+    def test_manifest_contains_only_auth_metadata_and_disables_listener(self):
+        manifest = auth_seed_lock(self.plan(), 123)
+        self.assertEqual(manifest["formatVersion"], 1)
+        self.assertEqual(len(manifest["files"]), 28)
+        self.assertEqual(sum(f["role"] == "auth-table" for f in manifest["files"]), 27)
+        self.assertEqual(sum(f["role"] == "auth-update" for f in manifest["files"]), 1)
+        self.assertNotIn("private_fixture", repr(manifest))
+        self.assertFalse(manifest["constraints"]["authTcpListener"])
+        self.assertFalse(manifest["constraints"]["liveDatabaseAccess"])
+        self.assertTrue(manifest["constraints"]["freshDisposableDatadirOnly"])
+        for entry in manifest["files"]:
+            self.assertEqual(set(entry), {"path", "role", "targetPath", "size", "sha256"})
+        self.assertEqual(manifest["files"][-1]["targetPath"], "Data/data/sql/updates/db_auth/auth.sql")
+
+    def test_manifest_generation_is_deterministic(self):
+        plan = self.plan()
+        reversed_plan = DatabasePlan(plan.archive_sha256, tuple(reversed(plan.entries)), plan.uncompressed_bytes)
+        self.assertEqual(auth_seed_lock(plan, 123), auth_seed_lock(reversed_plan, 123))
+
+    def test_manifest_refuses_unreviewed_or_incomplete_auth_plan(self):
+        plan = self.plan()
+        for invalid in (DatabasePlan("0" * 64, plan.entries, 100),
+                        DatabasePlan(plan.archive_sha256, plan.entries[1:], 100)):
+            with self.assertRaises(GateError):
+                auth_seed_lock(invalid, 123)
 
 
 class UpdaterPolicyTests(unittest.TestCase):

@@ -1,0 +1,15 @@
+SPDX-License-Identifier: GPL-2.0-or-later
+Source: From the Ashes customized AzerothCore; original file notices remain intact.
+
+--- a/src/server/database/Logging/AppenderDB.cpp
++++ b/src/server/database/Logging/AppenderDB.cpp
+@@ -33,7 +33,8 @@
+         return;
+ 
+     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
+-    stmt->SetData(0, message->mtime.count());
++    // libc++ chrono::rep and int64_t may be different 64-bit C++ types on Bionic.
++    stmt->SetData(0, static_cast<int64>(message->mtime.count()));
+     stmt->SetData(1, realmId);
+     stmt->SetData(2, message->type);
+     stmt->SetData(3, uint8(message->level));

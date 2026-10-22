@@ -121,12 +121,14 @@ class BuildTests(unittest.TestCase):
             check_jobs(2, available=2 * 1024**3)
         check_jobs(1, available=3 * 1024**3)
 
-    def test_cgroup_available_counts_only_clean_inactive_cache(self):
+    def test_cgroup_available_bounds_clean_file_cache_reclamation(self):
         self.assertEqual(cgroup_available(8000, 7500, {'inactive_file':3000,
-                         'file_dirty':200, 'file_writeback':100, 'active_file':3000}), 3200)
+                         'file_dirty':200, 'file_writeback':100, 'active_file':3000}), 3875)
         self.assertEqual(cgroup_available(8000, 7500, {'inactive_file':100,
                          'file_dirty':200}), 500)
         self.assertEqual(cgroup_available(8000, 7500, {}), 500)
+        self.assertEqual(cgroup_available(8000, 7500, {'active_file':4000}), 1500)
+        self.assertEqual(cgroup_available(8000, 7500, {'active_file':4000, 'file_dirty':4000}), 500)
 
     def test_real_cache_metadata_does_not_disable_modules(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -147,9 +149,13 @@ class BuildTests(unittest.TestCase):
             toolchain = Path(directory) / 'toolchain.cmake'
             toolchain.write_text('# fixture\n')
             plan = commands(self.arguments(platform='android', toolchain=toolchain,
+                             dependency_prefix=Path('/target'),
                              mysql_library=Path('/target/lib/libmariadb.so'),
                              mysql_include=Path('/target/include/mariadb')))
             self.assertIn('-DMYSQL_CONFIG:FILEPATH=', plan[0])
+            self.assertIn('-DCMAKE_FIND_ROOT_PATH=/target', plan[0])
+            self.assertIn('-DANDROID_STL=c++_static', plan[0])
+            self.assertIn('-DBoost_USE_STATIC_RUNTIME=ON', plan[0])
             with self.assertRaises(BuildError):
                 check_cache({'MYSQL_CONFIG':'/usr/bin/mysql_config'}, 'android', configured=False)
 

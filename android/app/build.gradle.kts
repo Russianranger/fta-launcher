@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+val ftaSigningStore = providers.gradleProperty("ftaSigningStore").orNull
 android {
     namespace = "com.russianranger.fta"
     compileSdk = 35
@@ -9,8 +10,12 @@ android {
         applicationId = "com.russianranger.fta"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0-database-diagnostic"
+        versionCode = providers.gradleProperty("ftaVersionCode").orNull?.toInt()?.also {
+            require(it in 1..2_100_000_000) { "ftaVersionCode is outside the Android version range" }
+        } ?: 2
+        versionName = providers.gradleProperty("ftaVersionName").orNull?.also {
+            require(it.matches(Regex("[A-Za-z0-9._+-]{1,100}"))) { "Invalid ftaVersionName" }
+        } ?: "0.2.0-database-diagnostic"
         ndk { abiFilters += "arm64-v8a" }
         externalNativeBuild { cmake { arguments += "-DANDROID_STL=c++_static" } }
     }
@@ -39,8 +44,24 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
+    signingConfigs {
+        if (ftaSigningStore != null) create("ftaDevelopment") {
+            storeFile = file(ftaSigningStore)
+            storePassword = providers.environmentVariable("FTA_SIGNING_STORE_PASSWORD").orNull
+                ?: error("FTA_SIGNING_STORE_PASSWORD is required with ftaSigningStore")
+            keyAlias = providers.gradleProperty("ftaSigningAlias").orElse("ftadevelopment").get()
+            keyPassword = providers.environmentVariable("FTA_SIGNING_KEY_PASSWORD").orNull
+                ?: error("FTA_SIGNING_KEY_PASSWORD is required with ftaSigningStore")
+        }
+    }
     buildTypes {
-        release { isMinifyEnabled = false }
+        debug {
+            if (ftaSigningStore != null) signingConfig = signingConfigs.getByName("ftaDevelopment")
+        }
+        release {
+            isMinifyEnabled = false
+            if (ftaSigningStore != null) signingConfig = signingConfigs.getByName("ftaDevelopment")
+        }
     }
     lint { abortOnError = true }
 }

@@ -39,10 +39,14 @@ class MainActivity : Activity() {
     private lateinit var logText: TextView
     private lateinit var countText: TextView
     private lateinit var providerStatus: TextView
+    private lateinit var serverStatus: TextView
+    private lateinit var authTestHelp: TextView
     private lateinit var diagnosticStatus: TextView
     private lateinit var runtimeBundleStatus: TextView
     private lateinit var runtimeBundleButton: Button
     private lateinit var diagnosticButton: Button
+    private lateinit var authDiagnosticButton: Button
+    private var pendingAuthCheck = false
     private lateinit var diagnosticStopButton: Button
     private lateinit var exportReportButton: Button
     private val refresh = Handler(Looper.getMainLooper())
@@ -53,6 +57,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pendingAuthCheck = savedInstanceState?.getBoolean("pendingAuthCheck") ?: false
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.rgb(21, 20, 18))
@@ -70,7 +75,8 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
         }
         title.addView(label("FROM THE ASHES", 24, gold, true), LinearLayout.LayoutParams(0, -2, 1f))
-        title.addView(label("DATABASE DIAGNOSTIC 0.2", 12, muted))
+        val version = packageManager.getPackageInfo(packageName, 0).versionName.orEmpty().substringBefore('-')
+        title.addView(label("DIAGNOSTIC $version", 12, muted))
         root.addView(title)
         root.addView(label("Your realm begins here", 15, ink).apply { setPadding(0, dp(4), 0, dp(12)) })
 
@@ -95,8 +101,9 @@ class MainActivity : Activity() {
         checklist.addView(label("○  Native database provider", 16, ink, true).apply { setPadding(0, dp(16), 0, 0) })
         providerStatus = label("", 13, muted)
         checklist.addView(providerStatus)
-        checklist.addView(label("○  ARM64 authserver and worldserver", 16, ink, true).apply { setPadding(0, dp(14), 0, 0) })
-        checklist.addView(label("Pending the C++20 build and all required modules.", 13, muted))
+        checklist.addView(label("○  Auth and world servers", 16, ink, true).apply { setPadding(0, dp(14), 0, 0) })
+        serverStatus = label("", 13, muted)
+        checklist.addView(serverStatus)
         checklist.addView(label("○  Matching 3.3.5 game data", 16, ink, true).apply { setPadding(0, dp(14), 0, 0) })
         checklist.addView(label("DBC, maps, vmaps and mmaps will come from your full client later.", 13, muted))
 
@@ -107,6 +114,10 @@ class MainActivity : Activity() {
         status.addView(action("Start game server") {}.apply { isEnabled = false })
         diagnosticButton = action("Test native database") { requestDatabaseCheck() }
         status.addView(diagnosticButton)
+        authDiagnosticButton = action("Test original auth updater") { requestDatabaseCheck(true) }
+        status.addView(authDiagnosticButton)
+        authTestHelp = label("For the auth test, only Database.zip is needed. It imports the matching auth files into a fresh temporary database. No source ZIP is needed.", 13, muted)
+        status.addView(authTestHelp)
         status.addView(label("Creates a fresh disposable database, tests local operation, then shuts it down. Your imported seed and saves are untouched.", 13, muted))
         diagnosticStopButton = action("Stop database test") {
             startService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_STOP))
@@ -178,6 +189,17 @@ class MainActivity : Activity() {
         val testing = databaseCheckRunning()
         val requested = requestedAt != 0L && SystemClock.elapsedRealtime() - requestedAt < 3000
         diagnosticButton.isEnabled = app.packagedRuntime?.manifest?.bootstrap != null && !app.busy && !testing && !requested
+        val authPackaged = app.packagedRuntime?.manifest?.let { manifest ->
+            "authserver" in manifest.capabilities && manifest.files.any { it.path == "data/metadata/auth-seed-lock.json" }
+        } == true
+        serverStatus.text = when {
+            app.busy && app.store == null -> "Checking included server components…"
+            authPackaged -> "Auth server included for testing. World server build pending."
+            else -> "Auth and world servers are not included in this build."
+        }
+        authTestHelp.visibility = if (authPackaged) View.VISIBLE else View.GONE
+        authDiagnosticButton.visibility = if (authPackaged) View.VISIBLE else View.GONE
+        authDiagnosticButton.isEnabled = authPackaged && database && !app.busy && !testing && !requested
         diagnosticStopButton.isEnabled = testing || requested
         exportReportButton.isEnabled = !app.busy
         runtimeBundleButton.isEnabled = app.runtimeBundles != null && !app.busy && !testing
@@ -189,13 +211,13 @@ class MainActivity : Activity() {
             runCatching { diagnostic.readLines() }.getOrDefault(emptyList()) else emptyList()
         diagnosticStatus.text = if (diagnosticLines.size >= 3) diagnosticLines.drop(2).joinToString("\n")
             else "No native database test has completed on this device."
-        if (!testing && !requested && diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING")) {
+        if (!testing && !requested && diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER")) {
             diagnosticStatus.text = "The previous test did not finish. No readiness result was recorded."
         }
         if (testing) diagnosticStatus.text = "Database test in progress.\n${diagnosticStatus.text}"
         if (requested && !testing) diagnosticStatus.text = "Starting the isolated database test…"
-        sourceButton.isEnabled = !app.busy && app.store != null
-        databaseButton.isEnabled = !app.busy && app.store != null
+        sourceButton.isEnabled = !app.busy && !testing && app.store != null
+        databaseButton.isEnabled = !app.busy && !testing && app.store != null
         sourceButton.text = if (source) "Replace source ZIP" else "Select source ZIP"
         databaseButton.text = if (database) "Replace database ZIP" else "Select database ZIP"
         progressLabel.text = app.progressText
@@ -211,23 +233,29 @@ class MainActivity : Activity() {
     private fun databaseCheckRunning(): Boolean = getSystemService(ActivityManager::class.java)
         .getRunningServices(20).any { it.service.className == RuntimeDiagnosticService::class.java.name }
 
-    private fun requestDatabaseCheck() {
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("pendingAuthCheck", pendingAuthCheck)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun requestDatabaseCheck(includeAuth: Boolean = false) {
+        pendingAuthCheck = includeAuth
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
             !getPreferences(MODE_PRIVATE).getBoolean("notificationAsked", false)) {
             getPreferences(MODE_PRIVATE).edit().putBoolean("notificationAsked", true).apply()
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 201)
-        } else startDatabaseCheck()
+        } else startDatabaseCheck(pendingAuthCheck)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Notification permission is optional for an explicitly requested foreground service.
-        if (requestCode == 201) startDatabaseCheck()
+        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck)
     }
 
-    private fun startDatabaseCheck() {
+    private fun startDatabaseCheck(includeAuth: Boolean = false) {
         try {
-            startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_CHECK))
+            startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(if (includeAuth) RuntimeDiagnosticService.ACTION_CHECK_AUTH else RuntimeDiagnosticService.ACTION_CHECK))
             requestedAt = SystemClock.elapsedRealtime()
             update()
         } catch (_: Exception) {

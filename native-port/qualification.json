@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-22T00:58:00.140225+00:00",
+  "source_archive_sha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "host_auth": {
+    "status": "passed",
+    "port_profile": "mariadb-c-api-v1",
+    "source_tree_sha256": "8796c3d0cbffb2a4efc43acacf754c31797e63836b64997b52930cb99c8ba3a6",
+    "binary_sha256": "d897a986532f6e7e152bf87a6d0ae11b56219993298604a636b3afa4cfdfea1c",
+    "database_engine": "MariaDB12.3.2",
+    "evidence": "../docs/evidence/database-2026-10-22-compiled-auth.json",
+    "scope": [
+      "compile/link",
+      "original updater dry run",
+      "loopback auth listener",
+      "graceful SIGTERM shutdown",
+      "explicit TLS policy refused before DB authentication"
+    ]
+  },
+  "android_auth": {
+    "status": "cross-build-passed",
+    "port_profile": "android-arm64-v1",
+    "source_tree_sha256": "b621c5f063bc305240ab92b7171f3bfcb8213413df09d86437a249fa88eb2f02",
+    "abi": "arm64-v8a",
+    "configuration": {
+      "CMAKE_BUILD_TYPE": "Release",
+      "CMAKE_CXX_STANDARD": "20",
+      "SCRIPTS": "static",
+      "MODULES": "static",
+      "ANDROID_ABI": "arm64-v8a",
+      "ANDROID_PLATFORM": "android-33",
+      "ANDROID_STL": "c++_static",
+      "CMAKE_SYSTEM_NAME": "Android",
+      "APPS_BUILD": "auth-only"
+    },
+    "binary_sha256": "acf186557515897a4c359ac2ceee889f52c1482f36f8b012db007a8625b5fd05",
+    "binary_bytes": 30638440,
+    "elf": {
+      "machine": "AArch64",
+      "interpreter": "/system/bin/linker64",
+      "type": "PIE",
+      "minimum_load_alignment": 16384,
+      "needed": [
+        "libmariadb.so",
+        "libz.so",
+        "libssl.so.3",
+        "libcrypto.so.3",
+        "libm.so",
+        "libdl.so",
+        "libc.so"
+      ],
+      "shared_cxx_runtime": false
+    },
+    "execution_qualified": false
+  },
+  "worldserver_compiled": false,
+  "all_52_modules_compiled": false,
+  "thor_tested": false,
+  "world_ready": false,
+  "dependency_driver": {
+    "real_pinned_input_plan": "passed",
+    "plan_created_output_directory": false,
+    "all_four_pinned_archive_extractions": "passed",
+    "ndk_executable_modes_and_35_symlink_targets": "passed",
+    "fresh_ndk_clang_version_smoke": "passed",
+    "full_fresh_dependency_rebuild_performed": false,
+    "actual_auth_artifact_build": "recorded individual dependency and auth build steps"
+  }
+}

@@ -6,12 +6,16 @@ import java.security.SecureRandom
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import android.util.AtomicFile
+import com.russianranger.fta.Inputs
+import org.json.JSONObject
 
-/** A fresh, isolated, socket-only test. It never opens an imported seed or user database. */
+/** A fresh socket-only database test; the optional auth probe imports only pinned auth seed files. */
 class DatabaseDiagnostic(
     private val context: Context,
     private val cancelled: AtomicBoolean,
-    private val status: (String, String) -> Unit
+    private val status: (String, String) -> Unit,
+    private val includeAuth: Boolean = false
 ) {
     private val owned = ConcurrentHashMap<Long, String>()
     private lateinit var root: File
@@ -20,9 +24,11 @@ class DatabaseDiagnostic(
     private var clientOptions: File? = null
     private lateinit var socket: File
     private var step = 0
+    private val deadline = System.nanoTime() + (if (includeAuth) 420L else 300L) * 1_000_000_000L
 
     fun run(): String {
         runtime = PackagedRuntime.inspect(context)
+        if (includeAuth) require("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables)
         require(runtime.manifest.bootstrap != null) { "A pinned bootstrap recipe is required" }
         val parent = File(context.filesDir, "runtime/database-diagnostics").apply { check(mkdirs() || isDirectory) }
         // At most two previous diagnostic directories are retained. These never hold user saves.
@@ -104,13 +110,16 @@ class DatabaseDiagnostic(
             check(values["FTA_COLLATION"]?.toIntOrNull() != null)
             check(values["FTA_UNICODE_ROWS"] == "1") { "Unicode collation round trip failed" }
             check(values["FTA_ROLLBACK_ROWS"] == "0") { "InnoDB rollback probe failed" }
+            if (includeAuth) runAuthUpdaterDiagnostic()
             status("STOPPING", "Stopping the diagnostic database with SQL SHUTDOWN.")
             client("SHUTDOWN;", 10_000)
             val stopped = NativeProcessBridge.waitFor(server, 15_000)
             check(stopped != Int.MIN_VALUE && stopped == 0) { "Database did not shut down cleanly" }
             owned.remove(server)
             server = 0
-            return "MariaDB ${runtime.manifest.providerVersion}: fresh bootstrap, private credentials, socket health, system tables, collation alias, InnoDB rollback and clean shutdown passed. Seed compatibility and AzerothCore remain unqualified."
+            return if (includeAuth)
+                "Original ARM64 authserver dry run and updater passed against the unchanged 27-table auth seed, then the disposable database shut down cleanly. No auth listener was opened. Full seed, worldserver and game login remain unqualified."
+                else "MariaDB ${runtime.manifest.providerVersion}: fresh bootstrap, private credentials, socket health, system tables, collation alias, InnoDB rollback and clean shutdown passed. Seed compatibility and AzerothCore remain unqualified."
         } finally {
             // SQL shutdown is preferred. The JNI helper owns process groups and enforces deadlines.
             if (server != 0L && !cancelled.get()) runCatching { client("SHUTDOWN;", 3_000) }
@@ -120,7 +129,69 @@ class DatabaseDiagnostic(
         }
     }
 
-    private fun checkCancelled() { check(!cancelled.get()) { "Database diagnostic cancelled" } }
+    private fun checkCancelled() {
+        check(!cancelled.get()) { "Database diagnostic cancelled" }
+        check(System.nanoTime() < deadline) { "Database diagnostic exceeded its total deadline" }
+    }
+
+    private fun runAuthUpdaterDiagnostic() {
+        check("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables) { "Packaged authserver is unavailable" }
+        status("AUTH_INPUT", "Verifying the exact private database ZIP and auth-only file identities.")
+        val info = JSONObject().put("formatVersion", 1).put("archiveSha256", Inputs.database.sha256)
+            .put("plannedTableCount", 27).put("importedTableCount", 0).put("runtimeAuthUpdates", 0)
+            .put("authTcpListener", false).put("dryRunPassed", false)
+            .put("startedAtEpochMs", System.currentTimeMillis())
+            .put("authExecutableSha256", runtime.manifest.files.single { it.role == "auth-server" }.sha256)
+        fun receipt() {
+            val destination = AtomicFile(File(context.filesDir, "runtime/auth-diagnostic.json"))
+            val output = destination.startWrite()
+            try { output.write(info.toString().toByteArray()); destination.finishWrite(output) }
+            catch (failure: Exception) { destination.failWrite(output); throw failure }
+        }
+        // Reset attempt evidence before input verification so a failed retry cannot
+        // retain a previous pass as the current auth diagnostic result.
+        receipt()
+        val lock = AuthSeedMetadata.load(context)
+        val archive = VerifiedInputReader.resolve(File(context.filesDir, "imports"), Inputs.database)
+        val staged = AuthSeedStore().stage(archive, lock, File(root, "auth-seed-stage"))
+        info.put("runtimeAuthUpdates", 1)
+        receipt()
+        check(client("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name='acore_auth';", 5_000).trim() == "0") {
+            "Auth diagnostic requires an absent disposable auth schema"
+        }
+        client("CREATE DATABASE acore_auth CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;", 5_000)
+        staged.tableFiles.forEachIndexed { index, file ->
+            checkCancelled()
+            status("AUTH_IMPORT", "Importing verified auth table ${index + 1} of 27 into the disposable database.")
+            runClientScript(file, 10_000, "acore_auth")
+            info.put("importedTableCount", index + 1)
+            receipt()
+        }
+        check(client("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='acore_auth';", 5_000).trim() == "27")
+        val secret = ByteArray(24).also { SecureRandom().nextBytes(it) }
+            .joinToString("") { "%02x".format(it.toInt() and 255) }
+        client("CREATE USER 'fta_auth_diag'@'localhost' IDENTIFIED BY '$secret'; GRANT ALL PRIVILEGES ON acore_auth.* TO 'fta_auth_diag'@'localhost';", 5_000)
+        val temp = File(root, "auth-private-temp").apply { check(mkdir()) }
+        val config = File(root, "authserver-diagnostic.conf")
+        try {
+            config.writeText(AuthDiagnosticConfig.render(socket, runtime.executables.getValue("database-client"),
+                staged.runtimeDirectory, temp, "fta_auth_diag", secret))
+            config.setReadable(false, false); config.setWritable(false, false)
+            check(config.setReadable(true, true) && config.setWritable(true, true))
+            status("AUTH_VERSION", "Checking the packaged original authserver build identity.")
+            check(runTool("auth-server", listOf("--version"), null, 10_000).contains("AzerothCore"))
+            status("AUTH_UPDATER", "Running the original auth database updater and dry run without a network listener.")
+            val result = runTool("auth-server", listOf("--config", config.absolutePath, "--dry-run"), null, 180_000)
+            check(result.contains("Dry run completed, terminating.")) { "Original auth dry-run completion marker is missing" }
+            check(client("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='acore_auth';", 5_000).trim() == "27")
+            info.put("dryRunPassed", true).put("completedAtEpochMs", System.currentTimeMillis())
+            receipt()
+        } finally {
+            config.delete()
+            // Original DBUpdater writes this private temporary client options file.
+            File(temp, "mysql_ac.conf").delete()
+        }
+    }
 
     private fun environment(): Array<String> = arrayOf(
         "PATH=/system/bin", "HOME=${root.absolutePath}", "TMPDIR=${root.absolutePath}",
@@ -167,10 +238,16 @@ class DatabaseDiagnostic(
     private fun client(sql: String, timeout: Long): String {
         val script = File(root, "query-${UUID.randomUUID()}.sql").apply { writeText(sql) }
         return try {
-            val args = if (clientOptions != null) listOf("--defaults-file=${clientOptions!!.absolutePath}")
-                else listOf("--no-defaults", "--user=root", "--protocol=socket", "--socket=${socket.absolutePath}")
-            runTool("database-client", args + listOf("--batch", "--skip-column-names", "--connect-timeout=2"), script, timeout)
+            runClientScript(script, timeout)
         } finally { script.delete() }
+    }
+
+    private fun runClientScript(script: File, timeout: Long, database: String? = null): String {
+        require(database == null || database == "acore_auth")
+        val args = if (clientOptions != null) listOf("--defaults-file=${clientOptions!!.absolutePath}")
+            else listOf("--no-defaults", "--user=root", "--protocol=socket", "--socket=${socket.absolutePath}")
+        return runTool("database-client", args + listOf("--batch", "--skip-column-names", "--connect-timeout=2") +
+            listOfNotNull(database), script, timeout)
     }
 
     fun stopOwned() {

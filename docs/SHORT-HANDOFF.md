@@ -28,10 +28,13 @@ are read-only unless separately authorized.
 ## Implemented foundation
 
 `android/` is an independently written setup UI, transactional private-input
-store and disposable native database diagnostic. Imports remain inert. The
-diagnostic service uses only APK-managed native executables, creates a new
-private database, checks it and shuts it down; it never opens imported seeds or
-player saves. `tools/fta_source.py` stages the reviewed source;
+store and disposable native database diagnostic. Importing an archive does not
+execute it. The diagnostic service uses only APK-managed native executables,
+creates a new private database, checks it and shuts it down. Its default mode
+uses no imported seed; the optional private auth mode verifies the exact private
+database ZIP and stages only 27 auth table files plus one auth updater into a
+fresh disposable schema. Neither mode opens player saves or installs a realm.
+`tools/fta_source.py` stages the reviewed source;
 `tools/build_native.py` drives bounded native builds. `tools/fta_database.py`
 and `tools/run_database_gate.py` inventory and test the private database in an
 isolated disposable instance. Inputs remain external; the public provenance
@@ -48,14 +51,35 @@ all 236 runtime SQL files with source-confirmed changed-script behavior: 211
 existing scripts match, six are new and 19 are reapplied after hash changes.
 Default strict mode still stops on a changed receipt; the explicit policy probe
 records the change and updates its receipt only after SQL success. This does not
-replace qualification of the compiled original updater. MariaDB 10.11 fails the
+qualify the compiled world/character updater. MariaDB 10.11 fails the
 original MySQL 8 collation; do not silently substitute that older engine.
 
-The reviewed MariaDB C API port now builds and executes host `authserver --help`.
-Original MySQL paths are preserved. Explicit TLS policies on the MariaDB path
-are rejected before authentication until equivalent required-TLS behavior is
-qualified; empty SSL settings/private local transport remain supported. No
-permissive fallback is allowed. Native Android server compilation is separate.
+The reviewed MariaDB C API port builds and executes the host authserver. Its
+compiled original auth updater, local TCP listener, graceful stop and explicit
+TLS-policy refusal probes passed against exact MariaDB 12.3.2. The minimal
+unchanged 27-table seed and original `--dry-run` also passed on that host. This
+does not qualify the compiled world/character updater or Android. Original MySQL
+paths are preserved. Explicit TLS policies on the MariaDB path are rejected
+before authentication until equivalent required-TLS behavior is qualified;
+empty SSL settings/private local transport remain supported. No permissive
+fallback is allowed.
+
+Actual Android API 33 ARM64/Bionic authserver compilation now passed with NDK
+r28c, C++20, Release, static scripts/modules and the reviewed `android-arm64-v1`
+profile. All 52 module directories remain intact; auth-only compilation does
+not compile or qualify their world code. Authserver SHA256:
+`acf186557515897a4c359ac2ceee889f52c1482f36f8b012db007a8625b5fd05`.
+The real private stage passed ELF/dependency checks with source-built Connector/C
+3.4.9 and preserved all base database-provider native/data/legal payloads.
+Source, seed and server binaries remain private. See `docs/auth-runtime.md` and
+`docs/private-diagnostics.md` for exact evidence, staging and persistent signing.
+Private APK `0.3.0-auth-diagnostic` (version code 3) passed all 61 Android unit
+tests, lint, assembly, signature verification and exact byte checks for 114
+packaged runtime/notice files. Its SHA256 is
+`aff0b0d4b751690a8feae5aab4f272ea5133b52ffa0fa6286bf45ea90cbf8908`;
+see `docs/evidence/android-2026-10-22-private-auth-apk.json`. It uses the persistent
+private development key; reuse that key and increase the version code for later
+user builds. No Bionic server execution or physical-device success has been measured.
 
 Direct measurement corrected one assessment count: **563 seed tables total**
 (27 auth, 165 characters, 371 world), plus one world trigger, and 236 runtime
@@ -65,15 +89,21 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 
 1. Qualify the packaged database diagnostic on Android: exact bootstrap, socket
    health, private credentials, collation/transaction checks and clean shutdown.
-   Use its exported report; do not infer success from packaged ELF hashes.
-2. Run the matching private seed on that exact engine in a disposable Android
+   Then run the optional original auth updater dry run against only the pinned
+   auth seed. Export the exact APK/device report; do not infer execution from
+   compiled or packaged ELF hashes. Check stop/background/crash ownership too.
+2. Run the matching full private seed on that exact engine in a disposable Android
    environment. Record engine version, schemas, trigger/routines, receipt
    hashes/counts and exact compatibility failures without publishing records.
-3. Continue the Android Clang/CMake toolchain and cross-built Boost/OpenSSL/
-   MariaDB dependencies. Configure authserver first with one or two compile
-   jobs. Record actual compiler blockers and make reviewable bounded patches
-   to a separate port layer/patch series, keeping original archive provenance.
-4. Qualify worldserver with every required module. Only then package controlled
+3. Start the separate world build with the verified Android toolchain and target
+   dependencies, including Readline for worldserver/bundled Lua. Preserve C++20,
+   all 52 required modules and static scripts/modules; auth must still build
+   first. Use one heavy build at a time and record actual compiler blockers as
+   bounded reviewed patches. A read-only module audit found no further confirmed
+   Android compile blocker; it is not compiler evidence.
+4. Qualify compiled world/character updaters and worldserver with every required
+   module, the disposable seed and matching DBC/maps/vmaps/mmaps. Those data
+   assets were not supplied. Only then package controlled
    native services, account provisioning and restart-safe database installation.
 
 ## Resource and evidence discipline
@@ -86,6 +116,7 @@ build, a setup APK or a CI artifact with a successful Thor runtime test.
 
 The initial shell lacked build tools; host tools/dependencies are now staged
 privately and the exact host database gate has run. Do not repeat that old
-missing-tools status as a current blocker. Native ARM64 server compilation and
-physical-device diagnostics still require their own measured evidence. Inspect
-the exact commit's GitHub CI run before claiming Android compilation success.
+missing-tools status as a current blocker. ARM64 auth compilation and private
+staging passed; world compilation and physical-device diagnostics still require
+their own measured evidence. Inspect the exact commit's GitHub CI results before
+reporting setup APK checks as passed; native compilation has its own build report.

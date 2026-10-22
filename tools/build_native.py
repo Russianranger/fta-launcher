@@ -11,7 +11,7 @@ import shutil
 import subprocess
 import sys
 
-from fta_source import SourceError, verify_source_tree
+from fta_source import SourceError, verify_source_tree, sha256_file
 
 
 class BuildError(ValueError):
@@ -19,12 +19,14 @@ class BuildError(ValueError):
 
 
 def cgroup_available(limit: int, usage: int, statistics: dict[str, int]) -> int:
-    # The kernel can reclaim clean inactive file cache. Count no active cache,
-    # dirty/writeback pages or reclaimable slab, retaining a conservative bound.
+    # Both file-cache LRUs can be reclaimed. Count clean inactive pages plus
+    # only one quarter of clean active pages, preserving most hot file cache.
+    # Dirty/writeback pages and reclaimable slab are never counted here.
     inactive = statistics.get('inactive_file', statistics.get('total_inactive_file', 0))
+    active = statistics.get('active_file', statistics.get('total_active_file', 0))
     dirty = statistics.get('file_dirty', statistics.get('dirty', 0))
     writeback = statistics.get('file_writeback', statistics.get('writeback', 0))
-    reclaimable = max(0, inactive - dirty - writeback)
+    reclaimable = max(0, inactive - dirty - writeback) + max(0, active - dirty - writeback) // 4
     return max(0, limit - usage + min(usage, reclaimable))
 
 
@@ -113,8 +115,13 @@ def commands(args: argparse.Namespace) -> list[list[str]]:
             raise BuildError('Cross Android build requires target MySQL/MariaDB library and headers')
         configure += ['-DCMAKE_TOOLCHAIN_FILE=' + str(args.toolchain.resolve()),
                       '-DANDROID_ABI=arm64-v8a', '-DANDROID_PLATFORM=android-33',
+                      '-DANDROID_STL=c++_static', '-DBoost_USE_STATIC_LIBS=ON',
+                      '-DBoost_USE_STATIC_RUNTIME=ON',
                       '-DCMAKE_SYSTEM_NAME=Android', '-DCMAKE_SYSTEM_PROCESSOR=aarch64',
                       '-DMYSQL_CONFIG:FILEPATH=']
+        if args.dependency_prefix:
+            # NDK package searches are rooted; explicitly admit only this target prefix.
+            configure.append('-DCMAKE_FIND_ROOT_PATH=' + str(args.dependency_prefix.resolve()))
     elif args.toolchain:
         raise BuildError('Use --platform android for a cross toolchain; host results are not Android qualification')
     for field, variable in [('dependency_prefix','CMAKE_PREFIX_PATH'), ('mysql_library','MYSQL_LIBRARY'),
@@ -182,6 +189,20 @@ def main() -> int:
                 check_cache(read_cache(args.build_dir / 'CMakeCache.txt'), args.platform, configured=True)
         verify_source_tree(args.source, port_profile=args.port_profile)
         report['status'] = 'configure-passed' if args.configure_only else 'build-passed'
+        cache = read_cache(args.build_dir / 'CMakeCache.txt')
+        report['configuration'] = {key: cache[key] for key in (
+            'CMAKE_BUILD_TYPE', 'CMAKE_CXX_STANDARD', 'SCRIPTS', 'MODULES',
+            'CMAKE_CXX_COMPILER', 'ANDROID_ABI', 'CMAKE_ANDROID_ARCH_ABI',
+            'ANDROID_PLATFORM', 'ANDROID_STL', 'CMAKE_ANDROID_STL_TYPE',
+            'CMAKE_SYSTEM_NAME', 'APPS_BUILD') if key in cache}
+        if args.platform == 'android':
+            report['target_abi'] = cache.get('CMAKE_ANDROID_ARCH_ABI', cache.get('ANDROID_ABI'))
+        if not args.configure_only:
+            report['artifacts'] = {}
+            for name in (['authserver'] if args.stage == 'auth' else ['authserver', 'worldserver']):
+                artifact = args.build_dir.resolve() / 'src/server/apps' / name
+                report['artifacts'][name] = {'path': str(artifact), 'size': artifact.stat().st_size,
+                                            'sha256': sha256_file(artifact)}
         # Compilation evidence alone does not qualify Android execution, DB, game data or Thor behavior.
     except (BuildError, SourceError, OSError, ValueError) as error:
         report['blocker'] = str(error)

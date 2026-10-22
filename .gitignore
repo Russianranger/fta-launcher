@@ -19,7 +19,10 @@ __pycache__/
 *.py[cod]
 .venv/
 .gradle/
+.kotlin/
+.cxx/
 **/build/
 local.properties
 *.jks
 *.keystore
+*.p12
