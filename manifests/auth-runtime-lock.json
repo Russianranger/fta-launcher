@@ -1,0 +1,823 @@
+{
+  "formatVersion": 1,
+  "scope": "exact-private-database-and-auth-runtime-before-world-extension",
+  "abi": "arm64-v8a",
+  "providerId": "mariadb-12.3.2-termux-bionic-arm64",
+  "capabilities": [
+    "database",
+    "authserver"
+  ],
+  "source": {
+    "kind": "recovered-private-apk",
+    "sha256": "adaf3d14701261d26a4178d145812a72dcec0ba4df996a5f830d8bffab0dc3cc",
+    "fileName": "FTA-Launcher-0.4.0-full-seed-diagnostic.apk"
+  },
+  "historicalAuthSourceProfile": "android-arm64-resolver-v3",
+  "historicalAuthSourceTreeSha256": "671245955b368e2f6996fc0dd6fd542efb13901c25cb50a3a3a95ece3e101ced",
+  "currentSessionNativeCompilePerformed": false,
+  "manifestSha256": "e7edb7c72794753cb693890a2b49b8bd118a4a4fa4bbd1b8d3b141aa26538511",
+  "runtimeFileCount": 96,
+  "files": [
+    {
+      "sha256": "ce5fb5ddd0083063888ce9e21e57d7b42309df8533c9b44baad53e72cadba5c9",
+      "size": 26661512,
+      "role": "database-server",
+      "path": "native/libfta_mariadbd.so",
+      "needed": [
+        "libandroid-support.so",
+        "libc++_shared.so",
+        "libc.so",
+        "libcrypt.so",
+        "libcrypto.so.3",
+        "libdl.so",
+        "libm.so",
+        "libpcre2-8.so",
+        "libssl.so.3",
+        "libz.so.1"
+      ],
+      "sonames": [],
+      "interpreter": "/system/bin/linker64",
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "sha256": "5ea8f5a8dfaeacd456ed1c798f60e0dab2a245994e0a6f37379bd3d0759037e0",
+      "size": 5254752,
+      "role": "database-client",
+      "path": "native/libfta_mariadb_client.so",
+      "needed": [
+        "libandroid-support.so",
+        "libc++_shared.so",
+        "libc.so",
+        "libcrypto.so.3",
+        "libdl.so",
+        "libedit.so",
+        "libncursesw.so.6",
+        "libssl.so.3",
+        "libz.so.1"
+      ],
+      "sonames": [],
+      "interpreter": "/system/bin/linker64",
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "sha256": "739cf829511d71dafd6c67fdbb70f3f0c6048642ea2e1967790ee961fde14430",
+      "size": 20736,
+      "role": "library",
+      "path": "native/libfta_db_libandroid_support_so_739cf82951.so",
+      "needed": [
+        "libc.so"
+      ],
+      "sonames": [],
+      "interpreter": null,
+      "minimumLoadAlignment": 16384,
+      "logicalName": "libandroid-support.so"
+    },
+    {
+      "sha256": "e09c2f45cf4cf8ae574f94b6c2650d99ead0d332d5396f6613f062a2d2d73540",
+      "size": 1374336,
+      "role": "library",
+      "path": "native/libfta_db_libc_shared_so_e09c2f45cf.so",
+      "needed": [
+        "libc.so",
+        "libdl.so",
+        "libm.so"
+      ],
+      "sonames": [
+        "libc++_shared.so"
+      ],
+      "interpreter": null,
+      "minimumLoadAlignment": 16384,
+      "logicalName": "libc++_shared.so"
+    },
+    {
+      "sha256": "bf078ced08880508974c8ab9d68d12d320842e422fb6ec496f5b892e5d701262",
+      "size": 17104,
+      "role": "library",
+      "path": "native/libfta_db_libcrypt_so_bf078ced08.so",
+      "needed": [
+        "libc.so",
+        "libcrypto.so.3"
+      ],
+      "sonames": [],
+      "interpreter": null,
+      "minimumLoadAlignment": 16384,
+      "logicalName": "libcrypt.so"
+    },
+    {
+      "sha256": "4122f5c95088f11a43c14e49e257cc1ce700960e855840cf9b9f39a8acbcd7e8",
+      "size": 5205472,
+      "role": "library",
+      "path": "native/libfta_db_libcrypto_so_3_4122f5c950.so",
+      "needed": [
+        "libc.so",
+        "libdl.so"
+      ],
+      "sonames": [
+        "libcrypto.so.3"
+      ],
+      "interpreter": null,
+      "minimumLoadAlignment": 16384,
+      "logicalName": "libcrypto.so.3"
+    },
+    {
+      "sha256": "3776bfd46996ad42a736ec478583e7d65506b0aae0d32b1829baefe85ff63f35",
+      "size": 197096,
+      "role": "library",
+      "path": "native/libfta_db_libedit_so_3776bfd469.so",
+      "needed": [
+        "libc.so",
+        "libncursesw.so.6"
+      ],
+      "sonames": [
+        "libedit.so"
+      ],
+      "interpreter": null,
+      "minimumLoadAlignment": 16384,
+      "logicalName": "libedit.so"
+    },
+    {
+      "sha256": "795f855f5a988d9e89116847b2c9aa03720cedbc02026259ca735be25398c4c5",
+      "size": 384496,
+      "role": "library",
+      "path": "native/libfta_db_libncursesw_so_6_795f855f5a.so",
+      "needed": [
+        "libc.so"
+      ],
+      "sonames": [
+        "libncursesw.so.6"
+      ],
+      "interpreter": null,
+      "minimumLoadAlignment": 16384,
+      "logicalName": "libncursesw.so.6"
+    },
+    {
+      "sha256": "a6bbeb410e269e50aee795b4fd1b11cbddb8b54959d1cfcd927b55b04dc19f5c",
+      "size": 489384,
+      "role": "library",
+      "path": "native/libfta_db_libpcre2_8_so_a6bbeb410e.so",
+      "needed": [
+        "libc.so"
+      ],
+      "sonames": [
+        "libpcre2-8.so"
+      ],
+      "interpreter": null,
+      "minimumLoadAlignment": 16384,
+      "logicalName": "libpcre2-8.so"
+    },
+    {
+      "sha256": "9bf626fadf689237cf641bf1108057f0cc87c587c17fbdeaa16bd4a12807d7ce",
+      "size": 875304,
+      "role": "library",
+      "path": "native/libfta_db_libssl_so_3_9bf626fadf.so",
+      "needed": [
+        "libc.so",
+        "libcrypto.so.3"
+      ],
+      "sonames": [
+        "libssl.so.3"
+      ],
+      "interpreter": null,
+      "minimumLoadAlignment": 16384,
+      "logicalName": "libssl.so.3"
+    },
+    {
+      "sha256": "c47748ed4b6ca6a2ecd664bab04795f3493956ab1f5cddc4ba0efa737ef3b711",
+      "size": 72880,
+      "role": "library",
+      "path": "native/libfta_db_libz_so_1_c47748ed4b.so",
+      "needed": [
+        "libc.so"
+      ],
+      "sonames": [
+        "libz.so.1"
+      ],
+      "interpreter": null,
+      "minimumLoadAlignment": 16384,
+      "logicalName": "libz.so.1"
+    },
+    {
+      "path": "data/provider/bootstrap.sql",
+      "role": "data",
+      "sha256": "beea9b5ed417de90a5dc4d678d7e42268a555df7082212bf51ea1791d3f21dd4",
+      "size": 2827272
+    },
+    {
+      "path": "data/provider/share/mysql/binary-configure",
+      "role": "data",
+      "sha256": "d065d0505ef7444a56ed909041d1942001713e573d5b10362903fdc51af53c8c",
+      "size": 1192
+    },
+    {
+      "path": "data/provider/share/mysql/bulgarian/errmsg.sys",
+      "role": "data",
+      "sha256": "e1bec8e69372756e9b818d442577d8fbe25ac8903c0d8dc2a27ca7e61e117265",
+      "size": 83453
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/Index.xml",
+      "role": "data",
+      "sha256": "c28a7f28b8268d5af070f894b108ee616bd6cf0f16a5a6bb73002d6cd9067816",
+      "size": 24292
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/README",
+      "role": "data",
+      "sha256": "0af62ce1ae651e980006f2e9d29bd2f24e1cd18c6a0b1914e9c437cc80e990ab",
+      "size": 1749
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/armscii8.xml",
+      "role": "data",
+      "sha256": "9e97d39dfa130dc298a23ba21c9ef08e922353effb3d2faa7b8312767e0f12c1",
+      "size": 5526
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/ascii.xml",
+      "role": "data",
+      "sha256": "0d9216d2c38a467e03e0485d3bb9607a554196f7294e41efd92bc8a11b4f29ff",
+      "size": 5512
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/cp1250.xml",
+      "role": "data",
+      "sha256": "65e7d6cf30ab286740dd00dadc6a218b9281316381b461d0a721cf229b742294",
+      "size": 8241
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/cp1251.xml",
+      "role": "data",
+      "sha256": "eda82c06317145d7be01578c34229f7762dffb2907890783fe0bf529664473fb",
+      "size": 8365
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/cp1256.xml",
+      "role": "data",
+      "sha256": "2913f93935de57910436eac59dcde0a0c6a5ceacb339d6635b0eee693836b502",
+      "size": 5569
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/cp1257.xml",
+      "role": "data",
+      "sha256": "82ba85d79760a31a480a63f6e3ff462f472c88cd832411356779c1fe265c8313",
+      "size": 8902
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/cp850.xml",
+      "role": "data",
+      "sha256": "233040414ec9a2b18b83e6bea6490d590275f5e5aefcd08065e22446a9788ef0",
+      "size": 5506
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/cp852.xml",
+      "role": "data",
+      "sha256": "a3598e99923c97273e1bbeb10479f5c45cfef47739b5f38c5029f1d911e1968a",
+      "size": 5528
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/cp866.xml",
+      "role": "data",
+      "sha256": "7ef9c770e934e93aec794a36714ab212776d047cc20e5bb086f29648f8611828",
+      "size": 5613
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/dec8.xml",
+      "role": "data",
+      "sha256": "d3f0fe6fb085ed76072f68b1caed7e821bf384840fbb8c94c4b58049f6bbdf22",
+      "size": 6529
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/geostd8.xml",
+      "role": "data",
+      "sha256": "2635d5a7f2dc7a0373cdd2dd4380799749c59bca44961744265bb9cbdc357a72",
+      "size": 5516
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/greek.xml",
+      "role": "data",
+      "sha256": "e5c1722ae64b2d9d2890103375386cb2bb63c235f589d9f73f24cfd23a5b4303",
+      "size": 5728
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/hebrew.xml",
+      "role": "data",
+      "sha256": "a260ddde747abf250b0b8d6422108b66617ae158e03f1b83e969f6e720648b61",
+      "size": 5517
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/hp8.xml",
+      "role": "data",
+      "sha256": "2feea2baca6c3cb0626b5935815fe950b06dfdc964f7885e4fb15ddf05d680bd",
+      "size": 5502
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/keybcs2.xml",
+      "role": "data",
+      "sha256": "69cadd4266cca445df33e6263dba1cc65baa66520a888bfdd69319b7a3c54d72",
+      "size": 5529
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/koi8r.xml",
+      "role": "data",
+      "sha256": "62e58dea0a82262ceca6d8b4e6fd0ce455837cc18ceec5dd25cf9733b5c06a78",
+      "size": 5510
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/koi8u.xml",
+      "role": "data",
+      "sha256": "89a3a22b8f4428412e2346ac12f9cd684651078b02183869cd3b676dd234eb1e",
+      "size": 6532
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/latin1.xml",
+      "role": "data",
+      "sha256": "14b7af906031f8dd4a548b8be8dcbd2085cb6c7fb4ee2ac8c357329705ee8e08",
+      "size": 9816
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/latin2.xml",
+      "role": "data",
+      "sha256": "5060721b44cbbf1a8d5e092b9f069ee837d7276feaf61e4aad68176450fabb1f",
+      "size": 7238
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/latin5.xml",
+      "role": "data",
+      "sha256": "0a2de75c2c4c78a8babd882b7c29e6e4329bcbb81a6b0bcd24c5c462384e597d",
+      "size": 5515
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/latin7.xml",
+      "role": "data",
+      "sha256": "805ddc77c26c1a947625bdac4107eb9ddaf2f6c4f2218f978f0e30d52852967c",
+      "size": 7438
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/macce.xml",
+      "role": "data",
+      "sha256": "b8ed085763a3e2a23e3b08df9724733035a4d87983ad733a7b299daa7ade805f",
+      "size": 8047
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/macroman.xml",
+      "role": "data",
+      "sha256": "ec449c54ebf9bd8f06bb09833993ff51e5dc29fe7d691963a697db5ff7232d36",
+      "size": 8058
+    },
+    {
+      "path": "data/provider/share/mysql/charsets/swe7.xml",
+      "role": "data",
+      "sha256": "d26b3be163a2a5d0d54c07b28737c618e0aa4dba16972a3740d896849189f34d",
+      "size": 6530
+    },
+    {
+      "path": "data/provider/share/mysql/chinese/errmsg.sys",
+      "role": "data",
+      "sha256": "fd4592e4d39776b11128074c47516febd62c8d1e46f73b60468f32266b93d701",
+      "size": 71718
+    },
+    {
+      "path": "data/provider/share/mysql/czech/errmsg.sys",
+      "role": "data",
+      "sha256": "805d8410100b68283a762209300824e576d0e0840fd8c31d38ffd29ee2324858",
+      "size": 84228
+    },
+    {
+      "path": "data/provider/share/mysql/danish/errmsg.sys",
+      "role": "data",
+      "sha256": "16337f5802441f0eab60d8f1d84b02c9cd0e2feedd2fadd46ff558171a2ced8f",
+      "size": 84228
+    },
+    {
+      "path": "data/provider/share/mysql/dutch/errmsg.sys",
+      "role": "data",
+      "sha256": "bf6af02ecdf6dd6e0941416f0d0bff2bbb61d9e02bca1aaacedae734ae4dc3ff",
+      "size": 85204
+    },
+    {
+      "path": "data/provider/share/mysql/english/errmsg.sys",
+      "role": "data",
+      "sha256": "c73d34c01fd7d2d2aff6693172cc87c1870f0358cf8321d3a3c896a65127bebd",
+      "size": 83211
+    },
+    {
+      "path": "data/provider/share/mysql/estonian/errmsg.sys",
+      "role": "data",
+      "sha256": "afd3886d049dcda5e7a9113c03374fe9c146ba0ad549db9c93c3362647bcb80b",
+      "size": 83745
+    },
+    {
+      "path": "data/provider/share/mysql/fill_help_tables.sql",
+      "role": "data",
+      "sha256": "aebf9ee7fdae006d9da5795f1771554f2dabd670ab067e09552e32fc2c7b3718",
+      "size": 2165288
+    },
+    {
+      "path": "data/provider/share/mysql/french/errmsg.sys",
+      "role": "data",
+      "sha256": "8965fbb320f84ec06ae5cb65f8ad47ec619f737992fa9c67f8b316037edf81b4",
+      "size": 84888
+    },
+    {
+      "path": "data/provider/share/mysql/georgian/errmsg.sys",
+      "role": "data",
+      "sha256": "da9ebde1a63101ce452de1225233522af5dcde2a6fd921629feef7c8ba8d5a3b",
+      "size": 148853
+    },
+    {
+      "path": "data/provider/share/mysql/german/errmsg.sys",
+      "role": "data",
+      "sha256": "6200b877b29de04a63cc46f69294810762302f45c740f298f7b798d097c97d28",
+      "size": 90861
+    },
+    {
+      "path": "data/provider/share/mysql/greek/errmsg.sys",
+      "role": "data",
+      "sha256": "966dfad39203ac81f2e26599682f38a9e6526d3b68a83aa339e596c655c5cd24",
+      "size": 89994
+    },
+    {
+      "path": "data/provider/share/mysql/hindi/errmsg.sys",
+      "role": "data",
+      "sha256": "453bc58638776ac76a054cbaa6728d190153dd08da7c98600d2a0b4780935bac",
+      "size": 94673
+    },
+    {
+      "path": "data/provider/share/mysql/hungarian/errmsg.sys",
+      "role": "data",
+      "sha256": "508e32fc808aff49a1488e27b73589f4933868b2fc1854c688ee8ee7b316f3a3",
+      "size": 84068
+    },
+    {
+      "path": "data/provider/share/mysql/italian/errmsg.sys",
+      "role": "data",
+      "sha256": "106d75d385e28b13ff042520f699bc3082d98dcd3c0a7695bdfed7bb5dbde9e1",
+      "size": 85235
+    },
+    {
+      "path": "data/provider/share/mysql/japanese/errmsg.sys",
+      "role": "data",
+      "sha256": "9baaabc39006664eb60b3828946e6a7902f3b7e535e09ff3d4fce641ea628dcc",
+      "size": 90363
+    },
+    {
+      "path": "data/provider/share/mysql/korean/errmsg.sys",
+      "role": "data",
+      "sha256": "4d8a78b2ff4c1baaff667183c6266b1035f06643db5f2e99de5ab73c56020bd0",
+      "size": 86242
+    },
+    {
+      "path": "data/provider/share/mysql/magic",
+      "role": "data",
+      "sha256": "9c3ff195795892dfcb216a91843a18e8753ce88dda9449b053e359de566132a9",
+      "size": 1709
+    },
+    {
+      "path": "data/provider/share/mysql/maria_add_gis_sp.sql",
+      "role": "data",
+      "sha256": "60b944b74ac99206efc6d03e0b4b29be32e634b65efac5c4e2bae2d6180ba159",
+      "size": 1705
+    },
+    {
+      "path": "data/provider/share/mysql/maria_add_gis_sp_bootstrap.sql",
+      "role": "data",
+      "sha256": "a82a298bb87e5b338e18c90a2d037337474b7de2205eb4e612354ca9e7bb3e8e",
+      "size": 1683
+    },
+    {
+      "path": "data/provider/share/mysql/mariadb.logrotate",
+      "role": "data",
+      "sha256": "a3210a143588acf714d039f25c92161f3b3d7405885724ee06b64e5b0513413f",
+      "size": 1974
+    },
+    {
+      "path": "data/provider/share/mysql/mariadb_performance_tables.sql",
+      "role": "data",
+      "sha256": "b7906472abd67c28aa5cb8a49ea2148310040151d9e34bca99e592b505074aa4",
+      "size": 2030
+    },
+    {
+      "path": "data/provider/share/mysql/mariadb_sys_schema.sql",
+      "role": "data",
+      "sha256": "5c84bd10520ebf78ddce2943ba8bb3cd3e17de860ce8302d2bc9d686d0cb820b",
+      "size": 623577
+    },
+    {
+      "path": "data/provider/share/mysql/mariadb_system_tables.sql",
+      "role": "data",
+      "sha256": "22e23166715ef17156ae2c6e2d8ae20a699ee5c6192cedfd85a367e22e39893d",
+      "size": 31244
+    },
+    {
+      "path": "data/provider/share/mysql/mariadb_system_tables_data.sql",
+      "role": "data",
+      "sha256": "52c63a6506f7d5d6796833a6c404a970ce4f4d54e80791c120975429b38769f8",
+      "size": 3372
+    },
+    {
+      "path": "data/provider/share/mysql/mariadb_test_data_timezone.sql",
+      "role": "data",
+      "sha256": "3d31a6ed198a2f7eb6b76463b722224195f9b9c26b4ddfe0d3093ed5c994edae",
+      "size": 10506
+    },
+    {
+      "path": "data/provider/share/mysql/mariadb_test_db.sql",
+      "role": "data",
+      "sha256": "c9f17d942edeee4a1ed8588843be28ec56b8b1e986383ae9484ca8e976e15d56",
+      "size": 1841
+    },
+    {
+      "path": "data/provider/share/mysql/mini-benchmark",
+      "role": "data",
+      "sha256": "c581a177792ca11bbe7bfd76ed56393207880da8f2ee54ab279241902ae94f9d",
+      "size": 9869
+    },
+    {
+      "path": "data/provider/share/mysql/mroonga/AUTHORS",
+      "role": "data",
+      "sha256": "3501b817b547c58ce2a32cd2517d714a6e6c38540997db23cf7263236c0871bb",
+      "size": 182
+    },
+    {
+      "path": "data/provider/share/mysql/mroonga/COPYING",
+      "role": "data",
+      "sha256": "f56dd21f1bb989b5db3c90c16cdc845a42c7248c7d14a054bd1a7f3156ea8a8c",
+      "size": 26435
+    },
+    {
+      "path": "data/provider/share/mysql/mroonga/install.sql",
+      "role": "data",
+      "sha256": "b5e05eb09d264ca42d7338c57dc7e6756256765ed78576448cceffdcc2f31b7b",
+      "size": 1120
+    },
+    {
+      "path": "data/provider/share/mysql/mroonga/uninstall.sql",
+      "role": "data",
+      "sha256": "22cef3a95efafb77408f0eee25dc2ac500d96a966ef0a638c1f5389709a119de",
+      "size": 391
+    },
+    {
+      "path": "data/provider/share/mysql/mysql.server",
+      "role": "data",
+      "sha256": "8056d83f911216a341a69b1220676848803c8b707884c79aef81c8fee6db25f2",
+      "size": 12442
+    },
+    {
+      "path": "data/provider/share/mysql/mysqld_multi.server",
+      "role": "data",
+      "sha256": "df615fea51b04958330e18944ef73590daf47e2a09abf500601f3bae9e86bbdc",
+      "size": 1595
+    },
+    {
+      "path": "data/provider/share/mysql/norwegian/errmsg.sys",
+      "role": "data",
+      "sha256": "92057a3610ee2e4a90a97fa052c141326b922f9cc5f69c6a1220751e4f501796",
+      "size": 83467
+    },
+    {
+      "path": "data/provider/share/mysql/norwegian-ny/errmsg.sys",
+      "role": "data",
+      "sha256": "ef5195601e67b56faf3663ddb5e3eb49525d5c39176e2e40b868e5208eae6054",
+      "size": 83536
+    },
+    {
+      "path": "data/provider/share/mysql/policy/apparmor/README",
+      "role": "data",
+      "sha256": "2e60809bbb02338bbe695eed29556fdc775a0ddcdf6d4ae883fa438aaa745c4e",
+      "size": 256
+    },
+    {
+      "path": "data/provider/share/mysql/policy/apparmor/usr.sbin.mysqld",
+      "role": "data",
+      "sha256": "dd3793d05245d9b4c4c52218929f665680c16d100541411e1cab082490157101",
+      "size": 3628
+    },
+    {
+      "path": "data/provider/share/mysql/policy/apparmor/usr.sbin.mysqld.local",
+      "role": "data",
+      "sha256": "baf9eff159a38ce13916182f5d9aa4d2cab589b685bfbc919f969b96d2a60b1d",
+      "size": 239
+    },
+    {
+      "path": "data/provider/share/mysql/policy/apparmor/usr.sbin.mysqld.orig",
+      "role": "data",
+      "sha256": "fe6ac33f730c95c79004d143f14d2d95ae9806c2a95f337f9eed6d3b5de27f3b",
+      "size": 3566
+    },
+    {
+      "path": "data/provider/share/mysql/policy/selinux/README",
+      "role": "data",
+      "sha256": "cebe3d5cc527fe69f31f866a2c113e8262a7c37945d421b482e6df18dcd1da54",
+      "size": 851
+    },
+    {
+      "path": "data/provider/share/mysql/policy/selinux/mariadb-server.fc",
+      "role": "data",
+      "sha256": "f048b936c0b11080513ffd2f9eeb8ebfa501f548e57c67fb15de0c7a1f113c4f",
+      "size": 640
+    },
+    {
+      "path": "data/provider/share/mysql/policy/selinux/mariadb-server.te",
+      "role": "data",
+      "sha256": "7b857053e5f45787ff60db0158325d634756a88b5ecd3ee2451dbcac8a29046a",
+      "size": 4043
+    },
+    {
+      "path": "data/provider/share/mysql/policy/selinux/mariadb.te",
+      "role": "data",
+      "sha256": "baec7b83616b5eb7dd5b6d54ef10686583241b7a6703feef2fe8f05a2600910f",
+      "size": 205
+    },
+    {
+      "path": "data/provider/share/mysql/polish/errmsg.sys",
+      "role": "data",
+      "sha256": "55ec04a9b95b4f6ebdc5bde4c5542aea0ec1ffb8ebef539423951f3388f38d88",
+      "size": 84100
+    },
+    {
+      "path": "data/provider/share/mysql/portuguese/errmsg.sys",
+      "role": "data",
+      "sha256": "f2eba387302fae78c16a8e1e582f4aef69400d8867903b7a0b36f0388fcc65dc",
+      "size": 86185
+    },
+    {
+      "path": "data/provider/share/mysql/romanian/errmsg.sys",
+      "role": "data",
+      "sha256": "f500fd426e2fa3b5e251dcac01124ccc13dbe925b222167793803d67f08fa773",
+      "size": 84891
+    },
+    {
+      "path": "data/provider/share/mysql/russian/errmsg.sys",
+      "role": "data",
+      "sha256": "aa15c03c617d9db7baec57b0273f129112bcde0555d6bfeed8392b3d24e45f8b",
+      "size": 98704
+    },
+    {
+      "path": "data/provider/share/mysql/serbian/errmsg.sys",
+      "role": "data",
+      "sha256": "0054b45a3d0ed0f0a223c897fe9d8d28f8c670e5464c81b2ed4ad21f796c18d0",
+      "size": 85631
+    },
+    {
+      "path": "data/provider/share/mysql/slovak/errmsg.sys",
+      "role": "data",
+      "sha256": "4965cbeeebf3d5027259d2235061b6c94ff11020a26a7312016d4c60dddeaeed",
+      "size": 83924
+    },
+    {
+      "path": "data/provider/share/mysql/spanish/errmsg.sys",
+      "role": "data",
+      "sha256": "393e947232def36ce6c5b1a025ccb1659bfda387beb8d0128ce1edb67b299733",
+      "size": 98320
+    },
+    {
+      "path": "data/provider/share/mysql/swahili/errmsg.sys",
+      "role": "data",
+      "sha256": "12ec7acb420b1a0ec049136055ac929f10b9282698235c1f54db103ab882ae59",
+      "size": 93969
+    },
+    {
+      "path": "data/provider/share/mysql/swedish/errmsg.sys",
+      "role": "data",
+      "sha256": "3ebd3151ee64852e044bf6bbceeabdcf6c3286bea6cf0e67b97b31f5d139558f",
+      "size": 84192
+    },
+    {
+      "path": "data/provider/share/mysql/ukrainian/errmsg.sys",
+      "role": "data",
+      "sha256": "3cb0c4282d586aa76b16e11095b6ff2c60914f21fb2b4d6a713c2487766037a0",
+      "size": 94069
+    },
+    {
+      "path": "native/libfta_authserver.so",
+      "role": "auth-server",
+      "sha256": "7e901a2bbb4efa5c239c44242578bd587aff194d30ed6aed810d5576ceaf9ce4",
+      "size": 30655008,
+      "needed": [
+        "libc.so",
+        "libcrypto.so.3",
+        "libdl.so",
+        "libm.so",
+        "libmariadb.so",
+        "libssl.so.3",
+        "libz.so"
+      ],
+      "sonames": [],
+      "interpreter": "/system/bin/linker64",
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "path": "native/libfta_authdep_libmariadb_so_a7306c9150.so",
+      "role": "library",
+      "logicalName": "libmariadb.so",
+      "sha256": "a7306c915090074cc09fd966135738ed5328a3043eb6f7ecedc0d305bd6c1a6c",
+      "size": 1967448,
+      "needed": [
+        "libc.so",
+        "libcrypto.so.3",
+        "libdl.so",
+        "libm.so",
+        "libssl.so.3"
+      ],
+      "sonames": [
+        "libmariadb.so"
+      ],
+      "interpreter": null,
+      "minimumLoadAlignment": 16384
+    },
+    {
+      "path": "data/metadata/auth-seed-lock.json",
+      "role": "data",
+      "sha256": "6a7f2e1a3ccb56c1dc98f1233cda1d969e2687cb520d6b291425b039d9015bed",
+      "size": 8264
+    }
+  ],
+  "legalFileCount": 17,
+  "legalFiles": [
+    {
+      "name": "Apache-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "size": 11358
+    },
+    {
+      "name": "FTA_DATABASE_PROVIDER_NOTICES.md",
+      "sha256": "42906c2f22b608c98cde4854cc2ed6bdbee0e194cb123f0d043201a276acad9c",
+      "size": 3132
+    },
+    {
+      "name": "GPL-2.0.txt",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092
+    },
+    {
+      "name": "GPL-3.0.txt",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "size": 35149
+    },
+    {
+      "name": "POCKET_REALM_THIRD_PARTY_NOTICES.md",
+      "sha256": "2b175f3703bfba802410c4e1ccec8e1b89d4c131c50c6001c1ca299994796b15",
+      "size": 5304
+    },
+    {
+      "name": "SOURCE_EVIDENCE.json",
+      "sha256": "962da1b320a8b796d9d6389ed44550c991befe7bd17077ed2be78678323fd994",
+      "size": 16185
+    },
+    {
+      "name": "libandroid-support-LICENSE.txt",
+      "sha256": "76fc4416b6b20b4223bee8cc5b1ab41e1066a55ee23454f857c74bfbd9c3c2d5",
+      "size": 6126
+    },
+    {
+      "name": "libcrypt-FreeBSD-NOTICE.txt",
+      "sha256": "8c2ced6872d88ca0183993323615c648aae5f290ba362493f717b1f190d12379",
+      "size": 1777
+    },
+    {
+      "name": "libcrypt-LICENSE",
+      "sha256": "311ad021879eeb7713e27e8d894950068689feafc198a236a95c2494710e3a1a",
+      "size": 1521
+    },
+    {
+      "name": "libcxx-NDK-r29-NOTICE",
+      "sha256": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b",
+      "size": 16703
+    },
+    {
+      "name": "libedit-COPYING",
+      "sha256": "9da6c9c74987a36c84302982799d17d2f748ba1c1c0c471425716173c1d07649",
+      "size": 1615
+    },
+    {
+      "name": "mariadb-COPYING",
+      "sha256": "240a15a1d0f34d3abca462cdb7e5fb89470967563f16b0e71169e51c1e74cf2b",
+      "size": 17987
+    },
+    {
+      "name": "ncurses-COPYING",
+      "sha256": "708999f95527e1ffa670c6fce288c6c600cb477dd04afcc1171422b3dd4ee226",
+      "size": 1447
+    },
+    {
+      "name": "openssl-LICENSE.txt",
+      "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+      "size": 10175
+    },
+    {
+      "name": "pcre2-LICENCE.md",
+      "sha256": "197d8a73ffee0d6b09adba2f9c677b5f5aede24edf89258a68e48248d010d811",
+      "size": 4011
+    },
+    {
+      "name": "wcwidth-LICENSE.txt",
+      "sha256": "80786a6b45d7dc1a4e604c85f779af6b1069bf900eda37684045463d81627314",
+      "size": 2589
+    },
+    {
+      "name": "zlib-LICENSE",
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+      "size": 1002
+    }
+  ]
+}

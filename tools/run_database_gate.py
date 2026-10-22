@@ -96,10 +96,14 @@ def executable(value: str) -> str:
 
 
 @contextmanager
-def sandbox(server: str, initializer: str, client: str, *, transport: str = "unix"):
+def sandbox(server: str, initializer: str, client: str, *, transport: str = "unix", character_sets_dir: Path | None = None):
     # No external socket, data directory, host, password, or destructive flag exists.
     if transport not in ("unix", "loopback"):
         raise GateError("Unsupported private database transport")
+    if character_sets_dir is not None:
+        character_sets_dir = character_sets_dir.resolve()
+        if not character_sets_dir.is_dir() or not (character_sets_dir / "Index.xml").is_file():
+            raise GateError("Required private provider character-set directory is unavailable")
     if shutil.disk_usage(tempfile.gettempdir()).free < 3 * 1024 * 1024 * 1024:
         raise GateError("Disposable database requires at least 3 GiB free temporary storage")
     with tempfile.TemporaryDirectory(prefix="fta-db-") as name:
@@ -128,6 +132,8 @@ def sandbox(server: str, initializer: str, client: str, *, transport: str = "uni
                    "--local-infile=0", "--innodb-buffer-pool-size=128M",
                    "--innodb-log-file-size=64M", "--max-allowed-packet=256M",
                    "--max-connections=10", "--performance-schema=OFF", f"--secure-file-priv={work}"]
+        if character_sets_dir is not None:
+            command.append(f"--character-sets-dir={character_sets_dir}")
         port = None
         defaults_file = None
         if transport == "unix":
@@ -157,6 +163,8 @@ def sandbox(server: str, initializer: str, client: str, *, transport: str = "uni
                                        stderr=subprocess.STDOUT, cwd=work, env=env,
                                        start_new_session=True)
             cli = DatabaseCLI(client, socket, work, port=port, defaults_file=defaults_file)
+            if character_sets_dir is not None:
+                cli.command.append(f"--character-sets-dir={character_sets_dir}")
             try:
                 deadline = time.monotonic() + 60
                 while True:

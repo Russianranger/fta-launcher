@@ -135,6 +135,8 @@ database, with exact post-run schema and receipt verification. World configurati
 passes with target Readline and default static Lua 5.2; actual compilation is
 progressing through bounded portability fixes. Separate compiled world/character
 updater evidence follows the [original startup protocol](docs/world-updater-gate.md).
+The [private world stager](docs/world-runtime.md) requires the completed native
+build and preserves the passing provider/auth bytes and original module configs.
 World startup also requires
 the matching DBC/maps/vmaps/mmaps, which were not supplied.
 

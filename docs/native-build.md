@@ -52,7 +52,7 @@ python3 tools/build_native.py --source /private/fta-source \
 python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth
 python3 tools/build_native.py --source /private/fta-android-world-source \
-  --port-profile android-arm64-world-v7 \
+  --port-profile android-arm64-world-v8 \
   --build-dir /private/fta-build-android --platform android --stage world \
   --toolchain /private/android-ndk-r28c/build/cmake/android.toolchain.cmake \
   --dependency-prefix /private/android-dependencies \
@@ -68,6 +68,21 @@ are rejected. The driver has no module-exclusion or arbitrary CMake-override
 option. An auth-only build does **not** qualify worldserver or its modules.
 `--configure-only` and `--dry-run` report only their actual scopes. No command
 installs binaries, imports SQL or starts a server.
+
+Android builds set the original CMake `CONF_DIR` option to relative `configs`.
+The supervised runtime's working directory supplies `configs/modules/` with the
+original module configuration files; the compiler no longer embeds a private
+build-machine installation directory for module configuration lookup. Host
+builds retain their original default configuration directory.
+
+A completed world report additionally records CMake file API evidence. It
+requires the actual world link to include the static modules, scripts and Lua
+archives, C++20 compile groups, an exact compiled list of all 52 modules and 49
+original configuration names, and positive compiled source counts for each
+module. Archive paths, sizes and hashes and the resolved Android ncurses library
+are recorded separately. Missing artifacts or a different module/configuration
+list block the report. These checks support build provenance, not execution or
+gameplay qualification.
 
 ## Reviewed MariaDB portability profile
 
@@ -384,15 +399,28 @@ Actual world compilation then exposed four bounded build defects:
    `404fbd9e240077bbde09a0fc58b4f735d9ff061cfd0e7c9f2de942ca8e0f29c8`.
    The complete source profile was reverified after compilation.
 
-The current reviewed `android-arm64-world-v7` source tree is
+The earlier `android-arm64-world-v7` source tree is
 `5095554b60889f9e5a5e55951139576cfca06efd3cc9ad1f6a5c841af25d5265`.
 Every world profile reproduced exactly from the pristine source. These patches
 and successful configuration are progress toward compilation, not a completed
-world build or module qualification. The single-job build was intentionally paused after these actual compile
-checks; it still has more than 1,200 world build edges remaining. Resume its
-verified cache with v7; no game assets are required for compilation. The build driver now
+world build or module qualification. The earlier single-job build was intentionally paused after these actual compile
+checks with more than 1,200 world build edges remaining. Those transient objects
+were subsequently pruned; the active build restaged verified source and target
+dependencies. No game assets are required for compilation. The build driver now
 explicitly pins Lua 5.2 static and rejects caches that swap it for LuaJIT, another
 Lua version or dynamic linkage.
+
+The current `android-arm64-world-v8` tree is
+`b92be92d888912deb5c66e588e4ed95444745fd117ffd2de98a5b0e6cec8ad6f`.
+Patch 0010 fixes a confirmed Android linker dependency: the original world
+command adds raw `-lncurses`, which the NDK cannot resolve. A target probe
+reproduced that failure, while calling both Readline and ncurses functions and
+linking the pinned libraries by full path passed with `--no-undefined`. The
+Android CMake branch now resolves target `ncursesw` explicitly; other platforms
+retain their original linker flags. The complete v8 profile reproduced from the
+pristine source and its auth prerequisite linked. Full world compilation is
+running, with all NPC bot translation units past the compiler. This remains an
+incomplete world build until the complete target links and its ELF is inspected.
 
 Runtime world readiness additionally needs matching user-supplied maps, vmaps,
 mmaps and DBCs. See `docs/world-updater-gate.md` for the original startup ordering

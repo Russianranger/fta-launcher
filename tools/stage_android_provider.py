@@ -185,7 +185,7 @@ def extract_deb(path: Path, destination: Path) -> None:
             target.chmod(0o644)
 
 
-def inspect_elf(path: Path, readelf: str = 'readelf') -> dict:
+def inspect_elf(path: Path, readelf: str = 'readelf', *, reject_search_paths: bool = False) -> dict:
     try:
         output = subprocess.check_output([readelf, '-h', '-lW', '-dW', str(path)],
                                          text=True, stderr=subprocess.STDOUT, timeout=20)
@@ -195,6 +195,8 @@ def inspect_elf(path: Path, readelf: str = 'readelf') -> dict:
         raise ProviderError('Native provider must contain ELF64 AArch64 binaries')
     if not re.search(r'Type:\s+DYN\b', output):
         raise ProviderError('Native provider must use position-independent ELF files')
+    if reject_search_paths and re.search(r'\((?:RPATH|RUNPATH)\)', output):
+        raise ProviderError('Native runtime must not embed a runtime library search path')
     interpreters = re.findall(r'Requesting program interpreter:\s*([^\]]+)\]', output)
     if interpreters and interpreters != ['/system/bin/linker64']:
         raise ProviderError('Native executable does not use Android Bionic linker64')

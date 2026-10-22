@@ -7,6 +7,8 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -94,6 +96,105 @@ def check_cache(cache: dict[str, str], target_platform: str, *, configured: bool
                 raise BuildError(f'Configured {key} does not preserve the required build profile')
         if target_platform == 'android' and cache.get('CMAKE_ANDROID_ARCH_ABI', cache.get('ANDROID_ABI')) != 'arm64-v8a':
             raise BuildError('Android build did not configure ARM64 ABI')
+        if target_platform == 'android' and cache.get('CONF_DIR') != 'configs':
+            raise BuildError('Android build does not use supervised relative module configuration path')
+
+
+def world_build_evidence(build: Path, source: Path, module_names: list[str]) -> dict:
+    """Require CMake's actual world link graph, rather than infer it from options."""
+    cache = read_cache(build / 'CMakeCache.txt')
+    if cache.get('LUA_VERSION') != 'lua52' or cache.get('LUA_STATIC') != 'ON':
+        raise BuildError('World evidence does not preserve static Lua 5.2')
+    reply = build / '.cmake/api/v1/reply'
+    indexes = sorted(reply.glob('index-*.json'), key=lambda path: path.stat().st_mtime_ns)
+    if not indexes:
+        raise BuildError('World build lacks CMake file API evidence')
+    index = json.loads(indexes[-1].read_text())
+    model_ref = index.get('reply', {}).get('codemodel-v2', {})
+    if 'jsonFile' not in model_ref:
+        raise BuildError('World build lacks a CMake codemodel reply')
+    model = json.loads((reply / model_ref['jsonFile']).read_text())
+    configurations = model.get('configurations', [])
+    if len(configurations) != 1:
+        raise BuildError('World evidence requires one configured build graph')
+    targets = {}
+    for entry in configurations[0]['targets']:
+        target = json.loads((reply / entry['jsonFile']).read_text())
+        targets[target['name']] = target
+    required = {'worldserver': 'EXECUTABLE', 'modules': 'STATIC_LIBRARY',
+                'scripts': 'STATIC_LIBRARY', 'lualib': 'STATIC_LIBRARY'}
+    artifacts = {}
+    for name, kind in required.items():
+        target = targets.get(name, {})
+        paths = target.get('artifacts', [])
+        if target.get('type') != kind or len(paths) != 1:
+            raise BuildError(f'World evidence lacks required {kind} target {name}')
+        path = Path(paths[0]['path'])
+        path = path if path.is_absolute() else build / path
+        if not path.is_file():
+            raise BuildError(f'Completed world build lacks target artifact {name}')
+        artifacts[name] = {'path': str(path.resolve()), 'type': kind,
+                           'size': path.stat().st_size, 'sha256': sha256_file(path)}
+    world = targets['worldserver']
+    fragments = world.get('link', {}).get('commandFragments', [])
+    link_tokens = [token for part in fragments for token in shlex.split(part['fragment'])]
+    linked_paths = {(Path(token) if Path(token).is_absolute() else build / token).resolve()
+                    for token in link_tokens if not token.startswith('-')}
+    for name in ('modules', 'scripts', 'lualib'):
+        if Path(artifacts[name]['path']) not in linked_paths:
+            raise BuildError(f'World link does not include required static target {name}')
+    compile_text = ' '.join(part['fragment'] for group in world.get('compileGroups', [])
+                            for part in group.get('compileCommandFragments', []))
+    compile_text += ' ' + ' '.join(entry['define'] for group in world.get('compileGroups', [])
+                                   for entry in group.get('defines', []))
+    def comma_definition(name: str) -> list[str]:
+        match = re.search(r'(?:^|\s)(?:-D)?' + re.escape(name) + r'=([^\s]+)', compile_text)
+        return sorted(filter(None, match.group(1).replace('\\', '').replace('"', '').split(','))) if match else []
+
+    configured_modules = comma_definition('AC_MODULES_LIST')
+    if configured_modules != sorted(module_names):
+        raise BuildError('Actual world compilation module list differs from the verified source')
+    configuration_files = comma_definition('CONFIG_FILE_LIST')
+    source_configurations = sorted(path.name.removesuffix('.dist')
+                                   for name in module_names
+                                   for path in (source / 'modules' / name / 'conf').glob('*.conf.dist'))
+    if configuration_files != source_configurations:
+        raise BuildError('Actual world module configuration list differs from the verified source')
+    if cache.get('CMAKE_SYSTEM_NAME') == 'Android' and cache.get('CONF_DIR') != 'configs':
+        raise BuildError('World evidence does not use supervised relative module configuration path')
+    module_counts = dict.fromkeys(module_names, 0)
+    for entry in targets['modules'].get('sources', []):
+        if 'compileGroupIndex' not in entry:
+            continue
+        path = Path(entry['path'])
+        path = path if path.is_absolute() else source / path
+        try:
+            relative = path.resolve().relative_to((source / 'modules').resolve())
+        except ValueError:
+            continue
+        if relative.parts[0] in module_counts:
+            module_counts[relative.parts[0]] += 1
+    if not all(module_counts.values()):
+        raise BuildError('World module archive omits compiled sources from a required module')
+    for name in ('worldserver', 'modules', 'scripts'):
+        groups = [group for group in targets[name].get('compileGroups', []) if group['language'] == 'CXX']
+        if not groups or any(group.get('languageStandard', {}).get('standard') != '20' for group in groups):
+            raise BuildError(f'World target {name} does not compile as C++20')
+    dependencies = {}
+    if cache.get('CMAKE_SYSTEM_NAME') == 'Android':
+        path = Path(cache.get('ANDROID_NCURSES_LIBRARY', ''))
+        if not path.is_file() or path.resolve() not in linked_paths:
+            raise BuildError('World link lacks its resolved Android ncurses library')
+        dependencies['ncurses'] = {'path': str(path.resolve()), 'size': path.stat().st_size,
+                                   'sha256': sha256_file(path)}
+    return {'schema_version': 1, 'world_target_completed': True,
+            'module_names': configured_modules, 'module_compilation_counts': module_counts,
+            'module_configuration_files': configuration_files, 'configuration_directory': cache.get('CONF_DIR'),
+            'static_modules': True, 'static_scripts': True, 'lua_version': cache['LUA_VERSION'],
+            'lua_static': cache['LUA_STATIC'] == 'ON', 'cxx_standard': 20,
+            'linked_static_targets': ['modules', 'scripts', 'lualib'],
+            'target_artifacts': artifacts, 'target_dependency_artifacts': dependencies,
+            'execution_qualified': False}
 
 
 def commands(args: argparse.Namespace) -> list[list[str]]:
@@ -123,6 +224,7 @@ def commands(args: argparse.Namespace) -> list[list[str]]:
                       '-DANDROID_ABI=arm64-v8a', '-DANDROID_PLATFORM=android-33',
                       '-DANDROID_STL=c++_static', '-DBoost_USE_STATIC_LIBS=ON',
                       '-DBoost_USE_STATIC_RUNTIME=ON',
+                      '-DCONF_DIR:STRING=configs',
                       '-DCMAKE_SYSTEM_NAME=Android', '-DCMAKE_SYSTEM_PROCESSOR=aarch64',
                       '-DMYSQL_CONFIG:FILEPATH=']
         if args.dependency_prefix:
@@ -185,6 +287,10 @@ def main() -> int:
         if missing:
             raise BuildError('Missing build tools: ' + ', '.join(missing))
         args.build_dir.mkdir(parents=True, exist_ok=True)
+        if args.stage == 'world':
+            query = args.build_dir / '.cmake/api/v1/query/codemodel-v2'
+            query.parent.mkdir(parents=True, exist_ok=True)
+            query.touch()
         env = dict(os.environ, CMAKE_BUILD_PARALLEL_LEVEL=str(args.jobs))
         for index, command in enumerate(plan):
             with (args.build_dir / f'fta-step-{index + 1}.log').open('w') as log:
@@ -194,13 +300,13 @@ def main() -> int:
             if index == 0:
                 check_cache(read_cache(args.build_dir / 'CMakeCache.txt'), args.platform, configured=True)
         verify_source_tree(args.source, port_profile=args.port_profile)
-        report['status'] = 'configure-passed' if args.configure_only else 'build-passed'
         cache = read_cache(args.build_dir / 'CMakeCache.txt')
         report['configuration'] = {key: cache[key] for key in (
             'CMAKE_BUILD_TYPE', 'CMAKE_CXX_STANDARD', 'SCRIPTS', 'MODULES',
             'CMAKE_CXX_COMPILER', 'ANDROID_ABI', 'CMAKE_ANDROID_ARCH_ABI',
             'ANDROID_PLATFORM', 'ANDROID_STL', 'CMAKE_ANDROID_STL_TYPE',
-            'CMAKE_SYSTEM_NAME', 'APPS_BUILD', 'LUA_VERSION', 'LUA_STATIC') if key in cache}
+            'CMAKE_SYSTEM_NAME', 'APPS_BUILD', 'LUA_VERSION', 'LUA_STATIC', 'CONF_DIR',
+            'ANDROID_NCURSES_LIBRARY') if key in cache}
         if args.platform == 'android':
             report['target_abi'] = cache.get('CMAKE_ANDROID_ARCH_ABI', cache.get('ANDROID_ABI'))
         if not args.configure_only:
@@ -209,7 +315,11 @@ def main() -> int:
                 artifact = args.build_dir.resolve() / 'src/server/apps' / name
                 report['artifacts'][name] = {'path': str(artifact), 'size': artifact.stat().st_size,
                                             'sha256': sha256_file(artifact)}
+            if args.stage == 'world':
+                report['compiled_world_evidence'] = world_build_evidence(
+                    args.build_dir.resolve(), args.source.resolve(), inventory['modules'])
         # Compilation evidence alone does not qualify Android execution, DB, game data or Thor behavior.
+        report['status'] = 'configure-passed' if args.configure_only else 'build-passed'
     except (BuildError, SourceError, OSError, ValueError) as error:
         report['blocker'] = str(error)
         print(json.dumps(report, indent=2))

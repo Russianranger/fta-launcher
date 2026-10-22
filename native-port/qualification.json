@@ -255,7 +255,7 @@
     "execution_qualified": false
   },
   "android_world_compile_progress": {
-    "status": "compiler-fixes-verified-full-build-paused",
+    "status": "full-world-compile-in-progress",
     "all_module_directories": 52,
     "cpp_compilation_edges": 1439,
     "c_compilation_edges": 50,
@@ -266,8 +266,8 @@
     "scripts": "static",
     "modules": "static",
     "cxx_standard": 20,
-    "current_profile": "android-arm64-world-v7",
-    "source_tree_sha256": "5095554b60889f9e5a5e55951139576cfca06efd3cc9ad1f6a5c841af25d5265",
+    "current_profile": "android-arm64-world-v8",
+    "source_tree_sha256": "b92be92d888912deb5c66e588e4ed95444745fd117ffd2de98a5b0e6cec8ad6f",
     "pristine_profile_reproduction": "passed",
     "compiler_blockers": [
       {
@@ -289,6 +289,13 @@
         "profile": "android-arm64-world-v6",
         "error": "botspell.h std::size_t use lacks direct cstddef dependency with NOPCH",
         "fix_patch": "patches/0009-botspell-cstddef.patch"
+      },
+      {
+        "profile": "android-arm64-world-v7",
+        "error": "Original world link uses -lncurses which NDK cannot resolve; actual target flag probe failed",
+        "fix_patch": "patches/0010-android-ncurses-target.patch",
+        "fixed_probe": "Pinned Readline and ncursesw full-path link passed with rl_initialize/initscr and --no-undefined",
+        "full_world_link_passed": false
       }
     ],
     "worldserver_compiled": false,
@@ -309,9 +316,10 @@
       "Attriboost first module translation unit",
       "32 Lua5.2 C sources and static Lua link",
       "final gSOAP stdsoap2.cpp and static gSOAP link",
-      "actual botspell.cpp translation unit under final v7 source profile"
+      "actual botspell.cpp translation unit under final v7 source profile",
+      "world-v8 authserver prerequisite compile/link",
+      "world-v8 complete NPC bot translation units including bot_ai.cpp and botspell.cpp"
     ],
-    "pause_reason": "bounded checkpoint after actual compiler fixes; more than 1200 world build edges remain",
     "gsoap_strerror_regression": {
       "status": "passed",
       "script": "native-port/check-gsoap-strerror.py",
@@ -346,6 +354,8 @@
       "source_verified_after_compile": true,
       "worldserver_compiled": false,
       "objects_executed": false
-    }
+    },
+    "previous_checkpoint_profile": "android-arm64-world-v7",
+    "previous_pause_reason": "bounded checkpoint after actual compiler fixes; more than 1200 world build edges remain"
   }
 }

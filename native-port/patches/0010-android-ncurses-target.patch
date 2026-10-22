@@ -1,0 +1,18 @@
+--- a/src/server/apps/CMakeLists.txt
++++ b/src/server/apps/CMakeLists.txt
+@@ -143,7 +143,14 @@
+         libsidecar)
+ 
+     if (UNIX AND NOT NOJEM)
+-      set(${APP_PROJECT_NAME}_LINK_FLAGS "-pthread -lncurses ${${APP_PROJECT_NAME}_LINK_FLAGS}")
++      if (ANDROID)
++        # Android provides ncurses through the explicitly pinned target prefix.
++        find_library(ANDROID_NCURSES_LIBRARY NAMES ncursesw REQUIRED)
++        target_link_libraries(${APP_PROJECT_NAME} PUBLIC "${ANDROID_NCURSES_LIBRARY}")
++        set(${APP_PROJECT_NAME}_LINK_FLAGS "-pthread ${${APP_PROJECT_NAME}_LINK_FLAGS}")
++      else()
++        set(${APP_PROJECT_NAME}_LINK_FLAGS "-pthread -lncurses ${${APP_PROJECT_NAME}_LINK_FLAGS}")
++      endif()
+     endif()
+ 
+     set_target_properties(${APP_PROJECT_NAME} PROPERTIES LINK_FLAGS "${${APP_PROJECT_NAME}_LINK_FLAGS}")

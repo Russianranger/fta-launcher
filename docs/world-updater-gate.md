@@ -1,8 +1,8 @@
 # Compiled world updater gate before game data
 
-This is a source audit and proposed execution protocol, not a passed native or
-device test. A successful full-seed import does not qualify the compiled world
-or character updater. The supplied worldserver can execute those original
+This is a source audit, metadata contract and execution protocol, not a passed
+native or device updater test. A successful full-seed import does not qualify
+the compiled world or character updater. The supplied worldserver can execute those original
 updaters before it requires maps or DBC files, but its complete dry run still
 requires matching game data.
 
@@ -98,9 +98,82 @@ seed and engine, ending at the expected original missing-game-data boundary.
 World initialization, a complete dry run, module gameplay, listening services,
 game login and physical-device lifecycle qualification remain separate.
 
-No implementation of this protocol is claimed by this document. The next APK's
-full-seed diagnostic imports and validates the seed only; it does not launch
-worldserver or replay the runtime SQL as a stand-in for the compiled updater.
+The metadata contract and host expected-result model below are implemented.
+Compiled server build evidence and target execution remain separate gates. A
+full-seed-only report does not launch worldserver or qualify its updater.
+
+## Exact metadata contract and host expected results
+
+`manifests/world-updater-lock.json` binds the unchanged database archive, all 236
+runtime SQL files, the reviewed native source profile and tree, all 52 module
+names, and the measured absence of module SQL. Each runtime file retains its
+original `Data/data/sql/...` target path, byte length, SHA256 and original
+updater SHA1. The twelve included archive/custom/released/pending directories
+must exist in the original database ZIP. The generator rejects additional files
+in that runtime tree; it does not invent empty SQL directories to hide warnings.
+The private APK stager verifies this source identity and SQL absence before
+packaging the canonical lock. The device materializes the signed inventory; it
+does not revalidate a source ZIP on the device.
+
+`tools/create_world_updater_lock.py` can measure expected metadata using a new,
+bounded host MariaDB 12.3.2 instance. This is a Python model of the audited
+`UpdateFetcher`, **not compiled worldserver execution**. It preserves the
+original receipt snapshot, exact hash case, released-before-pending ordering,
+changed-file reapplication, optional empty-hash rehashing, rename handling and
+orphan cleanup threshold. It rejects ambiguous duplicate-hash renames rather
+than guessing C++ unordered-map order. A failed SQL client aborts immediately
+without replacing that file's receipt. Original SQL bytes are never rewritten.
+
+The original policy remains `Updates.EnableDatabases=7`, `Redundancy=1`,
+`AllowRehash=1`, `ArchivedRedundancy=0`, `CleanDeadRefMaxCount=3`, normal mode.
+The measured fresh-seed result verifies 211 unchanged receipts, applies 6 new
+files and reapplies 19 changed files. This fixture requires no rehash, rename,
+state change or orphan deletion. The orphan counts exceed the original cleanup
+threshold in each schema, so the original historical receipts remain present.
+The model was repeated with the device's generated schema-only updater account:
+global `USAGE` and `ALL PRIVILEGES` on only the three target schemas, without
+grant option or global `SUPER`. Its runtime SQL client used the original
+`utf8` default charset. All required original SQL succeeded and the canonical
+postconditions match the earlier unrestricted model exactly; no additional
+grants were needed. The bounded public record is
+`docs/evidence/database-2026-10-22-world-updater-model.json`.
+
+| Schema | Tables after updater | Canonical update receipts | Release receipts | Routines / events |
+| --- | ---: | ---: | ---: | ---: |
+| `acore_auth` | 27 | 12 | 0 | 0 / 0 |
+| `acore_characters` | 166 | 53 | 20 | 0 / 0 |
+| `acore_world` | 372 | 3194 | 2 | 0 / 0 |
+
+Counts are accompanied by exact table/trigger identities and bounded canonical
+SHA256 summaries. Update receipt summaries preserve exact names, hash case and
+state in binary name order, excluding timestamp and duration. Release receipts
+include release ID, original `Sql/` name, exact hash, `APPLIED` status and
+`once_only=1`, excluding timestamps. Column summaries include every table/column
+identity, ordinal, type, nullability, default, collation and extra property;
+hexadecimal string encoding distinguishes NULL and delimiters. Every aggregate
+compares full summed byte length with concatenated byte length before accepting
+its digest. The canonical expressions and strict parsers are shared in the
+generator, with synthetic failure tests in `tests/test_world_updater_lock.py`.
+
+The lock also records exact source updater start/completion lines for Auth,
+Character and World. The unmodified `DatabaseLoader` has no preparation-success
+log of its own: `Loading World Information...` is emitted only after `Load()`
+has successfully updated and prepared all three pools. That later marker,
+ordered updater phases, complete private logs without failed SQL, the exact
+original missing-starting-map message and normal exit 1 must all agree. Receipt
+summaries alone cannot satisfy this boundary. The original ALE startup hook
+also issues its `instance.data` TEXT conversion before the map boundary; the
+supplied seed already has that shape. Its source identity is included in the
+audit inventory. Original online-state, version and realm writes remain confined
+to the disposable copy.
+
+To regenerate the lock, provide the reviewed private database ZIP, exact staged
+source profile and private metadata-only host measurement. `--check` compares
+the entire canonical output without writing. A new native port profile requires
+regenerating the source binding; the host SQL result fixture may be reused only
+when the audited updater policy and input SQL remain unchanged. The lock always
+states that the expected-result model does not qualify compiled world execution,
+world readiness, a listener or gameplay.
 
 ## Lua and data requirements
 

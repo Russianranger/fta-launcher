@@ -69,7 +69,7 @@ internal object FullSeedEvidence {
     }
 
     fun qualified(seedValidated: Boolean, state: String?, invocations: List<NativeInvocationEvidence>, dropped: Int): Boolean =
-        seedValidated && state == "FULL_SEED_DIAGNOSTIC_PASSED" && dropped == 0 &&
+        seedValidated && state in setOf("FULL_SEED_DIAGNOSTIC_PASSED", WorldUpdaterEvidence.PASSED) && dropped == 0 &&
             invocations.any { it.role == "database-server" && it.log == "server" && it.readyObserved &&
                 it.sqlShutdownRequested && it.cleanShutdownObserved && it.outcome == "exited" && it.exitCode == 0 } &&
             invocations.filter { it.stage == "SEED_IMPORT" }.let { imports ->

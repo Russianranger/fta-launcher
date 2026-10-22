@@ -1,0 +1,179 @@
+{
+  "formatVersion": 1,
+  "distribution": "private-original-source-owner-only",
+  "publicDistributionQualified": false,
+  "coreLicenseElection": "GPL-3.0-or-later",
+  "coreLaterVersionNoticePath": "src/server/apps/worldserver/Main.cpp",
+  "sourceArchive": {
+    "filename": "From_The_Ashes_Source.zip",
+    "sha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+    "bytes": 201758731,
+    "role": "external-source",
+    "publish": false
+  },
+  "inputs": {
+    "boost": {
+      "project": "Boost",
+      "version": "1.83.0",
+      "url": "https://archives.boost.io/release/1.83.0/source/boost_1_83_0.tar.gz",
+      "sha256": "c0685b68dd44cc46574cce86c4e17c0f611b15e195be9848dfd0769a0a207628",
+      "checksumUrl": "https://archives.boost.io/release/1.83.0/source/boost_1_83_0.tar.gz.json",
+      "license": "BSL-1.0",
+      "filename": "boost-1.83.0.tar.gz"
+    },
+    "connector": {
+      "project": "MariaDB Connector/C",
+      "version": "3.4.9",
+      "url": "https://codeload.github.com/mariadb-corporation/mariadb-connector-c/tar.gz/64e9fe09fea6a017bab92e19a08d2301e3da5b56",
+      "sha256": "3b442e60aeb707dd1db192de2fa0f7d2f1940ebe40a7d772aeb2a0647c5b8ebb",
+      "gitCommit": "64e9fe09fea6a017bab92e19a08d2301e3da5b56",
+      "verification": "All 479 regular files matched clean built git checkout at this commit",
+      "license": "LGPL-2.1-or-later",
+      "filename": "connector-3.4.9.tar.gz"
+    },
+    "openssl": {
+      "project": "OpenSSL",
+      "version": "3.6.3",
+      "url": "https://github.com/openssl/openssl/releases/download/openssl-3.6.3/openssl-3.6.3.tar.gz",
+      "sha256": "243a86649cf6f23eeb6a2ff2456e09e5d77dd9018a54d3d96b0c6bdd6ba6c7f1",
+      "termuxRecipeCommit": "7e79544e0abe70c317e71b65eb9079071d4acf0b",
+      "role": "Generate matching target headers; shared ELF bytes reused unchanged from the verified provider",
+      "license": "Apache-2.0",
+      "filename": "openssl-3.6.3.tar.gz"
+    },
+    "readline": {
+      "version": "8.3",
+      "url": "https://mirrors.kernel.org/gnu/readline/readline-8.3.tar.gz",
+      "sha256": "fe5383204467828cd495ee8d1d3c037a7eba1389c22bc6a041f627976f9061cc",
+      "root": "readline-8.3",
+      "license": "GPL-3.0-or-later",
+      "filename": "readline-8.3.tar.gz"
+    },
+    "ncurses": {
+      "version": "6.5.20250830",
+      "url": "https://github.com/ThomasDickey/ncurses-snapshots/archive/5f58399b2de47ed14bdfe3a0cb149293b27893d5.tar.gz",
+      "sha256": "28cd102efe6a2610e830cc79cf270da6ff0427b2022900a9a36d2761522f9576",
+      "root": "ncurses-snapshots-5f58399b2de47ed14bdfe3a0cb149293b27893d5",
+      "license": "MIT",
+      "filename": "ncurses-6.5.20250830.tar.gz"
+    },
+    "lua52": {
+      "version": "5.2.4",
+      "url": "https://www.lua.org/ftp/lua-5.2.4.tar.gz",
+      "sha256": "b9e2e4aad6789b3b63a056d442f7b39f0ecfca3ae0f1fc0ae4e9614401b69f4b",
+      "license": "MIT",
+      "builtBy": "Original mod-ale CMake FetchContent with LUA_VERSION=lua52 and LUA_STATIC=ON; not this dependency driver",
+      "filename": "lua52-5.2.4.tar.gz"
+    }
+  },
+  "readlinePatches": [
+    {
+      "url": "https://mirrors.kernel.org/gnu/readline/readline-8.3-patches/readline83-001",
+      "sha256": "21f0a03106dbe697337cd25c70eb0edbaa2bdb6d595b45f83285cdd35bac84de",
+      "number": "001",
+      "filename": "readline-patch-001.patch"
+    },
+    {
+      "url": "https://mirrors.kernel.org/gnu/readline/readline-8.3-patches/readline83-002",
+      "sha256": "e27364396ba9f6debf7cbaaf1a669e2b2854241ae07f7eca74ca8a8ba0c97472",
+      "number": "002",
+      "filename": "readline-patch-002.patch"
+    },
+    {
+      "url": "https://mirrors.kernel.org/gnu/readline/readline-8.3-patches/readline83-003",
+      "sha256": "72dee13601ce38f6746eb15239999a7c56f8e1ff5eb1ec8153a1f213e4acdb29",
+      "number": "003",
+      "filename": "readline-patch-003.patch"
+    }
+  ],
+  "ndk": {
+    "project": "Android NDK",
+    "version": "28.2.13676358",
+    "url": "https://dl.google.com/android/repository/android-ndk-r28c-linux.zip",
+    "sha256": "dfb20d396df28ca02a8c708314b814a4d961dc9074f9a161932746f815aa552f",
+    "sha1": "a7b54a5de87fecd125a17d54f73c446199e72a64",
+    "bytes": 722261334,
+    "verification": "SHA1 matches official Android repository2-3.xml; SHA256 recorded from those verified bytes",
+    "license": "Bundled NDK NOTICE and third-party licenses apply"
+  },
+  "coreNotices": "Every original result_inventory.license_files entry and AUTHORS from the exact reviewed source tree; hash inventory is recorded in WORLD_BUILD_PROVENANCE.json.",
+  "notices": [
+    {
+      "name": "world-Boost-LICENSE-1.0.txt",
+      "sourceKind": "dependency-notice",
+      "inputPath": "Boost-LICENSE-1.0.txt",
+      "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566",
+      "size": 1338
+    },
+    {
+      "name": "world-Lua-5.2.4-MIT.txt",
+      "sourceKind": "dependency-notice",
+      "inputPath": "Lua-5.2.4-MIT.txt",
+      "sha256": "860472c7edc6c2eb0c69b4887c974954052686be3d8bfc5cadbb1e8bce9ebed4",
+      "size": 1071
+    },
+    {
+      "name": "world-Lua-5.2.4-readme.html",
+      "sourceKind": "dependency-notice",
+      "inputPath": "Lua-5.2.4-readme.html",
+      "sha256": "a686d9158c8878ee4c6e1c90d719949c2b70031b74d6e945e6e218a063ebcb20",
+      "size": 13160
+    },
+    {
+      "name": "world-MariaDB-Connector-C-LGPL-2.1.txt",
+      "sourceKind": "dependency-notice",
+      "inputPath": "MariaDB-Connector-C-LGPL-2.1.txt",
+      "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+      "size": 26530
+    },
+    {
+      "name": "world-MariaDB-Connector-C-README.txt",
+      "sourceKind": "dependency-notice",
+      "inputPath": "MariaDB-Connector-C-README.txt",
+      "sha256": "deaf1e8bf176221fea1f55cf14849a30e535af81abf50545f6fe09441de88c20",
+      "size": 510
+    },
+    {
+      "name": "world-Readline-GPL-3.0.txt",
+      "sourceKind": "dependency-notice",
+      "inputPath": "Readline-GPL-3.0.txt",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "size": 35147
+    },
+    {
+      "name": "world-Readline-README.txt",
+      "sourceKind": "dependency-notice",
+      "inputPath": "Readline-README.txt",
+      "sha256": "c66390595e51c1ab99aeac37ee9cd5f7cd652e1ee5da86dea7682f769205e57c",
+      "size": 8146
+    },
+    {
+      "name": "world-NDK-r28c-NOTICE",
+      "sourceKind": "ndk",
+      "inputPath": "NOTICE",
+      "sha256": "faf0dc52cf6ce9ab09a04b0c074a378dd2565ee1ed9bc1179d83793bcdba012e",
+      "size": 516438
+    },
+    {
+      "name": "world-NDK-r28c-NOTICE.toolchain",
+      "sourceKind": "ndk",
+      "inputPath": "NOTICE.toolchain",
+      "sha256": "789714a9076571c580cf531bdcebec776a4d889c12c3c1108adafc6e4338710a",
+      "size": 799639
+    },
+    {
+      "name": "FTA_WORLD_RUNTIME_NOTICES.md",
+      "sourceKind": "repository",
+      "inputPath": "FTA_WORLD_RUNTIME_NOTICES.md",
+      "sha256": "8e1386384b0aa7c99cb1fd485736e69e8e99b00818803389b84874c20aeb4508",
+      "size": 2656
+    }
+  ],
+  "readlineLibrary": {
+    "logicalName": "libreadline.so.8",
+    "sha256": "321f805999b0c1c5dc2b759b423eedd8cc235ea3916729beebfb717329d4ba15",
+    "size": 418840,
+    "builtVersion": "8.3.3",
+    "minimumLoadAlignment": 16384
+  }
+}

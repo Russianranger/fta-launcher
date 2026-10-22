@@ -47,8 +47,11 @@ class MainActivity : Activity() {
     private lateinit var diagnosticButton: Button
     private lateinit var authDiagnosticButton: Button
     private lateinit var fullSeedDiagnosticButton: Button
+    private lateinit var worldUpdaterDiagnosticButton: Button
+    private lateinit var worldUpdaterTestHelp: TextView
     private var pendingAuthCheck = false
     private var pendingFullSeedCheck = false
+    private var pendingWorldUpdaterCheck = false
     private lateinit var diagnosticStopButton: Button
     private lateinit var exportReportButton: Button
     private val refresh = Handler(Looper.getMainLooper())
@@ -61,6 +64,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         pendingAuthCheck = savedInstanceState?.getBoolean("pendingAuthCheck") ?: false
         pendingFullSeedCheck = savedInstanceState?.getBoolean("pendingFullSeedCheck") ?: false
+        pendingWorldUpdaterCheck = savedInstanceState?.getBoolean("pendingWorldUpdaterCheck") ?: false
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.rgb(21, 20, 18))
@@ -124,6 +128,10 @@ class MainActivity : Activity() {
         fullSeedDiagnosticButton = action("Test full original database seed") { requestDatabaseCheck(includeFullSeed = true) }
         status.addView(fullSeedDiagnosticButton)
         status.addView(label("Imports all 563 tables and the world trigger into a fresh temporary database, then checks the original update receipts. Requires Database.zip and 3 GiB free storage; allow up to 30 minutes. Keep the test running or use Stop to cancel.", 13, muted))
+        worldUpdaterDiagnosticButton = action("Test compiled three-database updater") { requestDatabaseCheck(includeWorldUpdater = true) }
+        status.addView(worldUpdaterDiagnosticButton)
+        worldUpdaterTestHelp = label("Imports a fresh full seed, then runs the original compiled updaters and checks exact resulting receipts and schema metadata. Requires Database.zip and 3 GiB free; allow up to 40 minutes. This test stops at missing maps and does not qualify world startup or gameplay.", 13, muted)
+        status.addView(worldUpdaterTestHelp)
         status.addView(label("Creates a fresh disposable database, tests local operation, then shuts it down. Your imported seed and saves are untouched.", 13, muted))
         diagnosticStopButton = action("Stop database test") {
             startService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_STOP))
@@ -190,7 +198,7 @@ class MainActivity : Activity() {
         val database = app.store?.receipt(Inputs.database) != null
         sourceStatus.text = "${if (source) "✓" else "○"}  Server source ${if (source) "verified" else "ZIP"}"
         databaseStatus.text = "${if (database) "✓" else "○"}  Database seed ${if (database) "verified" else "ZIP"}"
-        countText.text = "${listOf(source, database).count { it }} verified inputs · game server build pending"
+        countText.text = "${listOf(source, database).count { it }} verified inputs · server qualification pending"
         providerStatus.text = app.providerMessage
         val testing = databaseCheckRunning()
         val requested = requestedAt != 0L && SystemClock.elapsedRealtime() - requestedAt < 3000
@@ -198,8 +206,13 @@ class MainActivity : Activity() {
         val authPackaged = app.packagedRuntime?.manifest?.let { manifest ->
             "authserver" in manifest.capabilities && manifest.files.any { it.path == "data/metadata/auth-seed-lock.json" }
         } == true
+        val worldUpdaterPackaged = app.packagedRuntime?.manifest?.let { manifest ->
+            "worldserver" in manifest.capabilities && manifest.files.any { it.role == "world-server" } &&
+                manifest.files.any { it.path == "data/metadata/world-updater-lock.json" }
+        } == true
         serverStatus.text = when {
             app.busy && app.store == null -> "Checking included server components…"
+            worldUpdaterPackaged -> "Auth and world components included for disposable updater testing. World startup awaits qualification."
             authPackaged -> "Auth server included for testing. World server build pending."
             else -> "Auth and world servers are not included in this build."
         }
@@ -207,6 +220,9 @@ class MainActivity : Activity() {
         authDiagnosticButton.visibility = if (authPackaged) View.VISIBLE else View.GONE
         authDiagnosticButton.isEnabled = authPackaged && database && !app.busy && !testing && !requested
         fullSeedDiagnosticButton.isEnabled = app.packagedRuntime?.manifest?.bootstrap != null && database && !app.busy && !testing && !requested
+        worldUpdaterDiagnosticButton.visibility = if (worldUpdaterPackaged) View.VISIBLE else View.GONE
+        worldUpdaterTestHelp.visibility = if (worldUpdaterPackaged) View.VISIBLE else View.GONE
+        worldUpdaterDiagnosticButton.isEnabled = worldUpdaterPackaged && database && !app.busy && !testing && !requested
         diagnosticStopButton.isEnabled = testing || requested
         exportReportButton.isEnabled = !app.busy
         runtimeBundleButton.isEnabled = app.runtimeBundles != null && !app.busy && !testing
@@ -243,28 +259,30 @@ class MainActivity : Activity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("pendingAuthCheck", pendingAuthCheck)
         outState.putBoolean("pendingFullSeedCheck", pendingFullSeedCheck)
+        outState.putBoolean("pendingWorldUpdaterCheck", pendingWorldUpdaterCheck)
         super.onSaveInstanceState(outState)
     }
 
-    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false) {
+    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false) {
         pendingAuthCheck = includeAuth
         pendingFullSeedCheck = includeFullSeed
+        pendingWorldUpdaterCheck = includeWorldUpdater
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
             !getPreferences(MODE_PRIVATE).getBoolean("notificationAsked", false)) {
             getPreferences(MODE_PRIVATE).edit().putBoolean("notificationAsked", true).apply()
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 201)
-        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck)
+        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Notification permission is optional for an explicitly requested foreground service.
-        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck)
+        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck)
     }
 
-    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false) {
+    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false) {
         try {
-            startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(if (includeFullSeed) RuntimeDiagnosticService.ACTION_CHECK_FULL_SEED else if (includeAuth) RuntimeDiagnosticService.ACTION_CHECK_AUTH else RuntimeDiagnosticService.ACTION_CHECK))
+            startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(if (includeWorldUpdater) RuntimeDiagnosticService.ACTION_CHECK_WORLD_UPDATER else if (includeFullSeed) RuntimeDiagnosticService.ACTION_CHECK_FULL_SEED else if (includeAuth) RuntimeDiagnosticService.ACTION_CHECK_AUTH else RuntimeDiagnosticService.ACTION_CHECK))
             requestedAt = SystemClock.elapsedRealtime()
             update()
         } catch (_: Exception) {

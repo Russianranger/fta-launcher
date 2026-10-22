@@ -16,7 +16,8 @@ class DatabaseDiagnostic(
     private val cancelled: AtomicBoolean,
     private val status: (String, String) -> Unit,
     private val includeAuth: Boolean = false,
-    private val includeFullSeed: Boolean = false
+    private val includeFullSeed: Boolean = false,
+    private val includeWorldUpdater: Boolean = false
 ) {
     private val owned = ConcurrentHashMap<Long, String>()
     private lateinit var root: File
@@ -30,18 +31,21 @@ class DatabaseDiagnostic(
     private var currentAttemptId: String? = null
     private var invocationJournal: NativeInvocationJournal? = null
     private val evidenceHandles = ConcurrentHashMap<Long, Int>()
-    private val deadline = System.nanoTime() + (if (includeFullSeed) 1800L else if (includeAuth) 420L else 300L) * 1_000_000_000L
+    private val needsFullSeed = includeFullSeed || includeWorldUpdater
+    private val deadline = System.nanoTime() + (if (includeWorldUpdater) 2400L else if (includeFullSeed) 1800L else if (includeAuth) 420L else 300L) * 1_000_000_000L
 
     fun run(): String {
-        require(!(includeAuth && includeFullSeed)) { "Select one diagnostic scope" }
+        require(listOf(includeAuth, includeFullSeed, includeWorldUpdater).count { it } <= 1) { "Select one diagnostic scope" }
         runtime = PackagedRuntime.inspect(context)
         if (includeAuth) require("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables)
+        if (includeWorldUpdater) require("worldserver" in runtime.manifest.capabilities && "world-server" in runtime.executables &&
+            runtime.manifest.files.any { it.path == WorldUpdaterMetadata.PATH }) { "The compiled world updater payload is unavailable" }
         require(runtime.manifest.bootstrap != null) { "A pinned bootstrap recipe is required" }
         val parent = File(context.filesDir, "runtime/database-diagnostics").apply { check(mkdirs() || isDirectory) }
         // At most two previous diagnostic directories are retained. These never hold user saves.
         parent.listFiles()?.filter { it.isDirectory && it.name.startsWith("g-") }
             ?.sortedByDescending { it.lastModified() }?.drop(2)?.forEach { it.deleteRecursively() }
-        check(parent.usableSpace >= (if (includeFullSeed) 3L * 1024 * 1024 * 1024 else 512L * 1024 * 1024)) { "Insufficient free private storage for the disposable diagnostic" }
+        check(parent.usableSpace >= (if (needsFullSeed) 3L * 1024 * 1024 * 1024 else 512L * 1024 * 1024)) { "Insufficient free private storage for the disposable diagnostic" }
         root = File(parent, "g-${UUID.randomUUID()}").apply { check(mkdir()) }
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val attemptId = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
@@ -75,7 +79,7 @@ class DatabaseDiagnostic(
             "--skip-networking", "--skip-name-resolve", "--performance-schema=OFF",
             "--innodb-buffer-pool-size=64M", "--innodb-log-file-size=16M", "--aria-pagecache-buffer-size=16M", "--key-buffer-size=8M",
             "--max-connections=8", "--thread-cache-size=2", "--tmp-table-size=8M", "--max-heap-table-size=8M",
-            "--max-allowed-packet=${if (includeFullSeed) "256M" else "16M"}"
+            "--max-allowed-packet=${if (needsFullSeed) "256M" else "16M"}"
         )
         try {
             setStage("BOOTSTRAPPING", "Initializing a fresh disposable database. Existing saves are untouched.")
@@ -137,7 +141,8 @@ class DatabaseDiagnostic(
             check(values["FTA_ASCII_ROWS"] == "1") { "ASCII character-set round trip failed" }
             check(values["FTA_ROLLBACK_ROWS"] == "0") { "InnoDB rollback probe failed" }
             if (includeAuth) runAuthUpdaterDiagnostic()
-            if (includeFullSeed) runFullSeedDiagnostic()
+            if (needsFullSeed) runFullSeedDiagnostic()
+            if (includeWorldUpdater) runWorldUpdaterDiagnostic()
             setStage("STOPPING", "Stopping the diagnostic database with SQL SHUTDOWN.")
             client("SHUTDOWN;", 10_000)
             evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "sql_shutdown_requested") }
@@ -147,7 +152,9 @@ class DatabaseDiagnostic(
             owned.remove(server)
             evidenceHandles.remove(server)
             server = 0
-            return if (includeFullSeed)
+            return if (includeWorldUpdater)
+                "The original compiled auth, character and world updaters completed against a fresh verified seed. Exact resulting receipts and schema metadata matched; original normal startup stopped at missing starting-area maps, then MariaDB shut down cleanly. This qualifies only the disposable compiled updater gate. World startup, listeners and gameplay remain unqualified."
+                else if (includeFullSeed)
                 "All 563 original tables and the world trigger imported unchanged into a fresh disposable database; object inventories and original updater receipt baselines matched, then MariaDB shut down cleanly. Runtime SQL was not applied. Compiled world/character updaters, worldserver and game login remain unqualified."
                 else if (includeAuth)
                 "Original ARM64 authserver dry run and updater passed against the unchanged 27-table auth seed, then the disposable database shut down cleanly. No auth listener was opened. Full seed, worldserver and game login remain unqualified."
@@ -308,6 +315,121 @@ class DatabaseDiagnostic(
         }
     }
 
+    private fun runWorldUpdaterDiagnostic() {
+        setStage("WORLD_INPUT", "Verifying the signed source policy and complete original runtime SQL inventory.")
+        val lock = WorldUpdaterMetadata.load(context)
+        val build = runtime.manifest.worldBuild ?: error("Compiled world build metadata is unavailable")
+        check(build.portProfile == lock.sourceProfile && build.sourceTreeSha256 == lock.sourceTreeSha256 &&
+            build.sourceArchiveSha256 == lock.sourceArchiveSha256) { "Compiled world build and source policy differ" }
+        val info = JSONObject().put("formatVersion", 1).put("attemptId", currentAttemptId)
+            .put("archiveSha256", lock.archiveSha256).put("sourceArchiveSha256", lock.sourceArchiveSha256)
+            .put("sourceProfile", lock.sourceProfile).put("sourceTreeSha256", lock.sourceTreeSha256)
+            .put("worldExecutableSha256", runtime.manifest.files.single { it.role == "world-server" }.sha256)
+            .put("worldUpdaterLockSha256", runtime.manifest.files.single { it.path == WorldUpdaterMetadata.PATH }.sha256)
+            .put("plannedRuntimeSqlFiles", 236).put("stagedRuntimeSqlFiles", 0).put("moduleCount", 52).put("moduleSqlCount", 0)
+            .put("freshSeedBaselinePassed", true).put("compiledUpdaterPassed", false).put("runtimeSqlAttempted", false)
+            .put("runtimeSqlCompletionQualified", false)
+            .put("worldStartupQualified", false).put("worldTcpListener", false)
+            .put("startedAtEpochMs", System.currentTimeMillis())
+        fun receipt() {
+            val atomic = AtomicFile(File(context.filesDir, "runtime/world-updater-diagnostic.json"))
+            val output = atomic.startWrite()
+            try { output.write(info.toString().toByteArray()); atomic.finishWrite(output) }
+            catch (failure: Exception) { atomic.failWrite(output); throw failure }
+        }
+        receipt()
+        val archive = VerifiedInputReader.resolve(File(context.filesDir, "imports"), Inputs.database, ::checkCancelled)
+        val stage = File(root, "world-runtime-sql")
+        val config = File(root, "worldserver-diagnostic.conf")
+        val temp = File(root, "world-private-temp").apply { check(mkdir()) }
+        try {
+            setStage("WORLD_STAGING", "Staging all 236 unchanged runtime SQL files in their original updater paths.")
+            val sourceDirectory = WorldUpdaterStore().stage(archive, lock, stage, ::checkCancelled)
+            info.put("stagedRuntimeSqlFiles", 236); receipt()
+            lock.schemas.forEach { schema ->
+                check(FullSeedEvidence.parseFlags(client(WorldUpdaterEvidence.includeSql(schema.name, lock.includeDirectories), 5_000),
+                    listOf("includeInventoryMatches")).values.all { it }) { "Original updater include policy differs" }
+            }
+            // CONF_DIR=configs is compiled into this reviewed Android world profile.
+            // Only source-bound original module defaults are copied; no live config is opened.
+            val moduleConfigs = runtime.manifest.files.filter { it.path.startsWith("data/world-config/modules/") }
+            check(moduleConfigs.size == 49 && moduleConfigs.all {
+                it.path.removePrefix("data/world-config/modules/").matches(Regex("[A-Za-z0-9_.+-]{1,120}\\.conf"))
+            }) { "Complete original module configuration defaults are unavailable" }
+            val configDirectory = File(root, "configs/modules").apply { check(mkdirs()) }
+            moduleConfigs.forEach { entry ->
+                checkCancelled()
+                File(root, "payload/${entry.path}").copyTo(File(configDirectory, entry.path.substringAfterLast('/')))
+            }
+            val emptyData = File(root, "world-empty-data").apply { check(mkdir()) }
+            check(emptyData.listFiles()?.isEmpty() == true)
+            val secret = ByteArray(24).also { SecureRandom().nextBytes(it) }
+                .joinToString("") { "%02x".format(it.toInt() and 255) }
+            client("CREATE USER 'fta_world_diag'@'localhost' IDENTIFIED BY '$secret';" +
+                FullSeedStore.SCHEMAS.joinToString(" ") { "GRANT ALL PRIVILEGES ON `$it`.* TO 'fta_world_diag'@'localhost';" }, 5_000)
+            val orderedLog = File(root, "world-updater.log")
+            config.writeText(WorldUpdaterConfig.render(socket, runtime.executables.getValue("database-client"), sourceDirectory,
+                emptyData, temp, orderedLog, "fta_world_diag", secret))
+            config.setReadable(false, false); config.setWritable(false, false)
+            check(config.setReadable(true, true) && config.setWritable(true, true))
+            setStage("WORLD_UPDATER", "Running the compiled original three-database updater through normal startup to its missing-map stop.")
+            info.put("runtimeSqlAttempted", true); receipt()
+            val boundary = runWorldBoundary(config, orderedLog, lock.updatePhases)
+            boundary.forEach { (field, value) -> info.put(field, value) }
+            info.put("runtimeSqlCompletionQualified", true); receipt()
+            setStage("WORLD_VALIDATION", "Validating exact resulting updater receipts, release receipts and schema metadata.")
+            val results = JSONObject()
+            lock.schemas.forEach { schema ->
+                checkCancelled()
+                val flags = WorldUpdaterEvidence.parseValidation(client(WorldUpdaterEvidence.schemaSql(schema, lock.includeDirectories), 30_000), schema)
+                results.put(schema.name, JSONObject(flags)); info.put("schemas", results); receipt()
+                if (!flags.values.all { it }) {
+                    invocationJournal?.validationFailure("world-server", "WORLD_UPDATER", "world_postcondition_mismatch")
+                    error("Compiled updater postconditions differ")
+                }
+            }
+            info.put("compiledUpdaterPassed", true).put("completedAtEpochMs", System.currentTimeMillis()); receipt()
+        } finally {
+            config.delete()
+            File(temp, "mysql_ac.conf").delete()
+            stage.deleteRecursively()
+        }
+    }
+
+    private fun runWorldBoundary(config: File, orderedLog: File, phases: List<WorldUpdatePhase>): Map<String, Boolean> {
+        val timeout = 600_000L
+        val label = "tool-${++step}"
+        val handle = launch("world-server", listOf("--config", config.absolutePath), null, label, timeout)
+        val commandDeadline = System.nanoTime() + timeout * 1_000_000
+        try {
+            var exit = Int.MIN_VALUE
+            while (System.nanoTime() < commandDeadline) {
+                checkCancelled()
+                exit = waitTracked(handle, 200)
+                if (exit != Int.MIN_VALUE) break
+            }
+            if (exit == Int.MIN_VALUE) finishEvidence(handle, "timed_out", null)
+            // Reap/stop every owned child before the root client inspects postconditions.
+            if (exit != Int.MIN_VALUE) stopTracked(handle, 1_000, "stopped")
+            return try {
+                WorldUpdaterEvidence.boundary(exit, WorldUpdaterEvidence.readComplete(orderedLog),
+                    WorldUpdaterEvidence.readComplete(File(root, "$label.out")), WorldUpdaterEvidence.readComplete(File(root, "$label.err")), phases)
+            } catch (failure: Exception) {
+                invocationJournal?.validationFailure("world-server", "WORLD_UPDATER", "world_boundary_invalid")
+                throw failure
+            }
+        } catch (failure: Exception) {
+            finishEvidence(handle, when {
+                cancelled.get() -> "cancelled"
+                System.nanoTime() >= commandDeadline || System.nanoTime() >= deadline -> "timed_out"
+                else -> "wait_failed"
+            }, null)
+            throw failure
+        } finally {
+            if (owned.containsKey(handle)) runCatching { stopTracked(handle, 1_000, if (cancelled.get()) "cancelled" else "stopped") }
+        }
+    }
+
     private fun environment(): Array<String> = arrayOf(
         "PATH=/system/bin", "HOME=${root.absolutePath}", "TMPDIR=${root.absolutePath}",
         "ANDROID_ROOT=/system", "ANDROID_DATA=/data",
@@ -418,7 +540,7 @@ class DatabaseDiagnostic(
             else listOf("--no-defaults", "--user=root", "--protocol=socket", "--socket=${socket.absolutePath}")
         return runTool("database-client", args + listOf("--character-sets-dir=${characterSetsDirectory.absolutePath}",
             "--batch", "--skip-column-names", "--connect-timeout=2") +
-            (if (includeFullSeed) listOf("--binary-mode", "--local-infile=0", "--default-character-set=utf8mb4", "--max-allowed-packet=256M") else emptyList()) +
+            (if (needsFullSeed) listOf("--binary-mode", "--local-infile=0", "--default-character-set=utf8mb4", "--max-allowed-packet=256M") else emptyList()) +
             listOfNotNull(database), script, timeout)
     }
 
@@ -571,10 +693,10 @@ internal class NativeInvocationJournal(private val file: File, private val attem
         const val MAX_RECORDS = 1024
         const val MAX_FILE_BYTES = 2 * 1024 * 1024L
         const val MAX_LOG_BYTES = 8 * 1024 * 1024L
-        private val roles = setOf("database-server", "database-client", "auth-server")
-        private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "STOPPING", "CLEANUP")
+        private val roles = setOf("database-server", "database-client", "auth-server", "world-server")
+        private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_UPDATER", "WORLD_VALIDATION", "STOPPING", "CLEANUP")
         private val outcomes = setOf("running", "exited", "timed_out", "cancelled", "start_failed", "wait_failed", "stopped", "supervisor_failed")
-        private val validations = setOf("output_limit_exceeded", "version_marker_missing", "completion_marker_missing")
+        private val validations = setOf("output_limit_exceeded", "version_marker_missing", "completion_marker_missing", "world_boundary_invalid", "world_postcondition_mismatch")
 
         /** Returns no evidence for malformed files; never exports unvalidated stored text. */
         fun validAttemptId(value: String) = value.matches(Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"))

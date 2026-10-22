@@ -1,0 +1,115 @@
+{
+  "androidExecutionQualified": false,
+  "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+  "authTcpListenerQualified": false,
+  "canonicalLockSha256": "bc255121be1ee4cb3c1947a82b0377666c373210370b41222fe670ebae8f4a29",
+  "compiledWorldExecutionQualified": false,
+  "date": "2026-10-22",
+  "formatVersion": 1,
+  "gameplayQualified": false,
+  "globalPrivilegesGranted": false,
+  "matchesUnrestrictedModelPostconditions": true,
+  "policy": {
+    "allowRehash": true,
+    "archivedRedundancy": false,
+    "cleanDeadRefMaxCount": 3,
+    "dryRun": false,
+    "enableDatabases": 7,
+    "redundancy": true
+  },
+  "postconditions": [
+    {
+      "columnBytes": 13956,
+      "columnCount": 138,
+      "columnSha256": "fd2512455c3506e617d131776ebe334d301fb4468a1ce88428064257023ef57d",
+      "eventCount": 0,
+      "name": "acore_auth",
+      "receiptBytes": 851,
+      "receiptCount": 12,
+      "receiptSha256": "cc4fa8656304e66ea4ae3347dac9f8ecfb9494aba60d4018ce3b6cc0e5d6a84c",
+      "releaseReceiptBytes": 0,
+      "releaseReceiptCount": 0,
+      "releaseReceiptSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "routineCount": 0,
+      "tableCount": 27,
+      "triggerCount": 0
+    },
+    {
+      "columnBytes": 119615,
+      "columnCount": 1146,
+      "columnSha256": "0cc67702be939bccd9d44d78dad84f030a6970b2ea30603568ea18c3e5b82d8b",
+      "eventCount": 0,
+      "name": "acore_characters",
+      "receiptBytes": 4668,
+      "receiptCount": 53,
+      "receiptSha256": "42a29b8af36d49fefcdc2ab9d49db67c9bd79d5f7847b4dc8fe469cf3befbb40",
+      "releaseReceiptBytes": 3229,
+      "releaseReceiptCount": 20,
+      "releaseReceiptSha256": "50dde97935124eb0fe7f1c7023ab5bc72444fff27224a78415a231a81b62b3c9",
+      "routineCount": 0,
+      "tableCount": 166,
+      "triggerCount": 0
+    },
+    {
+      "columnBytes": 576898,
+      "columnCount": 5116,
+      "columnSha256": "9b39a91f663443146a7cc4c199fcabb03dbe05a690e63e4f1c990f7932dffd04",
+      "eventCount": 0,
+      "name": "acore_world",
+      "receiptBytes": 227550,
+      "receiptCount": 3194,
+      "receiptSha256": "44a7a002caf873eae967fc067ad922d12587d6ac5722e4f59d8d7a90951e4bb8",
+      "releaseReceiptBytes": 296,
+      "releaseReceiptCount": 2,
+      "releaseReceiptSha256": "fb65b45b65c5bd8b594d6d4ac009bedf75283b800989506046f4cf1eac4b7b8e",
+      "routineCount": 0,
+      "tableCount": 372,
+      "triggerCount": 1
+    }
+  ],
+  "privateSqlOrRowsIncluded": false,
+  "providerVersion": "12.3.2-MariaDB",
+  "runtimeClientDefaultCharset": "utf8",
+  "runtimeSqlFilesChecked": 236,
+  "schemaPrivilegesOnly": true,
+  "scope": "fresh disposable host expected-result fixture; original compiled worldserver was not executed",
+  "seedTablesImported": 563,
+  "seedTriggersImported": 1,
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "sourceProfile": "android-arm64-world-v8",
+  "sourceSqlRewritten": false,
+  "sourceTreeSha256": "b92be92d888912deb5c66e588e4ed95444745fd117ffd2de98a5b0e6cec8ad6f",
+  "status": "host-source-policy-model-passed",
+  "transitions": {
+    "acore_auth": {
+      "archivedBefore": 1,
+      "orphanRemaining": 11,
+      "orphanWarnings": 11,
+      "recentBefore": 11,
+      "verified": 1
+    },
+    "acore_characters": {
+      "applied": 3,
+      "archivedBefore": 24,
+      "orphanRemaining": 31,
+      "orphanWarnings": 30,
+      "reapplied": 19,
+      "recentBefore": 26
+    },
+    "acore_world": {
+      "applied": 3,
+      "archivedBefore": 2320,
+      "orphanRemaining": 2981,
+      "orphanWarnings": 2981,
+      "recentBefore": 871,
+      "verified": 210
+    }
+  },
+  "unrestrictedModelMetadataIdentity": {
+    "lockBytes": 131796,
+    "lockSha256": "1c4b0b206ac81556517273531028e7773b2e67b4bf3f9e0ae8ba6e4b2f52b937",
+    "sourceProfile": "android-arm64-world-v7"
+  },
+  "worldReady": false,
+  "worldTcpListenerQualified": false
+}

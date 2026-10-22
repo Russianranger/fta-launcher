@@ -187,9 +187,13 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 3. Continue the separate world build with the verified Android toolchain.
    Readline now cross builds, full world configuration passes and compiler-led
    fixes are recorded in `docs/native-build.md`. The current world source profile
-   is `android-arm64-world-v7`; its last verified translation unit is
-   `botspell.cpp`. Its four bounded portability fixes passed actual compiler
-   checks; the remaining world compilation and link have not finished.
+   is `android-arm64-world-v8`, tree
+   `b92be92d888912deb5c66e588e4ed95444745fd117ffd2de98a5b0e6cec8ad6f`.
+   The Android-only ncurses link selection fixes a reproduced NDK linker error;
+   a real Readline/ncurses probe passes. Fresh compilation has passed the large
+   NPC bot sources and continues through the world graph; the complete world
+   compilation and link have not finished. Actual CMake evidence checks source
+   entries for all 52 modules, static scripts/Lua and 49 original config names.
    Preserve C++20, all 52 modules,
    default static Lua 5.2 and static scripts/modules; auth must build first.
    World compilation is incomplete. Use one heavy build at a time and record
@@ -202,6 +206,15 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
    World readiness still requires every module and matching DBC/maps/vmaps/mmaps;
    those assets were not supplied. Only then package controlled persistent
    services, account provisioning and restart-safe database installation.
+
+The optional compiled-updater Android mode and private world stager are now
+implemented behind the actual world capability and signed source/ELF/lock
+bindings. The real Database.zip staging proof passed among 125 standalone JVM
+tests; 137 tooling tests passed. Host source-policy measurements also passed
+using only three-schema privileges and the original utf8 client setting, with
+exact post-run schema/receipt fingerprints. These are preparation evidence;
+no world ELF, world APK or device compiled-updater success is claimed yet.
+Follow `docs/world-runtime.md` for private staging and corresponding source.
 
 ## Resource and evidence discipline
 

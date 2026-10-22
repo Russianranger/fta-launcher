@@ -1,0 +1,2739 @@
+{
+  "aggregateConcatLimitBytes": 1048576,
+  "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+  "archiveSize": 103160479,
+  "canonicalColumns": "UTF-8(HEX(table_name) + ':' + HEX(column_name) + ':' + ordinal_position + ':' + HEX(column_type) + ':' + HEX(is_nullable) + ':' + nullable HEX(column_default) + ':' + nullable HEX(collation_name) + ':' + HEX(extra) + LF), ordered by BINARY table_name, ordinal_position; NULL is '~'",
+  "canonicalReceipts": "UTF-8(name + TAB + exact-case hash + TAB + state + LF), ordered by BINARY name; no timestamp or speed",
+  "canonicalReleaseReceipts": "UTF-8(release_id + TAB + name + TAB + exact-case sha256 + TAB + status + TAB + once_only + LF), ordered by BINARY release_id, BINARY name; no timestamps",
+  "constraints": {
+    "authTcpListener": false,
+    "completeLogsRequired": true,
+    "failedSqlAllowed": false,
+    "freshDisposableDatadirOnly": true,
+    "liveDatabaseAccess": false,
+    "sqlContentsInManifest": false,
+    "sqlRewriting": false,
+    "worldReady": false,
+    "worldTcpListener": false
+  },
+  "expectedResultEvidence": {
+    "compiledWorldExecutionQualified": false,
+    "globalPrivilegesGranted": false,
+    "runtimeClientDefaultCharset": "utf8",
+    "schemaPrivilegesOnly": true,
+    "scope": "host-source-policy-model-only"
+  },
+  "formatVersion": 1,
+  "includeDirectories": [
+    {
+      "path": "data/sql/archive/db_auth",
+      "schema": "acore_auth",
+      "state": "ARCHIVED"
+    },
+    {
+      "path": "data/sql/custom/db_auth",
+      "schema": "acore_auth",
+      "state": "CUSTOM"
+    },
+    {
+      "path": "data/sql/updates/db_auth",
+      "schema": "acore_auth",
+      "state": "RELEASED"
+    },
+    {
+      "path": "data/sql/updates/pending_db_auth",
+      "schema": "acore_auth",
+      "state": "PENDING"
+    },
+    {
+      "path": "data/sql/archive/db_characters",
+      "schema": "acore_characters",
+      "state": "ARCHIVED"
+    },
+    {
+      "path": "data/sql/custom/db_characters",
+      "schema": "acore_characters",
+      "state": "CUSTOM"
+    },
+    {
+      "path": "data/sql/updates/db_characters",
+      "schema": "acore_characters",
+      "state": "RELEASED"
+    },
+    {
+      "path": "data/sql/updates/pending_db_characters",
+      "schema": "acore_characters",
+      "state": "PENDING"
+    },
+    {
+      "path": "data/sql/archive/db_world",
+      "schema": "acore_world",
+      "state": "ARCHIVED"
+    },
+    {
+      "path": "data/sql/custom/db_world",
+      "schema": "acore_world",
+      "state": "CUSTOM"
+    },
+    {
+      "path": "data/sql/updates/db_world",
+      "schema": "acore_world",
+      "state": "RELEASED"
+    },
+    {
+      "path": "data/sql/updates/pending_db_world",
+      "schema": "acore_world",
+      "state": "PENDING"
+    }
+  ],
+  "moduleCount": 52,
+  "moduleDirectories": [
+    "modules/Attriboost",
+    "modules/StatBooster",
+    "modules/mod-ale",
+    "modules/mod-aoe-loot",
+    "modules/mod-auctionator",
+    "modules/mod-aura-timers",
+    "modules/mod-auto-gather-tracking",
+    "modules/mod-autofish",
+    "modules/mod-azercore-ops",
+    "modules/mod-bg-reward",
+    "modules/mod-boost-60-outland",
+    "modules/mod-craftspeed",
+    "modules/mod-daily-dungeon-rewards",
+    "modules/mod-dbm-fta-bridge",
+    "modules/mod-dress-npc",
+    "modules/mod-dynamic-loot-browser",
+    "modules/mod-dynamic-xp",
+    "modules/mod-easy-respawn",
+    "modules/mod-emerald-dreamway",
+    "modules/mod-go-spawn-replacer",
+    "modules/mod-goblin-glider",
+    "modules/mod-guildfunds",
+    "modules/mod-individual-progression",
+    "modules/mod-individual-xp",
+    "modules/mod-item-drop-multiplier",
+    "modules/mod-junk-to-gold",
+    "modules/mod-loot-beam",
+    "modules/mod-map-gold-multiplier",
+    "modules/mod-mount-requirements",
+    "modules/mod-multitrainer",
+    "modules/mod-npcbot-banter",
+    "modules/mod-ony-naxx-logout-teleport",
+    "modules/mod-pocket-pals",
+    "modules/mod-profession-experience",
+    "modules/mod-quartermaster-ledger",
+    "modules/mod-quest-loot-party",
+    "modules/mod-questie-bridge",
+    "modules/mod-rdf-expansion",
+    "modules/mod-reagent-bank-account",
+    "modules/mod-reforging",
+    "modules/mod-reset-raid-cooldowns",
+    "modules/mod-reward-all-quest-choices",
+    "modules/mod-shared-professions",
+    "modules/mod-solo-lfg",
+    "modules/mod-starter-food-water",
+    "modules/mod-starting-pet",
+    "modules/mod-talisman-of-binding-shard",
+    "modules/mod-timewalking",
+    "modules/mod-transmog",
+    "modules/mod-warcraftxl-gameobject-editor",
+    "modules/mod-warcraftxl-ui-tracker",
+    "modules/mod-world-inspector-runtime"
+  ],
+  "moduleSqlCount": 0,
+  "moduleSqlDirectories": [],
+  "nativeBoundary": {
+    "databaseOrder": [
+      "Auth",
+      "Character",
+      "World"
+    ],
+    "exitCode": 1,
+    "expectedStopMarker": "Failed to find map files for starting areas",
+    "mode": "normal",
+    "preparedCompletionMarker": "Loading World Information...",
+    "updatePhases": [
+      {
+        "completionMarker": ">> Auth database is up-to-date! Containing 11 new and 1 archived updates.",
+        "database": "Auth",
+        "orphanedReceiptWarnings": 11,
+        "startMarker": "Updating Auth database..."
+      },
+      {
+        "completionMarker": ">> Applied 22 queries. Containing 26 new and 24 archived updates.",
+        "database": "Character",
+        "orphanedReceiptWarnings": 30,
+        "startMarker": "Updating Character database..."
+      },
+      {
+        "completionMarker": ">> Applied 3 queries. Containing 871 new and 2320 archived updates.",
+        "database": "World",
+        "orphanedReceiptWarnings": 2981,
+        "startMarker": "Updating World database..."
+      }
+    ]
+  },
+  "policy": {
+    "allowRehash": true,
+    "archivedRedundancy": false,
+    "cleanDeadRefMaxCount": 3,
+    "dryRun": false,
+    "enableDatabases": 7,
+    "redundancy": true
+  },
+  "purpose": "fresh-disposable-compiled-world-updater-only",
+  "requiredProviderVersion": "12.3.2",
+  "runtimeSqlFiles": [
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_auth/rev_1790446352_gm_level4_rbac_defaults_zz_custom.sql",
+      "schema": "acore_auth",
+      "sha1": "82F30994833BFA871C1369499988A93DD7D9693A",
+      "sha256": "6f811376f0d6cb606688caebd9448644697abeab51e22baeb8e883fc8b3c1717",
+      "size": 384,
+      "targetPath": "Data/data/sql/updates/db_auth/rev_1790446352_gm_level4_rbac_defaults_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/000_000_fta_20261020_seed_receipts_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "2FCAC9BD0741F0815237C03EBBBB8D7425118F5B",
+      "sha256": "130158ef86ca4a3aab88380ca8b59f8800872212ed29b10e3d5b68f006db0065",
+      "size": 9072,
+      "targetPath": "Data/data/sql/updates/db_characters/000_000_fta_20261020_seed_receipts_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/000_fta_20261020_characters_schema_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "14AE85B9CB32AF8216C1E1D3CA782EC8CE3403BF",
+      "sha256": "1b76d80fe035ec939402eba2b5f69a4f32aa9add723129a7492499dd9c7e5a83",
+      "size": 5588,
+      "targetPath": "Data/data/sql/updates/db_characters/000_fta_20261020_characters_schema_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/2026_09_28_00_npcbot_consumable_integrity_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "8A68ABE5708D1E369C11D1A5C3552B57A3056AFB",
+      "sha256": "6bf328ecbbebb134df3e151d4fe17c3bd42474e31509fadfe20389212140a989",
+      "size": 4559,
+      "targetPath": "Data/data/sql/updates/db_characters/2026_09_28_00_npcbot_consumable_integrity_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_1790630001_seed_retired_ranks_cleanup_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "EED6B915CADAF57839CB7F48FBC436BFB7523742",
+      "sha256": "57c7c1dcb28d4ff63e64296c9428e95e178857eedee7c5eb8a3ea33edecae71e",
+      "size": 4099,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_1790630001_seed_retired_ranks_cleanup_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_1790631001_warlock_retired_ranks_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "64758AD25CD60CC80D4863A324E697B275CF07D2",
+      "sha256": "9d981bff983a1828d0dd30f702ff4c474b81364426e9a9a5245b7f43d498dc56",
+      "size": 4439,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_1790631001_warlock_retired_ranks_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_1790632001_class_retired_ranks_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "39585AB7F4A42240868C37B851F4CD79B99C120E",
+      "sha256": "f971ea264900ee6031cc97a53df0fddd65ffacdbba86793fe4c041dd6ef0033c",
+      "size": 6895,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_1790632001_class_retired_ranks_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20260927210000_remove_shaman_plate_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "A34D4CF42B02F1C7CD1F2F94BE5F8627DE4328AF",
+      "sha256": "333d939d48a818b9a1fbe0978d0148a10d3cb5ba0bf2c25f61ed1f88ed329850",
+      "size": 4006,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20260927210000_remove_shaman_plate_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20260927233000_remove_rogue_grappling_hook_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "6A532199265716194F2C6EBDD622B703DE8C5A6C",
+      "sha256": "9d5fc92077c920e67b15a47c7cc0ebe66dae4e8635b95127154ed4683c011c27",
+      "size": 4034,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20260927233000_remove_rogue_grappling_hook_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20260929020000_worldforged_bind_existing_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "508190EDE4CAEDA772F9CAE253C8E06B969175D4",
+      "sha256": "e7b22ead8bc121683d83aceb5bf3d024b8bfa270f33c5b6a0c54458bbdf95f9d",
+      "size": 3690,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20260929020000_worldforged_bind_existing_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20260929120000_world_discovery_claims_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "C101F7D4109CE53DF566CE5150AD2656E9A28E3D",
+      "sha256": "262518182397205485ca8dc75e9f28f0afa2814f414246186c1af69bf98c4c9b",
+      "size": 3992,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20260929120000_world_discovery_claims_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20260929230000_playable_race_city_friendliness_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "513444C8E81EC7664011B16915A356838B4F0F67",
+      "sha256": "3848484185e3571cf2df79ba696b5652b91ff43bd67980668652bd0bb48d08d8",
+      "size": 60364,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20260929230000_playable_race_city_friendliness_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20260930194000_world_discovery_guid_claims_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "D133BF7F346CC1AF8CC8DC2BA3281EC93B3D465E",
+      "sha256": "4fc3333da9e677705bf1c3f3fb6a2ae885363a37f73f8fc6b8c1c260f1ddf563",
+      "size": 4297,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20260930194000_world_discovery_guid_claims_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20261004095100_tigers_fury_rank_cleanup_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "339DDE6F817B800402AA93A039A0E0942C13ECCF",
+      "sha256": "2156d65c821b78d2ace5c6bfefa0a596bbb40359e9a225d65dacc2c46fe69303",
+      "size": 5765,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20261004095100_tigers_fury_rank_cleanup_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20261004120000_leveling_challenges_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "1597E03148D2A8354A157B0F64B496F4D7AAFDB8",
+      "sha256": "eaa997698865f89491c60ef8b0311099b2dd3de819a33302ae283fa88fd69e34",
+      "size": 3886,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20261004120000_leveling_challenges_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20261004230200_goblin_worgen_shaman_mail_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "F2E7220FE52E71EABAE5BA50A7BE56BE863D64DB",
+      "sha256": "a602178f427e8728c80073433bf86b6b17fdbae5c8cd34e69e395a872cf6a5bc",
+      "size": 4431,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20261004230200_goblin_worgen_shaman_mail_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_2026100501_remove_smart_judgement_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "83E868E1CF1EF45D227C3E31E899B588D41E0DA8",
+      "sha256": "d6afda11df849661ae793b84d38ffb00192a2d1ed40d7fbdfd164aaad681c76d",
+      "size": 3683,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_2026100501_remove_smart_judgement_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20261006145000_eye_halo_preference_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "2FDC2396CC975A4C23148C0D8A82CBF95A6EC82B",
+      "sha256": "72355f215cc3310dc8ef29b5a1c1169ab2ef80140a426381573760681ba152fb",
+      "size": 3858,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20261006145000_eye_halo_preference_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20261006162000_ip_pending_progression_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "22035FFB65E58B2C5E520B0EBBC00F4C4148AAE3",
+      "sha256": "aa609d3d3c15d437f92e3bb89d0e875aa3c48fb8aad2caf3945f5dc6eaf47f07",
+      "size": 3961,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20261006162000_ip_pending_progression_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20261009100000_shaman_talent_reset_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "9758AC645764FADBDFC5AF320D8220CC11E734F2",
+      "sha256": "256a1fc3a95ec7b3908f401639ab5b111677e5d1f1328fa8e6191681dc0ef890",
+      "size": 120,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20261009100000_shaman_talent_reset_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20261014120000_account_challenge_rewards_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "F0A3280EC40B5DE1B5CF7F2E7C8A7080D9CB853C",
+      "sha256": "20a0f264b2c82eb2e95341d566f728620f0de6e7770386eb9c87768d8a0b4d86",
+      "size": 4903,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20261014120000_account_challenge_rewards_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_characters/rev_20261019010000_blood_elf_hair_palette_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "90091F1C670775124A478AD0B39EA3DFE56B6CB3",
+      "sha256": "917c92bdb1b5bf40fecfb58611971272ba0d222712f880cb42d5f0349a371ccc",
+      "size": 4423,
+      "targetPath": "Data/data/sql/updates/db_characters/rev_20261019010000_blood_elf_hair_palette_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/000_000_fta_20261020_seed_receipts_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "BF79F6664BB861D614925C4DC25E3C772EC8AB48",
+      "sha256": "dfa6cc4d5dedb75e532842f3457972d4f3717d86bf544b98fde5f8ada4902ffe",
+      "size": 2064,
+      "targetPath": "Data/data/sql/updates/db_world/000_000_fta_20261020_seed_receipts_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/000_fta_20261020_world_schema_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "671A6488763DC180472028BA545787AC4FEDD411",
+      "sha256": "032575f6360bf2265dde57cccdc2cb34e3db89a3545174c5a032ee1f854fa702",
+      "size": 3809,
+      "targetPath": "Data/data/sql/updates/db_world/000_fta_20261020_world_schema_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_29_01_burning_weapons_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "3916DF11E582E2FCBE88B78F510B56D083A46BCF",
+      "sha256": "d71e5185e63920d60f4ab84dd2c7e3a7f28c8066b13edce6a04031698ce144d0",
+      "size": 5514,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_29_01_burning_weapons_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_29_02_spell_ports_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "456506C5A708E750C8E9DA544918365E96964588",
+      "sha256": "6e037de2385ebf61468cac95bd0898923807e225c9a0a92edb3c5ac77a7b5936",
+      "size": 24672,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_29_02_spell_ports_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_29_03_spell_expansion_data_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "43C3F89D532F5684D8EFA462195D34F07A79A334",
+      "sha256": "b5f3cd2d66377331f8c9740558249a9552d96e8f31953c6ad006bd5a9bde628f",
+      "size": 70081,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_29_03_spell_expansion_data_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_29_04_elemental_blast_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "68CFE4F2AFA8D8E2D9534CA23B1FB1B364B46414",
+      "sha256": "96feb259f48363f582ab5079aaa735ef3762b338f479b10612af92c14223306a",
+      "size": 1925,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_29_04_elemental_blast_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_29_05_astral_glyph_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A17F8C177F67B9B0D7DACA206300EF36DD301C5E",
+      "sha256": "c600fa542a0aa7cdf3f5a663b7c0d82fb17f1620148ad0c4191201d8e3bb7b5c",
+      "size": 13897,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_29_05_astral_glyph_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_29_06_spell_visual_cast_fixes_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "D7471D3BBEEC13828D2D521DAB9D31C10C8E40AA",
+      "sha256": "0d76e1cf14ac612c3fd7892cf71133bd36c8ddce3fbe7b5f42744b82c8767402",
+      "size": 11510,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_29_06_spell_visual_cast_fixes_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_30_01_encounter_telegraphs_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "81FED1C87F9ED631E3C0041B22DFC6347F7E17A7",
+      "sha256": "ca7f07ff812a61bcb71d74e7558c401ad67c53e4466db15b93494aa2a372381d",
+      "size": 20799,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_30_01_encounter_telegraphs_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_30_02_telegraphs_neon_extension_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "14E2FED32F0E35060ADCFB4F21560D5874C812A9",
+      "sha256": "53c55a35153636db8aea115a24ef42108801f6ef253ad04e46c2dc4f6973eb42",
+      "size": 46750,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_30_02_telegraphs_neon_extension_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_30_04_powerups_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "05E3B10CF05B9F55B9BCC88B926508C2F6BB8E65",
+      "sha256": "3d2a8190b07cd729acc4636e556707737376c259ab660165979033e35466b1b6",
+      "size": 26386,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_30_04_powerups_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_30_05_powerup_player_visuals_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "987CD5B19C6D05F43BF51D167D263A3066E92F8D",
+      "sha256": "3c7943bcf0ad91db055e862af543d586a42fb237e7bbd3eded1c460ab3d2e7c8",
+      "size": 2670,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_30_05_powerup_player_visuals_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_30_05_well_of_eternity_raid_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "9C06944458F6E7058EF1EA5C8F828A66C93BF19C",
+      "sha256": "facb2f02c16aa0cd690f15d5d982cbaa106da97a7fd88704d5d8eb6f73125fb4",
+      "size": 900,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_30_05_well_of_eternity_raid_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_09_30_06_powerup_life_surge_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "735C4C3081421BF853029C395CCBB09C69C55106",
+      "sha256": "ce875579dc2b67a92f3d4713fafad26c5204871ec135fec3ba3387d1d4be8e68",
+      "size": 6326,
+      "targetPath": "Data/data/sql/updates/db_world/2026_09_30_06_powerup_life_surge_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_00_well_of_eternity_tbc_raid_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DFBA444579A4E35A9F789EB64404D9EBD2F73B8A",
+      "sha256": "e56e33916db1c7fb8b8662230f9bbde6a0ed19b3c1cc01c851c123b6b9ef089d",
+      "size": 51926,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_00_well_of_eternity_tbc_raid_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_01_massive_explosion_visuals_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "52EADC66371CE5A7D70D5AABEDD78F2E023D9A36",
+      "sha256": "9e0f8207b67e86b44845baf7b742fb0647e933c08e460d2af4c29b0fa45dc59d",
+      "size": 12561,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_01_massive_explosion_visuals_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_01_well_of_eternity_cache_lockout_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "C136253A89FF097E0082AB6460492EA724332D1E",
+      "sha256": "c3e24f32cf23b2ea214008e2b92ae628e945af6cc3b4c5902119018667ecdac6",
+      "size": 204,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_01_well_of_eternity_cache_lockout_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_02_fargodeep_exploration_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "BF580227595AD6BDA10BAE1BE4FB8237BFEFD6A8",
+      "sha256": "c6780e0e453f1572911ddd4a49d4bdf9e00be8668fea0e91f6f3f5b767e801fb",
+      "size": 134,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_02_fargodeep_exploration_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_02_well_of_eternity_cache_opening_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "AA49FD8CCFF8D865286B4D068B385D63E6FD9271",
+      "sha256": "e7bd85bb95e2f14890a90a1d1d368ab87f3d297bb56236fb5e085e4a2f4b0697",
+      "size": 210,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_02_well_of_eternity_cache_opening_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_03_explosion_size_variants_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "ED54ECC59155429A46F5C39B1878083CECC01603",
+      "sha256": "56b26aded482a8cd3d93f8b96ef3495b20c91327d23836eb6e038580cb66ec6d",
+      "size": 25125,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_03_explosion_size_variants_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_04_fta_trash_visuals_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "90997390C1108A0AC6E37D06B42D108DA3C3EEE9",
+      "sha256": "073009300ce48f6278e11e7913b0c5a9daf5583f9645061dfb1585b654af98ff",
+      "size": 7177,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_04_fta_trash_visuals_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_05_woe_courtyard_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "F943FA761BAB83794D6FD299520E3D8C794DB4E1",
+      "sha256": "0286d8ad69dc8dd27ff782638f1643fea3ddd947e1548d1210b5a95a5376a892",
+      "size": 8132,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_05_woe_courtyard_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_06_woe_courtyard_graveyard_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "CA465F56B6657DF5F82D3FA13F9DDFBAE8C85D9F",
+      "sha256": "b50e8318796276a466857ba02aaaad48697121ce68571034e8429b90885bab6d",
+      "size": 1086,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_06_woe_courtyard_graveyard_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_07_woe_perotharn_azshara_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "13798698BC35409DF5E1D8F955D3594058CC5885",
+      "sha256": "21840399fbefd61e3fd1feb8040d8a19e6698d106350a41b4fe8cebd7db8e265",
+      "size": 30775,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_07_woe_perotharn_azshara_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_08_woe_illidan_interrupt_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A4762A72DF3BFFC700F78F04B73FCF910AD5E0AE",
+      "sha256": "c87ef9ba9aa207bb4e1ed9bb559f7e7b8fd974f406e2a785be172797f6a0bbab",
+      "size": 517,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_08_woe_illidan_interrupt_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_01_09_woe_drain_cinematic_lock_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "8F3802DE1ED71A7CB0B7F777D8BC42F0F1D53688",
+      "sha256": "f0a9c550a9a96930bf89ed4fe2d6a587de09cb07719d477f9eecb63223a39e75",
+      "size": 853,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_01_09_woe_drain_cinematic_lock_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_02_00_well_of_eternity_entrance_conduit_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "8945A014CE825D38C4F18369C9D33BE74234044B",
+      "sha256": "be15be6a2a88bddaa13e88b83d0877d65deed58842c03ee725f5cc0c16b3ab88",
+      "size": 964,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_02_00_well_of_eternity_entrance_conduit_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_02_01_cosmetic_visual_collection_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "2F6FD88D51F4495C9C38CB0F6740FF57117F5892",
+      "sha256": "ce0056ee88b07643214b97d8706ee354cf5c5260216534fea33ad92dc90746e7",
+      "size": 32067,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_02_01_cosmetic_visual_collection_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_03_01_cosmetic_handcast_visuals_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "D7D5ADC52E5CD14C069BE0B7FA0F38B3DEEF973F",
+      "sha256": "ac4fa3853ac02aafd74396785797e3f6f51ad084aecb6cb22902d3cbec73dd0c",
+      "size": 962,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_03_01_cosmetic_handcast_visuals_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_04_01_paladin_celerity_steed_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "9CB76E81AB79431F56612BF91D9DE341849205A9",
+      "sha256": "9bba6ab423ffe256f6f8d8914885c42dc34b349111886eb8fe69242fbedde348",
+      "size": 19096,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_04_01_paladin_celerity_steed_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_04_02_ulduar_selected_mechanics_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "923998A4D19ED5C400B93E7881A7B7F6D5DCB42B",
+      "sha256": "0ab21e27fcc6b7f5b83deeda4bd4b34d942f08287fb68b03976b18ca354b707c",
+      "size": 2295,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_04_02_ulduar_selected_mechanics_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_05_01_light_celerity_mask_fix_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DB4D6DAD09366BCB2E7F1C476E9564307A984128",
+      "sha256": "6c47a1895976107ad711376a015ca8cca6c02e46038979f420589a389c4b171c",
+      "size": 840,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_05_01_light_celerity_mask_fix_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_07_00_well_of_eternity_palace_gauntlet_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "568E8D16F9CADABC471F964C2005F4E3CF2CDD06",
+      "sha256": "1c0465a2c55afe0a4a23e80c285fd24652e65175e221650a51089736d04141bd",
+      "size": 4244,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_07_00_well_of_eternity_palace_gauntlet_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_08_00_divine_steed_dismount_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DE7BC609D7E3433E3B23D6758CCEEF573556A9FB",
+      "sha256": "590b2a6d4ac1e6f85236a37f03efc96aff59cdf4bcf3aa90c171f179a83d9a59",
+      "size": 658,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_08_00_divine_steed_dismount_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_08_00_well_of_eternity_finale_tuning_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "0BAE4628F1F42AE407287D42E88FF5211D0B4567",
+      "sha256": "44484af4a26fc2566c91725d85a33388cee03237061e9c4b0efb3eb5a7e2ad67",
+      "size": 10880,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_08_00_well_of_eternity_finale_tuning_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_08_01_well_of_eternity_finale_combat_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "9C920454BD9E92BE3FB3C6B1E61A3976F548BEE7",
+      "sha256": "5fe8372f7ccd491e163009c6ac5c1952a9d7c753ac225e521225577fd5e702dd",
+      "size": 980,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_08_01_well_of_eternity_finale_combat_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_08_02_dark_portal_raid_rework_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "62D8A2B2F1A30E5D8A90F47F1D687D8595CF8FDC",
+      "sha256": "6b945827064a7d98e0e461e1d0e6f1f4aa98d71dbb60f8fc1966ff479e00031b",
+      "size": 964,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_08_02_dark_portal_raid_rework_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_08_03_dark_portal_custom_loot_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "27C9653E8310EB5D01C39CE0D23FC05CCE2D75B9",
+      "sha256": "75f769c42b6c829d6bea959c0eb868b4dd8ba78037a0f0773e3c2f3863927301",
+      "size": 75999,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_08_03_dark_portal_custom_loot_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_08_04_dark_portal_banner_npc_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "BEA0EA2FD45EF0A68637FDD4E9F0A1FCA04B88AF",
+      "sha256": "2557e8369e9a94d061d1933d590b7dcc492d15def2b56a8dc94aa8ffc74d156e",
+      "size": 1330,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_08_04_dark_portal_banner_npc_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_08_05_dark_portal_medical_supplies_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "092F7D1335733403C178590382EB72762E51097F",
+      "sha256": "1b79ac3ebad8bfd2dd13243a912b91e1346685cd79ee56f960ca045953f0cb9a",
+      "size": 817,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_08_05_dark_portal_medical_supplies_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_08_06_dark_portal_spellward_stats_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "B881CD9116D464D3223FA89DE4D59C36204B7FF7",
+      "sha256": "ceed40984ab70866d98d08d4ce513020983f6aca4728dbd2e22efbbead03046e",
+      "size": 386,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_08_06_dark_portal_spellward_stats_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_08_07_well_of_eternity_drain_channel_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "68579AF44D6208FF7D41CDEA08A408C916A2F855",
+      "sha256": "6c829eb788561e07aaa91210878c5d5e1b3a9767931e7f235c55e120771295a9",
+      "size": 457,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_08_07_well_of_eternity_drain_channel_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_11_03_world_discoveries_level_1_20_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "49BB14A2C3F3338BB3C844A296F54BB191F7ED54",
+      "sha256": "45504ceeb61b3d8307d901489c85f8de08911b0f00efe4c8b128cc9b236c34e7",
+      "size": 21381,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_11_03_world_discoveries_level_1_20_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_11_04_scourge_strike_blood_plague_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "8DBF7484B89CA6DAF7FB1A8FA9CCA26987C7F350",
+      "sha256": "7d95d2eea7479a917901523ca488274df466dcf169f03f66d021a4094662238b",
+      "size": 405,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_11_04_scourge_strike_blood_plague_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_11_05_world_discovery_cleaver_name_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "60E4B3D44ED4002B5A793DEE4DABA546983F9D28",
+      "sha256": "7dadfb4c40b50617ed8c8fc22619223d99cfbf4df966dbc9bfe68e74b8245b10",
+      "size": 251,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_11_05_world_discovery_cleaver_name_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/2026_10_14_05_starter_outfit_textures_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "C8A3DA82BFDD7CB457CD629A35497088472C4798",
+      "sha256": "0149f0d8094860897271f5a282b675e3ee4f6052ad318a778365560f0db137ee",
+      "size": 5634,
+      "targetPath": "Data/data/sql/updates/db_world/2026_10_14_05_starter_outfit_textures_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_1790400000_brewfest_reveler_friendly_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "4E8B72B4AA1002EE6D8E6FC35920154CC922D19D",
+      "sha256": "9390ac5cea65aca15d1bc34fd39c8bf7eabae5ab426281da916fc62ac5aaac63",
+      "size": 237,
+      "targetPath": "Data/data/sql/updates/db_world/rev_1790400000_brewfest_reveler_friendly_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_1790467200_dark_portal_battle_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "23C837AA11293B039157CC6B02F52EFDCC069084",
+      "sha256": "e5f5532a4f166e7b443064ee18ac69402cdce36a05a09e27550d079f3f52afc7",
+      "size": 69994,
+      "targetPath": "Data/data/sql/updates/db_world/rev_1790467200_dark_portal_battle_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_1790478000_dark_portal_siege_prototype_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "86D7D7EC708CB66B0790734619654CF22A586B78",
+      "sha256": "2d5ef8de2125dd50296b64e4a6b0b82d34cff9717dcf1e2ccd97b736ec6653cb",
+      "size": 11428,
+      "targetPath": "Data/data/sql/updates/db_world/rev_1790478000_dark_portal_siege_prototype_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_1790485200_dark_portal_siege_ambient_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "249AEE4B981C69EEF752AE7339454835E028FEC7",
+      "sha256": "4ee583d7bb0f9671bcbd9fc4374a4e57fd4ab0a081795cf98d90574f0551054a",
+      "size": 18449,
+      "targetPath": "Data/data/sql/updates/db_world/rev_1790485200_dark_portal_siege_ambient_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_1790521200_dark_portal_siege_expansion_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "F952E0A4F9845253E48246FCF6D78921AB0412CA",
+      "sha256": "04014e29f41a597bf1b9d8cdc98759974751c46ac2b1251d2b5dfd49b194361c",
+      "size": 8172,
+      "targetPath": "Data/data/sql/updates/db_world/rev_1790521200_dark_portal_siege_expansion_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_1790630000_seed_level_20_rank_one_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "1DBA73C05511C7F542993E1AEE6BA2EC8C024324",
+      "sha256": "cc573b5684ff4739680c371d174c53e6522f99c4e0bf36a2d99644481a9b6358",
+      "size": 3068,
+      "targetPath": "Data/data/sql/updates/db_world/rev_1790630000_seed_level_20_rank_one_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_1790631000_warlock_progression_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "C2AF32C7FCB0B905418A66AF80D9600894C2ABC1",
+      "sha256": "13599f6c8617f28b1baf37703ffed03f9d29ab72ce0b72459b1663dcc53532fd",
+      "size": 4481,
+      "targetPath": "Data/data/sql/updates/db_world/rev_1790631000_warlock_progression_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_1790632000_class_progression_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "CFDDFE157DAF357D2108E477ADB1DF3E95C5FCED",
+      "sha256": "bd27ae204eeca6c9ef76406e9f990a244fbe17004c90e278c83c8251c66592f8",
+      "size": 19674,
+      "targetPath": "Data/data/sql/updates/db_world/rev_1790632000_class_progression_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260926230000_starter_quest_reward_requirements_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "ACC1EF03469DABA49177E0E14BC1023AB7DE958A",
+      "sha256": "70cbc01d988d99fabca9d17520adbfee3013691bf31e5dc13591191369e60034",
+      "size": 672,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260926230000_starter_quest_reward_requirements_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260927010000_tarren_mill_guard_patrol_conditions_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "38771DCE738FF8F3F37625199F7AA09D176EC49A",
+      "sha256": "ab2ce4a6b9c5a8e3f6f4126c5c326d74d69ef5d4cfe09f2895bd6cf4fc27299c",
+      "size": 885,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260927010000_tarren_mill_guard_patrol_conditions_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260927011000_quest_reward_chains_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "3855C6625F1CB4EF658767544D16D191C982D731",
+      "sha256": "fdc24e979b6f3c584a9458d611ee48034c60600e334640cc48cd2591773a8de8",
+      "size": 8613,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260927011000_quest_reward_chains_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260927181000_dark_portal_siege_mcr_tuning_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "60D34B2530C01B872966679670B0153A50CD2D81",
+      "sha256": "55b8d7d2af971841609a2afd1ca0ae5a4db95169650dc90f6c06e47b3b4d0647",
+      "size": 1074,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260927181000_dark_portal_siege_mcr_tuning_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260927192000_dark_portal_siege_combatants_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "E3866128588FAD1568707D2297AA4D2799ADB0F2",
+      "sha256": "61e24468a544593fef09ae61dc88ba915fabdce078022b440a9179009fc681a5",
+      "size": 4460,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260927192000_dark_portal_siege_combatants_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260927200000_berserk_two_swords_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "0FB359300A7DBA33A58F601A4B7D83E01039E06F",
+      "sha256": "6db8dd070fe7550dfb47ebe16b45405b5d9f46479f3de78d928a15e7a5306ed0",
+      "size": 885,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260927200000_berserk_two_swords_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260927210000_remove_shaman_plate_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "41ABC009512FCDE946E11C7EDCE95C440C418901",
+      "sha256": "bb04682f8aa1085362f53e41d5d0b0951f7d62c489102d87628482f61a0a20b2",
+      "size": 1658,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260927210000_remove_shaman_plate_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260927213000_starter_quest_choice_slots_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "996933D57F43DEAA36C1F5E3BD0D6284558D95C9",
+      "sha256": "8135f8a27880a8431e35e60de5c30cfb92a024b7205aacb24d0fa0ed7ad33341",
+      "size": 5707,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260927213000_starter_quest_choice_slots_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260927230000_buster_two_variants_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "E6204F18C94C0F34807B3AABA5E38B7A9BE30C13",
+      "sha256": "c72335dddb7aa2b90ba66bca6e5241f0be9a6306d578344a0fb8e917b993e835",
+      "size": 896,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260927230000_buster_two_variants_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260927233000_remove_rogue_grappling_hook_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "BF9B0C0B559A4B98B474944C017E786945BBA798",
+      "sha256": "180ff78d17011aed34d916de7ef7b7016ec60e27dfc2f01db2fa3edfc916371f",
+      "size": 1488,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260927233000_remove_rogue_grappling_hook_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260928000100_fierce_deity_two_variants_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "979A140EE997DAF654BC56AC450551E74D1308AD",
+      "sha256": "3314ae3f58b62fae21926cc1bba48791bb69a72156d47edb3d210a0a6f5c5bb7",
+      "size": 749,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260928000100_fierce_deity_two_variants_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260928000200_gnomish_gunblade_three_colors_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "B60718FF0034FA6C21F5513E8B8D55515FE7B381",
+      "sha256": "c79c9c537843ded2b58e440bd978d1627439b8908bf58b3ad54e08342a54463d",
+      "size": 1198,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260928000200_gnomish_gunblade_three_colors_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260928010000_northshire_shaman_trainer_position_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "8D7489DA7D15A9458E5E104B6B6296D0F5BA6656",
+      "sha256": "3bd3da1f8823b157fb335ee722bf762d2237cd9d69cb9d4750183d58dbf08269",
+      "size": 388,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260928010000_northshire_shaman_trainer_position_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260928020000_dark_portal_champions_formations_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "161810412D2324F0D5E0BCCB8A76EF47FEAE62C3",
+      "sha256": "4c9223f298921deb8a4c2b5e47aab2489fecaa28817f36f780f6cba8418e7ee4",
+      "size": 7461,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260928020000_dark_portal_champions_formations_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260928045900_dark_portal_entrance_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "BC40A6BC861DDF829D624EF7D34C18E9C84D4996",
+      "sha256": "9e702c8629bf95d721ca7497a46df9f08c31144460d72fbc86da4604ba505947",
+      "size": 850,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260928045900_dark_portal_entrance_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260928083000_dark_portal_support_retries_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "2CD52399034A346D227CD10535DAE7E8E5B09115",
+      "sha256": "bd841d5b37fec11060c6e471971e8428c0ce8a6281f7ca71dfa37b6176edb193",
+      "size": 3878,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260928083000_dark_portal_support_retries_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260928130000_dark_portal_login_recovery_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "EF4838DE6E5A7454A9EB20C0547B6DC412DAD6E5",
+      "sha256": "a87653549dbe4b852c65c78e64689103db358856204522d3a2930178719a5e33",
+      "size": 1473,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260928130000_dark_portal_login_recovery_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260928130100_dark_portal_camp_and_foci_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "379FDED4C90F9A38BBC103F783C325CE75D76D84",
+      "sha256": "a4a12ca87497b9d78b4b0d4d6af8882504d89cefcae03d4070b0322b11c16670",
+      "size": 3437,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260928130100_dark_portal_camp_and_foci_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260928164700_dark_portal_lightwell_positions_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "8CD46FC0ADC079B0D4DD2B890AF9CDA5A3CFBDA8",
+      "sha256": "b5d315c4d407aafd4dbbb7a9489899b0615054f9e10a0e1059c93e51f94d1729",
+      "size": 894,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260928164700_dark_portal_lightwell_positions_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260928193000_dark_portal_command_banner_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "9882433F0411BEAD30D844DB210BEA7A721247EB",
+      "sha256": "d0778df8ab187c40e617df279c76e11243c203b147000d61e9ac23ebaf584e51",
+      "size": 517,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260928193000_dark_portal_command_banner_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260929020000_worldforged_expansion_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "16610023171D73B090E999FE82900607278CEAE4",
+      "sha256": "c8dd05b7064d237a0e81bbb4d0ea1e0ab3493c66f5d2f033a52a58caece7c22d",
+      "size": 117970,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260929020000_worldforged_expansion_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260929050000_worldforged_revision2_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "D83A5E329CE088D7B4EB38EEAD9DCF6D1D226FBD",
+      "sha256": "3673551625068123e56a528c8bdaa42cf2123a8f6c9c430583a5dd23a1fadc6c",
+      "size": 62854,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260929050000_worldforged_revision2_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260929120000_world_discoveries_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A3919552FBDEAD35B4EBC387F1B8E2FDA4AFA1D7",
+      "sha256": "fd55b635b295f41a1913cdbb5ad831f63be0cd62d4a1d8e280fbe71f62670cff",
+      "size": 21869,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260929120000_world_discoveries_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260929172500_eversong_wander_routes_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "43EFC0B9DB609F46FF018A4BDBA1B529235ED6C7",
+      "sha256": "f4072b7c1a910b293c34492aa87eefd739cf609071a2bf920fdf0fa68a08d6de",
+      "size": 10988,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260929172500_eversong_wander_routes_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260929172501_ghostlands_wander_routes_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "7B35356CCBA334EAEEEBC0D3DBC5D1B42F0B6AA8",
+      "sha256": "ed7dadccdc4dda6a075dad416447334f142f0de17cc56354550b4e8773a0c20d",
+      "size": 12318,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260929172501_ghostlands_wander_routes_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260929172502_azuremyst_wander_routes_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "0BE672B241AC62732A8591B5ACFDB6BCF4A443CC",
+      "sha256": "190757e4a0bd6c7ae5a05d2f68a248667991c9797c71b64f6f282ff495d9a67f",
+      "size": 9764,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260929172502_azuremyst_wander_routes_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260929172503_bloodmyst_wander_routes_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "1CF8F314D036915D91106224C71DC731020E75F2",
+      "sha256": "7d2e9397e981fe83b36d52c8aed5b64a235cbab5d91aeff63793875ffd174856",
+      "size": 10907,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260929172503_bloodmyst_wander_routes_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260929230000_shared_starting_quests_and_wands_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "782F4B84A9151538DD78518D66A0212516339F5E",
+      "sha256": "76b0a2b2cb7f7719367df1f4b8fee4a81817572550e5fade56a3c8e7b2419c4f",
+      "size": 13786,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260929230000_shared_starting_quests_and_wands_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260930150000_world_discoveries_expansion_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "603C408EA9E8FE5DD54579C45202D832B68F05EE",
+      "sha256": "b35a09b36c7ff1366710b7b8be3f9fa533eb57259c2d055fabc3ac877d05a18a",
+      "size": 69247,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260930150000_world_discoveries_expansion_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260930183000_world_discoveries_mail_strength_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "57E63A48E114349C4609B4B414A43D810F128BBD",
+      "sha256": "a0ed683c06e31bfc56ed0f61c03ac033b3040127cb0b3cd91df415124614f5dc",
+      "size": 5445,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260930183000_world_discoveries_mail_strength_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260930194000_world_discovery_ordinary_gear_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "3905353F1B089B85C788233768EEF53ECC3176D9",
+      "sha256": "e5d357935b1eb10598d483bc1f88f2cd77dedf23fc8f221da8849ad6752110ee",
+      "size": 592,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260930194000_world_discovery_ordinary_gear_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20260930221000_world_discoveries_thirty_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "2F4ADD47C39CB5DE3A37E01F60E127A36947DA7D",
+      "sha256": "054fda8f5ada84cfb266a369b1f79941b1be36f78750ac55a1deddefea090e18",
+      "size": 87246,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20260930221000_world_discoveries_thirty_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261001001000_worldforged_balance_discovery_tracking_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DD44BAE771269431AB6F0087C634460CE0E0CBE4",
+      "sha256": "a3eb0799edea828c2c0cb94197f5160c1a12c09b6180e610acfd5766621a4d39",
+      "size": 2231,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261001001000_worldforged_balance_discovery_tracking_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261001143000_npcbot_route_diversity_first_pass_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "B3CD5A056B06ED9D257AEE9C5886EC87C28D449E",
+      "sha256": "a05fe0f14bd253472102028ee20751fa939de30cee185fa79d3565b2f6fcdb85",
+      "size": 10159,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261001143000_npcbot_route_diversity_first_pass_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261002080000_cindervein_foundry_registration_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "4C42B88C4AC9046E84C07C819E7B674B719FA2F9",
+      "sha256": "854e54bdceaab08e3b1599659984a9621553877468a4e20c28f3cd368c9d3c08",
+      "size": 640,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261002080000_cindervein_foundry_registration_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261002093000_world_discoveries_starters_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "74BD640A81C47EA28F00C79ABF802D31426E9A83",
+      "sha256": "e0779cdcd8f8f232cafbdfbd4e762f2bd5a93a09cdbfbece186d0a1054d5913d",
+      "size": 45803,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261002093000_world_discoveries_starters_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261002170000_tauren_cat_gender_coats_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "E13B0F42EA0554BB4C60563CB3230742EAD928C4",
+      "sha256": "da7a57a76312f6387be003a58e0c8975efdc1cb67b085ee4bb25f758a00549a3",
+      "size": 328,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261002170000_tauren_cat_gender_coats_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261002213000_all_classes_two_handed_melee_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "2082F37D398121B32648F5877239212253F58146",
+      "sha256": "f6c3d170e5dcdc7b66c318163b769e23bbfe46c366cfbfc049966e93326b0cba",
+      "size": 665,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261002213000_all_classes_two_handed_melee_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261002223000_class_melee_weapon_limits_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "0B074D9AE866780767591ECD5E5449AFA4B41FC8",
+      "sha256": "e2d4fdeddb4eead56ea70b7b7a0cf51a719cc7856abb6eb4fff806e24a998cfe",
+      "size": 1077,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261002223000_class_melee_weapon_limits_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261002231000_nightelf_female_cat_29408_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "ED5634E6111143E3FA7739FF527FB119177DE60E",
+      "sha256": "ae76b72a82b74bab7798657cd13b8a779acdd8e69ee816b7c6f1438c2632fb6d",
+      "size": 1456,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261002231000_nightelf_female_cat_29408_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_202610030001_goblin_glider_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "7DE568F333D0DBA169237BAD9A2383A60470C84C",
+      "sha256": "b0c9310e20f78888ad3b0915d583ea4d88c7905d960daad0ead001442ef703d7",
+      "size": 1210,
+      "targetPath": "Data/data/sql/updates/db_world/rev_202610030001_goblin_glider_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_202610030002_goblin_glider_launch_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DA6148EBECC05F8848D0BFB94C4817FE60E32770",
+      "sha256": "67f3b7e8da1c12630302f80f1ab2f61e2dd0094b05fba219651a6f9873a493a0",
+      "size": 279,
+      "targetPath": "Data/data/sql/updates/db_world/rev_202610030002_goblin_glider_launch_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_202610040001_expansion_gliders_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "CE1B23C64D90928FAE854BE071C5A3A5255156AE",
+      "sha256": "44d8c7f9cbf9b57fbb072ad6aaecaccfcdf2d192e36e4d0f72155e48fce06982",
+      "size": 3539,
+      "targetPath": "Data/data/sql/updates/db_world/rev_202610040001_expansion_gliders_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004010000_thermal_anvil_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "6E6710D1FDF815B4AB67D47AB5675CD0F2530C2B",
+      "sha256": "a8facaa71063bbb6c65fc58a0abe7e2be7f6c1a45f85ca59e610c7c0779fbac3",
+      "size": 3648,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004010000_thermal_anvil_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004092000_shadow_word_death_charges_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "402982E88E858A0CF2C51F1C606038C6C61B966E",
+      "sha256": "9ba1bbe7cb884ec371c10966eed31a497c6b533d33507495f940411cac009eed",
+      "size": 14630,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004092000_shadow_word_death_charges_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004093000_adrenaline_rush_rework_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "08B221D80E58F5879686292B7CE458FC76CD9DB2",
+      "sha256": "1f1515dcb93be56c37b66ead74fdcb7bd77ed95a56402c659cbebc13fd358dd7",
+      "size": 6846,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004093000_adrenaline_rush_rework_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004094500_moonfire_feral_forms_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "C22D7AA66C96E7216F5D2BF4901F2D81C52ADAEB",
+      "sha256": "d83fb871c9eba2f5d998fd3e3f7e17e5248ff27647146c1604a0b499f5049942",
+      "size": 34356,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004094500_moonfire_feral_forms_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004095000_tigers_fury_single_rank_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "6B934631D7AA7F568215BBD57A0146517D86A802",
+      "sha256": "55ab7cd1e2715696640c3c29ea0dd82cb67ad0cd6cd47951034bbf22a9b84d6f",
+      "size": 7533,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004095000_tigers_fury_single_rank_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004121500_leveling_oath_rewards_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DCDCCBBC24B72133EEC8150F3C2A852F86C34A2B",
+      "sha256": "f77578e727b42be2994d646c0d751b2df37169045aef389ab025d7ad01063fd0",
+      "size": 93822,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004121500_leveling_oath_rewards_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004122000_leveling_hunters_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "B3ED8C13A881AB68E25751899C24BD93F95B8F2C",
+      "sha256": "daf9e393e8e3088d996cef9ced19fa6336feccfd16180e05f97ec8f1923efa98",
+      "size": 2656,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004122000_leveling_hunters_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004190000_slow_steady_oaths_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "D7AD8FA2679D3D9BABF191CE7173D9F5ED237C91",
+      "sha256": "ad0970a5320b0ec0252ac167d887a8ba1e9c097404eb931d1090b679428ebc8f",
+      "size": 27904,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004190000_slow_steady_oaths_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004230000_custom_race_quest_text_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "EAB6DCE8437F67D3F8DC517B789F4FDD91AA214B",
+      "sha256": "2e9d0f076daa057cc4b35b498f10b7cae15cdcd25e61b5cfcc503efa43cbe22c",
+      "size": 4790,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004230000_custom_race_quest_text_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004230100_goblin_worgen_shaman_mail_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A4E42F698964D3D17F018E063B85BA92C6E7816C",
+      "sha256": "6a5052d933f5ebe8eb7ea35620b6c8c1bf6edf0aaecf1b7582803417394d6e87",
+      "size": 649,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004230100_goblin_worgen_shaman_mail_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004235000_disenchant_item_metadata_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "4F478BC50D0A1E9322B2DA08E6706E4D5FA58B54",
+      "sha256": "fde790d9f79a8aa405c553efa15b0055caff7b85b0239bddcc43ce24635e51d1",
+      "size": 40170,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004235000_disenchant_item_metadata_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004235500_ulduar_progression_rewards_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "F67272AC6958E376C6159DC97F04752D9F6ECB06",
+      "sha256": "3fd6e756d804fc26c690ee41b2a41de80ae70daf30150066c5362ae724182eb4",
+      "size": 8857,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004235500_ulduar_progression_rewards_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261004235900_glider_tooltip_text_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "1410197BB642B686D9120A1BECC2234AFFCE69AB",
+      "sha256": "0112d0ba0f654c9b1678aacee7a1c19e8cdd5b228610569cd1166f5290deee12",
+      "size": 1103,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261004235900_glider_tooltip_text_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261005000000_thermal_anvil_scroll_name_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "881E9B57E8D9E84FAA56AAE871CFDF760BF869D7",
+      "sha256": "758398e741ca4c8bb8a989d983012602d34edd0207a715b972c56b77aa0ce92a",
+      "size": 277,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261005000000_thermal_anvil_scroll_name_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_2026100501_remove_smart_judgement_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "9F27876A6432FB1BAAF33C89FBA7903D0DEBAACD",
+      "sha256": "0a4d6429b52a33930def8fb9ec9bd044dcbc10c3f0760ae0c2c7e82e7061735f",
+      "size": 248,
+      "targetPath": "Data/data/sql/updates/db_world/rev_2026100501_remove_smart_judgement_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261005021400_boss_parry_haste_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "9B48DEA6DC2663C5B0E65B4343F1E85084AB9955",
+      "sha256": "a4e0fcf2fcfd82a7f69b015617cbd33cbd776980791453c398a23c7973207110",
+      "size": 2419,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261005021400_boss_parry_haste_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261005021401_vanilla_rare_elite_loot_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "340FFA2EE99279DCEAE349951AD8E0C98A426B56",
+      "sha256": "b688041b5292f94dd75e16883750b2005238d79a3f71bcad13f8f450e27aae69",
+      "size": 51992,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261005021401_vanilla_rare_elite_loot_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261005021402_thermal_anvil_schematic_description_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "9482354887A8948F4DE53CE08BEEE4E51EBA68E5",
+      "sha256": "e6cded396d8db21f38b03eabff0ba3d052a9de0ece48926be756e9a084b1beb8",
+      "size": 172,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261005021402_thermal_anvil_schematic_description_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261005021403_thermal_anvil_single_active_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "0E110910FE5C6B2214831A807FBD3726E11E66E6",
+      "sha256": "124587f3afdb519a85a11f615d317968c00ab600938cc08322fd26f88ab995a4",
+      "size": 428,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261005021403_thermal_anvil_single_active_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261005033000_progression_scrolls_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "36766AFFEACC5D8064263BD16E358E6F92AE3C80",
+      "sha256": "556366030cc9e34d93651a69d86418a26d58f253a26aefd12ba5c1a513f1d769",
+      "size": 4150,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261005033000_progression_scrolls_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261006120000_holiday_brackets_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "3425F5901371627A0AB3F780CFF405CC4DCEC0B1",
+      "sha256": "d8f47001de2a9d735a65fcafcf328c1a47e5856c232ba169566a1b003108537a",
+      "size": 23739,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261006120000_holiday_brackets_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261006145001_elf_eye_halos_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "28380B08195D84A3738967501FAE73B7230BE12A",
+      "sha256": "da6902e6d1f56939b242b3a1aef7cde55498753b2bdb6883878364a113be5e7f",
+      "size": 14416,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261006145001_elf_eye_halos_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261006220000_paladin_divine_plea_starter_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "EFBDADBD0C394576A3C705FB4D220A16C849AB7A",
+      "sha256": "059be8c23b7de75401fd553ff96152e7d7f8411fa8208bfdd8b16d2084ec17b3",
+      "size": 542,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261006220000_paladin_divine_plea_starter_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261007031500_hallowend_cosmetic_chests_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "6F7B95BFDA7A391AA17F346B5F438B89D706607C",
+      "sha256": "89604a7f7e2904d6f0f7039212011a1ae0aaf3a5f1be93015001248ff53ef7bd",
+      "size": 49276,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261007031500_hallowend_cosmetic_chests_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261007050000_dk_tier4_dreadplate_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A121F2DE71A6674443A54841F1E88798CCC430A7",
+      "sha256": "1be5991817ec048190d651c1f76687bb62c4583c7128c66853715e89d38a9646",
+      "size": 95875,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261007050000_dk_tier4_dreadplate_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261007073500_dk_grave_empowerment_killing_blow_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "CA5447CBAC20420228818DCDD486751C0CA9EF82",
+      "sha256": "af08f3ae6354cc3253e4d13b31e1ac262280deec2ede7ad80fb3ea6ce96b9d72",
+      "size": 382,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261007073500_dk_grave_empowerment_killing_blow_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261007082700_dk_tier4_item_set_names_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DB026576B2053F9FB1F8ABD0FA6FAD56A89C5E85",
+      "sha256": "a9747e4a17208fbc44c53a3d830994a67fd75e6d58efdcd6e04cee67300beee7",
+      "size": 1319,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261007082700_dk_tier4_item_set_names_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261007100100_plague_apothecary_mantle_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "98789CBDE7D52B10CEF017E96D86424E3ECE1488",
+      "sha256": "136977aa0efcfc90a6aef625bd784ddc9f513d478f0ce4f32240ef1867fc7244",
+      "size": 3636,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261007100100_plague_apothecary_mantle_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261007123000_chimera_cobra_replacement_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "B48AD4804B59B8BD1DACFA995E194348F6750202",
+      "sha256": "c6c95d61e4e812cafb7cfc633ce0ac5f29ac6915cdcc4b779730e192d4bdd08b",
+      "size": 319,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261007123000_chimera_cobra_replacement_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261007133000_shaman_blast_charges_earthquake_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "410EF4BAC0B3774DD94E57D0DEA567F7AA2EC77E",
+      "sha256": "a27018218884e7bdf3bd53972a1debbded0d59b0c585508f36758f07aceba633",
+      "size": 18776,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261007133000_shaman_blast_charges_earthquake_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261007145500_cobra_starter_dedup_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A013D44D59892DCAB6C87CFF6A76FE5CC1F04BD3",
+      "sha256": "5074634152e2f9187d31a068ac0a5a8c368428af09abf8ce721385fa8f3382f9",
+      "size": 390,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261007145500_cobra_starter_dedup_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261007200000_dk_tier5_necrotic_boneplate_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "4E58F31B1F1DBA846E0BFFB67FA58109BAF2FAD6",
+      "sha256": "1a86b7537c96ba8ffbb6e6465f3ac0d6fcdb94a83e90d449a04c7fe222e89c3e",
+      "size": 98793,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261007200000_dk_tier5_necrotic_boneplate_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261007230000_npcbot_race_diversity_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "FB54651213A9D76E78657005B59507BC3C8E4F6F",
+      "sha256": "08ad11419ef7457a3df15f3155f799b50ac711a01aab867f93214ca2f7641501",
+      "size": 1382763,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261007230000_npcbot_race_diversity_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261008000000_earthquake_third_visual_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "1174F9F3123D6EDF9A0C90D344C2B59552612CDE",
+      "sha256": "6e45b12bbc48a8bd5b81d122faf76683b995939a9b422287cf737b046a0fde2f",
+      "size": 6910,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261008000000_earthquake_third_visual_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261009010000_beginner_glider_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "469D0511C45FF61DC9FAF7DFC8ACBB07FA83FF85",
+      "sha256": "0ff12510629cb14adc7d68825a02ff016bbf8a22a5c6b624ff6112602209319c",
+      "size": 1298,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261009010000_beginner_glider_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261009060000_dk_tier5_marrowguard_proc_phase_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "37660984F7D00AAE68829ABE5091B8C33F12ED61",
+      "sha256": "443ff006cc88ab1d56c01c7f2b1a9cd7bb380dc22ae0f75ce255c37733da30d7",
+      "size": 205,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261009060000_dk_tier5_marrowguard_proc_phase_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261009070000_mark_of_the_illidari_currency_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "BFFC177A6BC04BF3D2088653AF4F4916A139E4DA",
+      "sha256": "f62f07768e76a97b08e2658e5c96a5cd3c000a634009117dd8c277b11e457275",
+      "size": 761,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261009070000_mark_of_the_illidari_currency_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261009100000_shaman_elemental_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "73FCE88E69E23F2D416AE08B0290F3687DE2A576",
+      "sha256": "f3eadebc23524f1f16b4a79e7addfa287afd331b182e5dcc1c70b9d4e3d354d5",
+      "size": 34676,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261009100000_shaman_elemental_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261009130000_shaman_corrections_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "046A580F201DDD387FDF3C66869BFAEF4C891257",
+      "sha256": "28546a59ab205dbea57c32aa46202c301da88a7439c59052f96f0225e49fe0f9",
+      "size": 21939,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261009130000_shaman_corrections_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261011235900_undead_paladin_mount_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "CE8A3E0D61A6A9F356CD9DB94541D1C4EBB24E05",
+      "sha256": "7eff7362b5c816b1af032f6dfb2688133342a8d01ed737b8be40dd8e0378c476",
+      "size": 804,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261011235900_undead_paladin_mount_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012000000_lightforged_warframe_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "E90A6A7CBB5610083DA3CDDA751ED85815E5F458",
+      "sha256": "c4b3da87a04329f140dc1cc0e651fab09c0d630caa8f0babc90ab95b223be599",
+      "size": 2849,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012000000_lightforged_warframe_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012010000_dk_runic_surge_cleave_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "D8E90DE845E7F9ACD37C670E3FD3EE6E78EF44C3",
+      "sha256": "db6d979a02b76ee29c508c04bddc254b429f8a4deb6edc4aa85634ccf7be3baf",
+      "size": 921,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012010000_dk_runic_surge_cleave_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012020000_earthquake_capstone_ranks_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "499D6B1BCAA40480A0315D96634CD40362C589A3",
+      "sha256": "d0926385eb0087c2be70b39851cea3df1b087d0c4dcbec6cfd3e00ddbaec3388",
+      "size": 1227,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012020000_earthquake_capstone_ranks_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012030000_dark_portal_warframes_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DE8472672566EE0D88428193E98476E1FCADCAA7",
+      "sha256": "6b6e99e458c5735da51502da9414ee35980ddb50e0c89e995f5ac8443d100d9a",
+      "size": 2623,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012030000_dark_portal_warframes_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012040000_shaman_raid_balance_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "059C7DE0CA920EB3032705518A0B5B1AC4287289",
+      "sha256": "4cb199d3e175cd1d23adb25e1675281619572b556b6634a43f55fd6485e2449d",
+      "size": 3138,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012040000_shaman_raid_balance_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012100000_dark_portal_balance_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "5C816E1CE7CA2FA227C425F2FA878CFAB2836AEB",
+      "sha256": "d58a93b782af42088cb186144dd7951c408abf33b29be1776b20f37e24bd03bd",
+      "size": 4428,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012100000_dark_portal_balance_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012110000_dark_portal_warframe_tuning_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "D20068C8EB49045E275567C101F1DFB6F37E9D2A",
+      "sha256": "1b3865fc4b4fc4fe7f5860005f6a6d01f03bb82a0054eb6e599f83e555418fdb",
+      "size": 1139,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012110000_dark_portal_warframe_tuning_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012120000_well_azshara_image_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "48F04B4D8F583069AB7CA0B6EA3BE022C80905D8",
+      "sha256": "f79014f0f948fd81832abfca0e0f797d4f9ca9aa9277ad2b4b5703ad2b435d6e",
+      "size": 2047,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012120000_well_azshara_image_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012160000_druid_feral_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "2BBF166AF4E731B35B5D041C1A7E36773CDE3427",
+      "sha256": "44be4bf2646bb3b732fd927eea4e51839df154720555c192581ff68e28a36210",
+      "size": 1880,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012160000_druid_feral_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012181500_horseman_wardrobe_opening_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "9DB3533F5A58B7DC5396123F07F8AFE0A2FBC211",
+      "sha256": "7865a7efd8e3398a5094c773b68a07fc9a40ff291a58c7d2bc2608f11e1e0bbe",
+      "size": 342,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012181500_horseman_wardrobe_opening_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261012181501_horseman_wardrobe_cache_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "8C8FD07ED4A68B9AE2CDF11188419CB4ECE3034E",
+      "sha256": "7626cf52a3bfc8cacf2d5a6744bfee9dea6387821c75e2e9b0dc4d2c172ca3b6",
+      "size": 230,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261012181501_horseman_wardrobe_cache_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261013030000_well_dragon_soul_no_name_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "58FE7A5035BE8AFDB0A3D7289A199EEC833A2C3D",
+      "sha256": "18b49004b090fe812246dd90658ee764b28cfbfdeeb5347e09ccd919a8269621",
+      "size": 537,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261013030000_well_dragon_soul_no_name_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261013040000_restore_night_elf_mohawk_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "AE5052C8F89C9703F2C880769F01DC1F4AA67D70",
+      "sha256": "b2dae000d3a4bc16a03a645cde98f9310fc2284a4e3547eae8565723424c929c",
+      "size": 7421,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261013040000_restore_night_elf_mohawk_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261013220000_world_discoveries_expansion_60_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DE290D6AE332F7056313BDBBA919B50C5E0DAF1A",
+      "sha256": "c457b8b5afca6e08a64c88b33fc7cb6dadee245aa4a1f718ecb9e32b6b5050b9",
+      "size": 36127,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261013220000_world_discoveries_expansion_60_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261014040000_world_discoveries_25_weapons_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "B60FFEF31294CE724DBD25FCACFC315A2EF41529",
+      "sha256": "c39d3bb560c92887624ff65d732d431b3b687c7950de36b107893db8fedbf0cb",
+      "size": 21499,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261014040000_world_discoveries_25_weapons_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261016050921_crust_burster_surface_movement_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "38B8F2A9746D6E63B849CDE7C3F7EC31F18EFC56",
+      "sha256": "97a913a3861688a5202c7f4bde457628403c4366996802bd5dd1cb6e05e5c849",
+      "size": 5065,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261016050921_crust_burster_surface_movement_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261016120000_class_spell_learning_levels_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "E9B75568F4982B9BFD19AF61F48AF878371E2F56",
+      "sha256": "26d5a266774ac9fc6d1b929c74db4308337a79cde14c126d5f45d8b76045effe",
+      "size": 1261,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261016120000_class_spell_learning_levels_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261016130000_class_spell_lower_level_alignment_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "F3D48BF1941D90B2FF54FE8FE425108CACBA8792",
+      "sha256": "82fbdaff3e2f72f37da89237f84ad1a4b6f658ae5a042cafa299c36f1798bf09",
+      "size": 7729,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261016130000_class_spell_lower_level_alignment_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261017120000_discovery_equipment_native_budgets_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "1F4E728AAD4B9182A43E5192C235DBAE845F5CC8",
+      "sha256": "e67ae76549d947dbb7caf97fce80d26db99996f0df752f01b8b55982245d6afd",
+      "size": 19680,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261017120000_discovery_equipment_native_budgets_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261018040000_outland_glyphs_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "9B0EB31956AC8F7F68BFDCB24DE314E88D1F53C0",
+      "sha256": "85b9c0a691a2b9790c006571de557984935c96a8640ab96c7316edb40373912a",
+      "size": 32753,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261018040000_outland_glyphs_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261018060000_old_ironforge_gate_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "881FAB946B3515FC833231E8D2253F4A10FC6149",
+      "sha256": "fd34fa379c110b5a424a204cf91f44ea831d9541f56048e0ac4741aad43bf98b",
+      "size": 4130,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261018060000_old_ironforge_gate_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261018070000_old_ironforge_gate_placement_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "2B0DB58C7CB48360B88D78218F5CE1C66BDB1BAD",
+      "sha256": "a3201f15e010bb9f89c7b1c66545a48302422ccd102dde9b3bfa1b866f4083a3",
+      "size": 871,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261018070000_old_ironforge_gate_placement_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261018120000_bot_relocation_starters_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "F00319AE396A7A70462022B39717BE09C2D01711",
+      "sha256": "9dcaeb94d365777568c28997ef7dc094d5e407ee911e1014b3f31287627e9128",
+      "size": 4069,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261018120000_bot_relocation_starters_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261018234500_gryphon_guard_placed_only_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "BFC963F122F371FA7585ABA4FDFA9F8EE27D50F7",
+      "sha256": "ddbe8329e523837aa454c590b4ca0c9739e52ca226b41424bec5932f09615f44",
+      "size": 518,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261018234500_gryphon_guard_placed_only_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019010001_blood_elf_npc_hair_palette_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "FBD0000C334965682433D7DD56DE0D26C6435B6B",
+      "sha256": "52101154e4d398e690935f95c869f9b0c344c81a1c690c8dc88b711f308fb9e1",
+      "size": 1080,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019010001_blood_elf_npc_hair_palette_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019090000_hall_of_thanes_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "6294034903D55C7533A1C75691387F4E30174D05",
+      "sha256": "b3ac9b88fa5ddae7e149e3f184a9c12a0ca5b18ec75f30462545ca6338f033e8",
+      "size": 2599,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019090000_hall_of_thanes_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019110000_hall_of_thanes_entrances_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "70196FD4217606F66275FA5C25743257A34233A7",
+      "sha256": "eb9d2381ae552e051d899e782cd354bd4ac22df12d9def3b93c3b8a69b45fd84",
+      "size": 2313,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019110000_hall_of_thanes_entrances_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019130000_hall_of_thanes_portal_placement_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "2095B7F3E681EE778065EA044F0CB1B0DEC5EE30",
+      "sha256": "6b1555560a781e7047a00422dd9a7425d3a604e2ca6895c2a3ed477ea79dd7b9",
+      "size": 984,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019130000_hall_of_thanes_portal_placement_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019150000_hall_of_thanes_levels_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A64111448E57901986667259A3B77204D43224F4",
+      "sha256": "9a43fb5a9e2f6fbeec8dc95637c8d8e22e284ea2c4e0d4f45fa9ccdd5b6e44d5",
+      "size": 398,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019150000_hall_of_thanes_levels_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019160000_wxl_gameobject_template_scale_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "5823B43C124ABEC3596ECA79817A3449764BC765",
+      "sha256": "1950c9587bb24df19597bb9348ab49c911bc46482f419b57c486e1081c7c44c0",
+      "size": 836,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019160000_wxl_gameobject_template_scale_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019190000_hall_of_thanes_brazier_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A25BBE24B900DB7182BDD57397D32573D83D2C0F",
+      "sha256": "8e989f0e3d886b969cacbb1b5ea6e77466bf3c8a9633d5f31b38f0fb61759940",
+      "size": 1142,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019190000_hall_of_thanes_brazier_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019203000_old_ironforge_gate_keyless_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A8CD7C6B9FEE05ECD65778CEBF64AE51E97725A2",
+      "sha256": "b49e2c4d2b2c5248a6241591024bac15ec84bad2a548a7e2d9725a769c01d3fb",
+      "size": 334,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019203000_old_ironforge_gate_keyless_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019205000_ip_aq_raid_quest_credit_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "631E0DB46DF6CAC8CC0796B2EFC77474A0984715",
+      "sha256": "0fbad32ee40ec04da487e2829410becc238c56bf5d85555860ac0a14dd97fdcc",
+      "size": 385,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019205000_ip_aq_raid_quest_credit_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019213000_hall_of_thanes_gates_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "76D40984A91A110AF1641B54F4F835B16441363F",
+      "sha256": "6fd14cb2c4e33b5d373d3f4236b99699eb8557ad17ea4e01a6f4fecc3d9019ea",
+      "size": 925,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019213000_hall_of_thanes_gates_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019230000_artifact_arsenal_296_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "B5F425079DDA005F2D54FE5F2CFE700EEC0940DC",
+      "sha256": "50e4ee6897db6dc3e9122eeff7890833c78ef533dc1a91e321c4f9d96abe99a2",
+      "size": 8551,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019230000_artifact_arsenal_296_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/db_world/rev_20261019231000_artifact_covenant_proc_masks_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "38ED0E02C5EFBCFCAFD837B13DBCF8EF84B4DDE1",
+      "sha256": "85ad695b73d091b2551ff58bb3ffb7641dd132549def1c81eab72bbe74e0f5c9",
+      "size": 183,
+      "targetPath": "Data/data/sql/updates/db_world/rev_20261019231000_artifact_covenant_proc_masks_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_characters/zz_fta_20261020_all_player_talent_reset_zz_custom.sql",
+      "schema": "acore_characters",
+      "sha1": "7EFE28D4B4870D57FDFFD9B44D20292C3C7CCA9C",
+      "sha256": "165c887ddb4f4e1aea6914fe559037b5708d610976fc30dff91e5065437ace9e",
+      "size": 36799,
+      "targetPath": "Data/data/sql/updates/pending_db_characters/zz_fta_20261020_all_player_talent_reset_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/2026_10_14_00_quest_loot_party_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "590DF211182B5050315A573E5BADE2B67D78B158",
+      "sha256": "26aa3b904f33845fcd6dec92e2c4f9393d5180f4049fa9c6c21c04821b05174d",
+      "size": 1444,
+      "targetPath": "Data/data/sql/updates/pending_db_world/2026_10_14_00_quest_loot_party_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/2026_10_14_01_aq_attunement_personal_loot_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "59D3C0AD786806C963C1EDC2A25356CEE93B2A4A",
+      "sha256": "0c5c78247d9b0069833001c4518e94e5939539fbd6b1c16b5fc3a0b12db6b4a8",
+      "size": 662,
+      "targetPath": "Data/data/sql/updates/pending_db_world/2026_10_14_01_aq_attunement_personal_loot_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009040000_shaman_mail_at_creation_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "876645BD844AE9CA5173ACF43C18A4C09D823E69",
+      "sha256": "5fc653e52271bb0e166a298fcf64de33634fecc0a6192d9820ec1133701779e4",
+      "size": 471,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009040000_shaman_mail_at_creation_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009050000_starter_action_buttons_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "76FA3DF1F77F6C47CE11338F960ABC606A215BD6",
+      "sha256": "364648163ed88bd91f5446dda7fd0944008b0d10a61deed96d02b56a83d3034c",
+      "size": 8251,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009050000_starter_action_buttons_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009080000_dk_tier6_gravebound_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "6F5F7B430DF876A8F5B5D6EEE47C1CCE121FE665",
+      "sha256": "823f99abc9461bb22c093b7f13fe057b6d05d6e4b3c4d021ac30e1d5a99cdef4",
+      "size": 43201,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009080000_dk_tier6_gravebound_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009160000_dk_wraith_walk_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "CDEC19E65484F6E09740506CF35D261725C61B20",
+      "sha256": "152aa940317113e2bd1d46791fee59a12427c8bf971fe57498db02a2c0c7eff9",
+      "size": 7062,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009160000_dk_wraith_walk_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009180000_dk_control_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A52213B1282896CB9D35603B0883A5769772D89F",
+      "sha256": "8c94de11a80ef21c7d05b261e7f3651e4825c2b2833aa5a28ebd6a1af92d6c92",
+      "size": 11706,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009180000_dk_control_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009210000_dk_control_revision2_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "EF3D57031FDED9E2F204A6F47DDBB38F202E5E16",
+      "sha256": "e38ecb6127253eb957c79e974ecea998669a113185f6fcfaf8c467735e42af54",
+      "size": 9155,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009210000_dk_control_revision2_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009220000_dk_wraith_scourge_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "55AC3B3C0BE3D77A0B7A9D1B2C92570EBB75DAA9",
+      "sha256": "cfaaeb454e2dd2d1bbef62538316009f9187f1691431d932f2e6e187744191b4",
+      "size": 11927,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009220000_dk_wraith_scourge_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009223000_scourge_strike_tuning_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "6924D08522DB228B8D615EAD69CD8555EF4CE089",
+      "sha256": "b048b6b07d76f572a1a7d9f805403df3f10efdd13839b6dec972b8a0dc509105",
+      "size": 302,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009223000_scourge_strike_tuning_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009230000_cobra_shot_range_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A410158D40150048F024D5D59AFA0D5F6838121B",
+      "sha256": "019e6242d99ceac86fcd166d2a973dc427aedae2d347879561ca2d0d83e6fb04",
+      "size": 10848,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009230000_cobra_shot_range_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009235900_remove_redundant_spell_overrides_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "E9269068DE46FD07E85D189E0A1D6F9709C97FFB",
+      "sha256": "294474a709223f52b920e43ca36cfddb5077ab6e70861d4bc4f0f410cfa63662",
+      "size": 528,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009235900_remove_redundant_spell_overrides_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009235910_gally_lumpstain_dress_npc_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "985FC57FF19F4DEE6E9F953AC399BECED104D6FA",
+      "sha256": "7f8536139c9b6ac89e0bea43e266ab77817dcafa6df237218c53b1384707b3fc",
+      "size": 641,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009235910_gally_lumpstain_dress_npc_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261009235950_special_surprise_credit_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "158652DA3DBA4F3381AA0021570892B9F2F35CE3",
+      "sha256": "343c8a5a460ae8f3bf21e13da5db9e10a82ea33b856d5d66e0859ea15c5c2a15",
+      "size": 589,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261009235950_special_surprise_credit_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261010024500_scarlet_courier_ambush_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DAF5921FA4BF7FE421138241FB7BD1BE15CE7DF3",
+      "sha256": "1d6d6a41f49abe21c1462b7ae1118c30e5484edf0d61b2a4d843b7faf95c1d01",
+      "size": 3887,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261010024500_scarlet_courier_ambush_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261010050000_well_palace_rays_outfits_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "F62053BC58ADACCB6B6025CFF84500F2A6197CC4",
+      "sha256": "2ab7ac4b5ae8d9b4c57a4b30fdb4f9008eda8c4f1c4bc003756d0cd3c14e12f4",
+      "size": 2761,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261010050000_well_palace_rays_outfits_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261010070000_well_magi_dress_flags_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "FFEEED46EFDF071781D2EB2C1EF2159952CFA98C",
+      "sha256": "cb1845200856d5a689dc3a924c421a8a3a8de9e1ae0ccd4dfc5b0c854a8fdfab",
+      "size": 324,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261010070000_well_magi_dress_flags_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261010080000_glacial_ray_native_chain_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "8CD1D4CCE930437047AEFD3BC87B8B74AB787DA2",
+      "sha256": "f6ad709ed3d0a8fe888e08873147950a74af62ccc6d57e3e1e788f7ec628ba17",
+      "size": 739,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261010080000_glacial_ray_native_chain_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261010100000_well_palace_stability_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "BAE60DAFC616DB44B973232D71DA836910A0BA83",
+      "sha256": "cbcdec6dfb9b4565f0a7e0518c1113fcdc06ff4a3d7f6b6d5bfa43d70d96a907",
+      "size": 1779,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261010100000_well_palace_stability_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261010110000_well_ray_bomb_conduit_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "AF95A53844497BDA215093890A148A0F8A6050D2",
+      "sha256": "de083b6d7992874445921d70c783ca6d8ed27d1ce23136efa756fd2659675c85",
+      "size": 845,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261010110000_well_ray_bomb_conduit_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261010130000_well_palace_flight_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "7EB8E5595563A6168A24E41E0CF4C82B7CA86928",
+      "sha256": "2d7542c8ce5a3e7c3cb1c3f8eae8b7e504eea71fe5bcf4ee3469f251a5b3017e",
+      "size": 2094,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261010130000_well_palace_flight_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261010150000_dark_portal_60_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "3282F7EF219B3ED8435E4D9BC1903EA9BF0CE63B",
+      "sha256": "1dbd0c863bb3a663e6640e2bdee86510c7ba84dc7601bc9db688926c390a7561",
+      "size": 59019,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261010150000_dark_portal_60_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261010230000_cyrukh_combat_handoff_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "DBFB14EB4AC1B17662D34BFFDA43C469F32DA697",
+      "sha256": "c0df32b148dd2db64f19e8b2ab0f5310afb66ba09ed5366011e9f4fa764bab92",
+      "size": 8461,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261010230000_cyrukh_combat_handoff_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011000000_well_teleport_mannoroth_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "8AB7D49D69157A39333D0566D2F3C17F3486CA69",
+      "sha256": "4c1be4e9ccbd7f8087bf4244218202ce82edb8f3c9434504feef244caa86bdbc",
+      "size": 726,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011000000_well_teleport_mannoroth_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011010000_mannoroth_spiral_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "89E8433BBDED12CFAE68F1C82D87072D5C01AE15",
+      "sha256": "02436a4a053cb290f967d0fb5cff34007c9a54a1da7fa519ac1cd881045faea6",
+      "size": 450,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011010000_mannoroth_spiral_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011010000_well_eternity_t6_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A94AD4CB46DBE937D2A335607A8D5E03F70723D2",
+      "sha256": "f195a7b20d2e095a4095c4107f3227250485a78d493beeb79df40fa22b1294cf",
+      "size": 34542,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011010000_well_eternity_t6_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011020000_dark_portal_vanguard_repair_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "FFBA8E2EBC9EA7FDE6969A90ACEB1995811D03EA",
+      "sha256": "6c00e8dcd35565363b9007eceb349fa6570de9ef4dbe543bc784825a51ff0d7f",
+      "size": 13255,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011020000_dark_portal_vanguard_repair_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011020000_mannoroth_allies_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "2E4B9FE308C8537ABEFDA5D8EABF8F99FB7DFC0D",
+      "sha256": "1ba0fe0092ac1774e8bd30f1d0c22cc3081fc9f43cd785fb42e8bdf028ec244e",
+      "size": 690,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011020000_mannoroth_allies_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011030000_dark_portal_garrison_health_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "24D403B4A126F3C8C98268F52BA0822F15FEB5F1",
+      "sha256": "d8309ffa2494cb6a447cff46b230d68d3d507b1d17b2aafcbe93b037be19c141",
+      "size": 603,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011030000_dark_portal_garrison_health_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011030000_well_finale_presentation_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "71BBB6E871904366D1EEE57C09D50A934393C86B",
+      "sha256": "1bc3195923a28e572b167709cbbcfd0fc66cb4a03ad892e5471d7f7317a9c86d",
+      "size": 2313,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011030000_well_finale_presentation_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011040000_well_eternity_trinket_limits_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "ED458DC8456C310735C664AB8FF94F46A9C4FEE8",
+      "sha256": "9429b1b808f578fac0701727d59343683acf12cd23b2ad198c7e547309524952",
+      "size": 333,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011040000_well_eternity_trinket_limits_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011040000_well_finale_riders_varothen_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "6772F4576369BFEC13E5B14B69B297D8D742DBAA",
+      "sha256": "266aee0da772a7a0cdea18737eac8acac6ede0e3a909a1e35c5afc9387d3c41d",
+      "size": 815,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011040000_well_finale_riders_varothen_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011050000_well_fel_soak_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "D1DB015AF6E99CF73E2D613A5111401309069C8B",
+      "sha256": "7ff357f3f75cbceb800bee251445acd38c725dae7a02bcc3e8cf32e27e89cb7b",
+      "size": 620,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011050000_well_fel_soak_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011180000_raid_challenge_rewards_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "5A7E91B10C9A076D27EA8D32DB1EBA5418AC80A0",
+      "sha256": "26883f957f4490b69ae024710496535474098bc081c0bf00a19c438589f83eee",
+      "size": 8276,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011180000_raid_challenge_rewards_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011220000_starter_boost_npcs_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "43036DD4A87CAE1D821E9EF24F33957BA4BD302E",
+      "sha256": "3731eb164de5276b60a9d4f806baeac146598ef8595d526cc43beac0df4e788b",
+      "size": 6707,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011220000_starter_boost_npcs_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011230000_starter_adventure_guides_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "EB81B8DA17B9560A85D60D64F8071B537C08D441",
+      "sha256": "4a7be441266e35d6a14e71235d67f1eec2139cd7718c2a2ad80218cb6ab6af52",
+      "size": 5708,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011230000_starter_adventure_guides_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261011233000_starter_npc_variation_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "8E12ABC3F7F752C7B1536445BC79C36D4DD0998B",
+      "sha256": "9879ed4690d9212d3a1e62ba636d9ad02098d86533abafd5ffa9977a3c218213",
+      "size": 2853,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261011233000_starter_npc_variation_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261019180000_dragonslayers_edge_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "A9DD6DE6436C1F852FE387A196C1B28A16057A68",
+      "sha256": "5ef546e475b46eac77793cb24497438b9708569a24bd3f9c6f565192489086cf",
+      "size": 658,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261019180000_dragonslayers_edge_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/rev_20261019200000_legionbreaker_artifact_pair_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "6917F7FDB9AF7133A95757255B36887407794D30",
+      "sha256": "547540dcd165d16a39977dbd190505f49f4e62edbf4ccb6a07dffce05424eea6",
+      "size": 802,
+      "targetPath": "Data/data/sql/updates/pending_db_world/rev_20261019200000_legionbreaker_artifact_pair_zz_custom.sql"
+    },
+    {
+      "path": "Database/RuntimeSQL/Data/data/sql/updates/pending_db_world/zz_fta_20261020_cumulative_world_zz_custom.sql",
+      "schema": "acore_world",
+      "sha1": "38E59C728CE5658268BF8FF890E14055E8B484AB",
+      "sha256": "22cb42c0702289c770398eda031508815b6aedac852b92ed5d22c04bd53f7b6e",
+      "size": 12025231,
+      "targetPath": "Data/data/sql/updates/pending_db_world/zz_fta_20261020_cumulative_world_zz_custom.sql"
+    }
+  ],
+  "schemas": [
+    {
+      "columnBytes": 13956,
+      "columnCount": 138,
+      "columnSha256": "fd2512455c3506e617d131776ebe334d301fb4468a1ce88428064257023ef57d",
+      "eventCount": 0,
+      "name": "acore_auth",
+      "receiptBytes": 851,
+      "receiptCount": 12,
+      "receiptSha256": "cc4fa8656304e66ea4ae3347dac9f8ecfb9494aba60d4018ce3b6cc0e5d6a84c",
+      "releaseReceiptBytes": 0,
+      "releaseReceiptCount": 0,
+      "releaseReceiptSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "routineCount": 0,
+      "tableNames": [
+        "account",
+        "account_access",
+        "account_banned",
+        "account_muted",
+        "account_transmog",
+        "account_transmog_favorites",
+        "account_transmog_outfit_items",
+        "account_transmog_outfits",
+        "acore_cms_subscriptions",
+        "autobroadcast",
+        "autobroadcast_locale",
+        "build_info",
+        "ip_banned",
+        "logs",
+        "logs_ip_actions",
+        "motd",
+        "motd_localized",
+        "rbac_account_permissions",
+        "rbac_default_permissions",
+        "rbac_linked_permissions",
+        "rbac_permissions",
+        "realmcharacters",
+        "realmlist",
+        "secret_digest",
+        "updates",
+        "updates_include",
+        "uptime"
+      ],
+      "triggerNames": []
+    },
+    {
+      "columnBytes": 119615,
+      "columnCount": 1146,
+      "columnSha256": "0cc67702be939bccd9d44d78dad84f030a6970b2ea30603568ea18c3e5b82d8b",
+      "eventCount": 0,
+      "name": "acore_characters",
+      "receiptBytes": 4668,
+      "receiptCount": 53,
+      "receiptSha256": "42a29b8af36d49fefcdc2ab9d49db67c9bd79d5f7847b4dc8fe469cf3befbb40",
+      "releaseReceiptBytes": 3229,
+      "releaseReceiptCount": 20,
+      "releaseReceiptSha256": "50dde97935124eb0fe7f1c7023ab5bc72444fff27224a78415a231a81b62b3c9",
+      "routineCount": 0,
+      "tableNames": [
+        "ac_virtual_satchel",
+        "account_data",
+        "account_instance_times",
+        "account_leveling_challenge_rewards",
+        "account_transmog_sets",
+        "account_tutorial",
+        "active_arena_season",
+        "addons",
+        "arena_team",
+        "arena_team_member",
+        "attriboost_attributes",
+        "auctionhouse",
+        "banned_addons",
+        "battleground_deserters",
+        "bugreport",
+        "calendar_events",
+        "calendar_invites",
+        "channels",
+        "channels_bans",
+        "channels_rights",
+        "character_account_data",
+        "character_achievement",
+        "character_achievement_offline_updates",
+        "character_achievement_progress",
+        "character_action",
+        "character_arena_stats",
+        "character_aura",
+        "character_banned",
+        "character_battleground_random",
+        "character_bot_square_prefs",
+        "character_brew_of_the_month",
+        "character_declinedname",
+        "character_entry_point",
+        "character_equipmentsets",
+        "character_extra_glyphs",
+        "character_gifts",
+        "character_glyphs",
+        "character_homebind",
+        "character_instance",
+        "character_inventory",
+        "character_leveling_challenges",
+        "character_pet",
+        "character_pet_declinedname",
+        "character_queststatus",
+        "character_queststatus_daily",
+        "character_queststatus_monthly",
+        "character_queststatus_rewarded",
+        "character_queststatus_seasonal",
+        "character_queststatus_weekly",
+        "character_reforging",
+        "character_reputation",
+        "character_settings",
+        "character_skills",
+        "character_social",
+        "character_spell",
+        "character_spell_charges",
+        "character_spell_cooldown",
+        "character_stats",
+        "character_talent",
+        "character_world_discovery",
+        "characters",
+        "characters_npcbot",
+        "characters_npcbot_gear_set",
+        "characters_npcbot_gear_set_item",
+        "characters_npcbot_gear_storage",
+        "characters_npcbot_group_member",
+        "characters_npcbot_logs",
+        "characters_npcbot_settings",
+        "characters_npcbot_stats",
+        "characters_npcbot_transmog",
+        "chat_filter",
+        "corpse",
+        "creature_respawn",
+        "custom_elf_arcane_r5_migration",
+        "custom_elf_paired_r7_migration",
+        "custom_fake_players",
+        "custom_ip_pending_progression_zz_custom",
+        "custom_ip_progression_achievement_backup_zz_custom",
+        "custom_ip_progression_state_zz_custom",
+        "custom_transmogrification",
+        "custom_transmogrification_body_customization",
+        "custom_transmogrification_character_options",
+        "custom_transmogrification_dyes",
+        "custom_transmogrification_enchant_visuals",
+        "custom_transmogrification_eye_halo",
+        "custom_transmogrification_race_illusion",
+        "custom_transmogrification_sets",
+        "custom_unlocked_appearances",
+        "dungeonrespawn_playerinfo",
+        "fta_release_updates",
+        "game_event_condition_save",
+        "game_event_save",
+        "gameobject_respawn",
+        "gm_subsurvey",
+        "gm_survey",
+        "gm_ticket",
+        "group_member",
+        "groups",
+        "guild",
+        "guild_bank_eventlog",
+        "guild_bank_item",
+        "guild_bank_right",
+        "guild_bank_tab",
+        "guild_eventlog",
+        "guild_member",
+        "guild_member_withdraw",
+        "guild_rank",
+        "individualxp",
+        "instance",
+        "instance_reset",
+        "instance_saved_go_state_data",
+        "item_instance",
+        "item_loot_storage",
+        "item_refund_instance",
+        "item_soulbound_trade_data",
+        "lag_reports",
+        "lfg_data",
+        "log_arena_fights",
+        "log_arena_memberstats",
+        "log_encounter",
+        "log_money",
+        "mail",
+        "mail_items",
+        "mail_server_character",
+        "mail_server_template",
+        "mail_server_template_conditions",
+        "mail_server_template_items",
+        "mod_auctionator_market_price",
+        "mod_boost60_claims",
+        "mod_gearbank_item",
+        "mod_gearbank_revision",
+        "mod_npcbot_paperdoll_consumable",
+        "mod_npcbot_paperdoll_consumable_receipt",
+        "mod_pocket_pals_pending_move",
+        "mod_pocket_pals_pet",
+        "mod_pocket_pals_pet_equipment",
+        "mod_pocket_pals_pet_move",
+        "mod_pocket_pals_pet_unlock",
+        "mod_pocket_pals_profile",
+        "mod_pocket_pals_team",
+        "mod_reagent_bank_account",
+        "mod_reagent_bank_account_meta",
+        "mod_reagent_bank_account_player_settings",
+        "mod_reagent_bank_share_invites",
+        "mod_reagent_bank_share_members",
+        "mod_reward_all_quest_choices_pending",
+        "pet_aura",
+        "pet_spell",
+        "pet_spell_cooldown",
+        "petition",
+        "petition_sign",
+        "pool_quest_save",
+        "profanity_name",
+        "pvpstats_battlegrounds",
+        "pvpstats_players",
+        "quest_tracker",
+        "recovery_item",
+        "reserved_name",
+        "shared_professions_account_skills",
+        "shared_professions_account_spells",
+        "spam_reports",
+        "updates",
+        "updates_include",
+        "warden_action",
+        "world_state",
+        "worldstates"
+      ],
+      "triggerNames": []
+    },
+    {
+      "columnBytes": 576898,
+      "columnCount": 5116,
+      "columnSha256": "9b39a91f663443146a7cc4c199fcabb03dbe05a690e63e4f1c990f7932dffd04",
+      "eventCount": 0,
+      "name": "acore_world",
+      "receiptBytes": 227550,
+      "receiptCount": 3194,
+      "receiptSha256": "44a7a002caf873eae967fc067ad922d12587d6ac5722e4f59d8d7a90951e4bb8",
+      "releaseReceiptBytes": 296,
+      "releaseReceiptCount": 2,
+      "releaseReceiptSha256": "fb65b45b65c5bd8b594d6d4ac009bedf75283b800989506046f4cf1eac4b7b8e",
+      "routineCount": 0,
+      "tableNames": [
+        "achievement_category_dbc",
+        "achievement_criteria_data",
+        "achievement_criteria_dbc",
+        "achievement_dbc",
+        "achievement_reward",
+        "achievement_reward_locale",
+        "acore_string",
+        "active_chat_line",
+        "active_chat_name",
+        "active_chat_scene",
+        "active_chat_scene_step",
+        "active_chat_token",
+        "antidos_opcode_policies",
+        "areagroup_dbc",
+        "areapoi_dbc",
+        "areatable_dbc",
+        "areatrigger",
+        "areatrigger_involvedrelation",
+        "areatrigger_scripts",
+        "areatrigger_tavern",
+        "areatrigger_teleport",
+        "arena_season_reward",
+        "arena_season_reward_group",
+        "auctionhouse_dbc",
+        "bankbagslotprices_dbc",
+        "barbershopstyle_dbc",
+        "battleground_template",
+        "battlemaster_entry",
+        "battlemasterlist_dbc",
+        "broadcast_text",
+        "broadcast_text_locale",
+        "charstartoutfit_dbc",
+        "chartitles_dbc",
+        "chatchannels_dbc",
+        "chrclasses_dbc",
+        "chrraces_dbc",
+        "cinematiccamera_dbc",
+        "cinematicsequences_dbc",
+        "command",
+        "conditions",
+        "creature",
+        "creature_addon",
+        "creature_classlevelstats",
+        "creature_default_trainer",
+        "creature_equip_template",
+        "creature_formations",
+        "creature_immunities",
+        "creature_loot_template",
+        "creature_model_info",
+        "creature_movement_override",
+        "creature_multispawn",
+        "creature_onkill_reputation",
+        "creature_questender",
+        "creature_questitem",
+        "creature_queststarter",
+        "creature_sparring",
+        "creature_summon_groups",
+        "creature_template",
+        "creature_template_addon",
+        "creature_template_locale",
+        "creature_template_model",
+        "creature_template_movement",
+        "creature_template_npcbot_appearance",
+        "creature_template_npcbot_disabled_items",
+        "creature_template_npcbot_extras",
+        "creature_template_npcbot_wander_nodes",
+        "creature_template_outfits",
+        "creature_template_resistance",
+        "creature_template_spell",
+        "creature_template_spell_editor_shim",
+        "creature_text",
+        "creature_text_locale",
+        "creature_text_option_sets",
+        "creature_text_options",
+        "creaturedisplayinfo_dbc",
+        "creaturedisplayinfoextra_dbc",
+        "creaturefamily_dbc",
+        "creaturemodeldata_dbc",
+        "creaturespelldata_dbc",
+        "creaturetype_dbc",
+        "currencytypes_dbc",
+        "custom_grobbulus_edge_points",
+        "custom_item_damage_mod",
+        "custom_quest_xp",
+        "custom_sod_revision2_before",
+        "custom_sod_vanilla_stats_backup_20260920",
+        "custom_zone_auras",
+        "destructiblemodeldata_dbc",
+        "disables",
+        "disenchant_loot_template",
+        "dungeon_access_requirements",
+        "dungeon_access_template",
+        "dungeonencounter_dbc",
+        "durabilitycosts_dbc",
+        "durabilityquality_dbc",
+        "emotes_dbc",
+        "emotestext_dbc",
+        "event_scripts",
+        "exploration_basexp",
+        "faction_dbc",
+        "factiontemplate_dbc",
+        "fishing_loot_template",
+        "fta_release_updates",
+        "game_event",
+        "game_event_arena_seasons",
+        "game_event_battleground_holiday",
+        "game_event_condition",
+        "game_event_creature",
+        "game_event_creature_quest",
+        "game_event_gameobject",
+        "game_event_gameobject_quest",
+        "game_event_model_equip",
+        "game_event_npc_vendor",
+        "game_event_npcflag",
+        "game_event_pool",
+        "game_event_prerequisite",
+        "game_event_quest_condition",
+        "game_event_seasonal_questrelation",
+        "game_graveyard",
+        "game_tele",
+        "game_weather",
+        "gameobject",
+        "gameobject_addon",
+        "gameobject_loot_template",
+        "gameobject_questender",
+        "gameobject_questitem",
+        "gameobject_queststarter",
+        "gameobject_summon_groups",
+        "gameobject_template",
+        "gameobject_template_addon",
+        "gameobject_template_locale",
+        "gameobjectartkit_dbc",
+        "gameobjectdisplayinfo_dbc",
+        "gemproperties_dbc",
+        "glyphproperties_dbc",
+        "glyphslot_dbc",
+        "gm_item_template_delete_log",
+        "gossip_menu",
+        "gossip_menu_option",
+        "gossip_menu_option_locale",
+        "graveyard_zone",
+        "gtbarbershopcostbase_dbc",
+        "gtchancetomeleecrit_dbc",
+        "gtchancetomeleecritbase_dbc",
+        "gtchancetospellcrit_dbc",
+        "gtchancetospellcritbase_dbc",
+        "gtcombatratings_dbc",
+        "gtnpcmanacostscaler_dbc",
+        "gtoctclasscombatratingscalar_dbc",
+        "gtoctregenhp_dbc",
+        "gtregenhpperspt_dbc",
+        "gtregenmpperspt_dbc",
+        "holidays_dbc",
+        "instance_encounters",
+        "instance_template",
+        "item_dbc",
+        "item_enchantment_template",
+        "item_loot_template",
+        "item_origin_manifest",
+        "item_set_names",
+        "item_set_names_locale",
+        "item_template",
+        "item_template_backup_vanilla_gear_before_reference_restore",
+        "item_template_gem_stack_backup",
+        "item_template_locale",
+        "itembagfamily_dbc",
+        "itemdisplayinfo_dbc",
+        "itemextendedcost_dbc",
+        "itemlimitcategory_dbc",
+        "itemrandomproperties_dbc",
+        "itemrandomsuffix_dbc",
+        "itemset_dbc",
+        "lfg_dungeon_rewards",
+        "lfg_dungeon_template",
+        "lfgdungeons_dbc",
+        "light_dbc",
+        "linked_respawn",
+        "liquidtype_dbc",
+        "lock_dbc",
+        "mail_level_reward",
+        "mail_loot_template",
+        "mailtemplate_dbc",
+        "map_dbc",
+        "mapdifficulty_dbc",
+        "mcr_creature_override",
+        "milling_loot_template",
+        "mod_auctionator_disabled_items",
+        "mod_auctionator_item_class",
+        "mod_auctionator_item_quality",
+        "mod_auctionator_itemclass_config",
+        "mod_boost60_outland_overrides",
+        "mod_configurable_boss_loot_once",
+        "mod_dead_means_dead_respawns",
+        "mod_dress_npc_outfit",
+        "mod_fake_player_ambience_go_target",
+        "mod_fake_player_ambience_mount",
+        "mod_fake_player_ambience_npc_target",
+        "mod_fake_player_ambience_profile",
+        "mod_fake_player_ambience_spell",
+        "mod_fake_player_ambience_text",
+        "mod_geddon_once_drop",
+        "mod_go_spawn_replacer_backup",
+        "mod_npcbot_banter_emote_responses",
+        "mod_npcbot_banter_events",
+        "mod_npcbot_banter_lines",
+        "mod_npcbot_banter_names",
+        "mod_npcbot_banter_proximity_lines",
+        "mod_npcbot_banter_response_intents",
+        "mod_npcbot_banter_response_lines",
+        "mod_npcbot_banter_response_triggers",
+        "mod_npcbot_banter_sequence_steps",
+        "mod_npcbot_banter_sequences",
+        "mod_npcbot_banter_speakers",
+        "mod_reagent_bank_account_deposit_exclusions_zz_custom",
+        "mod_timewalking_aura_pool",
+        "mod_timewalking_boss_reward",
+        "mod_timewalking_map",
+        "mod_timewalking_schedule",
+        "mod_timewalking_spell_swap",
+        "mod_warcraftxl_go_edit_history",
+        "mod_warcraftxl_go_template_size_history",
+        "module_string",
+        "module_string_locale",
+        "movie_dbc",
+        "namesprofanity_dbc",
+        "namesreserved_dbc",
+        "npc_spellclick_spells",
+        "npc_text",
+        "npc_text_locale",
+        "npc_vendor",
+        "outdoorpvp_template",
+        "overridespelldata_dbc",
+        "page_text",
+        "page_text_locale",
+        "pet_levelstats",
+        "pet_name_generation",
+        "pet_name_generation_locale",
+        "pickpocketing_loot_template",
+        "player_class_stats",
+        "player_factionchange_achievement",
+        "player_factionchange_items",
+        "player_factionchange_quests",
+        "player_factionchange_reputations",
+        "player_factionchange_spells",
+        "player_factionchange_titles",
+        "player_loot_template",
+        "player_race_stats",
+        "player_shapeshift_model",
+        "player_totem_model",
+        "player_xp_for_level",
+        "playercreateinfo",
+        "playercreateinfo_action",
+        "playercreateinfo_cast_spell",
+        "playercreateinfo_item",
+        "playercreateinfo_skills",
+        "playercreateinfo_spell_custom",
+        "points_of_interest",
+        "points_of_interest_locale",
+        "pool_creature",
+        "pool_gameobject",
+        "pool_pool",
+        "pool_quest",
+        "pool_template",
+        "powerdisplay_dbc",
+        "prospecting_loot_template",
+        "pvpdifficulty_dbc",
+        "quest_details",
+        "quest_greeting",
+        "quest_greeting_locale",
+        "quest_mail_sender",
+        "quest_money_reward",
+        "quest_offer_reward",
+        "quest_offer_reward_locale",
+        "quest_poi",
+        "quest_poi_points",
+        "quest_request_items",
+        "quest_request_items_locale",
+        "quest_template",
+        "quest_template_addon",
+        "quest_template_locale",
+        "questfactionreward_dbc",
+        "questsort_dbc",
+        "questxp_dbc",
+        "randproppoints_dbc",
+        "reference_loot_template",
+        "reputation_reward_rate",
+        "reputation_spillover_template",
+        "scalingstatdistribution_dbc",
+        "scalingstatvalues_dbc",
+        "script_waypoint",
+        "skill_discovery_template",
+        "skill_extra_item_template",
+        "skill_fishing_base_level",
+        "skill_perfect_item_template",
+        "skillline_dbc",
+        "skilllineability_dbc",
+        "skillraceclassinfo_dbc",
+        "skilltiers_dbc",
+        "skinning_loot_template",
+        "smart_scripts",
+        "soundentries_dbc",
+        "spawn_group",
+        "spawn_group_template",
+        "spell_area",
+        "spell_bonus_data",
+        "spell_charge_cooldown_links",
+        "spell_charge_cooldowns",
+        "spell_cone",
+        "spell_cooldown_overrides",
+        "spell_custom_attr",
+        "spell_dbc",
+        "spell_enchant_proc_data",
+        "spell_group",
+        "spell_group_stack_rules",
+        "spell_jump_distance",
+        "spell_linked_spell",
+        "spell_loot_template",
+        "spell_mixology",
+        "spell_pet_auras",
+        "spell_proc",
+        "spell_ranks",
+        "spell_required",
+        "spell_script_names",
+        "spell_scripts",
+        "spell_target_position",
+        "spell_threat",
+        "spellcasttimes_dbc",
+        "spellcategory_dbc",
+        "spelldifficulty_dbc",
+        "spellduration_dbc",
+        "spellfocusobject_dbc",
+        "spellitemenchantment_dbc",
+        "spellitemenchantmentcondition_dbc",
+        "spellradius_dbc",
+        "spellrange_dbc",
+        "spellrunecost_dbc",
+        "spellshapeshiftform_dbc",
+        "spellvisual_dbc",
+        "stableslotprices_dbc",
+        "statbooster_enchant_scores",
+        "statbooster_enchant_template",
+        "summonproperties_dbc",
+        "talent_dbc",
+        "talenttab_dbc",
+        "taxinodes_dbc",
+        "taxipath_dbc",
+        "taxipathnode_dbc",
+        "teamcontributionpoints_dbc",
+        "totemcategory_dbc",
+        "trainer",
+        "trainer_locale",
+        "trainer_spell",
+        "transportanimation_dbc",
+        "transportrotation_dbc",
+        "transports",
+        "updates",
+        "updates_include",
+        "vehicle_accessory",
+        "vehicle_dbc",
+        "vehicle_seat_addon",
+        "vehicle_template_accessory",
+        "vehicleseat_dbc",
+        "version",
+        "warden_checks",
+        "waypoint_data",
+        "waypoint_data_addon",
+        "waypoint_scripts",
+        "waypoints",
+        "wmoareatable_dbc",
+        "world_discovery_template",
+        "worldmaparea_dbc",
+        "worldmapoverlay_dbc"
+      ],
+      "triggerNames": [
+        "trg_ct_spellshim_bi"
+      ]
+    }
+  ],
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "sourceAudit": [
+    {
+      "path": "src/server/apps/worldserver/Main.cpp",
+      "sha256": "782a1100dcbc84c24b924f6394ee3cb7ec33712881089274aaa3f22974edd1a0"
+    },
+    {
+      "path": "src/server/game/World/World.cpp",
+      "sha256": "2774cc222da87dc909264b91c6868378674b1fc26525fb1f45a61564f2419788"
+    },
+    {
+      "path": "src/server/database/Database/DatabaseLoader.cpp",
+      "sha256": "0f275c42496e1f74cdc7ba2a76ae83b2017d1a55ad67d35e9ad56da1c2137486"
+    },
+    {
+      "path": "src/server/database/Database/DatabaseWorkerPool.cpp",
+      "sha256": "2320a559ba1e7d9429738d007ca3e4357b6799aaa4d075744a42b62ad5a9fc71"
+    },
+    {
+      "path": "src/server/database/Updater/DBUpdater.cpp",
+      "sha256": "0005dbd7f807de9159dcdfd12aeae0824268ff7549456032118f4ea80882405a"
+    },
+    {
+      "path": "src/server/database/Updater/UpdateFetcher.cpp",
+      "sha256": "9b153a1a637f11613dd6ea00a68d4b5b2e3d47c33d6b8ca7ab5fd5bf38a5259a"
+    },
+    {
+      "path": "src/server/database/Updater/UpdateFetcher.h",
+      "sha256": "2186590153b8d14355ef53f7003cd2f2d73a2ec24aaba27bdfb6b3ff52716518"
+    },
+    {
+      "path": "modules/mod-ale/src/ALE_SC.cpp",
+      "sha256": "bbbde21d580845c5aeedc5b82bcb30cb1ac45fcc0d8a05e03485ba9f1f40d896"
+    },
+    {
+      "path": "modules/mod-ale/src/LuaEngine/LuaEngine.cpp",
+      "sha256": "118a80c9ea5309af6a99de3ea076e1609ac281ccaba2411493e672a3ca5c3005"
+    }
+  ],
+  "sourceDirectory": "Data",
+  "sourceProfile": "android-arm64-world-v8",
+  "sourceTreeSha256": "b92be92d888912deb5c66e588e4ed95444745fd117ffd2de98a5b0e6cec8ad6f"
+}

@@ -30,11 +30,12 @@ object DiagnosticReport {
             .put("fullSeedImported", false)
             .put("seedCompatibilityQualified", false)
             .put("authserverQualified", false)
+            .put("compiledUpdaterQualified", false)
             .put("worldserverQualified", false)
         val scopeFile = File(context.filesDir, "runtime/diagnostic-scope.txt")
         val scope = if (scopeFile.isFile && scopeFile.length() < 32) scopeFile.readText() else "database"
-        result.put("requestedDiagnostic", if (scope in setOf("auth-updater", "full-seed")) scope else "database")
-        result.put("scope", when (scope) { "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; else -> "disposable-native-database-diagnostic" })
+        result.put("requestedDiagnostic", if (scope in setOf("auth-updater", "full-seed", "compiled-updater")) scope else "database")
+        result.put("scope", when (scope) { "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; "compiled-updater" -> "disposable-native-compiled-updater-diagnostic"; else -> "disposable-native-database-diagnostic" })
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val currentAttempt = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
             ?.takeIf { NativeInvocationJournal.validAttemptId(it) }
@@ -56,7 +57,7 @@ object DiagnosticReport {
             result.put("authUpdaterDiagnostic", safe)
         }
         val fullSeedFile = File(context.filesDir, "runtime/full-seed-diagnostic.json")
-        val fullSeed = if (scope == "full-seed" && fullSeedFile.isFile && fullSeedFile.length() <= 8192)
+        val fullSeed = if (scope in setOf("full-seed", "compiled-updater") && fullSeedFile.isFile && fullSeedFile.length() <= 8192)
             runCatching { JSONObject(fullSeedFile.readText()) }.getOrNull() else null
         var seedValidated = false
         if (currentAttempt != null && fullSeed != null && fullSeed.opt("attemptId") == currentAttempt &&
@@ -67,6 +68,7 @@ object DiagnosticReport {
             if (safeValues.isNotEmpty()) {
                 val safe = JSONObject(safeValues).put("attemptId", currentAttempt)
                     .put("archiveSha256", com.russianranger.fta.Inputs.database.sha256).put("runtimeSqlApplied", false)
+                    .put("baselineBeforeCompiledUpdater", scope == "compiled-updater")
                 val safeSchemas = JSONObject()
                 val schemas = fullSeed.optJSONObject("schemas")
                 var schemaPasses = 0
@@ -88,15 +90,61 @@ object DiagnosticReport {
                 result.put("fullSeedImported", seedValidated)
             }
         }
+        val updaterFile = File(context.filesDir, "runtime/world-updater-diagnostic.json")
+        val updater = if (scope == "compiled-updater" && updaterFile.isFile && updaterFile.length() <= 16384)
+            runCatching { JSONObject(updaterFile.readText()) }.getOrNull() else null
+        var updaterValidated = false
+        if (currentAttempt != null && updater != null && updater.opt("attemptId") == currentAttempt &&
+            updater.opt("archiveSha256") == com.russianranger.fta.Inputs.database.sha256 &&
+            updater.opt("sourceArchiveSha256") == com.russianranger.fta.Inputs.source.sha256 &&
+            updater.opt("worldStartupQualified") == false && updater.opt("worldTcpListener") == false) {
+            val fields = WorldUpdaterEvidence.boundaryFields + listOf("plannedRuntimeSqlFiles", "stagedRuntimeSqlFiles", "moduleCount", "moduleSqlCount",
+                "freshSeedBaselinePassed", "compiledUpdaterPassed", "runtimeSqlAttempted", "runtimeSqlCompletionQualified")
+            val safeValues = WorldUpdaterEvidence.safeValues(fields.associateWith { updater.opt(it) })
+            val hashes = listOf("sourceTreeSha256", "worldExecutableSha256", "worldUpdaterLockSha256")
+            val profile = updater.opt("sourceProfile")
+            if (safeValues.isNotEmpty() && hashes.all { updater.opt(it) is String && updater.getString(it).matches(Regex("[a-f0-9]{64}")) } &&
+                profile is String && profile.matches(Regex("android-arm64-world-v[0-9]{1,3}"))) {
+                val safe = JSONObject(safeValues).put("attemptId", currentAttempt).put("sourceProfile", profile)
+                    .put("archiveSha256", com.russianranger.fta.Inputs.database.sha256)
+                    .put("sourceArchiveSha256", com.russianranger.fta.Inputs.source.sha256)
+                    .put("worldStartupQualified", false).put("worldTcpListener", false)
+                hashes.forEach { safe.put(it, updater.getString(it)) }
+                val schemas = updater.optJSONObject("schemas")
+                val safeSchemas = JSONObject()
+                var passes = 0
+                FullSeedStore.SCHEMAS.forEach { name ->
+                    val value = schemas?.optJSONObject(name)
+                    val flags = WorldUpdaterEvidence.validationFields.associateWith { value?.opt(it) }
+                    if (flags.values.all { it is Boolean }) {
+                        safeSchemas.put(name, JSONObject(flags))
+                        if (flags.values.all { it == true }) passes++
+                    }
+                }
+                safe.put("schemas", safeSchemas)
+                for (field in listOf("startedAtEpochMs", "completedAtEpochMs")) {
+                    val value = updater.opt(field)
+                    if ((value is Int || value is Long) && (value as Number).toLong() >= 0) safe.put(field, value)
+                }
+                updaterValidated = seedValidated && passes == 3 && safeValues["compiledUpdaterPassed"] == true
+                result.put("compiledUpdaterDiagnostic", safe)
+            }
+        }
         val helper = File(context.applicationInfo.nativeLibraryDir, "libfta_process.so")
         if (helper.isFile) result.put("processSupervisorSha256", hash(helper))
         val rawManifest = runCatching { context.assets.open(RuntimeManifest.FILE_NAME).use { bounded(it, RuntimeManifest.MAX_MANIFEST_BYTES.toInt()) } }.getOrNull()
         if (rawManifest != null) {
             // Parsing rejects unknown keys/unsafe strings before any manifest data is shared.
-            RuntimeManifest.parse(rawManifest.toString(Charsets.UTF_8))
+            val parsed = RuntimeManifest.parse(rawManifest.toString(Charsets.UTF_8))
+            updaterValidated = updaterValidated && parsed.worldBuild?.let { build ->
+                updater != null && updater.opt("worldExecutableSha256") == build.worldserverSha256 &&
+                    updater.opt("worldUpdaterLockSha256") == build.compiledUpdaterLockSha256 &&
+                    updater.opt("sourceProfile") == build.portProfile && updater.opt("sourceTreeSha256") == build.sourceTreeSha256 &&
+                    updater.opt("sourceArchiveSha256") == build.sourceArchiveSha256
+            } == true
             result.put("providerManifestSha256", sha(rawManifest))
             result.put("providerManifest", JSONObject(rawManifest.toString(Charsets.UTF_8)))
-        } else result.put("providerManifest", JSONObject.NULL)
+        } else { result.put("providerManifest", JSONObject.NULL); updaterValidated = false }
 
         val statusAttempt = File(context.filesDir, "runtime/diagnostic-status-attempt.id")
             .takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
@@ -119,6 +167,8 @@ object DiagnosticReport {
         val journal = matching?.second
         val invocations = journal?.first.orEmpty()
         result.put("seedCompatibilityQualified", FullSeedEvidence.qualified(seedValidated,
+            lines.firstOrNull(), invocations, journal?.second ?: 0))
+        result.put("compiledUpdaterQualified", WorldUpdaterEvidence.qualified(updaterValidated,
             lines.firstOrNull(), invocations, journal?.second ?: 0))
         result.put("nativeInvocationEvidence", JSONObject()
             .put("formatVersion", 1)
@@ -153,7 +203,7 @@ object DiagnosticReport {
             value.exitCode?.let { it != 0 } == true || value.timedOut ||
             value.outcome in setOf("start_failed", "wait_failed", "supervisor_failed") }
         // Keep the actual auth failure and persistent daemon ahead of successful tool chatter.
-        val priority = (invocations.filter { it.role == "auth-server" }.asReversed() +
+        val priority = (invocations.filter { it.role in setOf("auth-server", "world-server") }.asReversed() +
             invocations.filter { it.log == "server" } + failed.asReversed() + invocations.asReversed())
             .map { it.log }.distinct()
         val orderedLogs = (priority.flatMap { listOf("$it.err", "$it.out") } + availableLogs.keys.sorted()).distinct()

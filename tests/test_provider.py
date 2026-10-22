@@ -134,6 +134,13 @@ class ElfTests(unittest.TestCase):
             with self.assertRaises(provider.ProviderError):
                 provider.check_closure(records)
 
+    def test_world_runtime_can_refuse_embedded_library_search_paths(self):
+        for tag in ('RPATH', 'RUNPATH'):
+            output = ELF_OUTPUT + f'\n 0x000000000000001d ({tag}) Library runpath: [/private/build/lib]\n'
+            with self.subTest(tag=tag), mock.patch.object(provider.subprocess, 'check_output', return_value=output):
+                with self.assertRaises(provider.ProviderError):
+                    provider.inspect_elf(Path('/fixture'), reject_search_paths=True)
+
     def test_native_hash_is_checked_before_elf_parser(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'binary'

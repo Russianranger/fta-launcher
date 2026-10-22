@@ -37,6 +37,12 @@ object DiagnosticSanitizer {
     // Match original AzerothCore auth/config/updater diagnostics. Dynamic names,
     // paths, queries, hashes and connection strings never become output fields.
     private val originalDiagnostics = listOf(
+        canned("Failed to find map files for starting areas",
+            "Original world startup stopped because starting-area maps are missing. This alone does not qualify the updater or world startup."),
+        canned("Updating Character database\\.\\.\\.",
+            "The original character database updater started."),
+        canned("Updating World database\\.\\.\\.",
+            "The original world database updater started."),
         canned("\\bUnknown[ \\t]+character[ \\t]+set\\b",
             "MariaDB could not load a required character set."),
         canned("Config::LoadFile:[ \\t]*(?:Failed open|Failure to read line number|Empty file|Duplicate key name)",

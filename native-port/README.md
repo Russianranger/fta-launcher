@@ -38,6 +38,13 @@ Android branch uses zero flags; other platforms retain the original behavior.
 the exact helper with real Boost 1.83 and an interposed Bionic flag policy. This
 is a host regression, separate from device execution.
 
+`android-arm64-world-v8` preserves the earlier world compiler fixes and adds
+explicit Android linkage to the pinned target `ncursesw` library. The original
+raw `-lncurses` flag cannot resolve against the NDK; the non-Android linker flags
+are retained. All 52 modules, C++20, static scripts and default static Lua 5.2 are
+preserved. The profile records source portability, while completed compilation
+and device execution still require their separate evidence.
+
 `LICENSE` preserves the original core's GPL version 2 license text; its source
 headers allow version 2 or later. The patch series and this explanation are
 GPL-2.0-or-later. The independently written probes and Python tools retain their

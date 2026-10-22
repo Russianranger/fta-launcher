@@ -19,6 +19,9 @@ data class RuntimeFile(
     val nativeName: String? get() = path.takeIf { it.startsWith("native/") }?.substringAfter('/')
 }
 
+data class WorldBuildMetadata(val portProfile: String, val sourceTreeSha256: String,
+    val sourceArchiveSha256: String, val worldserverSha256: String, val compiledUpdaterLockSha256: String)
+
 data class RuntimeManifest(
     val formatVersion: Int,
     val abi: String,
@@ -26,7 +29,8 @@ data class RuntimeManifest(
     val capabilities: Set<String>,
     val files: List<RuntimeFile>,
     val bootstrap: RuntimeFile? = null,
-    val providerId: String? = null
+    val providerId: String? = null,
+    val worldBuild: WorldBuildMetadata? = null
 ) {
     companion object {
         const val FILE_NAME = "fta-runtime-manifest.json"
@@ -40,7 +44,7 @@ data class RuntimeManifest(
         fun parse(json: String): RuntimeManifest {
             require(json.toByteArray(Charsets.UTF_8).size <= MAX_MANIFEST_BYTES) { "Runtime manifest exceeds size limit" }
             val root = StrictJson(json).parse().objectValue()
-            root.onlyKeys("formatVersion", "abi", "providerVersion", "capabilities", "files", "bootstrap", "providerId", "qualification")
+            root.onlyKeys("formatVersion", "abi", "providerVersion", "capabilities", "files", "bootstrap", "providerId", "qualification", "worldBuild")
             val providerId = root["providerId"]?.stringValue()
             require(providerId == null || providerId.matches(Regex("[A-Za-z0-9._+-]{1,120}"))) { "Invalid provider identity" }
             // Qualification claims are metadata, never authority to execute or mark a world ready.
@@ -118,7 +122,26 @@ data class RuntimeManifest(
                 files.singleOrNull { it.path == path && it.role == "data" && it.sha256 == hash && it.size == size }
                     ?: throw IllegalArgumentException("Bootstrap must match a declared data file")
             }
-            return RuntimeManifest(1, "arm64-v8a", version, caps.toSet(), files, bootstrap, providerId)
+            val worldBuild = root["worldBuild"]?.objectValue()?.let { value ->
+                value.onlyKeys("formatVersion", "portProfile", "sourceTreeSha256", "sourceArchiveSha256", "worldserverSha256",
+                    "requiredModuleCount", "cxxStandard", "staticModules", "staticScripts", "luaVersion", "luaStatic",
+                    "compiledUpdaterLockSha256", "configurationDirectory")
+                require(value.required("formatVersion").integerValue() == 1L &&
+                    value.required("requiredModuleCount").integerValue() == 52L && value.required("cxxStandard").integerValue() == 20L &&
+                    value.required("staticModules").booleanValue() && value.required("staticScripts").booleanValue() &&
+                    value.required("luaVersion").stringValue() == "lua52" && value.required("luaStatic").booleanValue() &&
+                    value.required("configurationDirectory").stringValue() == "configs") { "Unsupported compiled world build contract" }
+                val profile = value.required("portProfile").stringValue()
+                require(profile.matches(Regex("android-arm64-world-v[0-9]{1,3}")))
+                fun digest(name: String) = value.required(name).stringValue().also { require(it.matches(Regex("[a-f0-9]{64}"))) }
+                WorldBuildMetadata(profile, digest("sourceTreeSha256"), digest("sourceArchiveSha256"),
+                    digest("worldserverSha256"), digest("compiledUpdaterLockSha256")).also {
+                    require("worldserver" in caps && files.single { entry -> entry.role == "world-server" }.sha256 == it.worldserverSha256 &&
+                        files.singleOrNull { entry -> entry.path == "data/metadata/world-updater-lock.json" && entry.role == "data" }?.sha256 == it.compiledUpdaterLockSha256)
+                }
+            }
+            require(("worldserver" in caps) == (worldBuild != null)) { "Worldserver requires bound compiled build metadata" }
+            return RuntimeManifest(1, "arm64-v8a", version, caps.toSet(), files, bootstrap, providerId, worldBuild)
         }
 
         fun validatePath(path: String, directory: Boolean = false) {
@@ -168,7 +191,7 @@ data class RuntimeManifest(
 }
 
 /** Small strict JSON reader avoids Android-only parsers and rejects duplicate object keys. */
-private class StrictJson(private val source: String) {
+internal class StrictJson(private val source: String) {
     private var cursor = 0
     fun parse(): Any {
         val result = value(0)
@@ -266,17 +289,17 @@ private class StrictJson(private val source: String) {
 }
 
 private object JsonNull
-private fun Any.booleanValue(): Boolean = this as? Boolean ?: throw IllegalArgumentException("Runtime manifest boolean required")
+internal fun Any.booleanValue(): Boolean = this as? Boolean ?: throw IllegalArgumentException("Runtime manifest boolean required")
 
 @Suppress("UNCHECKED_CAST")
-private fun Any.objectValue(): Map<String, Any> = this as? Map<String, Any>
+internal fun Any.objectValue(): Map<String, Any> = this as? Map<String, Any>
     ?: throw IllegalArgumentException("Runtime manifest object required")
 @Suppress("UNCHECKED_CAST")
-private fun Any.arrayValue(): List<Any> = this as? List<Any>
+internal fun Any.arrayValue(): List<Any> = this as? List<Any>
     ?: throw IllegalArgumentException("Runtime manifest array required")
-private fun Any.stringValue(): String = this as? String ?: throw IllegalArgumentException("Runtime manifest string required")
-private fun Any.integerValue(): Long = this as? Long ?: throw IllegalArgumentException("Runtime manifest integer required")
-private fun Map<String, Any>.required(key: String): Any = this[key] ?: throw IllegalArgumentException("Missing runtime manifest field")
-private fun Map<String, Any>.onlyKeys(vararg keys: String) {
+internal fun Any.stringValue(): String = this as? String ?: throw IllegalArgumentException("Runtime manifest string required")
+internal fun Any.integerValue(): Long = this as? Long ?: throw IllegalArgumentException("Runtime manifest integer required")
+internal fun Map<String, Any>.required(key: String): Any = this[key] ?: throw IllegalArgumentException("Missing runtime manifest field")
+internal fun Map<String, Any>.onlyKeys(vararg keys: String) {
     require(this.keys.all { it in keys }) { "Unsupported runtime manifest field" }
 }

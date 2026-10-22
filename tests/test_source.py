@@ -164,6 +164,7 @@ class BuildTests(unittest.TestCase):
             self.assertIn('-DMYSQL_CONFIG:FILEPATH=', plan[0])
             self.assertIn('-DCMAKE_FIND_ROOT_PATH=/target', plan[0])
             self.assertIn('-DANDROID_STL=c++_static', plan[0])
+            self.assertIn('-DCONF_DIR:STRING=configs', plan[0])
             self.assertIn('-DBoost_USE_STATIC_RUNTIME=ON', plan[0])
             with self.assertRaises(BuildError):
                 check_cache({'MYSQL_CONFIG':'/usr/bin/mysql_config'}, 'android', configured=False)
