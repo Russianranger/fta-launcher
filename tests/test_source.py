@@ -9,10 +9,12 @@ import tempfile
 import unittest
 import warnings
 import zipfile
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 from fta_source import SourceError, checked_entries, inventory_tree, stage_source
-from build_native import BuildError, check_cache, check_jobs, commands, read_cache
+from build_native import BuildError, check_cache, check_jobs, commands, read_cache, cgroup_available
+import fta_port
 
 
 class SourceTests(unittest.TestCase):
@@ -119,6 +121,13 @@ class BuildTests(unittest.TestCase):
             check_jobs(2, available=2 * 1024**3)
         check_jobs(1, available=3 * 1024**3)
 
+    def test_cgroup_available_counts_only_clean_inactive_cache(self):
+        self.assertEqual(cgroup_available(8000, 7500, {'inactive_file':3000,
+                         'file_dirty':200, 'file_writeback':100, 'active_file':3000}), 3200)
+        self.assertEqual(cgroup_available(8000, 7500, {'inactive_file':100,
+                         'file_dirty':200}), 500)
+        self.assertEqual(cgroup_available(8000, 7500, {}), 500)
+
     def test_real_cache_metadata_does_not_disable_modules(self):
         with tempfile.TemporaryDirectory() as directory:
             cache_path = Path(directory) / 'CMakeCache.txt'
@@ -143,6 +152,52 @@ class BuildTests(unittest.TestCase):
             self.assertIn('-DMYSQL_CONFIG:FILEPATH=', plan[0])
             with self.assertRaises(BuildError):
                 check_cache({'MYSQL_CONFIG':'/usr/bin/mysql_config'}, 'android', configured=False)
+
+
+class PortTests(unittest.TestCase):
+    def test_unsafe_patch_path_refused(self):
+        for name in ('../file', '/file', 'a/../file', 'a\\file', 'C:/file'):
+            with self.subTest(name=name), self.assertRaises(SourceError):
+                fta_port.safe_relative_path(name)
+
+    def test_patch_cannot_change_unlisted_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            patch = Path(directory) / 'change.patch'
+            patch.write_text('--- a/file\n+++ b/file\n@@ -1 +1 @@\n-old\n+new\n')
+            with self.assertRaises(SourceError):
+                fta_port.check_patch_paths(patch, {'other-file'})
+
+    def test_profile_preserves_original_and_pins_entire_result(self):
+        import json
+        import shutil
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            original = root / 'original'
+            (original / 'modules/mod-example').mkdir(parents=True)
+            (original / 'file').write_text('old\n')
+            expected = root / 'expected'
+            shutil.copytree(original, expected)
+            (expected / 'file').write_text('new\n')
+            profiles = root / 'profiles'
+            profiles.mkdir()
+            patch = profiles / 'change.patch'
+            patch.write_text('--- a/file\n+++ b/file\n@@ -1 +1 @@\n-old\n+new\n')
+            profile = {'patches':[{'path':'change.patch',
+                        'sha256':hashlib.sha256(patch.read_bytes()).hexdigest(),
+                        'files':{'file':{'before_sha256':hashlib.sha256(b'old\n').hexdigest(),
+                                         'after_sha256':hashlib.sha256(b'new\n').hexdigest()}}}],
+                       'result_inventory':inventory_tree(expected)}
+            (profiles / 'profiles.json').write_text(json.dumps({'profiles':{'fixture':profile}}))
+            with mock.patch.object(fta_port, 'PORT_DIRECTORY', profiles), \
+                 mock.patch.object(fta_port, 'verify_source_tree'):
+                result = fta_port.apply_profile(original, root / 'result', 'fixture')
+                self.assertEqual(result, inventory_tree(expected))
+                self.assertEqual((original / 'file').read_text(), 'old\n')
+                self.assertEqual((root / 'result/file').read_text(), 'new\n')
+                patch.write_text(patch.read_text() + '\n')
+                with self.assertRaises(SourceError):
+                    fta_port.apply_profile(original, root / 'tampered-result', 'fixture')
+                self.assertFalse((root / 'tampered-result').exists())
 
 
 if __name__ == '__main__':

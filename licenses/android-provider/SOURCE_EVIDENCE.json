@@ -1,0 +1,357 @@
+{
+  "formatVersion": 1,
+  "sourceOffer": "received-upstream-written-offer",
+  "completeCorrespondingSourceIndependentlyVerified": false,
+  "reproducibleBinaryBuildVerified": false,
+  "evidence": {
+    "scope": "Source archive hashes only; no reproducible source-to-provider binary equivalence claim.",
+    "archives": [
+      {
+        "name": "libandroid-support-v29.tar.gz",
+        "url": "https://github.com/termux/libandroid-support/archive/refs/tags/v29.tar.gz",
+        "expected_sha256": "8f74ce0f9cf70ec29f548696c248cac0ba560a2d8916a0fe1cf9316d5f167a80",
+        "size": 12699,
+        "actual_sha256": "8f74ce0f9cf70ec29f548696c248cac0ba560a2d8916a0fe1cf9316d5f167a80",
+        "archive_hash_verified": true
+      },
+      {
+        "name": "wcwidth-v4.tar.gz",
+        "url": "https://github.com/termux/wcwidth/archive/refs/tags/v4.tar.gz",
+        "expected_sha256": "08489e00f797ffb3b71f9c1894c83e5ebe12c90a2ee0e1f9dc7c6eb29a2ff1a8",
+        "size": 12096,
+        "actual_sha256": "08489e00f797ffb3b71f9c1894c83e5ebe12c90a2ee0e1f9dc7c6eb29a2ff1a8",
+        "archive_hash_verified": true
+      },
+      {
+        "name": "ncurses-5f58399.tar.gz",
+        "url": "https://github.com/ThomasDickey/ncurses-snapshots/archive/5f58399b2de47ed14bdfe3a0cb149293b27893d5.tar.gz",
+        "expected_sha256": "28cd102efe6a2610e830cc79cf270da6ff0427b2022900a9a36d2761522f9576",
+        "size": 3662605,
+        "actual_sha256": "28cd102efe6a2610e830cc79cf270da6ff0427b2022900a9a36d2761522f9576",
+        "archive_hash_verified": true
+      },
+      {
+        "name": "openssl-3.6.3.tar.gz",
+        "url": "https://github.com/openssl/openssl/releases/download/openssl-3.6.3/openssl-3.6.3.tar.gz",
+        "expected_sha256": "243a86649cf6f23eeb6a2ff2456e09e5d77dd9018a54d3d96b0c6bdd6ba6c7f1",
+        "size": 54953005,
+        "actual_sha256": "243a86649cf6f23eeb6a2ff2456e09e5d77dd9018a54d3d96b0c6bdd6ba6c7f1",
+        "archive_hash_verified": true
+      },
+      {
+        "name": "pcre2-10.47.tar.bz2",
+        "url": "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.47/pcre2-10.47.tar.bz2",
+        "expected_sha256": "47fe8c99461250d42f89e6e8fdaeba9da057855d06eb7fc08d9ca03fd08d7bc7",
+        "size": 2145789,
+        "actual_sha256": "47fe8c99461250d42f89e6e8fdaeba9da057855d06eb7fc08d9ca03fd08d7bc7",
+        "archive_hash_verified": true
+      },
+      {
+        "name": "zlib-1.3.2.tar.xz",
+        "url": "https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.xz",
+        "expected_sha256": "d7a0654783a4da529d1bb793b7ad9c3318020af77667bcae35f95d0e42a792f3",
+        "size": 1320064,
+        "actual_sha256": "d7a0654783a4da529d1bb793b7ad9c3318020af77667bcae35f95d0e42a792f3",
+        "archive_hash_verified": true
+      },
+      {
+        "name": "libedit-20260512-3.1.tar.gz",
+        "url": "https://thrysoee.dk/editline/libedit-20260512-3.1.tar.gz",
+        "size": 550471,
+        "expected_sha256": "432d5e7ea8b0116dd39f2eca7bc11d0eed77faa6b77ea526ace89907c23ea4a0",
+        "actual_sha256": "432d5e7ea8b0116dd39f2eca7bc11d0eed77faa6b77ea526ace89907c23ea4a0",
+        "archive_hash_verified": true,
+        "kind": "source-archive"
+      },
+      {
+        "name": "mariadb-12.3.2.tar.gz",
+        "url": "https://archive.mariadb.org/mariadb-12.3.2/source/mariadb-12.3.2.tar.gz",
+        "size": 120615576,
+        "expected_sha256": "82798714baf2f3456ed2f311fc803dc120f2bf3b82358e773847d628cdb4b670",
+        "actual_sha256": "82798714baf2f3456ed2f311fc803dc120f2bf3b82358e773847d628cdb4b670",
+        "archive_hash_verified": true,
+        "kind": "source-archive"
+      },
+      {
+        "name": "android-ndk-r29-linux.zip",
+        "url": "https://dl.google.com/android/repository/android-ndk-r29-linux.zip",
+        "size": 783549481,
+        "expected_sha256": "4abbbcdc842f3d4879206e9695d52709603e52dd68d3c1fff04b3b5e7a308ecf",
+        "actual_sha256": "4abbbcdc842f3d4879206e9695d52709603e52dd68d3c1fff04b3b5e7a308ecf",
+        "archive_hash_verified": true,
+        "kind": "official-toolchain-distribution"
+      }
+    ],
+    "recipe_evidence": {
+      "evidence_scope": "Historical recipe content at latest package-recipe commit before source APK release; matching version fields observed; actual source archives not downloaded or verified.",
+      "recipes": [
+        {
+          "n": "mariadb",
+          "sha": "94cdb1c2525a5ba16f22f509b50e85e86a89efee",
+          "date": "2026-05-30T02:45:52Z",
+          "message": "bump(main/mariadb): 12.3.2",
+          "url": "https://raw.githubusercontent.com/termux/termux-packages/94cdb1c2525a5ba16f22f509b50e85e86a89efee/packages/mariadb/build.sh",
+          "recipe_sha256": "7c9b88f5b08e8904f86f660a9ee1fc423954a1ac9a3e3c01eb7d24a892fee969"
+        },
+        {
+          "n": "libandroid-support",
+          "sha": "91fad586ce5408b89711f478cc5e16598403e653",
+          "date": "2026-01-04T14:17:52Z",
+          "message": "chore(tree-wide): use `archive/refs/tags` for GitHub tarballs",
+          "url": "https://raw.githubusercontent.com/termux/termux-packages/91fad586ce5408b89711f478cc5e16598403e653/packages/libandroid-support/build.sh",
+          "recipe_sha256": "23f10711528bcc66a3a8728d218f43efea8467bfbb7db222796e5f5b89ac0d79"
+        },
+        {
+          "n": "libc++",
+          "sha": "bd8b24b00afd94c7c33922bc5421159f59edff9e",
+          "date": "2025-11-28T22:12:50Z",
+          "message": "scripts(toolchain): Update NDK to r29",
+          "url": "https://raw.githubusercontent.com/termux/termux-packages/bd8b24b00afd94c7c33922bc5421159f59edff9e/packages/libc++/build.sh",
+          "recipe_sha256": "69ef19e3e5c312cec3a3536657cea0c8b248d5ee321adf0cb2ab3c48a52536e0"
+        },
+        {
+          "n": "libcrypt",
+          "sha": "45cea5eecfa99e50b05af56ace33ed708348ad9b",
+          "date": "2025-08-24T15:10:08Z",
+          "message": "chore(main/debianutils,gzip,inetutils,less,libassuan,libcrypt,libgmp): Rebuild",
+          "url": "https://raw.githubusercontent.com/termux/termux-packages/45cea5eecfa99e50b05af56ace33ed708348ad9b/packages/libcrypt/build.sh",
+          "recipe_sha256": "8d3d827030f2d51687dcf7fcb1a7dce8f79730bdbefbd5b90492def19ea43629"
+        },
+        {
+          "n": "libedit",
+          "sha": "15a6f1cdee08430e57995032259ad75a8be29230",
+          "date": "2026-07-28T22:23:57Z",
+          "message": "bump(packages/libedit): 20260512-3.1",
+          "url": "https://raw.githubusercontent.com/termux/termux-packages/15a6f1cdee08430e57995032259ad75a8be29230/packages/libedit/build.sh",
+          "recipe_sha256": "af2b85e6e6e9e85806d2bd1dd8d6953895443f9a04268e2590494aa2a4f4fb5c"
+        },
+        {
+          "n": "ncurses",
+          "sha": "d29b295df936a1867fde79a45be5b236cefb0d55",
+          "date": "2026-03-31T23:33:14Z",
+          "message": "fix(main/ncurses): roll back to last version without `htop` physical mouse crash",
+          "url": "https://raw.githubusercontent.com/termux/termux-packages/d29b295df936a1867fde79a45be5b236cefb0d55/packages/ncurses/build.sh",
+          "recipe_sha256": "350a65eb4f5d5086d95c2b05db129557c62dbbbf0c5f82ee7163e0de12f4ea34"
+        },
+        {
+          "n": "openssl",
+          "sha": "7e79544e0abe70c317e71b65eb9079071d4acf0b",
+          "date": "2026-06-14T05:51:50Z",
+          "message": "bump(main/openssl): 3.6.3",
+          "url": "https://raw.githubusercontent.com/termux/termux-packages/7e79544e0abe70c317e71b65eb9079071d4acf0b/packages/openssl/build.sh",
+          "recipe_sha256": "bd40d1e62064baa49c06bce55c892dbb75fa54b42601da9cc6c4e4e7b0bd8c20"
+        },
+        {
+          "n": "pcre2",
+          "sha": "fc3033769363fc3962c649a1eacd1da18dd5dfdd",
+          "date": "2025-10-21T14:06:37Z",
+          "message": "bump(main/pcre2): 10.47",
+          "url": "https://raw.githubusercontent.com/termux/termux-packages/fc3033769363fc3962c649a1eacd1da18dd5dfdd/packages/pcre2/build.sh",
+          "recipe_sha256": "1f26e90ba9f58ed6ae62805fca4205f1b86b51216fe59c9b0d95b5feac1cdd76"
+        },
+        {
+          "n": "zlib",
+          "sha": "9d26eb2028bc966821111b7076512383b352ce89",
+          "date": "2026-02-17T18:23:05Z",
+          "message": "bump(main/zlib): 1.3.2",
+          "url": "https://raw.githubusercontent.com/termux/termux-packages/9d26eb2028bc966821111b7076512383b352ce89/packages/zlib/build.sh",
+          "recipe_sha256": "9edf6e044f5ca08c91bde6e6b0d99c2569ba0f6bbbc57700bb9a0c5b3b4c27ec"
+        }
+      ]
+    },
+    "notices": [
+      {
+        "filename": "libandroid-support-LICENSE.txt",
+        "sha256": "76fc4416b6b20b4223bee8cc5b1ab41e1066a55ee23454f857c74bfbd9c3c2d5",
+        "size": 6126
+      },
+      {
+        "filename": "libcrypt-LICENSE",
+        "sha256": "311ad021879eeb7713e27e8d894950068689feafc198a236a95c2494710e3a1a",
+        "size": 1521
+      },
+      {
+        "filename": "libcrypt-crypt.h",
+        "sha256": "978bed04a208284a96090db3aafff5075a17b5b54be695e4e1eaa4a414684d7c",
+        "size": 159
+      },
+      {
+        "filename": "libcrypt-crypt3.c",
+        "sha256": "65009358f59f91b6118fc456bfe8186fc432d6c06af86c2346096e56079593c0",
+        "size": 39587
+      },
+      {
+        "filename": "libedit-COPYING",
+        "sha256": "9da6c9c74987a36c84302982799d17d2f748ba1c1c0c471425716173c1d07649",
+        "size": 1615
+      },
+      {
+        "filename": "mariadb-12.3.2-COPYING",
+        "sha256": "240a15a1d0f34d3abca462cdb7e5fb89470967563f16b0e71169e51c1e74cf2b",
+        "size": 17987
+      },
+      {
+        "filename": "mariadb-12.3.2-COPYING.LIB",
+        "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+        "size": 26530
+      },
+      {
+        "filename": "mariadb-COPYING",
+        "sha256": "240a15a1d0f34d3abca462cdb7e5fb89470967563f16b0e71169e51c1e74cf2b",
+        "size": 17987
+      },
+      {
+        "filename": "ncurses-COPYING",
+        "sha256": "708999f95527e1ffa670c6fce288c6c600cb477dd04afcc1171422b3dd4ee226",
+        "size": 1447
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_NOTICE",
+        "sha256": "faf0dc52cf6ce9ab09a04b0c074a378dd2565ee1ed9bc1179d83793bcdba012e",
+        "size": 516438
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_NOTICE.toolchain",
+        "sha256": "789714a9076571c580cf531bdcebec776a4d889c12c3c1108adafc6e4338710a",
+        "size": 799639
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_python-packages_NOTICE",
+        "sha256": "c870d52f42a8f93023b99a85fe68d02637d6b04e5f35bbcd7f98759adb4e4d49",
+        "size": 577
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_sources_android_cpufeatures_NOTICE",
+        "sha256": "c870d52f42a8f93023b99a85fe68d02637d6b04e5f35bbcd7f98759adb4e4d49",
+        "size": 577
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_sources_android_native_app_glue_NOTICE",
+        "sha256": "396e2d75715e8b4d1029ded55ae92832c8ab9c58148969653d34931248739b95",
+        "size": 577
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_sources_android_ndk_helper_NOTICE",
+        "sha256": "c870d52f42a8f93023b99a85fe68d02637d6b04e5f35bbcd7f98759adb4e4d49",
+        "size": 577
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_sources_cxx-stl_system_MODULE_LICENSE_BSD",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_sources_cxx-stl_system_NOTICE",
+        "sha256": "e33f24b134f489859a8d71d0cf28f6561c5c03d4ccb6f92ae0c6fa4c31323712",
+        "size": 3677
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_sources_third_party_googletest_LICENSE",
+        "sha256": "9702de7e4117a8e2b20dafab11ffda58c198aede066406496bef670d40a22138",
+        "size": 1475
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_sources_third_party_googletest_MODULE_LICENSE_BSD_LIKE",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_sources_third_party_googletest_NOTICE",
+        "sha256": "9702de7e4117a8e2b20dafab11ffda58c198aede066406496bef670d40a22138",
+        "size": 1475
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_toolchains_llvm_prebuilt_linux-x86_64_AndroidVersion.txt",
+        "sha256": "238e44ee9706be580fa9b57a0bb0280ec74f23f9dc2c44e1549117057d30653e",
+        "size": 112
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_toolchains_llvm_prebuilt_linux-x86_64_MODULE_LICENSE_APACHE2",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_toolchains_llvm_prebuilt_linux-x86_64_MODULE_LICENSE_BSD_LIKE",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_toolchains_llvm_prebuilt_linux-x86_64_MODULE_LICENSE_MIT",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_toolchains_llvm_prebuilt_linux-x86_64_NOTICE",
+        "sha256": "f96f763beb66a7ba7a667647fc64c0226ace875e590c831fdd9579ec1c1d91e1",
+        "size": 130424
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_toolchains_llvm_prebuilt_linux-x86_64_python3_lib_python3.11_LICENSE.txt",
+        "sha256": "2d3de21bb0173e7ee49fc80f8fab52a0c55c690ff740bed77b6b8b4dd7641b81",
+        "size": 15138
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_toolchains_llvm_prebuilt_linux-x86_64_python3_lib_python3.11_site-packages_pip-23.1.2.dist-info_LICENSE.txt",
+        "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104",
+        "size": 1093
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_toolchains_llvm_prebuilt_linux-x86_64_python3_lib_python3.11_site-packages_setuptools-65.5.0.dist-info_LICENSE",
+        "sha256": "db3f0246b1f9278f15845b99fec478b8b506eb76487993722f8c6e254285faf8",
+        "size": 1050
+      },
+      {
+        "filename": "ndk-r29-android-ndk-r29_toolchains_llvm_prebuilt_linux-x86_64_sysroot_NOTICE",
+        "sha256": "2905ac5c59628352af990c748a8f4c3675a04f36eca7914612e3068661d2c6a6",
+        "size": 494921
+      },
+      {
+        "filename": "ndk-r29-clang_source_info.md",
+        "sha256": "c034a7e349c7022ba7f33e24cee1fe46f1dbfd69001e39358713a68f314f3149",
+        "size": 10382
+      },
+      {
+        "filename": "openssl-LICENSE.txt",
+        "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+        "size": 10175
+      },
+      {
+        "filename": "pcre2-10.47-COPYING",
+        "sha256": "99272c55f3dcfa07a8a7e15a5c1a33096e4727de74241d65fa049fccfdd59507",
+        "size": 97
+      },
+      {
+        "filename": "pcre2-10.47-LICENCE.md",
+        "sha256": "197d8a73ffee0d6b09adba2f9c677b5f5aede24edf89258a68e48248d010d811",
+        "size": 4011
+      },
+      {
+        "filename": "pcre2-LICENCE.md",
+        "sha256": "197d8a73ffee0d6b09adba2f9c677b5f5aede24edf89258a68e48248d010d811",
+        "size": 4011
+      },
+      {
+        "filename": "wcwidth-LICENSE.txt",
+        "sha256": "80786a6b45d7dc1a4e604c85f779af6b1069bf900eda37684045463d81627314",
+        "size": 2589
+      },
+      {
+        "filename": "zlib-LICENSE",
+        "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+        "size": 1002
+      }
+    ],
+    "source_to_provider_rebuild_verified": false,
+    "upstream_offer": {
+      "filename": "THIRD_PARTY_NOTICES.md",
+      "sha256": "2b175f3703bfba802410c4e1ccec8e1b89d4c131c50c6001c1ca299994796b15",
+      "preserve_unchanged": true
+    }
+  },
+  "libcxxLicense": {
+    "url": "https://raw.githubusercontent.com/llvm/llvm-project/386af4a5c64ab75eaee2448dc38f2e34a40bfed0/libcxx/LICENSE.TXT",
+    "sha256": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b",
+    "llvmCommit": "386af4a5c64ab75eaee2448dc38f2e34a40bfed0",
+    "association": "LLVM base revision recorded by verified NDK r29 clang_source_info.md"
+  }
+}

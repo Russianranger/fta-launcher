@@ -1,0 +1,30 @@
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+
+# Reviewed native portability profiles
+
+Port changes are maintained as a small patch series against the immutable
+2026-10-20 source input. `profiles.json` pins every patch byte, each changed
+file's preimage/result hash, and the complete resulting source inventory. The
+original archive and verified source are never edited. The build driver accepts
+only the pristine distribution or an explicitly selected pinned profile.
+
+`tools/fta_port.py ORIGINAL NEW_COPY --profile NAME` checks the pristine source,
+copies it into a separate temporary directory, checks patch paths and hashes,
+applies without three-way/fuzzy merging, verifies the complete result, then
+publishes the new source directory. A failure never replaces an existing source.
+
+`probes/original-api.cpp` is a compile-only reproduction of the original core's
+MySQL API choices. `probes/mariadb-api.cpp` measures actual MariaDB header/loaded
+connector versions and TLS enforcement option support without connecting to a
+database. Neither probe establishes schema or server compatibility.
+
+Server patches retain the licenses and notices of the original source they
+modify. No game logic, module content, SQL receipts or updates may be dropped to
+make a build pass. Compiler, database and physical-device qualification are
+tracked separately.
+
+`LICENSE` preserves the original core's GPL version 2 license text; its source
+headers allow version 2 or later. The patch series and this explanation are
+GPL-2.0-or-later. The independently written probes and Python tools retain their
+MIT license. The upstream CMake files' copying exception remains intact in the
+staged source.

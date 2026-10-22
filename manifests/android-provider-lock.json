@@ -1,0 +1,306 @@
+{
+  "formatVersion": 1,
+  "providerId": "mariadb-12.3.2-termux-bionic-arm64",
+  "providerVersion": "12.3.2",
+  "abi": "arm64-v8a",
+  "reference": {
+    "repository": "Russianranger/pocket-realm",
+    "commit": "f397b7a13c844685898b348f5f602dfb6327ce5e",
+    "path": "schemas/mariadb-runtime-lockfile-arm64-v8a.json"
+  },
+  "packageBaseUrl": "https://packages.termux.dev/apt/termux-main/",
+  "packages": {
+    "mariadb": {
+      "filename": "mariadb_2-12.3.2_aarch64.deb",
+      "sha256": "ffda12fad7d55748e4f8d7e40fe37fd2de67a79e9cb00a5fd7adf3a4948a3fdc",
+      "version": "2:12.3.2",
+      "used_by_elf_closure": true,
+      "relativeUrl": "pool/main/m/mariadb/mariadb_2:12.3.2_aarch64.deb"
+    },
+    "libandroid-support": {
+      "filename": "libandroid-support_29-1_aarch64.deb",
+      "sha256": "f2f145d6135ad4843ac9670153be3e3944dc1e6f1736d46d2306c28f2b86f517",
+      "version": "29-1",
+      "used_by_elf_closure": true,
+      "relativeUrl": "pool/main/liba/libandroid-support/libandroid-support_29-1_aarch64.deb"
+    },
+    "libc++": {
+      "filename": "libc++_29_aarch64.deb",
+      "sha256": "bb9f12113c137aa0e8513bb51cc49fe77a5ce3ca39ab9e92c57d228ecdf00222",
+      "version": "29",
+      "used_by_elf_closure": true,
+      "relativeUrl": "pool/main/libc/libc++/libc++_29_aarch64.deb"
+    },
+    "libcrypt": {
+      "filename": "libcrypt_0.2-6_aarch64.deb",
+      "sha256": "6c283eed576b98cc3568f99638156f8588f77d979579d03bef8683d6eb8601e1",
+      "version": "0.2-6",
+      "used_by_elf_closure": true,
+      "relativeUrl": "pool/main/libc/libcrypt/libcrypt_0.2-6_aarch64.deb"
+    },
+    "libedit": {
+      "filename": "libedit_20260512-3.1-0_aarch64.deb",
+      "sha256": "728da8f45e9c0027f0c5844346dd8cea153a43394bceee36a257972acf0ed440",
+      "version": "20260512-3.1-0",
+      "used_by_elf_closure": true,
+      "relativeUrl": "pool/main/libe/libedit/libedit_20260512-3.1-0_aarch64.deb"
+    },
+    "ncurses": {
+      "filename": "ncurses_6.6.20260307+really6.5.20250830_aarch64.deb",
+      "sha256": "f44bbfdc3d42ec0217bffa978309390e59cea5a48a9a83226d4a496c42ad0b99",
+      "version": "6.6.20260307+really6.5.20250830",
+      "used_by_elf_closure": true,
+      "relativeUrl": "pool/main/n/ncurses/ncurses_6.6.20260307+really6.5.20250830_aarch64.deb"
+    },
+    "openssl": {
+      "filename": "openssl_1-3.6.3_aarch64.deb",
+      "sha256": "86760e9ce736f463236f2c15b1eb3a3fdcfc5778d0fd7077a917448dcc90f3aa",
+      "version": "1:3.6.3",
+      "used_by_elf_closure": true,
+      "relativeUrl": "pool/main/o/openssl/openssl_1:3.6.3_aarch64.deb"
+    },
+    "pcre2": {
+      "filename": "pcre2_10.47_aarch64.deb",
+      "sha256": "51f915d22de639bfca6ec029ae613987bbe3bc73626eede13319fd2e95f50b63",
+      "version": "10.47",
+      "used_by_elf_closure": true,
+      "relativeUrl": "pool/main/p/pcre2/pcre2_10.47_aarch64.deb"
+    },
+    "zlib": {
+      "filename": "zlib_1.3.2_aarch64.deb",
+      "sha256": "75e7d0af17fcc3b40004309fdc00a1ddb9ae08346dce5e269902c34ac3966ac9",
+      "version": "1.3.2",
+      "used_by_elf_closure": true,
+      "relativeUrl": "pool/main/z/zlib/zlib_1.3.2_aarch64.deb"
+    }
+  },
+  "nativeFiles": [
+    {
+      "sourceApkName": "libpocket_mariadbd.so",
+      "apkName": "libfta_mariadbd.so",
+      "role": "database-server",
+      "package": "mariadb",
+      "sha256": "ce5fb5ddd0083063888ce9e21e57d7b42309df8533c9b44baad53e72cadba5c9",
+      "size": 26661512,
+      "packageRelativePath": "bin/mariadbd"
+    },
+    {
+      "sourceApkName": "libpocket_mariadb_client.so",
+      "apkName": "libfta_mariadb_client.so",
+      "role": "database-client",
+      "package": "mariadb",
+      "sha256": "5ea8f5a8dfaeacd456ed1c798f60e0dab2a245994e0a6f37379bd3d0759037e0",
+      "size": 5254752,
+      "packageRelativePath": "bin/mariadb"
+    },
+    {
+      "sourceApkName": "libdb_libandroid_support_so_739cf82951.so",
+      "apkName": "libfta_db_libandroid_support_so_739cf82951.so",
+      "role": "library",
+      "package": "libandroid-support",
+      "logicalName": "libandroid-support.so",
+      "sha256": "739cf829511d71dafd6c67fdbb70f3f0c6048642ea2e1967790ee961fde14430",
+      "size": 20736
+    },
+    {
+      "sourceApkName": "libdb_libc_shared_so_e09c2f45cf.so",
+      "apkName": "libfta_db_libc_shared_so_e09c2f45cf.so",
+      "role": "library",
+      "package": "libc++",
+      "logicalName": "libc++_shared.so",
+      "sha256": "e09c2f45cf4cf8ae574f94b6c2650d99ead0d332d5396f6613f062a2d2d73540",
+      "size": 1374336
+    },
+    {
+      "sourceApkName": "libdb_libcrypt_so_bf078ced08.so",
+      "apkName": "libfta_db_libcrypt_so_bf078ced08.so",
+      "role": "library",
+      "package": "libcrypt",
+      "logicalName": "libcrypt.so",
+      "sha256": "bf078ced08880508974c8ab9d68d12d320842e422fb6ec496f5b892e5d701262",
+      "size": 17104
+    },
+    {
+      "sourceApkName": "libdb_libcrypto_so_3_4122f5c950.so",
+      "apkName": "libfta_db_libcrypto_so_3_4122f5c950.so",
+      "role": "library",
+      "package": "openssl",
+      "logicalName": "libcrypto.so.3",
+      "sha256": "4122f5c95088f11a43c14e49e257cc1ce700960e855840cf9b9f39a8acbcd7e8",
+      "size": 5205472
+    },
+    {
+      "sourceApkName": "libdb_libedit_so_3776bfd469.so",
+      "apkName": "libfta_db_libedit_so_3776bfd469.so",
+      "role": "library",
+      "package": "libedit",
+      "logicalName": "libedit.so",
+      "sha256": "3776bfd46996ad42a736ec478583e7d65506b0aae0d32b1829baefe85ff63f35",
+      "size": 197096
+    },
+    {
+      "sourceApkName": "libdb_libncursesw_so_6_795f855f5a.so",
+      "apkName": "libfta_db_libncursesw_so_6_795f855f5a.so",
+      "role": "library",
+      "package": "ncurses",
+      "logicalName": "libncursesw.so.6",
+      "sha256": "795f855f5a988d9e89116847b2c9aa03720cedbc02026259ca735be25398c4c5",
+      "size": 384496
+    },
+    {
+      "sourceApkName": "libdb_libpcre2_8_so_a6bbeb410e.so",
+      "apkName": "libfta_db_libpcre2_8_so_a6bbeb410e.so",
+      "role": "library",
+      "package": "pcre2",
+      "logicalName": "libpcre2-8.so",
+      "sha256": "a6bbeb410e269e50aee795b4fd1b11cbddb8b54959d1cfcd927b55b04dc19f5c",
+      "size": 489384
+    },
+    {
+      "sourceApkName": "libdb_libssl_so_3_9bf626fadf.so",
+      "apkName": "libfta_db_libssl_so_3_9bf626fadf.so",
+      "role": "library",
+      "package": "openssl",
+      "logicalName": "libssl.so.3",
+      "sha256": "9bf626fadf689237cf641bf1108057f0cc87c587c17fbdeaa16bd4a12807d7ce",
+      "size": 875304
+    },
+    {
+      "sourceApkName": "libdb_libz_so_1_c47748ed4b.so",
+      "apkName": "libfta_db_libz_so_1_c47748ed4b.so",
+      "role": "library",
+      "package": "zlib",
+      "logicalName": "libz.so.1",
+      "sha256": "c47748ed4b6ca6a2ecd664bab04795f3493956ab1f5cddc4ba0efa737ef3b711",
+      "size": 72880
+    }
+  ],
+  "bootstrap": {
+    "sha256": "beea9b5ed417de90a5dc4d678d7e42268a555df7082212bf51ea1791d3f21dd4",
+    "inputs": [
+      "mariadb_system_tables.sql",
+      "mariadb_performance_tables.sql",
+      "mariadb_system_tables_data.sql",
+      "fill_help_tables.sql",
+      "maria_add_gis_sp_bootstrap.sql",
+      "mariadb_sys_schema.sql"
+    ],
+    "inputSha256": {
+      "mariadb_system_tables.sql": "22e23166715ef17156ae2c6e2d8ae20a699ee5c6192cedfd85a367e22e39893d",
+      "mariadb_performance_tables.sql": "b7906472abd67c28aa5cb8a49ea2148310040151d9e34bca99e592b505074aa4",
+      "mariadb_system_tables_data.sql": "52c63a6506f7d5d6796833a6c404a970ce4f4d54e80791c120975429b38769f8",
+      "fill_help_tables.sql": "aebf9ee7fdae006d9da5795f1771554f2dabd670ab067e09552e32fc2c7b3718",
+      "maria_add_gis_sp_bootstrap.sql": "a82a298bb87e5b338e18c90a2d037337474b7de2205eb4e612354ca9e7bb3e8e",
+      "mariadb_sys_schema.sql": "5c84bd10520ebf78ddce2943ba8bb3cd3e17de860ce8302d2bc9d686d0cb820b"
+    }
+  },
+  "fallbackApk": {
+    "url": "https://github.com/puzzled-pancake/pocket-realm/releases/download/v0.100.2-alpha/Pocket-Realm-0.100.2-alpha-arm64-v8a.apk",
+    "sha256": "5e04073375c7305919530e08fc8925870c8084eb83103840007913d13abb00e8",
+    "size": 285210689,
+    "noticeUrl": "https://github.com/puzzled-pancake/pocket-realm/releases/download/v0.100.2-alpha/THIRD_PARTY_NOTICES.md",
+    "noticeSha256": "2b175f3703bfba802410c4e1ccec8e1b89d4c131c50c6001c1ca299994796b15"
+  },
+  "qualification": {
+    "androidExecuted": false,
+    "databaseSeedCompatible": false,
+    "publicRedistributionQualified": false
+  },
+  "legalFiles": [
+    {
+      "name": "Apache-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "size": 11358
+    },
+    {
+      "name": "FTA_DATABASE_PROVIDER_NOTICES.md",
+      "sha256": "42906c2f22b608c98cde4854cc2ed6bdbee0e194cb123f0d043201a276acad9c",
+      "size": 3132
+    },
+    {
+      "name": "GPL-2.0.txt",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092
+    },
+    {
+      "name": "GPL-3.0.txt",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "size": 35149
+    },
+    {
+      "name": "POCKET_REALM_THIRD_PARTY_NOTICES.md",
+      "sha256": "2b175f3703bfba802410c4e1ccec8e1b89d4c131c50c6001c1ca299994796b15",
+      "size": 5304
+    },
+    {
+      "name": "SOURCE_EVIDENCE.json",
+      "sha256": "962da1b320a8b796d9d6389ed44550c991befe7bd17077ed2be78678323fd994",
+      "size": 16185
+    },
+    {
+      "name": "libandroid-support-LICENSE.txt",
+      "sha256": "76fc4416b6b20b4223bee8cc5b1ab41e1066a55ee23454f857c74bfbd9c3c2d5",
+      "size": 6126
+    },
+    {
+      "name": "libcrypt-FreeBSD-NOTICE.txt",
+      "sha256": "8c2ced6872d88ca0183993323615c648aae5f290ba362493f717b1f190d12379",
+      "size": 1777
+    },
+    {
+      "name": "libcrypt-LICENSE",
+      "sha256": "311ad021879eeb7713e27e8d894950068689feafc198a236a95c2494710e3a1a",
+      "size": 1521
+    },
+    {
+      "name": "libcxx-NDK-r29-NOTICE",
+      "sha256": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b",
+      "size": 16703
+    },
+    {
+      "name": "libedit-COPYING",
+      "sha256": "9da6c9c74987a36c84302982799d17d2f748ba1c1c0c471425716173c1d07649",
+      "size": 1615
+    },
+    {
+      "name": "mariadb-COPYING",
+      "sha256": "240a15a1d0f34d3abca462cdb7e5fb89470967563f16b0e71169e51c1e74cf2b",
+      "size": 17987
+    },
+    {
+      "name": "ncurses-COPYING",
+      "sha256": "708999f95527e1ffa670c6fce288c6c600cb477dd04afcc1171422b3dd4ee226",
+      "size": 1447
+    },
+    {
+      "name": "openssl-LICENSE.txt",
+      "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+      "size": 10175
+    },
+    {
+      "name": "pcre2-LICENCE.md",
+      "sha256": "197d8a73ffee0d6b09adba2f9c677b5f5aede24edf89258a68e48248d010d811",
+      "size": 4011
+    },
+    {
+      "name": "wcwidth-LICENSE.txt",
+      "sha256": "80786a6b45d7dc1a4e604c85f779af6b1069bf900eda37684045463d81627314",
+      "size": 2589
+    },
+    {
+      "name": "zlib-LICENSE",
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+      "size": 1002
+    }
+  ],
+  "sourceEvidence": {
+    "kind": "received-upstream-written-offer",
+    "historicalRecipesVerified": true,
+    "sourceArchivesIndependentlyVerified": false,
+    "binaryRebuildVerified": false,
+    "verifiedSourceInputs": 9,
+    "ndkRuntimeArchiveVerified": true,
+    "mariadbSourceArchiveVerified": true,
+    "libeditSourceArchiveVerified": true
+  }
+}

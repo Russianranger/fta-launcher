@@ -171,9 +171,14 @@ def assert_empty_targets(query: Callable[[str], str]) -> None:
             raise GateError("Refused fresh seed: one or more targets contain existing objects")
 
 
-def update_action(entry: SqlEntry, receipt_hash: str | None) -> str:
+def update_action(entry: SqlEntry, receipt_hash: str | None, *, probe_updater_policy: bool = False) -> str:
     if receipt_hash is None:
         return "apply"
-    if not re.fullmatch("[0-9A-Fa-f]{40}", receipt_hash) or receipt_hash.lower() != entry.sha1:
+    if not re.fullmatch("[0-9A-Fa-f]{40}", receipt_hash):
+        raise GateError("Runtime update checksum differs from its existing receipt")
+    if probe_updater_policy:
+        # Original ByteArrayToHexStr uses %02X and string-exact receipt comparison.
+        return "verified_existing" if receipt_hash == entry.sha1.upper() else "reapply_changed"
+    if receipt_hash.lower() != entry.sha1:
         raise GateError("Runtime update checksum differs from its existing receipt")
     return "verified_existing"

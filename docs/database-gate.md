@@ -1,9 +1,11 @@
 # Private database compatibility gate
 
-The first development gate is implemented as an archive planner and an isolated
-host MariaDB test runner. A passing archive inventory does **not** establish SQL,
-Android, server-startup, or Thor compatibility. No database seed, credentials,
-account records, or client files belong in this public repository.
+Host MariaDB 12.3.2 now imports the unchanged seed and passes the runtime SQL
+probe using the original source's changed-file policy. The test runs in its own
+disposable instance; Bionic/ARM64, compiled server integration, Android lifecycle,
+and Thor compatibility remain separate gates. A passing archive inventory alone
+does **not** establish SQL compatibility. No database seed, credentials, account
+records, or client files belong in this public repository.
 
 ## Measured input
 
@@ -47,13 +49,20 @@ python3 tools/run_database_gate.py /private/Database.zip \
   --mysql /path/to/mariadb
 ```
 
-The runner has no host, remote socket, existing datadir, password, or destructive
-restore option. It creates a new private temporary datadir, initializes it,
-starts its own server with networking disabled, and uses only its private Unix
-socket. User MySQL environment/defaults are excluded. Server-side file access is
-restricted to the temporary directory and client local-file loading is disabled.
-This is process/data isolation for the pinned, reviewed seed, not an operating
-system sandbox for arbitrary hostile SQL.
+The runner has no host, remote socket, existing datadir, password, port, or
+destructive restore input. It creates a new private temporary datadir,
+initializes it, and starts its own server. The default `--transport unix` disables
+networking and uses only a private Unix socket. For host environments that deny
+Unix socket binding, `--transport loopback` binds only `127.0.0.1` at a port chosen
+by the runner. That mode initializes root with Unix-socket authentication, then
+creates a separate loopback-only account with a fresh 256-bit random password
+before the server listens. Its bootstrap SQL and dedicated client defaults file
+are mode 0600 inside the private directory; secrets never enter command-line
+arguments or reports. Readiness checks the instance-specific PID-file variable.
+User MySQL environment/defaults are excluded. Server-side file access is restricted
+to the temporary directory and client local-file loading is disabled. This is
+process/data isolation for the pinned, reviewed seed, not an operating system
+sandbox for arbitrary hostile SQL.
 
 All three target schemas are checked for tables/views, routines, triggers, and
 events **before any target is created**. Any existing object, unknown count, or
@@ -68,13 +77,24 @@ throwaway installation as a strict SQL compatibility probe: matching SHA1
 receipts are preserved and skipped; absent updates execute with their original
 contents and gain a receipt only after CLI success; mismatched/empty receipts
 stop the probe. Release receipts and remaining routine counts are checked after
-all runtime scripts complete. A mismatch is a blocker to investigate, never a
-reason to delete receipts or disable updates.
+all runtime scripts complete. In default strict mode a mismatch stops the probe,
+never deletes receipts, and never disables updates.
 
-This probe does not replace AzerothCore's production updater and does not assert
-that every updater policy, source-directory configuration, or game-semantic
-migration behavior matches. Production updater execution remains a native
-server/Thor acceptance gate.
+An explicit `--probe-updater-policy` mode tests the original source's changed-file
+policy in the same disposable instance. `UpdateFetcher.cpp` reads the original SQL,
+compares its SHA1 to the stored receipt, reapplies changed scripts, and calls
+`UpdateEntry` only after the SQL succeeds. `Util.cpp` encodes these hashes as
+uppercase hexadecimal. The policy probe follows those operations, including
+matching-hash state changes, and records each receipt's before/after hash and
+state. Failed SQL never triggers a receipt replacement. It does not normalize
+SQL, rewrite collations, delete receipts, allow empty-hash rehashing, or skip
+failed migrations. Add this flag to the full command above, optionally with
+`--transport loopback`, to run it.
+
+This Python probe is a documented subset of the source updater policy. It does
+not execute the compiled original `UpdateFetcher`, implement rename/orphan
+cleanup policies, or establish game-semantic correctness. Production updater
+execution remains a native server/Thor acceptance gate.
 
 The JSON report includes stage, fixed release filename on failure, provider
 version, hashes, object/row counts, and success/failure. SQL errors are reduced to
@@ -84,7 +104,7 @@ at exit. Report paths that alias the input archive are rejected. No raw seed
 contents are copied into reports.
 
 Resource limits are deliberately conservative: one script at a time, 1 MiB
-stream buffers, a 128 MiB InnoDB buffer pool, eight maximum connections, 256 MiB
+stream buffers, a 128 MiB InnoDB buffer pool, ten maximum connections, 256 MiB
 maximum SQL packet/member size, 1 GiB archive expansion cap, and bounded startup,
 query, import, and shutdown waits. The runner requires 3 GiB free temporary
 storage. A partial failure destroys only the disposable instance; it never
@@ -93,15 +113,58 @@ restart-tolerant installation protocol.
 
 ## Evidence and outstanding work
 
-The real archive inventory passed locally and all database safety tests use
-synthetic SQL. No MariaDB binaries are present in the initial development host,
-so seed import, collation support, trigger creation, runtime migration execution,
-and SQL/schema compatibility remain **unproven**. The runner fails closed when
-its provider is unavailable. A matching Bionic/ARM64 MariaDB 12.3.2 run and physical
-Thor validation remain required even after a host probe succeeds.
+The October 22 development run used the exact official MariaDB 12.3.2 Linux
+x86_64 binary distribution, whose archive SHA256 was checked against the official
+published checksum:
 
-Run the safety tests without the private archive:
+- Distribution: <https://archive.mariadb.org/mariadb-12.3.2/bintar-linux-systemd-x86_64/>
+- Binary archive SHA256: `4a18365541d7280bbe947762e341bab94bc49f3ed31e6b5caf4e21f26246e458`
+- Actual SQL `VERSION()`: `12.3.2-MariaDB`.
+
+The host's execution policy denies Unix socket binding. The authenticated
+loopback transport was therefore used for these host probes. No system database
+service was started; every SQL operation targeted a fresh disposable datadir.
+
+| Probe | Measured result |
+| --- | --- |
+| Reviewed archive inventory | Pass: 563 table scripts, one trigger, 236 runtime scripts |
+| Ubuntu MariaDB 10.11.14 seed import | Fails after 27 auth tables, error 1273 at character `table-ac_virtual_satchel.sql` line 19 (`utf8mb4_0900_ai_ci`) |
+| Exact MariaDB 12.3.2 seed import | Pass: all 563 table scripts and the trigger, exact object names, representative queries/counts, schema fingerprints |
+| Default strict receipt probe on 12.3.2 | Stops at an existing character migration whose SHA1 differs; no receipt replacement or bypass |
+| Explicit source-policy subset on 12.3.2 | Pass: 211 matching scripts verified, six absent scripts applied, 19 changed scripts reapplied; 20 character and two world release receipts verified; zero remaining routines |
+
+Before any seed guards execute, the archive's runtime SQL has 211 matching seed
+receipts, six absent receipts, and 19 different hashes. The first mismatch is
+`2026_09_28_00_npcbot_consumable_integrity_zz_custom.sql`: seed receipt
+`0EC395A81DA890C2D26212E955CC601F05EF82E1`, archive raw SHA1
+`8A68ABE5708D1E369C11D1A5C3552B57A3056AFB`. Newline transformations do not explain
+that difference. The original updater intentionally reapplies such changed SQL,
+with `Updates.Redundancy = 1` enabled in the supplied configs. The source policy
+probe follows that behavior on the disposable installation; it does not alter
+the input archive or its original receipt exports.
+
+Source-policy provenance is the reviewed `From_The_Ashes_Source.zip`:
+
+| Source file | SHA256 |
+| --- | --- |
+| `src/server/database/Updater/UpdateFetcher.cpp` | `9b153a1a637f11613dd6ea00a68d4b5b2e3d47c33d6b8ca7ab5fd5bf38a5259a` |
+| `src/common/Utilities/Util.cpp` | `f8bcc8de14dec77f70daa8651a26185c7f2e8616758cdc965afbb253a88fdd75` |
+
+Metadata-only reports and receipt transitions are preserved under
+[`evidence`](evidence/). No account names, credential values, character records,
+or SQL dumps are included. The supplied snapshot does contain seed accounts and
+characters; this host probe does not provision production credentials or make
+that snapshot safe to ship.
+
+The tests use synthetic SQL and cover archive safety, refusal of nonempty or
+unknown target state, CLI error redaction, unsplit `DELIMITER` scripts, private
+loopback credentials, successful source-policy ordering, and failure without
+receipt replacement:
 
 ```bash
 python3 -m unittest discover -s tests -p test_database.py -v
 ```
+
+A host MariaDB 12.3.2 SQL pass does not qualify the Bionic/ARM64 provider, Android
+process lifecycle, original compiled server updater, restart-tolerant installer,
+world startup, account creation, or Thor hardware. Those gates remain open.

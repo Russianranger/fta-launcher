@@ -1,18 +1,24 @@
-# Android foundation
+# Android server diagnostic foundation
 
-This independently written MIT-licensed app prepares the two exact 2026-10-21 handoff inputs. It does not contain a database, server, client, player records, or credentials. Archive verification is preparation evidence, **not** proof of MariaDB compatibility, successful compilation, or a running world.
+This independently written app prepares the exact handoff inputs and implements isolated native database diagnostics when a matching provider is staged into the APK. It contains no player seed, client assets, or reusable login credentials. Game-server start remains unavailable until AzerothCore and its data are qualified.
 
-Build with JDK 17 and Android SDK 35:
+Build with JDK 17, Android SDK 35, NDK 28.2.13676358, and CMake 3.22.1:
 
 ```sh
 cd android
 ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 ```
 
-The Gradle 8.9 distribution is SHA-256 pinned. AGP 8.7.3 and Kotlin 2.0.21 are fixed versions. Gradle has two workers and a 1.5 GiB maximum heap. The standard `gradle-wrapper.jar` is from the official Gradle `v8.9.0` tag; it is Apache-2.0 licensed (see `gradle/wrapper/NOTICE`).
+An approved private provider stage can be included with `-PftaProviderDir=/absolute/stage`. Without that argument the app still supports input and runtime-bundle validation, while native database testing stays disabled. See [NATIVE-RUNTIME.md](NATIVE-RUNTIME.md) for the exact contract and limits.
 
-The storage picker leaves the selected source unchanged. A single background worker streams 256 KiB chunks into app-private storage, enforces the exact input size and SHA-256, syncs the file, writes a receipt, and atomically publishes a verified generation. A failed replacement preserves the previous generation. On process restart, active archives are streamed through SHA-256 again on the background worker before the checklist accepts them. Incomplete copies and unpublished generations are removed; select the same ZIP to retry from the beginning. Imports do not continue through process death and are not byte-resumable. Rotation preserves the in-process import. The screen stays awake while the importing screen is visible; no foreground service or hidden ongoing background operation is claimed.
+The Gradle 8.9 distribution is SHA-256 pinned; AGP 8.7.3 and Kotlin 2.0.21 are fixed. Gradle has two workers and a 1.5 GiB maximum heap. The official Gradle wrapper retains Apache-2.0 notices. Native provider dependencies retain their own licenses; packaging bytes is separate from qualifying redistribution.
 
-Android backup is disabled because the seed contains account and character records. No network/storage permissions are requested. Small setup logs contain fixed status messages only. Server controls remain disabled until later development supplies and qualifies the native database provider, AzerothCore binaries, and matching game data. The client importer and native process supervisor are future milestones.
+The storage picker leaves original files unchanged. Source and seed imports stream 256 KiB chunks into private generations, enforce exact sizes and SHA-256s, and publish atomically. Startup rechecks active hashes on a worker before the checklist accepts them. Failed replacements retain the previous copy. Incomplete copies are cleaned at restart; select the file to retry from the beginning. Imports are restart-safe, not byte-resumable.
 
-Unit tests exercise a real temporary filesystem: hash/size failures, input I/O failures, retained previous generations, interrupted-copy recovery, pointer traversal, missing archives, and bounded reads. Actual Android 13 storage picker, rotation, lifecycle, layout, and controller navigation still need device validation.
+Runtime ZIP validation additionally checks strict manifests, ARM64 ELF metadata, ZIP paths and Unix modes, exact payload membership, per-file/total size limits, and all hashes. Imported executable bytes remain inert. Only immutable APK native libraries can run.
+
+The explicit native database test runs in a separate nonexported foreground service, bootstraps a fresh socket-only MariaDB instance, tests local schema/transaction/collation behavior, then shuts down. It never opens the imported seed or player saves. Temporary credentials stay private. Game-server and WarcraftXL client integration remain future gates.
+
+Android backup is disabled. The app requests foreground-service, optional notification, and bounded wake-lock permissions; it requests no network or broad storage permission. Fixed setup messages and raw native diagnostic output remain private. The diagnostic report export includes exact APK/provider identities and allowlisted error summaries while omitting SQL, credentials, rows and private paths. Native output is bounded, and process ownership survives UI changes through the service/JNI supervisor.
+
+Pure JVM tests cover pinned-input failure/recovery, adversarial runtime bundles, and dependency lifecycle failure ownership. Android compile/lint checks and exact-device bootstrap, background, stop, crash recovery, layout, and controller validation remain necessary evidence; a generated APK alone does not qualify a running game world.

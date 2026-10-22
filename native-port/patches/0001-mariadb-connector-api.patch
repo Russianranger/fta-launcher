@@ -1,0 +1,147 @@
+SPDX-License-Identifier: GPL-2.0-or-later
+Source: From the Ashes customized AzerothCore; original file notices remain intact.
+
+--- a/src/cmake/macros/FindMySQL.cmake
++++ b/src/cmake/macros/FindMySQL.cmake
+@@ -54,6 +54,32 @@
+ set(MYSQL_MINIMUM_VERSION "8.0")
+ 
+ function(check_mysql_version)
++  if(EXISTS "${MYSQL_INCLUDE_DIR}/mariadb_version.h")
++    # This is an explicit Connector/C provider path, not a fabricated MySQL version.
++    include(CheckCXXSourceCompiles)
++    set(CMAKE_REQUIRED_INCLUDES "${MYSQL_INCLUDE_DIR}")
++    set(CMAKE_REQUIRED_LIBRARIES "${MYSQL_LIBRARY}")
++    unset(FTA_MARIADB_API_COMPILES CACHE)
++    check_cxx_source_compiles("
++      #include <mysql.h>
++      #if !defined(MARIADB_PACKAGE_VERSION_ID) || MARIADB_PACKAGE_VERSION_ID < 30300
++      #error MariaDB Connector/C 3.3 or newer is required
++      #endif
++      int main() {
++        MYSQL* handle = mysql_init(nullptr);
++        MYSQL_STMT* statement = nullptr;
++        MYSQL_BIND* bindings = nullptr;
++        mysql_stmt_bind_param(statement, bindings);
++        mysql_close(handle);
++        return mysql_get_client_version() == MARIADB_PACKAGE_VERSION_ID ? 0 : 1;
++      }
++    " FTA_MARIADB_API_COMPILES)
++    if(NOT FTA_MARIADB_API_COMPILES)
++      message(FATAL_ERROR "MariaDB Connector/C headers/library lack required APIs")
++    endif()
++    message(STATUS "Selected MariaDB Connector/C API; SQL compatibility requires a separate database gate")
++    return()
++  endif()
+   if(MYSQL_CONFIG)
+     execute_process(
+       COMMAND "${MYSQL_CONFIG}" --version
+--- a/src/server/database/Database/DatabaseWorkerPool.cpp
++++ b/src/server/database/Database/DatabaseWorkerPool.cpp
+@@ -59,6 +59,15 @@
+ {
+     WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
+ 
++#if defined(MARIADB_BASE_VERSION)
++    // Connector/C version IDs are independent from MySQL/server version IDs.
++    bool isSupportClientDB = mysql_get_client_version() >= 30300u;
++    bool isSameClientDB = mysql_get_client_version() == MARIADB_PACKAGE_VERSION_ID;
++    WPFatal(isSupportClientDB, "MariaDB Connector/C 3.3 or newer is required; loaded {} (id {}).",
++        mysql_get_client_info(), mysql_get_client_version());
++    WPFatal(isSameClientDB, "MariaDB Connector/C version mismatch: loaded {} (id {}), compiled connector id {}.",
++        mysql_get_client_info(), mysql_get_client_version(), MARIADB_PACKAGE_VERSION_ID);
++#else
+     bool isSupportClientDB = mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION;
+     bool isSameClientDB = mysql_get_client_version() == MYSQL_VERSION_ID;
+ 
+@@ -66,6 +75,7 @@
+         mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
+     WPFatal(isSameClientDB, "Used MySQL library version ({} id {}) does not match the version id used to compile AzerothCore (id {}).\nSearch the wiki for ACE00046 in Common Errors (https://www.azerothcore.org/wiki/common-errors#ace00046).",
+         mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
++#endif
+ }
+ 
+ template <class T>
+@@ -386,6 +396,14 @@
+ */
+ bool DatabaseIncompatibleVersion(std::string const mysqlVersion)
+ {
++#if defined(MARIADB_BASE_VERSION)
++    // Only the exact MariaDB provider release qualified by the FTA database gate
++    // is admitted. Some protocol handshakes prefix its real version with 5.5.5-.
++    std::string version = mysqlVersion;
++    if (version.starts_with("5.5.5-"))
++        version.erase(0, 6);
++    return !version.starts_with("12.3.2-") || version.find("MariaDB") == std::string::npos;
++#else
+     // anon func to turn a version string into an array of uint8
+     // "1.2.3" => [1, 2, 3]
+     auto parse = [](std::string const& input)
+@@ -412,6 +430,7 @@
+ 
+     return std::lexicographical_compare(parsedMySQLVersion.begin(), parsedMySQLVersion.end(),
+                                         parsedMinVersion.begin(), parsedMinVersion.end());
++#endif
+ }
+ 
+ template <class T>
+@@ -442,8 +461,16 @@
+         }
+         else if (DatabaseIncompatibleVersion(connection->GetServerInfo()))
+         {
++#if defined(MARIADB_BASE_VERSION)
++            LOG_ERROR("sql.driver", "MariaDB server release is not qualified; required 12.3.2-MariaDB, found {}.",
++                connection->GetServerInfo());
++#else
+             LOG_ERROR("sql.driver", "AzerothCore does not support MySQL versions below 8.0\n\nFound server version: {}. Server compiled with: {}.",
+                 connection->GetServerInfo(), MYSQL_VERSION_ID);
++#endif
++            // Match the failed-open cleanup before destroying an async connection.
++            _queue->Cancel();
++            _connections[type].clear();
+             return 1;
+         }
+         else
+--- a/src/server/database/Database/MySQLConnection.cpp
++++ b/src/server/database/Database/MySQLConnection.cpp
+@@ -129,6 +129,14 @@
+ 
+     if (m_connectionInfo.ssl != "")
+     {
++#if defined(MARIADB_BASE_VERSION)
++        // MYSQL_OPT_SSL_ENFORCE can silently fall back when the server lacks TLS.
++        // Reject explicit SSL policies before authentication until equivalent
++        // MySQL SSL_MODE behavior is qualified. Private Unix sockets use an empty field.
++        LOG_ERROR("sql.sql", "Explicit TLS policies are not qualified for MariaDB Connector/C; refusing before authentication");
++        mysql_close(mysqlInit);
++        return 1;
++#else
+         mysql_ssl_mode opt_use_ssl = SSL_MODE_DISABLED;
+         if (m_connectionInfo.ssl == "ssl")
+         {
+@@ -136,6 +144,7 @@
+         }
+ 
+         mysql_options(mysqlInit, MYSQL_OPT_SSL_MODE, (char const*)&opt_use_ssl);
++#endif
+     }
+ 
+     m_Mysql = reinterpret_cast<MySQLHandle*>(mysql_real_connect(mysqlInit, m_connectionInfo.host.c_str(), m_connectionInfo.user.c_str(),
+@@ -216,7 +225,7 @@
+ 
+     uint32 _s = getMSTime();
+ 
+-#if MYSQL_VERSION_ID >= 80300
++#if !defined(MARIADB_BASE_VERSION) && MYSQL_VERSION_ID >= 80300
+     if (mysql_stmt_bind_named_param(msql_STMT, msql_BIND, m_mStmt->GetParameterCount(), nullptr))
+ #else
+     if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
+@@ -268,7 +277,7 @@
+ 
+     uint32 _s = getMSTime();
+ 
+-#if MYSQL_VERSION_ID >= 80300
++#if !defined(MARIADB_BASE_VERSION) && MYSQL_VERSION_ID >= 80300
+     if (mysql_stmt_bind_named_param(msql_STMT, msql_BIND, m_mStmt->GetParameterCount(), nullptr))
+ #else
+     if (mysql_stmt_bind_param(msql_STMT, msql_BIND))

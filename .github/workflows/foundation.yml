@@ -27,6 +27,10 @@ jobs:
         run: python tools/check_repository.py
       - name: Test tooling with synthetic fixtures
         run: python -m unittest discover -s tests -v
+      - name: Test native process ownership
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Werror -pthread native/process-supervisor/process_owner.cpp native/process-supervisor/process_owner_test.cpp -o "$RUNNER_TEMP/fta-process-owner-test"
+          "$RUNNER_TEMP/fta-process-owner-test"
 
   android:
     name: Android foundation APK
@@ -46,13 +50,17 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Install compile SDK
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+      - name: Stage exact ARM64 database provider and notices
+        run: python3 tools/stage_android_provider.py --fetch-apk "$RUNNER_TEMP/provider-source.apk" --output "$RUNNER_TEMP/fta-provider" > "$RUNNER_TEMP/provider-stage.json"
       - name: Test, lint and compile foundation
         working-directory: android
-        run: ./gradlew --no-daemon --max-workers=2 testDebugUnitTest lintDebug assembleDebug
+        run: ./gradlew --no-daemon --max-workers=2 -PftaProviderDir="$RUNNER_TEMP/fta-provider" testDebugUnitTest lintDebug assembleDebug
       - name: Record exact APK digest
         working-directory: android/app/build/outputs/apk/debug
         run: sha256sum app-debug.apk > app-debug.apk.sha256
+      - name: Verify packaged native bytes and legal files
+        run: python3 tools/verify_android_apk.py android/app/build/outputs/apk/debug/app-debug.apk --provider-stage "$RUNNER_TEMP/fta-provider"
       - uses: actions/upload-artifact@v4
         with:
           name: fta-foundation-debug-${{ github.sha }}

@@ -1,6 +1,16 @@
 package com.russianranger.fta
 
 import android.app.Activity
+import android.app.ActivityManager
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
+import android.widget.Toast
+import com.russianranger.fta.runtime.RuntimeDiagnosticService
+import java.io.File
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -28,6 +38,18 @@ class MainActivity : Activity() {
     private lateinit var progress: ProgressBar
     private lateinit var logText: TextView
     private lateinit var countText: TextView
+    private lateinit var providerStatus: TextView
+    private lateinit var diagnosticStatus: TextView
+    private lateinit var runtimeBundleStatus: TextView
+    private lateinit var runtimeBundleButton: Button
+    private lateinit var diagnosticButton: Button
+    private lateinit var diagnosticStopButton: Button
+    private lateinit var exportReportButton: Button
+    private val refresh = Handler(Looper.getMainLooper())
+    private var requestedAt = 0L
+    private val refresher = object : Runnable {
+        override fun run() { update(); refresh.postDelayed(this, 1000) }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +70,7 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
         }
         title.addView(label("FROM THE ASHES", 24, gold, true), LinearLayout.LayoutParams(0, -2, 1f))
-        title.addView(label("FOUNDATION 0.1", 12, muted))
+        title.addView(label("DATABASE DIAGNOSTIC 0.2", 12, muted))
         root.addView(title)
         root.addView(label("Your realm begins here", 15, ink).apply { setPadding(0, dp(4), 0, dp(12)) })
 
@@ -71,7 +93,8 @@ class MainActivity : Activity() {
         databaseButton = action("Select database ZIP") { selectArchive(102) }
         checklist.addView(databaseButton)
         checklist.addView(label("○  Native database provider", 16, ink, true).apply { setPadding(0, dp(16), 0, 0) })
-        checklist.addView(label("Pending Android MariaDB compatibility qualification.", 13, muted))
+        providerStatus = label("", 13, muted)
+        checklist.addView(providerStatus)
         checklist.addView(label("○  ARM64 authserver and worldserver", 16, ink, true).apply { setPadding(0, dp(14), 0, 0) })
         checklist.addView(label("Pending the C++20 build and all required modules.", 13, muted))
         checklist.addView(label("○  Matching 3.3.5 game data", 16, ink, true).apply { setPadding(0, dp(14), 0, 0) })
@@ -81,7 +104,29 @@ class MainActivity : Activity() {
         status.addView(label("Runtime", 21, ink, true))
         status.addView(label("Awaiting qualification", 15, gold, true).apply { setPadding(0, dp(8), 0, dp(4)) })
         status.addView(label("This build prepares verified inputs. Server start becomes available after the database and ARM64 server gates pass.", 14, muted))
-        status.addView(action("Start server") {}.apply { isEnabled = false })
+        status.addView(action("Start game server") {}.apply { isEnabled = false })
+        diagnosticButton = action("Test native database") { requestDatabaseCheck() }
+        status.addView(diagnosticButton)
+        status.addView(label("Creates a fresh disposable database, tests local operation, then shuts it down. Your imported seed and saves are untouched.", 13, muted))
+        diagnosticStopButton = action("Stop database test") {
+            startService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_STOP))
+        }
+        status.addView(diagnosticStopButton)
+        diagnosticStatus = label("", 13, ink).apply { setPadding(0, dp(8), 0, dp(8)) }
+        status.addView(diagnosticStatus)
+        exportReportButton = action("Export diagnostic report") {
+            startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "application/json"
+                putExtra(Intent.EXTRA_TITLE, "FTA-database-diagnostic-${System.currentTimeMillis()}.json")
+            }, 104)
+        }
+        status.addView(exportReportButton)
+        status.addView(label("Advanced runtime bundle validation", 16, ink, true).apply { setPadding(0, dp(12), 0, 0) })
+        runtimeBundleStatus = label("", 13, muted)
+        status.addView(runtimeBundleStatus)
+        runtimeBundleButton = action("Select runtime bundle ZIP") { selectArchive(103) }
+        status.addView(runtimeBundleButton)
         status.addView(label("WarcraftXL client import comes in a later milestone. Your original folders stay unchanged.", 13, muted).apply { setPadding(0, dp(8), 0, dp(16)) })
         progressLabel = label("", 14, ink)
         status.addView(progressLabel)
@@ -114,11 +159,12 @@ class MainActivity : Activity() {
     override fun onStart() {
         super.onStart()
         app.observer = { update() }
-        update()
+        refresh.post(refresher)
     }
 
     override fun onStop() {
         app.observer = null
+        refresh.removeCallbacks(refresher)
         super.onStop()
     }
 
@@ -127,18 +173,66 @@ class MainActivity : Activity() {
         val database = app.store?.receipt(Inputs.database) != null
         sourceStatus.text = "${if (source) "✓" else "○"}  Server source ${if (source) "verified" else "ZIP"}"
         databaseStatus.text = "${if (database) "✓" else "○"}  Database seed ${if (database) "verified" else "ZIP"}"
-        countText.text = "${listOf(source, database).count { it }} of 5 preparation steps complete"
+        countText.text = "${listOf(source, database).count { it }} verified inputs · game server build pending"
+        providerStatus.text = app.providerMessage
+        val testing = databaseCheckRunning()
+        val requested = requestedAt != 0L && SystemClock.elapsedRealtime() - requestedAt < 3000
+        diagnosticButton.isEnabled = app.packagedRuntime?.manifest?.bootstrap != null && !app.busy && !testing && !requested
+        diagnosticStopButton.isEnabled = testing || requested
+        exportReportButton.isEnabled = !app.busy
+        runtimeBundleButton.isEnabled = app.runtimeBundles != null && !app.busy && !testing
+        val bundle = app.runtimeBundles?.active()
+        runtimeBundleStatus.text = if (bundle == null) "Optional. Use a matching bundle only when supplied with an update."
+            else "Provider ${bundle.manifest.providerVersion} bundle verified. The app's packaged provider remains authoritative."
+        val diagnostic = File(filesDir, "runtime/diagnostic-status.txt")
+        val diagnosticLines = if (diagnostic.isFile && diagnostic.length() <= 8192)
+            runCatching { diagnostic.readLines() }.getOrDefault(emptyList()) else emptyList()
+        diagnosticStatus.text = if (diagnosticLines.size >= 3) diagnosticLines.drop(2).joinToString("\n")
+            else "No native database test has completed on this device."
+        if (!testing && !requested && diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING")) {
+            diagnosticStatus.text = "The previous test did not finish. No readiness result was recorded."
+        }
+        if (testing) diagnosticStatus.text = "Database test in progress.\n${diagnosticStatus.text}"
+        if (requested && !testing) diagnosticStatus.text = "Starting the isolated database test…"
         sourceButton.isEnabled = !app.busy && app.store != null
         databaseButton.isEnabled = !app.busy && app.store != null
         sourceButton.text = if (source) "Replace source ZIP" else "Select source ZIP"
         databaseButton.text = if (database) "Replace database ZIP" else "Select database ZIP"
         progressLabel.text = app.progressText
-        progress.isIndeterminate = app.busy && app.store == null
+        progress.isIndeterminate = app.busy && (app.store == null || app.progressText.startsWith("Runtime bundle"))
         progress.progress = app.progressPercent
         progress.visibility = if (app.busy) View.VISIBLE else View.GONE
         logText.text = app.logs()
-        if (app.busy) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        if (app.busy || testing) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun databaseCheckRunning(): Boolean = getSystemService(ActivityManager::class.java)
+        .getRunningServices(20).any { it.service.className == RuntimeDiagnosticService::class.java.name }
+
+    private fun requestDatabaseCheck() {
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
+            !getPreferences(MODE_PRIVATE).getBoolean("notificationAsked", false)) {
+            getPreferences(MODE_PRIVATE).edit().putBoolean("notificationAsked", true).apply()
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 201)
+        } else startDatabaseCheck()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        // Notification permission is optional for an explicitly requested foreground service.
+        if (requestCode == 201) startDatabaseCheck()
+    }
+
+    private fun startDatabaseCheck() {
+        try {
+            startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_CHECK))
+            requestedAt = SystemClock.elapsedRealtime()
+            update()
+        } catch (_: Exception) {
+            Toast.makeText(this, "The database test could not start. Reopen this screen and try again.", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun selectArchive(requestCode: Int) {
@@ -153,6 +247,8 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) return
+        if (requestCode == 104) { data?.data?.let { app.exportDiagnosticReport(it) }; return }
+        if (requestCode == 103) { data?.data?.let { app.importRuntimeBundle(it) }; return }
         val spec = when (requestCode) { 101 -> Inputs.source; 102 -> Inputs.database; else -> return }
         data?.data?.let { app.importArchive(spec, it) }
     }

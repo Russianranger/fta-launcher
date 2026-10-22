@@ -1,0 +1,50 @@
+{
+  "database_safety_tests_passed": 27,
+  "date": "2026-10-22",
+  "distro_comparison": {
+    "schema_collation": "utf8mb4_0900_ai_ci",
+    "sql_error": 1273,
+    "sql_rewritten": false,
+    "sql_version": "10.11.14-MariaDB-0ubuntu0.24.04.1",
+    "stage": "seed_import",
+    "status": "failed"
+  },
+  "privacy": {
+    "account_or_character_row_counts_published": false,
+    "account_or_character_rows_published": false,
+    "raw_sql_or_logs_published": false
+  },
+  "provider": {
+    "distribution_sha256": "4a18365541d7280bbe947762e341bab94bc49f3ed31e6b5caf4e21f26246e458",
+    "distribution_url": "https://archive.mariadb.org/mariadb-12.3.2/bintar-linux-systemd-x86_64/",
+    "sql_version": "12.3.2-MariaDB"
+  },
+  "qualification": "Linux x86_64 host SQL compatibility; no Bionic ARM64, compiled original updater, Android lifecycle, or Thor qualification",
+  "runtime_sql": {
+    "acore_characters_release_receipts": 20,
+    "acore_world_release_receipts": 2,
+    "applied_in_disposable_database": 6,
+    "policy": "original_changed_hash_reapply_subset",
+    "reapplied_changed": 19,
+    "remaining_routines": 0,
+    "verified_existing": 211
+  },
+  "seed": {
+    "exact_object_names_verified": true,
+    "schema_fingerprints_and_representative_queries_verified": true,
+    "sha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+    "sql_rewritten": false,
+    "table_scripts_imported": 563,
+    "trigger_scripts_imported": 1
+  },
+  "status": "host_compatibility_passed",
+  "strict_probe": {
+    "receipts_deleted_or_bypassed": false,
+    "status": "blocked_by_existing_changed_receipt"
+  },
+  "transport": {
+    "external_target_inputs": false,
+    "mode": "authenticated fixed-loopback own disposable instance",
+    "password_in_argv_or_reports": false
+  }
+}

@@ -9,8 +9,30 @@ android {
         applicationId = "com.russianranger.fta"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0-foundation"
+        versionCode = 2
+        versionName = "0.2.0-database-diagnostic"
+        ndk { abiFilters += "arm64-v8a" }
+        externalNativeBuild { cmake { arguments += "-DANDROID_STL=c++_static" } }
+    }
+    ndkVersion = "28.2.13676358"
+    externalNativeBuild {
+        cmake {
+            path = file("../../native/process-supervisor/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+    providers.gradleProperty("ftaProviderDir").orNull?.let { providerDirectory ->
+        sourceSets.getByName("main") {
+            jniLibs.srcDir(file("$providerDirectory/jniLibs"))
+            assets.srcDir(file("$providerDirectory/assets"))
+        }
+    }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+            // Runtime manifest hashes identify the exact provider ELF bytes.
+            keepDebugSymbols += "**/*.so"
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

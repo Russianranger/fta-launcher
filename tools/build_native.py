@@ -18,6 +18,16 @@ class BuildError(ValueError):
     pass
 
 
+def cgroup_available(limit: int, usage: int, statistics: dict[str, int]) -> int:
+    # The kernel can reclaim clean inactive file cache. Count no active cache,
+    # dirty/writeback pages or reclaimable slab, retaining a conservative bound.
+    inactive = statistics.get('inactive_file', statistics.get('total_inactive_file', 0))
+    dirty = statistics.get('file_dirty', statistics.get('dirty', 0))
+    writeback = statistics.get('file_writeback', statistics.get('writeback', 0))
+    reclaimable = max(0, inactive - dirty - writeback)
+    return max(0, limit - usage + min(usage, reclaimable))
+
+
 def memory_limit_bytes() -> int | None:
     """Use the smaller cgroup/host availability; do not trust CPU count for jobs."""
     limits = []
@@ -34,7 +44,13 @@ def memory_limit_bytes() -> int | None:
             value = Path(limit_name).read_text().strip()
             if value.isdigit():
                 usage = int(Path(usage_name).read_text().strip())
-                limits.append(max(0, int(value) - usage))
+                try:
+                    statistics = {parts[0]: int(parts[1]) for line in
+                                  (Path(limit_name).parent / 'memory.stat').read_text().splitlines()
+                                  if len(parts := line.split()) == 2}
+                except (OSError, ValueError):
+                    statistics = {}
+                limits.append(cgroup_available(int(value), usage, statistics))
         except OSError:
             pass
     return min(limits) if limits else None
@@ -123,6 +139,7 @@ def main() -> int:
     parser.add_argument('--build-dir', type=Path, required=True)
     parser.add_argument('--platform', choices=('host', 'android'), required=True)
     parser.add_argument('--stage', choices=('auth', 'world'), default='auth')
+    parser.add_argument('--port-profile', help='Exact reviewed profile from native-port/profiles.json')
     parser.add_argument('--jobs', type=int, default=1)
     parser.add_argument('--cmake', default='cmake')
     parser.add_argument('--toolchain', type=Path)
@@ -138,10 +155,11 @@ def main() -> int:
     report = {'schema_version':1, 'platform':args.platform, 'stage':args.stage,
               'android_server_qualified':False, 'source_preserved':False, 'status':'blocked'}
     try:
-        inventory = verify_source_tree(args.source)
+        inventory = verify_source_tree(args.source, port_profile=args.port_profile)
         report['source_preserved'] = True
         report['source_tree_sha256'] = inventory['tree_sha256']
         report['required_module_count'] = len(inventory['modules'])
+        report['port_profile'] = args.port_profile
         check_jobs(args.jobs)
         plan = commands(args)
         report['commands'] = plan
@@ -162,7 +180,7 @@ def main() -> int:
                 raise BuildError(f'Build step {index + 1} failed with code {process.returncode}; inspect its private log')
             if index == 0:
                 check_cache(read_cache(args.build_dir / 'CMakeCache.txt'), args.platform, configured=True)
-        verify_source_tree(args.source)
+        verify_source_tree(args.source, port_profile=args.port_profile)
         report['status'] = 'configure-passed' if args.configure_only else 'build-passed'
         # Compilation evidence alone does not qualify Android execution, DB, game data or Thor behavior.
     except (BuildError, SourceError, OSError, ValueError) as error:

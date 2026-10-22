@@ -39,6 +39,12 @@ and rejects insufficient memory. Ninja compilation and linking have separate
 pools, with one link at a time. Precompiled headers are disabled to limit memory.
 Use isolated build directories for host and Android evidence.
 
+Cgroup availability subtracts actual memory usage and includes only clean,
+inactive file cache that the kernel can reclaim. Active cache, dirty/writeback
+pages and slab are not counted as available. This prevents staged archive caches
+from being mistaken for anonymous compiler memory while retaining a 512 MiB
+reserve plus 1,536 MiB per compiler job.
+
 ```sh
 python3 tools/build_native.py --source /private/fta-source \
   --build-dir /private/fta-build-host-auth --platform host --stage auth --dry-run
@@ -60,6 +66,38 @@ option. An auth-only build does **not** qualify worldserver or its modules.
 `--configure-only` and `--dry-run` report only their actual scopes. No command
 installs binaries, imports SQL or starts a server.
 
+## Reviewed MariaDB portability profile
+
+The original MySQL API choices do not compile against actual MariaDB Connector/C
+headers: `mysql_ssl_mode`, `MYSQL_OPT_SSL_MODE` and `mysql_stmt_bind_named_param`
+are absent. MariaDB's `MYSQL_VERSION_ID=101114` identifies compatibility with a
+server release, while the loaded Connector/C reports its own `30317` version.
+The original runtime comparison rejects that valid header/library pairing.
+
+`native-port/patches/0001-mariadb-connector-api.patch` keeps the original MySQL
+branches and introduces provider-specific Connector/C API checks, exact loaded
+connector/header version matching and ordinary positional prepared binding.
+MariaDB's TLS enforcement option can fall back if a server lacks TLS, so this
+profile refuses every explicit, nonempty SSL policy **before authentication**
+until equivalent MySQL SSL-mode semantics are qualified. Private Unix sockets
+use an empty SSL field. No weaker TLS fallback is introduced. This does not
+establish SQL, updater, authentication or worldserver compatibility.
+
+```sh
+python3 tools/fta_port.py /private/fta-source /private/fta-mariadb-source \
+  --profile mariadb-c-api-v1
+python3 tools/fta_source.py inventory /private/fta-mariadb-source \
+  --port-profile mariadb-c-api-v1
+python3 tools/build_native.py --source /private/fta-mariadb-source \
+  --port-profile mariadb-c-api-v1 --build-dir /private/fta-mariadb-auth \
+  --platform host --stage auth
+```
+
+The profile pins every patch byte, all modified file preimages/results and the
+entire resulting tree. Other edits, module omissions and patch-path substitutions
+are rejected. All 52 module directories, updater SQL behavior, game logic and
+original license files are retained.
+
 Android cross compilation needs target-built Boost, OpenSSL and MySQL-compatible
 headers/libraries; a host MySQL installation is insufficient. The explicit
 toolchain must configure the NDK/Bionic target. The driver disables host
@@ -73,12 +111,20 @@ receipts or add permissive duplicate-symbol linker flags to bypass failures.
 The supplied source has 5,551 files, 52 module directories and tree SHA256
 `2528155574583a1a51edcb8e8a5fd7548a0d28ad15f8e93c1a99a520781efe14`.
 The original source has Android-compatible architecture detection and routes
-Android through UNIX/Clang platform settings; this static observation is not a
-successful configure or build. The initial workspace provides `g++` but lacks
-`cmake`, `ninja`, Clang and an Android NDK/dependency sysroot. A real driver attempt
-also stopped safely at its memory preflight: less than 2 GiB remained in the
-8 GiB cgroup at that moment. Host and Android server
-compilation, module qualification and physical Thor execution remain pending.
+Android through UNIX/Clang platform settings; this static observation is not an
+Android build. After staging dependencies in an isolated host prefix, the
+unmodified source passed host auth-only configure with CMake 3.28.3, Ninja 1.11.1,
+GCC 13.3, Boost 1.83 and OpenSSL 3.0.13. The standalone real Connector/C 3.3.17
+probe confirms a thread-safe loaded library, exact connector/header version
+matching and acceptance of an enforcement option; that acceptance does not
+prove fail-closed TLS semantics. The compile-only original
+API probe reproduces the missing APIs above. The corrected pinned profile then
+passed the complete host authserver compile/link and `authserver --help`
+execution. Its host ELF SHA256 is
+`d7c4840c5ece3c591edbb2ce925b2ca3137923e37b94c4090480b1ce20817a28`.
+That establishes host compilation and loader/version-check behavior only; auth
+database startup and all Android server, module and physical Thor qualification
+remain separate gates.
 
 Build logs are private under the chosen build directory. Publish reviewed
 summaries, tool versions and binary hashes only; do not upload unfiltered logs or

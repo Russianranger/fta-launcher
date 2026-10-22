@@ -89,8 +89,12 @@ def inventory_tree(source: Path) -> dict:
             "tree_sha256": tree_digest.hexdigest(), "modules": modules, "license_files": licenses}
 
 
-def verify_source_tree(source: Path) -> dict:
-    expected = json.loads(MANIFEST.read_text())["source_inventory"]
+def verify_source_tree(source: Path, *, port_profile: str | None = None) -> dict:
+    if port_profile:
+        from fta_port import load_profile
+        expected = load_profile(port_profile)['result_inventory']
+    else:
+        expected = json.loads(MANIFEST.read_text())["source_inventory"]
     actual = inventory_tree(source)
     if actual != expected:
         raise SourceError("Source tree differs from the pinned distribution; use a separately reviewed port manifest")
@@ -133,13 +137,14 @@ def main() -> int:
     stage.add_argument("destination", type=Path)
     inventory = commands.add_parser("inventory")
     inventory.add_argument("source", type=Path)
+    inventory.add_argument("--port-profile")
     args = parser.parse_args()
     try:
         if args.command == "stage":
             source = stage_source(args.archive, args.destination)
             print(json.dumps(verify_source_tree(source), indent=2))
         else:
-            print(json.dumps(verify_source_tree(args.source), indent=2))
+            print(json.dumps(verify_source_tree(args.source, port_profile=args.port_profile), indent=2))
     except (OSError, ValueError, zipfile.BadZipFile) as error:
         parser.exit(1, f"Source verification refused: {error}\n")
     return 0
