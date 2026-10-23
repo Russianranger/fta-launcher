@@ -45,6 +45,8 @@ object LocalServiceRuntime {
             val control = LocalServiceControl(stopRequested::get) { progress ->
                 receipt.put("healthySamples", progress.healthySamples).put("elapsedMs", progress.elapsedMs)
                     .put("screenOffHealthyMs", progress.screenOffHealthyMs).put("stopReason", progress.stopReason); save()
+                if (progress.stopReason == "running") status("LOCAL_SERVICE_RUNNING",
+                    "Local database and auth are running. Verified screen-off health: ${progress.screenOffHealthyMs / 1000} / 120 seconds. ${if (progress.screenOffHealthyMs >= LocalServiceProtocol.SCREEN_OFF_REQUIRED_MS) "Screen-off requirement met." else "Lock the screen for at least three minutes to cover complete health intervals."} Use Stop when finished; the session limit is 30 minutes.")
             }
             val test = DatabaseDiagnostic(context, cancelled, status, realm = session, localAuthObserve = ::observed, localService = control)
             try { track(test); test.run() } finally { test.stopOwned(); track(null) }

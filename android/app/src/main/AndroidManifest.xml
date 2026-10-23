@@ -22,7 +22,7 @@
             android:stopWithTask="false"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="User initiated local database and auth sessions with explicit Stop and a 30 minute limit, plus bounded compatibility diagnostics" />
+                android:value="User initiated local database and auth sessions with explicit Stop and a 30 minute limit, plus bounded compatibility diagnostics and explicit game-data import" />
         </service>
         <service
             android:name=".runtime.RuntimeRecoveryService"

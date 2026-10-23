@@ -1,0 +1,145 @@
+package com.russianranger.fta.runtime
+
+import com.russianranger.fta.Inputs
+import java.io.File
+import java.io.RandomAccessFile
+import java.nio.ByteBuffer
+import java.nio.ByteOrder.LITTLE_ENDIAN
+import java.util.Properties
+
+data class DbcShape(val fields: Int, val recordBytes: Int, val indexOffset: Int, val sentinel: Long)
+data class GameDataProblem(val path: String, val reason: String)
+data class GameDataPreflight(val files: Int, val bytes: Long, val counts: Map<String, Int>,
+    val problems: List<GameDataProblem>, val problemCount: Int) {
+    val passed get() = problemCount == 0
+}
+
+/** Exact source-derived headers/inventory only. Native loaders still own full semantic validation. */
+class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<String>,
+    val mapVersion: Long, val vmapMagic: String, val mmapVersion: Long, val detourVersion: Long) {
+    fun inspect(directory: File, files: List<GameDataFile>, active: () -> Unit = {}): GameDataPreflight {
+        val names = files.map { it.path }.toSet()
+        val problems = mutableListOf<GameDataProblem>(); var problemCount = 0
+        val missingTrees = mutableSetOf<String>()
+        fun problem(path: String, reason: String) { problemCount++; if (problems.size < 32) problems += GameDataProblem(path, reason) }
+        dbc.keys.sorted().filter { "dbc/$it" !in names }.forEach { problem("dbc/$it", "missing_required_dbc") }
+        for (tile in startupTiles) {
+            val map = tile.take(3)
+            if ("maps/$tile.map" !in names) problem("maps/$tile.map", "missing_startup_map")
+            val tree = "vmaps/$map.vmtree"
+            if (tree !in names) { if (missingTrees.add(tree)) problem(tree, "missing_startup_vmap_tree") }
+            else {
+                val tiled = runCatching { RandomAccessFile(File(directory, tree), "r").use { it.seek(8); it.readUnsignedByte() } }.getOrNull()
+                val part = "vmaps/${map}_${tile.takeLast(2)}_${tile.substring(3, 5)}.vmtile"
+                if (tiled == 1 && part !in names) problem(part, "missing_startup_vmap_tile")
+            }
+        }
+        val counts = GROUPS.associateWith { group -> files.count { it.path.startsWith("$group/") } }
+        if (files.none { it.path.endsWith(".mmap") }) problem("mmaps", "missing_navmesh_parameters")
+        if (files.none { it.path.endsWith(".mmtile") }) problem("mmaps", "missing_navmesh_tiles")
+        for (entry in files) {
+            active()
+            val failure = inspectFile(File(directory, entry.path), entry.path, active)
+            if (failure != null) problem(entry.path, failure)
+        }
+        return GameDataPreflight(files.size, files.sumOf { it.bytes }, counts, problems, problemCount)
+    }
+    internal fun inspectFile(file: File, path: String, active: () -> Unit = {}): String? = try {
+        RandomAccessFile(file, "r").use { input ->
+            fun bytes(n: Int) = ByteArray(n).also { input.readFully(it) }
+            fun u32() = Integer.toUnsignedLong(java.lang.Integer.reverseBytes(input.readInt()))
+            when {
+                path.startsWith("dbc/") -> {
+                    if (!bytes(4).contentEquals("WDBC".toByteArray())) return "dbc_magic"
+                    val rows = u32(); val fields = u32(); val record = u32(); val strings = u32()
+                    if (fields !in 1..1024 || record !in fields..fields * 4 || strings < 1 ||
+                        rows > MAX_FILE_BYTES / record || 20 + rows * record + strings != input.length()) return "dbc_layout"
+                    val expected = dbc[path.substringAfterLast('/')]
+                    if (expected != null) {
+                        if (fields != expected.fields.toLong() || record != expected.recordBytes.toLong()) return "dbc_source_layout"
+                        if (expected.sentinel >= 0) {
+                            var found = false
+                            for (row in 0 until rows) {
+                                if (row % 4096 == 0L) active()
+                                input.seek(20 + row * record + expected.indexOffset)
+                                if (u32() == expected.sentinel) { found = true; break }
+                            }
+                            if (!found) return "dbc_version_sentinel"
+                        }
+                    }
+                }
+                path.endsWith(".map") -> {
+                    if (!bytes(4).contentEquals("MAPS".toByteArray()) || u32() != mapVersion) return "map_version"
+                    u32() // Original loader does not require a particular buildMagic value.
+                    repeat(4) {
+                        val offset = u32(); val size = u32()
+                        if ((offset == 0L) != (size == 0L) || (offset != 0L && (offset < 44 || offset + size > input.length()))) return "map_section_bounds"
+                    }
+                }
+                path.startsWith("vmaps/") -> {
+                    if (!bytes(8).contentEquals(vmapMagic.toByteArray())) return "vmap_version"
+                    if (path.endsWith(".vmtree") && input.readUnsignedByte() !in 0..1) return "vmap_tiled_flag"
+                }
+                path.endsWith(".mmap") -> {
+                    if (input.length() != 28L) return "mmap_parameter_layout"
+                    val values = ByteBuffer.wrap(bytes(28)).order(LITTLE_ENDIAN)
+                    repeat(3) { if (!values.float.isFinite()) return "mmap_parameter_values" }
+                    repeat(2) { val size = values.float; if (!size.isFinite() || size <= 0) return "mmap_parameter_values" }
+                    if (values.int <= 0 || values.int <= 0) return "mmap_parameter_values"
+                }
+                path.endsWith(".mmtile") -> {
+                    if (u32() != 0x4d4d4150L || u32() != detourVersion || u32() != mmapVersion) return "mmap_tile_version"
+                    val size = u32()
+                    if (size < 8 || size + 56 != input.length()) return "mmap_tile_layout"
+                    input.seek(56)
+                    if (u32() != 0x444e4156L || u32() != detourVersion) return "detour_tile_version"
+                }
+                else -> return "unsupported_asset"
+            }
+        }
+        null
+    } catch (_: java.io.IOException) { "truncated_asset" }
+
+    companion object {
+        const val ASSET = "metadata/game-data-policy.properties"
+        const val MAX_FILE_BYTES = 512L * 1024 * 1024
+        const val MAX_TOTAL_BYTES = 32L * 1024 * 1024 * 1024
+        const val MAX_FILES = 100_000
+        val GROUPS = listOf("dbc", "maps", "vmaps", "mmaps")
+        fun path(value: String, directory: Boolean = false) {
+            val p = if (directory) value.removeSuffix("/") else value
+            require(p.length in 1..240 && p.split('/').all { part -> part !in setOf(".", "..") &&
+                part.matches(Regex("[A-Za-z0-9_+ .-]{1,120}")) && !part.endsWith('.') && !part.endsWith(' ') })
+        }
+        fun assetPath(value: String) {
+            path(value)
+            val p = value.split('/')
+            require(p.first() in GROUPS)
+            require(when (p.first()) {
+                "dbc" -> (p.size == 2 || (p.size == 3 && p[1] in setOf("enUS", "enGB", "deDE", "esES", "esMX", "frFR", "itIT", "koKR", "ruRU", "zhCN", "zhTW"))) && p.last().endsWith(".dbc")
+                "maps" -> p.size == 2 && p[1].matches(Regex("[0-9]{7,8}\\.map"))
+                "mmaps" -> p.size == 2 && p[1].matches(Regex("([0-9]{3,4}\\.mmap|[0-9]{7,8}\\.mmtile)"))
+                else -> p.size == 2 && (p[1] == "GameObjectModels.dtree" || p[1].endsWith(".vmo") ||
+                    p[1].matches(Regex("([0-9]{3,4}\\.vmtree|[0-9]{3,4}_[0-9]{2}_[0-9]{2}\\.vmtile)")))
+            })
+        }
+        fun parse(text: String): GameDataPolicy {
+            require(text.length in 1..32_768)
+            val values = Properties().apply { text.reader().use { load(it) } }
+            require(values.getProperty("formatVersion") == "1" && values.getProperty("sourceArchiveSha256") == Inputs.source.sha256)
+            val dbc = values.stringPropertyNames().filter { it.startsWith("dbc.") }.associate { key ->
+                val name = key.removePrefix("dbc."); assetPath("dbc/$name")
+                val parts = values.getProperty(key).split(',').map { it.toLong() }; require(parts.size == 4)
+                require(parts[0] in 1..1024 && parts[1] in parts[0]..parts[0] * 4 && parts[2] in -1..parts[1] - 4 && parts[3] in -1..0xffffffffL)
+                require(parts[3] == -1L || parts[2] >= 0)
+                name to DbcShape(parts[0].toInt(), parts[1].toInt(), parts[2].toInt(), parts[3])
+            }
+            require(dbc.size == 113 && values.getProperty("dbcCount") == "113" && dbc.values.count { it.sentinel >= 0 } == 7)
+            val tiles = values.getProperty("startupTiles").split(',')
+            require(tiles.size == 8 && tiles.toSet().size == 8 && tiles.all { it.matches(Regex("[0-9]{7}")) })
+            require(values.getProperty("mapVersion") == "9" && values.getProperty("vmapMagic") == "VMAP_4.8" &&
+                values.getProperty("mmapVersion") == "20" && values.getProperty("detourVersion") == "7")
+            return GameDataPolicy(dbc, tiles, 9, "VMAP_4.8", 20, 7)
+        }
+    }
+}

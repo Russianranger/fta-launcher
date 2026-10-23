@@ -6,31 +6,22 @@ code 16 auth diagnostic to an explicit foreground service. **Start local databas
 until **Stop**, with an automatic 30-minute session limit. World startup and
 valid-account login remain unqualified; matching DBC/maps/vmaps/mmaps are absent.
 
-## One physical handoff
+## Physical result and remaining measurement
 
-1. Install the verified private code 17 APK in place, preserving the realm,
-   verified backup, imported Database.zip and native dependencies. Public debug
-   APKs have another certificate and cannot update this installation.
-2. Select **Start local database + auth**. Wait for **Local database and auth are
-   running**, then lock the screen for **2 minutes 20 seconds**.
-3. Wake the screen and use **Stop** in the From the Ashes notification. If
-   notifications are disabled, use **Stop local service / test** in the app.
-   Wait for **Local service stopped cleanly**.
-4. Start it again, wait for running status, allow 20 seconds, then stop again.
-   Export **one diagnostic report** after clean completion. If either session
-   fails, export immediately instead of repeating the test.
+Code 17 passes user-controlled Stop and retained restart on AYN Thor. Both sessions
+have all ten flags true; all 54 native records exit zero and both database opens
+finish clean SQL shutdown after auth exits zero. The retained generation and all
+24 metadata expectations pass before/after each session. Export SHA256:
+`412d43a2f39a34f08074c8880971d2937db69174c071468a1020d0548c4d67b5`.
+See [physical evidence](evidence/android-2026-10-23-thor-local-service-pass.json).
+The export records user Stop but cannot identify which Stop control was used.
 
-Expected final fields: `lastDiagnostic.state=LOCAL_SERVICE_STOPPED`,
-`localServiceQualified=true`, `localServiceRestartQualified=true` and
-`screenOffLocalServiceQualified=true`. Both sessions should have `stopReason=user`,
-one auth exit zero, one SQL database shutdown and all ten required checks true.
-Each session independently rechecks all 24 original metadata expectations before
-and after auth. The JSON retains the current and immediately preceding session;
-a failed or interrupted session breaks the restart chain.
-
-No updater, automatic local-auth, backup, initial realm preparation or disposable
-recovery milestone needs repeating. Export JSON only; the backup contains private
-database data and credentials.
+Healthy screen-off time is **112,127 ms**, below the unchanged **120,000 ms**
+requirement. `localServiceQualified` and `localServiceRestartQualified` are true;
+`screenOffLocalServiceQualified` is false. Code 18 displays the measured live
+counter. Bundle one three-minute screen-off session with the next
+[game-data import test](game-data-import.md); do not repeat the two-session restart,
+updater, automatic auth, backup, realm preparation or recovery milestones.
 
 ## Implementation and evidence boundaries
 
@@ -95,5 +86,6 @@ The unchanged automatic two-pass auth path also passes the updated host fixture:
 two additional clean auth stops and 20 SQL health queries, preserving all original
 27 auth tables and account counts. See [regression evidence](evidence/database-2026-10-23-host-auth-service-regression.json).
 Host TCP adapters do not execute Android socket credentials, notification Stop,
-foreground service scheduling or screen-off behavior. Those are the remaining
-physical code 17 gate; gameplay/world readiness remain separate.
+foreground service scheduling or screen-off behavior. Physical code 17 now supplies
+Stop/restart evidence and partial screen-off duration as detailed above; world and
+gameplay readiness remain separate.

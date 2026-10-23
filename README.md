@@ -73,23 +73,27 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.10.0-local-service** (code **17**)
-adds **Start local database + auth**, an explicit foreground session with graceful
-Stop, a 30-minute limit and two-session evidence. It keeps the retained database
-and original loopback auth available until Stop, then stops auth before strict
-metadata checks and SQL database shutdown. It never reimports the seed.
+signing and validation. Latest private version **0.11.0-game-data** (code **18**)
+adds inert import and re-verification of extracted `dbc/maps/vmaps/mmaps` ZIPs.
+It checks the original source's 113 active DBC layouts, seven version sentinels,
+eight startup map locations and supplied map/vmap/mmap headers, then stores hashes
+in a separate atomic asset generation. It never opens the retained database or
+runs imported code. Full native asset loading and world startup remain separate.
+See [game-data import](docs/game-data-import.md).
 
-Physical code **16 passed retained local auth**: all 15 required checks, two
-clean auth stops, 39 successful native records, all 24 metadata expectations
-before/after and clean SQL shutdown. That milestone does not need repeating.
-See [physical evidence](docs/evidence/android-2026-10-23-thor-local-auth-pass.json)
-and [code 17 session instructions](docs/local-service-sessions.md).
+Physical code **17 passed user-controlled service Stop and retained restart**:
+all ten checks in both sessions, all 54 native exits zero and all 24 metadata
+checks before/after both clean shutdowns. Screen-off health reached **112,127 ms**,
+short of the unchanged 120,000 ms threshold; finish that measurement with the
+larger game-data test, without repeating the passed restart milestone.
+See [physical evidence](docs/evidence/android-2026-10-23-thor-local-service-pass.json).
+Code **16 passed retained local auth**; its automatic diagnostic also needs no repeat.
 
-Code 17 passes 230 Android tests, lint/assembly, 142 tooling tests, 221 packaged
+Code 18 passes 255 Android tests, lint/assembly, 148 tooling tests, 221 packaged
 input checks and signing/alignment. Its signer and all 16 native payloads match
-code 16. Two host database/auth sessions on the exact restored Thor backup pass
-user Stop, clean shutdown, reopen and all strict expectations. Android execution
-of code 17 remains unverified. World startup still requires matching client data.
+code 17. Independent original-C++ loader checks and five separate production-store
+JVM sessions cover synthetic imports, abrupt death, retained candidate verification
+and orphan recovery. Actual game assets and Android code 18 execution remain unverified.
 
 Physical code **14 passed cold backup and two isolated restored reopens**. The
 uploaded ZIP matches the recorded identity and every manifest file hash. Its
@@ -173,12 +177,13 @@ tables. Validation uses the measured archive inventory.
 | Fresh-only persistent realm storage and reuse without seed replay | Passed on physical Thor code 13: same active generation, no reimport, two clean reopens |
 | Cold realm backup and isolated restore | Physical code 14 passed; uploaded ZIP independently verified; earlier JSON lacks SAF readback receipt |
 | Retained local auth listener/restart | Passed on physical Thor code 16: all 15 flags, 39 successful native records and clean shutdown |
-| User-controlled retained database/auth foreground sessions | Code 17 implemented and host-qualified; physical screen-off/Stop/restart pending |
+| User-controlled retained database/auth foreground sessions | Physical code 17 Stop/restart passed; 112,127 /120,000 ms screen-off health recorded |
+| Extracted game-data import and format preflight | Code 18 host-tested; matching real assets and physical import pending |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-The next device gate is [user-controlled local service sessions](docs/local-service-sessions.md).
+The next device gate is [matching game-data import](docs/game-data-import.md), bundled with the remaining screen-off measurement.
 The ARM64 world build and original compiled updater have passing evidence;
 preserve their C++20, all 52 modules, static Lua 5.2, source hashes and strict
 [updater protocol](docs/world-updater-gate.md). Android service-process death is now qualified for the isolated runtime.

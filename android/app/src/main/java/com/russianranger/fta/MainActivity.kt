@@ -31,6 +31,11 @@ class MainActivity : Activity() {
     private val ink = Color.rgb(238, 229, 213)
     private val muted = Color.rgb(177, 168, 151)
     private val gold = Color.rgb(214, 170, 101)
+    private lateinit var gameDataButton: Button
+    private lateinit var gameDataVerifyButton: Button
+    private lateinit var gameDataStatus: TextView
+    private var pendingGameData = false
+    private var pendingGameDataUri: android.net.Uri? = null
     private lateinit var sourceButton: Button
     private lateinit var databaseButton: Button
     private lateinit var sourceStatus: TextView
@@ -76,6 +81,8 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pendingGameData = savedInstanceState?.getBoolean("pendingGameData") ?: false
+        pendingGameDataUri = savedInstanceState?.getString("pendingGameDataUri")?.let(android.net.Uri::parse)
         pendingRecoveryCheck = savedInstanceState?.getBoolean("pendingRecoveryCheck") ?: false
         pendingRealmStorage = savedInstanceState?.getBoolean("pendingRealmStorage") ?: false
         pendingLocalService = savedInstanceState?.getBoolean("pendingLocalService") ?: false
@@ -132,7 +139,13 @@ class MainActivity : Activity() {
         serverStatus = label("", 13, muted)
         checklist.addView(serverStatus)
         checklist.addView(label("○  Matching 3.3.5 game data", 16, ink, true).apply { setPadding(0, dp(14), 0, 0) })
-        checklist.addView(label("DBC, maps, vmaps and mmaps will come from your full client later.", 13, muted))
+        gameDataStatus = label("", 13, muted)
+        checklist.addView(gameDataStatus)
+        gameDataButton = action("Import extracted game-data ZIP") { selectArchive(106) }
+        checklist.addView(gameDataButton)
+        gameDataVerifyButton = action("Verify imported game data") { pendingGameDataUri = null; requestDatabaseCheck(includeGameData = true) }
+        checklist.addView(gameDataVerifyButton)
+        checklist.addView(label("ZIP the dbc, maps, vmaps and mmaps folders extracted for this server. A single enclosing folder is allowed. Keep enough free space for both ZIP and unpacked files. This does not import a full client or MPQ archives.", 13, muted))
 
         val status = panel()
         status.addView(label("Runtime", 21, ink, true))
@@ -277,6 +290,9 @@ class MainActivity : Activity() {
         localAuthButton.isEnabled = realmBackupButton.isEnabled && database && File(filesDir, "realm-backups/latest.json").isFile
         localServiceButton.isEnabled = localAuthButton.isEnabled
         exportBackupButton.isEnabled = File(filesDir, "realm-backups/latest.json").isFile && !app.busy && !testing && !requested
+        gameDataButton.isEnabled = !app.busy && !testing && !requested
+        gameDataVerifyButton.isEnabled = gameDataButton.isEnabled && File(filesDir, "game-data/active").isFile
+        gameDataStatus.text = if (File(filesDir, "game-data/active").isFile) "Game-data candidate stored. Verify hashes before native world qualification." else "Matching extracted game data is needed for world startup."
         diagnosticStopButton.isEnabled = testing || requested
         exportReportButton.isEnabled = !app.busy
         runtimeBundleButton.isEnabled = app.runtimeBundles != null && !app.busy && !testing
@@ -288,7 +304,7 @@ class MainActivity : Activity() {
             runCatching { diagnostic.readLines() }.getOrDefault(emptyList()) else emptyList()
         diagnosticStatus.text = if (diagnosticLines.size >= 3) diagnosticLines.drop(2).joinToString("\n")
             else "No native database test has completed on this device."
-        if (!testing && !requested && ((diagnosticLines.firstOrNull()?.startsWith("LIFECYCLE_") == true || diagnosticLines.firstOrNull()?.startsWith("BACKUP_") == true || diagnosticLines.firstOrNull() in setOf("LOCAL_SERVICE_RUNNING", "LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP") || diagnosticLines.firstOrNull() == "RUNTIME_RECOVERY_RUNNING" || diagnosticLines.firstOrNull() in setOf("REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")) || diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION"))) {
+        if (!testing && !requested && ((diagnosticLines.firstOrNull()?.startsWith("LIFECYCLE_") == true || diagnosticLines.firstOrNull()?.startsWith("BACKUP_") == true || diagnosticLines.firstOrNull() in setOf("GAME_DATA_COPY", "GAME_DATA_EXTRACT", "GAME_DATA_VERIFY", "GAME_DATA_PREFLIGHT") || diagnosticLines.firstOrNull() in setOf("LOCAL_SERVICE_RUNNING", "LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP") || diagnosticLines.firstOrNull() == "RUNTIME_RECOVERY_RUNNING" || diagnosticLines.firstOrNull() in setOf("REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")) || diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION"))) {
             diagnosticStatus.text = "The previous test did not finish. No readiness result was recorded."
         }
         if (testing) diagnosticStatus.text = "Runtime active.\n${diagnosticStatus.text}"
@@ -315,6 +331,8 @@ class MainActivity : Activity() {
         .getRunningServices(20).any { it.service.className == RuntimeRecoveryService::class.java.name }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("pendingGameData", pendingGameData)
+        outState.putString("pendingGameDataUri", pendingGameDataUri?.toString())
         outState.putBoolean("pendingRecoveryCheck", pendingRecoveryCheck)
         outState.putBoolean("pendingRealmStorage", pendingRealmStorage)
         outState.putBoolean("pendingLocalService", pendingLocalService)
@@ -327,7 +345,8 @@ class MainActivity : Activity() {
         super.onSaveInstanceState(outState)
     }
 
-    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false) {
+    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false, includeGameData: Boolean = false) {
+        pendingGameData = includeGameData
         pendingLocalService = includeLocalService
         pendingLocalAuth = includeLocalAuth
         pendingRealmBackup = includeBackup
@@ -341,18 +360,21 @@ class MainActivity : Activity() {
             !getPreferences(MODE_PRIVATE).getBoolean("notificationAsked", false)) {
             getPreferences(MODE_PRIVATE).edit().putBoolean("notificationAsked", true).apply()
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 201)
-        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth, pendingLocalService)
+        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth, pendingLocalService, pendingGameData)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Notification permission is optional for an explicitly requested foreground service.
-        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth, pendingLocalService)
+        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth, pendingLocalService, pendingGameData)
     }
 
-    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false) {
+    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false, includeGameData: Boolean = false) {
         try {
-            if (includeLocalService) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_LOCAL_SERVICE))
+            if (includeGameData) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java)
+                .setAction(if (pendingGameDataUri == null) RuntimeDiagnosticService.ACTION_VERIFY_GAME_DATA else RuntimeDiagnosticService.ACTION_IMPORT_GAME_DATA)
+                .setData(pendingGameDataUri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+            else if (includeLocalService) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_LOCAL_SERVICE))
             else if (includeLocalAuth) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_LOCAL_AUTH))
             else if (includeBackup) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_REALM_BACKUP))
             else if (includeRealm) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_REALM_STORAGE))
@@ -377,6 +399,7 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) return
+        if (requestCode == 106) { data?.data?.let { pendingGameDataUri = it; requestDatabaseCheck(includeGameData = true) }; return }
         if (requestCode == 104) { data?.data?.let { app.exportDiagnosticReport(it) }; return }
         if (requestCode == 105) { data?.data?.let { app.exportRealmBackup(it) }; return }
         if (requestCode == 103) { data?.data?.let { app.importRuntimeBundle(it) }; return }

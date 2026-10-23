@@ -7,47 +7,66 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.10.0-local-service**, version code **17**.
+Latest private update: **0.11.0-game-data**, version code **18**.
+APK SHA256: `66db6ffd94d6a3e7070e46bba08822d48abdd8c42f136008c7e2a55b054d8434`.
+
+**Physical code 17 passes user-controlled service Stop and retained restart.**
+Both sessions have all ten checks true, clean auth termination before SQL database
+shutdown, all 24 strict metadata checks before/after and unchanged active realm.
+All 54 native records exit zero, with no timeout, cancellation, validation error or
+dropped record. The longest measured healthy screen-off interval is **112,127 ms**,
+short of the unchanged **120,000 ms** requirement by 7,873 ms. Thus
+`localServiceQualified=true`, `localServiceRestartQualified=true`, but
+`screenOffLocalServiceQualified=false`. Do not repeat the passed two-session
+restart milestone or lower the screen-off threshold. The report does not distinguish
+notification Stop from the app's Stop control.
+Report SHA256: `412d43a2f39a34f08074c8880971d2937db69174c071468a1020d0548c4d67b5`.
+See [physical service evidence](evidence/android-2026-10-23-thor-local-service-pass.json).
+
+Code 18 adds an **inert game-data importer** for an extracted `dbc/maps/vmaps/mmaps`
+ZIP/ZIP64, full per-file hashes, atomic candidate publication, interrupted-import
+recovery and later full re-verification. It uses the exact original source's
+**113 active DBC loads**, seven version sentinels, eight startup map coordinates,
+map version 9, `VMAP_4.8`, mmap version 20 and Detour version 7. Two commented-out
+DBC entries were caught by compiling the independent original-loader check and
+are excluded. This is a file/header preflight, not full native semantic loading,
+world startup, complete map coverage or game login. No game assets are available
+here; actual matching assets remain the next external dependency.
+
+The private build passes **255 Android tests** (25 classes), lint/assembly,
+**148 tooling tests**, all **221** runtime/notice inputs, signing and alignment.
+Its signer and all **16 native payloads** match code 17. An independent C++20
+harness compiles the unchanged original DBC loader and checks 113 synthetic files,
+all seven sentinels, byte-field offsets and original header sizes. Five separate
+JVMs run the production importer, crash during replacement, reverify the retained
+candidate, recover orphan staging and reverify the next candidate. Synthetic
+headers never qualify full terrain/navigation semantics or actual game data.
+See [host checks](evidence/host-2026-10-23-game-data-preflight.json),
+[private APK](evidence/android-2026-10-23-private-game-data-apk.json) and
+[import details](game-data-import.md).
+
+**Next substantial physical test, once matching extracted assets are available:**
+update in place with private code 18; import the ZIP, close/reopen the launcher
+and select **Verify imported game data**. If either fails, export immediately.
+After success, start one local database/auth session, lock for **three minutes**,
+wake and confirm the live counter reached 120 seconds, then Stop cleanly and
+export one JSON. The combined export includes historical game-data verification
+and current service evidence. No second restart is needed. Keep the retained
+realm, verified backup, Database.zip and native dependencies. Do not import a
+full client/MPQ ZIP or repeat updater/backup/recovery tests. World startup remains
+disabled until real asset evidence is inspected. Physical code 18 is unverified.
+
+Previous private update: **0.10.0-local-service**, version code **17**.
 APK SHA256: `864615af00847d0e648f3583fce353389b8be6db44093cbe1b671227d1685d94`.
+Passed 230 Android tests, 142 tooling tests and real host retained service sessions.
+[Host service evidence](evidence/database-2026-10-23-host-local-service.json).
 
-**Physical code 16 passed retained local auth.** The exact private APK below
-completed all 15 required checks, both original auth listener sessions and clean
-auth stops before SQL database shutdown. All 39 native records exited zero;
-none were dropped, timed out or cancelled. All 24 strict metadata checks passed
-before and after; the active realm and verified backup remain intact.
-`staleStartupFlagCleared=false` is expected because code 15 already cleared it.
-Report SHA256: `fbc4832bd11a1e420fab500018aee75ddbc42df5ed73bd14b1a1b4faa4062a7c`.
-See [physical pass](evidence/android-2026-10-23-thor-local-auth-pass.json).
+**Physical code 16 passed retained local auth:** all 15 required checks, two
+original auth listener sessions, all 39 native exits zero and all 24 metadata
+checks before/after clean shutdown. Report SHA256:
+`fbc4832bd11a1e420fab500018aee75ddbc42df5ed73bd14b1a1b4faa4062a7c`.
+[Physical auth evidence](evidence/android-2026-10-23-thor-local-auth-pass.json).
 Do not repeat the automatic local-auth diagnostic.
-
-Code 17 adds **Start local database + auth**. This user-controlled foreground
-session reuses that measured backend and retained realm; Stop requests orderly
-auth termination, exact metadata revalidation and SQL shutdown. The session is
-limited to 30 minutes, never auto-restarts, and retains two session receipts so
-one JSON can show user Stop, screen-off health and a subsequent database reopen.
-No native payload, original SQL, schema/receipt expectations or source provenance
-changed. World startup and game login still require matching client assets.
-
-The private build passes **230 Android tests** (24 classes), lint/assembly,
-**142 tooling tests**, all **221** runtime/notice inputs, v2 signing and 16 KiB
-alignment. The signer and all **16 native payloads** match code 16. A host run
-uses the production user-stop protocol over two full sessions of the exact
-restored Thor backup: two clean auth stops, two SQL database shutdowns, all
-24 metadata checks before and after each, and unchanged account/character counts.
-Host TCP execution does not qualify Android foreground or screen-off behavior.
-See [APK evidence](evidence/android-2026-10-23-private-local-service-apk.json),
-[host evidence](evidence/database-2026-10-23-host-local-service.json) and
-[session details](local-service-sessions.md).
-
-**Next substantial physical test:** install private code 17 in place. Start the
-local database + auth, wait for running status, lock the screen for **2 minutes
-20 seconds**, then use notification **Stop** and wait for clean completion.
-Start once more, let it run for 20 seconds, stop and export one diagnostic JSON.
-Expect `LOCAL_SERVICE_STOPPED`, `localServiceQualified=true`,
-`localServiceRestartQualified=true` and `screenOffLocalServiceQualified=true`.
-If either session fails, export immediately. Keep the existing realm, backup,
-Database.zip and native dependencies. No old milestone needs repeating.
-Physical code 17 remains unverified.
 
 Previous private update: **0.9.1-auth-role**, version code **16**.
 APK SHA256: `8d472f42651e1c2ce4de4023db4efcfd89f8eede2d5d67a25cf12796dbabc39c`.
@@ -160,7 +179,8 @@ Generic disposable flags in this separate scope do not revoke prior passes.
 Do not repeat the initial persistent preparation milestone.
 
 Cold backup/restore and retained local auth passed physically in codes 14 and 16.
-The next gate is user-controlled service sessions in code 17; see `docs/local-service-sessions.md`.
+User-controlled service Stop/restart passed in code 17; see `docs/local-service-sessions.md`.
+The next gate is matching game-data import and the remaining screen-off measurement in code 18.
 World startup still requires matching client data and service orchestration.
 
 Passing physical updater diagnostic: **0.5.2-metadata-timezone**, version code **10**.

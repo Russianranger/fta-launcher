@@ -5,6 +5,7 @@ plugins {
 val fullSeedAssetDirectory = layout.buildDirectory.dir("generated/fullSeedAssets")
 val prepareFullSeedMetadata by tasks.registering(Copy::class) {
     from(rootProject.file("../manifests/full-seed-lock.json"))
+    from(rootProject.file("../manifests/game-data-policy.properties"))
     into(fullSeedAssetDirectory.map { it.dir("metadata") })
 }
 tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(prepareFullSeedMetadata) }
