@@ -73,20 +73,25 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version `0.5.2-metadata-timezone`
-(code 10) passed all 143 Android tests, lint, signing/alignment and 221 exact
-runtime/notice checks. All 16 native payloads remain byte-identical to versions 8/9.
-Physical version 9 localized its single failing postcheck to the timestamp-default
-representation of `game_event`, already different before the updater. Exact host
-reproduction proves a metadata-session time-zone discrepancy. Version 10 pins
-only metadata readers to the original reference's +07:00; SQL, strict expected
-hashes, global time and native code remain unchanged. All 24 checks pass in the
-host model across five inherited offsets, and a real schema mutation is rejected.
-Physical version 10 and the overall compiled-updater gate remain unqualified. See the
-[diagnostic scope](docs/world-column-diagnostic.md) and
-[exact APK evidence](docs/evidence/android-2026-10-23-private-timezone-apk.json).
-Install as an update, rerun **Test compiled three-database updater**, and export
-the report after shutdown. The existing native source
+signing and validation. Latest private version **0.6.0-database-lifecycle**
+(code **11**) passed all **150 Android tests**, lint, signing/alignment and 221 exact
+runtime/notice checks. All 16 native payloads remain byte-identical to version 10.
+The same persistent certificate permits an in-place update with imports retained.
+See [lifecycle test instructions](docs/database-lifecycle-diagnostic.md) and
+[exact APK evidence](docs/evidence/android-2026-10-23-private-lifecycle-apk.json).
+
+Physical version **10 passed all 24 compiled-updater checks**, both complete
+world-column snapshots matched the original host reference, and MariaDB shut
+down cleanly. Version 9 localized the earlier single mismatch to the timestamp
+defaults of `game_event`; version 10 pinned metadata readers to the original
+reference's +07:00 session zone. Original SQL, strict expected hashes, global
+time and native bytes remain unchanged. See the
+[resolved diagnosis](docs/world-column-diagnostic.md) and
+[passing physical evidence](docs/evidence/android-2026-10-23-thor-compiled-updater-pass.json).
+No repeat updater run is needed for the unchanged implementation.
+The next private diagnostic exercises cancellation, restart, crash recovery and
+screen-off SQL health using a small disposable database without reimporting the
+seed. Its physical execution remains unverified. The existing native source
 companion remains applicable; no source ZIP is needed on the device.
 The original auth updater/dry-run gate already
 [passed on physical Thor in version 5](docs/evidence/android-2026-10-22-thor-resolver-pass.json);
@@ -136,20 +141,19 @@ tables. Validation uses the measured archive inventory.
 | Packaged Android database bootstrap/health/shutdown | Passed on Thor, including observed SQL shutdown and exit 0 |
 | Optional private auth-only updater diagnostic | Passed on physical Thor: original updater/dry-run exit 0, 27 auth imports and clean SQL shutdown |
 | Full seed import on pinned Android MariaDB provider | Passed on physical Thor: 563 tables, one trigger, exact three-schema/receipt baselines and clean SQL shutdown |
-| Android ARM64 worldserver and all required modules | Open |
+| Android ARM64 worldserver and all 52 required modules | Build and private staging passed; world readiness remains open |
+| Original compiled three-database updater | Passed on physical Thor: 24/24 strict checks and exact before/after host snapshots |
+| Disposable database cancellation/restart/crash recovery | Production Kotlin/JNI host probe passed; private code 11 physical test pending |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-The next device gate is the compiled three-database updater in a fresh disposable
-database, with exact post-run schema and receipt verification. World configuration now
-passes with target Readline and default static Lua 5.2; actual compilation is
-progressing through bounded portability fixes. Separate compiled world/character
-updater evidence follows the [original startup protocol](docs/world-updater-gate.md).
-The [private world stager](docs/world-runtime.md) requires the completed native
-build and preserves the passing provider/auth bytes and original module configs.
-World startup also requires
-the matching DBC/maps/vmaps/mmaps, which were not supplied.
+The next device gate is the [database lifecycle diagnostic](docs/database-lifecycle-diagnostic.md).
+The ARM64 world build and original compiled updater have passing evidence;
+preserve their C++20, all 52 modules, static Lua 5.2, source hashes and strict
+[updater protocol](docs/world-updater-gate.md). Android service-process death and
+persistent services remain separate. World startup also requires matching
+DBC/maps/vmaps/mmaps, which were not supplied.
 
 Preserve the original SQL/update
 receipts; never restore the populated fresh-install seed over live saves.

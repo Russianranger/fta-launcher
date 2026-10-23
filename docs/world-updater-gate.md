@@ -1,7 +1,8 @@
 # Compiled world updater gate before game data
 
-This is a source audit, metadata contract and execution protocol, not a passed
-native or device updater test. A successful full-seed import does not qualify
+This document defines the source audit, metadata contract and execution protocol.
+Physical version 10 has now [passed this gate](evidence/android-2026-10-23-thor-compiled-updater-pass.json),
+including all 24 strict checks and exact original host snapshots. A successful full-seed import does not qualify
 the compiled world or character updater. The supplied worldserver can execute those original
 updaters before it requires maps or DBC files, but its complete dry run still
 requires matching game data.
@@ -45,9 +46,9 @@ insufficient to qualify a world updater run using `--dry-run` without DBC files.
 Do not interpret its expected nonzero missing-data exit as successful dry-run
 completion, or infer SQL success from newly written receipts.
 
-## Candidate bounded execution protocol
+## Qualified bounded execution protocol
 
-Once a real worldserver and its target dependency closure are available, use
+With the verified worldserver and its target dependency closure, this gate uses
 the original **normal startup**, omitting `--dry-run`, for a separate disposable
 updater test:
 

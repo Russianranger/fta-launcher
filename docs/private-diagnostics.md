@@ -97,8 +97,8 @@ Version 7 has now [passed the complete full-seed test on physical Thor](evidence
 563 tables and one trigger, all three exact schema/receipt baselines, complete
 577-record native journal, and observed SQL shutdown with database exit 0.
 The report qualifies disposable seed compatibility; runtime SQL was not applied.
-The next substantial diagnostic will exercise the actual compiled worldserver's
-three-database updater through the original missing-map startup boundary.
+That checkpoint was followed by the actual compiled worldserver's
+three-database updater test, which passed on physical version 10 below.
 Use the same key and a version code greater than 7 for future private builds.
 
 
@@ -150,7 +150,16 @@ original SQL. Only metadata readers use the original host reference's explicit
 +07:00 session setting; import/updater sessions and server time remain untouched.
 See [cause and reproducible regression](world-column-diagnostic.md) and
 [APK evidence](evidence/android-2026-10-23-private-timezone-apk.json).
-Install over version 9, retain imports, keep 3 GiB free and run **Test compiled
-three-database updater** once. Expected: 24/24 checks and clean shutdown. Export
-the report even on failure; Android qualification is not claimed before that
-physical test. Future private builds must exceed code 10 with the same key.
+Physical version 10 now [passes all 24 checks and both complete host snapshots](evidence/android-2026-10-23-thor-compiled-updater-pass.json), with 587 complete native records and clean SQL shutdown. Preserve this milestone; do not rerun it for the unchanged code.
+
+## Database lifecycle checkpoint
+
+Latest private code **11**, `0.6.0-database-lifecycle`, uses the same certificate
+and all 16 unchanged native payloads. Its 150 Android tests, lint/assembly,
+142 tooling tests, 221 packaged inputs and signing/alignment passed. The real
+host production Kotlin/JNI probe passed cancellation, clean restart, forced-stop
+recovery and owner-JVM SIGKILL recovery. Physical version 11 remains unverified.
+See [exact APK evidence](evidence/android-2026-10-23-private-lifecycle-apk.json)
+and the [one-run physical instructions](database-lifecycle-diagnostic.md).
+This test requires no seed import or compiled-updater repeat. Future private
+builds must exceed code 11 and reuse the same key.
