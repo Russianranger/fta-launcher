@@ -1,0 +1,60 @@
+{
+  "actualKotlinParserRoundTripPassed": true,
+  "afterOutputBytes": 38510,
+  "afterWorldTables": 372,
+  "allCanonicalPostconditionsMatch": true,
+  "allPerTableAndProbeCoverageValidated": true,
+  "androidExecuted": false,
+  "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+  "beforeOutputBytes": 38412,
+  "beforeWorldTables": 371,
+  "bothClientCharsetsMatch": [
+    "utf8",
+    "utf8mb4"
+  ],
+  "compiledWorldExecuted": false,
+  "elapsedSeconds": 94,
+  "formatVersion": 1,
+  "prettyExportBytes": 142271,
+  "probeCountPerSnapshot": 4,
+  "productionClassSha256": "47bae1f29a923370122d28ef3e368084707925f400672676f7e2b2e7be4fe4bc",
+  "productionSqlBytes": 17945,
+  "productionSqlSha256": "ba8a9f4b9be545eab80228eee6b5a6f96472878183dd4a7fa03a561fd000247e",
+  "providerVersion": "12.3.2-MariaDB",
+  "readOnlyMetadataUnchanged": true,
+  "scope": "host-source-policy-model-only",
+  "seedBaselinePassed": true,
+  "seedTables": 563,
+  "seedTriggers": 1,
+  "snapshotFixtureSha256": "a6b3caf18426272e72e06ba2a4393c7eb5023bbf449a07eab0543c136d3ac601",
+  "sourceSqlRewritten": false,
+  "sqlShutdownAndExit": "sandbox-completed",
+  "status": "host-production-column-diagnostic-passed",
+  "strictUpdaterLockUnchanged": true,
+  "transitions": {
+    "acore_auth": {
+      "archivedBefore": 1,
+      "orphanRemaining": 11,
+      "orphanWarnings": 11,
+      "recentBefore": 11,
+      "verified": 1
+    },
+    "acore_characters": {
+      "applied": 3,
+      "archivedBefore": 24,
+      "orphanRemaining": 31,
+      "orphanWarnings": 30,
+      "reapplied": 19,
+      "recentBefore": 26
+    },
+    "acore_world": {
+      "applied": 3,
+      "archivedBefore": 2320,
+      "orphanRemaining": 2981,
+      "orphanWarnings": 2981,
+      "recentBefore": 871,
+      "verified": 210
+    }
+  },
+  "worldUpdaterLockSha256": "466c1c6673d7f939b14c4b6f4dc787efa58ac6c8fa91e982c76151a3f1f8c02f"
+}

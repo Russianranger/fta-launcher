@@ -104,7 +104,7 @@ Use the same key and a version code greater than 7 for future private builds.
 
 ## Compiled three-database updater checkpoint
 
-Latest private version code **8**, `0.5.0-compiled-updater-diagnostic`, adds the
+Compiled-updater checkpoint version code **8**, `0.5.0-compiled-updater-diagnostic`, adds the
 actual completed ARM64 worldserver. All 52 modules, C++20, static scripts/modules
 and default Lua 5.2 remain present. The clean APK passed all 136 Android unit
 tests (including the real private Database.zip regression), lint, assembly,
@@ -126,3 +126,17 @@ Deliver the APK with its matching private corresponding-source companion. This
 checkpoint qualifies the build and packaged bytes only. Android compiled-updater
 execution, persistent services and gameplay require their own measured evidence.
 Future private updates must reuse this key and use a version code greater than 8.
+
+
+## Column metadata checkpoint
+
+Latest private code **9**, `0.5.1-column-diagnostic`, preserves all 16 native
+payloads, the signed runtime manifest, both locks and original SQL from version 8.
+It adds read-only before/after world-column observations so a failed strict check
+can be localized without exposing query results. See
+[diagnostic scope and host evidence](world-column-diagnostic.md) and
+[exact APK evidence](evidence/android-2026-10-22-private-column-apk.json).
+Install over version 8, retain Database.zip, keep 3 GiB free and run the same
+**Test compiled three-database updater** action. Export the report even if the
+same failure remains. Future private versions must exceed code 9 and reuse the
+persistent certificate. The native source companion from version 8 is unchanged.

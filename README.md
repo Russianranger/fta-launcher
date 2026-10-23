@@ -73,16 +73,18 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version `0.5.0-compiled-updater-diagnostic`
-(code 8) contains the completed original ARM64 worldserver with all 52 modules,
-C++20 and default static Lua 5.2. Its clean build passed 136 Android tests,
-142 tooling tests, lint, signing/alignment and 221 exact runtime/notice inputs.
-See its [measured APK evidence](docs/evidence/android-2026-10-22-private-world-apk.json).
-The next physical gate is **Test compiled three-database updater**, using a fresh
-seed and original normal startup through the expected missing-map boundary.
-Compiled updater execution and gameplay remain unqualified. Private delivery
-includes the matching corresponding-source companion; no source ZIP is needed
-on the device.
+signing and validation. Latest private version `0.5.1-column-diagnostic`
+(code 9) passed all 143 Android tests, lint, signing/alignment and 221 exact
+runtime/notice checks. All 16 native payloads remain byte-identical to version 8,
+which completed the original ARM64 updater through the expected missing-map stop
+but failed the world column fingerprint (23/24 postchecks passed). The gate
+remains unqualified. Version 9 adds read-only before/after metadata hashes while
+preserving strict expectations and SQL. See the
+[diagnostic scope](docs/world-column-diagnostic.md) and
+[exact APK evidence](docs/evidence/android-2026-10-22-private-column-apk.json).
+Install as an update, rerun **Test compiled three-database updater**, and export
+the report even if the unchanged check still fails. The existing native source
+companion remains applicable; no source ZIP is needed on the device.
 The original auth updater/dry-run gate already
 [passed on physical Thor in version 5](docs/evidence/android-2026-10-22-thor-resolver-pass.json);
 version 6 reached 158 seed tables, then failed on its first ASCII column.

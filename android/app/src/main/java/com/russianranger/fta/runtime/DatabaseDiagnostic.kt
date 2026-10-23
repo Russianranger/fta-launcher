@@ -319,6 +319,11 @@ class DatabaseDiagnostic(
     private fun runWorldUpdaterDiagnostic() {
         setStage("WORLD_INPUT", "Verifying the signed source policy and complete original runtime SQL inventory.")
         val lock = WorldUpdaterMetadata.load(context)
+        val columnSchema = lock.schemas.single { it.name == "acore_world" }
+        val seedColumnTables = FullSeedMetadata.load(context).files
+            .filter { it.schema == "acore_world" && it.kind == "table" }.map { it.name }.sorted()
+        var columnBefore: WorldColumnSnapshot? = null
+        var columnAfter: WorldColumnSnapshot? = null
         val build = runtime.manifest.worldBuild ?: error("Compiled world build metadata is unavailable")
         check(build.portProfile == lock.sourceProfile && build.sourceTreeSha256 == lock.sourceTreeSha256 &&
             build.sourceArchiveSha256 == lock.sourceArchiveSha256) { "Compiled world build and source policy differ" }
@@ -336,6 +341,16 @@ class DatabaseDiagnostic(
             val atomic = AtomicFile(File(context.filesDir, "runtime/world-updater-diagnostic.json"))
             val output = atomic.startWrite()
             try { output.write(info.toString().toByteArray()); atomic.finishWrite(output) }
+            catch (failure: Exception) { atomic.failWrite(output); throw failure }
+        }
+        fun columnReceipt() {
+            val value = WorldColumnEvidence.receiptMap(currentAttemptId!!, build.worldserverSha256,
+                build.compiledUpdaterLockSha256, build.sourceTreeSha256, columnSchema, seedColumnTables, columnBefore, columnAfter)
+            val bytes = JSONObject(value).toString().toByteArray()
+            check(bytes.size <= WorldColumnEvidence.MAX_RECEIPT_BYTES) { "Column diagnostic receipt exceeds its bound" }
+            val atomic = AtomicFile(File(context.filesDir, "runtime/world-column-diagnostic.json"))
+            val output = atomic.startWrite()
+            try { output.write(bytes); atomic.finishWrite(output) }
             catch (failure: Exception) { atomic.failWrite(output); throw failure }
         }
         receipt()
@@ -374,11 +389,20 @@ class DatabaseDiagnostic(
                 emptyData, temp, orderedLog, "fta_world_diag", secret))
             config.setReadable(false, false); config.setWritable(false, false)
             check(config.setReadable(true, true) && config.setWritable(true, true))
+            setStage("WORLD_METADATA_BEFORE", "Recording bounded world catalog hashes before the compiled updater.")
+            columnBefore = WorldColumnEvidence.parseSnapshot(client(WorldColumnEvidence.schemaSql(columnSchema), 30_000),
+                columnSchema, seedColumnTables)
+            columnReceipt()
             setStage("WORLD_UPDATER", "Running the compiled original three-database updater through normal startup to its missing-map stop.")
             info.put("runtimeSqlAttempted", true); receipt()
             val boundary = runWorldBoundary(config, orderedLog, lock.updatePhases)
             boundary.forEach { (field, value) -> info.put(field, value) }
             info.put("runtimeSqlCompletionQualified", true); receipt()
+            // Preserve the observed catalog even when the unchanged strict postcondition below fails.
+            setStage("WORLD_METADATA_AFTER", "Recording bounded world catalog hashes after the expected native stop.")
+            columnAfter = WorldColumnEvidence.parseSnapshot(client(WorldColumnEvidence.schemaSql(columnSchema), 30_000),
+                columnSchema, columnSchema.tableNames)
+            columnReceipt()
             setStage("WORLD_VALIDATION", "Validating exact resulting updater receipts, release receipts and schema metadata.")
             val results = JSONObject()
             lock.schemas.forEach { schema ->
@@ -697,7 +721,7 @@ internal class NativeInvocationJournal(private val file: File, private val attem
         const val MAX_FILE_BYTES = 2 * 1024 * 1024L
         const val MAX_LOG_BYTES = 8 * 1024 * 1024L
         private val roles = setOf("database-server", "database-client", "auth-server", "world-server")
-        private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_UPDATER", "WORLD_VALIDATION", "STOPPING", "CLEANUP")
+        private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP")
         private val outcomes = setOf("running", "exited", "timed_out", "cancelled", "start_failed", "wait_failed", "stopped", "supervisor_failed")
         private val validations = setOf("output_limit_exceeded", "version_marker_missing", "completion_marker_missing", "world_boundary_invalid", "world_postcondition_mismatch")
 

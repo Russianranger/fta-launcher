@@ -144,6 +144,27 @@ object DiagnosticReport {
             } == true
             result.put("providerManifestSha256", sha(rawManifest))
             result.put("providerManifest", JSONObject(rawManifest.toString(Charsets.UTF_8)))
+            // Observational hashes are exported separately and never participate in qualification.
+            if (scope == "compiled-updater" && currentAttempt != null && parsed.worldBuild != null) {
+                val columns = File(context.filesDir, "runtime/world-column-diagnostic.json")
+                if (columns.isFile && columns.length() <= WorldColumnEvidence.MAX_RECEIPT_BYTES) {
+                    val columnEvidence = runCatching {
+                        val lock = WorldUpdaterMetadata.load(context)
+                        val build = parsed.worldBuild
+                        require(lock.sourceTreeSha256 == build.sourceTreeSha256 && lock.sourceProfile == build.portProfile)
+                        val schema = lock.schemas.single { it.name == "acore_world" }
+                        val seedTables = FullSeedMetadata.load(context).files
+                            .filter { it.schema == "acore_world" && it.kind == "table" }.map { it.name }.sorted()
+                        WorldColumnEvidence.safeReceipt(columns.readText(), currentAttempt, build.worldserverSha256,
+                            build.compiledUpdaterLockSha256, build.sourceTreeSha256, schema, seedTables)
+                    }.getOrNull()
+                    columnEvidence?.let {
+                        val safe = JSONObject(it)
+                        if (JSONObject().put("worldColumnDiagnostic", safe).toString(2).toByteArray().size <= WorldColumnEvidence.MAX_EXPORT_BYTES)
+                            result.put("worldColumnDiagnostic", safe)
+                    }
+                }
+            }
         } else { result.put("providerManifest", JSONObject.NULL); updaterValidated = false }
 
         val statusAttempt = File(context.filesDir, "runtime/diagnostic-status-attempt.id")

@@ -7,36 +7,58 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private Thor diagnostic: **0.5.0-compiled-updater-diagnostic**, version
-code **8**. The complete ARM64 worldserver built with C++20, all 52 modules,
-static scripts/modules and default static Lua 5.2. Final profile:
-`android-arm64-world-v13`, tree
-`847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064`.
-World ELF: 62,661,136 bytes, SHA256
+Latest private diagnostic: **0.5.1-column-diagnostic**, version code **9**.
+Its clean build passed **143 Android tests** (18 classes, no failures/errors/skips),
+lint and assembly. Final signature/alignment and all **221** provider/notice
+inputs passed. APK SHA256:
+`1b478f1c1d99ca4928b47429068e6ad7adc6710540d9af4ecfbd0d3bbd6e09aa`.
+See `docs/evidence/android-2026-10-22-private-column-apk.json`.
+
+All **16 native payloads are byte-identical to version 8**, including the original
+worldserver, provider, authserver and supervisor. The final APK restores the
+verified code 8 supervisor after clean assembly (the rebuilt Debug helper has
+different path-dependent bytes), then aligns and signs with the same persistent
+certificate. No native rebuild is claimed for this delivery. The v13 source was
+reproduced from the original archive; C++20, all 52 modules, static scripts/modules
+and default Lua 5.2 retain their version 8 compilation evidence. World ELF SHA256:
 `97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766`.
-Actual source, report, archives, ELF and private stage passed independent review.
+The native corresponding-source companion is unchanged and remains applicable.
+Latest launcher source is the public repository; native source inputs stay private.
 
-The clean private APK passed **136 Android tests** with no failures/skips,
-**142 tooling tests**, lint, signing/alignment, all **221** exact runtime/notice
-inputs and canonical seed/updater locks. APK SHA256:
-`a5130209ce410ec7941a7768b12a59ed14167743063cfd2826dd51d342c8decd`.
-See `docs/evidence/android-2026-10-22-private-world-apk.json` and the private-stage
-receipt. Deliver this private APK together with its matching corresponding-source
-companion. The companion is not needed on the device.
+**Physical version 8 reached the original compiled updater boundary.** All three
+updaters completed, all statements prepared, 236 runtime SQL files were staged,
+the expected missing-map stop was observed, and no native SQL failure occurred.
+The fresh 563-table/one-trigger baseline passed all 15 checks. Final checks were
+**23/24**: only `acore_world.columnInventoryMatches` was false. All 585 native
+records are present without dropped entries, truncation, timeout or cancellation;
+MariaDB received SQL shutdown and exited 0. Report SHA256:
+`6c246c9566e1bca3db84f1e61409a85624b5327ebddca3bdbcd8a1571566feb1`.
+See `docs/evidence/android-2026-10-22-thor-compiled-updater-attempt.json`.
+Overall compiled-updater qualification remains **false**.
 
-Install over version 7 to retain the verified Database.zip; a source ZIP is not
-required. Reuse the persistent private signing key and future version codes
-**greater than 8**. Public CI snapshots use disposable debug signing and package
-only the database provider; use the private APK for this upgrade.
+Version 9 preserves both locks, original SQL, all 24 strict checks and the native
+runtime. It adds bounded read-only world-column counts/hashes before and after
+startup, per-table indices into the signed table list, and component hashes for
+four source-known floating defaults. Reports omit SQL, defaults and row data.
+No cause is asserted: the old baseline never fingerprinted seed columns, so the
+mismatch may predate the updater. Source review found no unmodeled pre-map world
+column ALTER. Floating-default formatting is only a hypothesis.
 
-**Next substantial physical test:** with at least 3 GiB free, select
-**Test compiled three-database updater**, allow its fresh import and original
-compiled updater to finish, then export the JSON report. The gate has a 40-minute
-overall deadline and a 10-minute world-process deadline. It requires the exact
-three-schema update/prepared-statement completion sequence, original expected
-missing-map exit and exact post-run fingerprints, followed by clean SQL shutdown.
-Compiled updater execution, persistent services and gameplay are not yet
-qualified; the original missing-map boundary is deliberate.
+The actual new production Kotlin query/parser passed on a fresh exact host
+MariaDB 12.3.2 seed and source-policy model: complete 371/372-table snapshots,
+all canonical postconditions unchanged, utf8/utf8mb4 outputs identical, and
+142,271-byte pretty diagnostic export. This is host evidence, not Android
+execution. See `docs/world-column-diagnostic.md` and its hash-only fixtures.
+
+**Next substantial physical test:** install version 9 over version 8, keep
+Database.zip imported, have at least 3 GiB free, select **Test compiled
+three-database updater**, then export the JSON report even if the same mismatch
+appears. The new `worldColumnDiagnostic` distinguishes before/after shape and
+localizes differing tables/components. A source ZIP is not required on device.
+The 40-minute overall and 10-minute world-process deadlines remain unchanged.
+Future private versions must use the same signing key and code **greater than 9**.
+Public provider-only CI APKs use another certificate and cannot replace this
+private update. Gameplay, persistent services and world readiness remain separate.
 
 Physical version 6 imported **158 tables**, then failed on the first ASCII column
 with MariaDB error **1115** at line 19. The native client exited 1 in 83 ms;
@@ -210,8 +232,9 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
    timestamp values and atomic shared-settings semantics. Link-time debug
    stripping keeps the unchanged final ELF within Android runtime size bounds;
    symbols remain available. See `docs/native-build.md` and `docs/world-runtime.md`.
-4. Obtain the physical version 8 compiled three-database updater report before
-   treating Android updater execution as qualified. The mode first repeats the
+4. Preserve the physical version 8 partial updater evidence and obtain the
+   version 9 column diagnostics before changing any expected metadata or
+   treating the compiled updater as qualified. The mode first repeats the
    passing full-seed gate, then runs original **normal** world startup through
    the missing-map boundary. **Do not use world `--dry-run` for this gate**:
    failed SQL can write receipts before a final error-counter check that missing
@@ -268,3 +291,11 @@ report, artifacts and seven affected archive members. Keep native/Gradle builds
 under one filesystem owner with all other workspace activity paused to avoid
 recurrence; the underlying replacement cause was not conclusively established.
 Saved artifact identities and existing source profiles remain authoritative.
+
+Current recovery: workspace maintenance removed previous toolchains, source trees,
+build caches and private runtime files. Version 8 APK, corresponding source, seed
+and signing capsule were recovered from saved artifacts. All 221 runtime/notice
+inputs were verified against the exact APK and all native delivery bytes remain
+identical. Do not claim old static archives or build reports are present. Exact
+Android tooling and host MariaDB were restored with published checksum/version
+checks; the new Java/Kotlin code and host metadata probe ran this session.
