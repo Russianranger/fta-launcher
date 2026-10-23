@@ -209,7 +209,7 @@ version code and keep this signing certificate; public debug APKs cannot update 
 
 ## Local auth checkpoint
 
-Latest private code **15**, `0.9.0-local-auth`, retains the certificate and all
+Previous private code **15**, `0.9.0-local-auth`, retains the certificate and all
 16 native payloads from code 14. APK SHA256: `95749ca8c01008c816618a9942774025d11468c317325b9c34f1acc6ffdf669c`.
 It passes 213 Android tests, lint/assembly, 142 tooling tests, 221 packaged-input
 checks, signature/alignment and original-auth host qualification. The additional
@@ -218,5 +218,31 @@ restored-Thor-backup test passes all 24 strict metadata checks before/after auth
 Android INTERNET permission supports only the generated loopback listener and
 probe in this feature. Database access stays on the private Unix socket. The
 realm remains offline after the guarded source-derived startup-flag transition.
-Physical code 15 is unverified; follow [one local auth test](local-auth-service.md).
+Physical code 15 failed during launcher config validation before auth launch;
+see the [device evidence](evidence/android-2026-10-23-thor-local-auth-attempt.json).
 Do not use public debug releases, uninstall the private app or clear its data.
+
+## Generated auth role correction
+
+Latest private code **16**, `0.9.1-auth-role`, corrects the measured mismatch
+between generated hexadecimal database role names and the configuration
+validator. It validates configuration before database writes and retains the
+32-character and delimiter restrictions. Native payloads and original SQL are
+unchanged. APK SHA256: `8d472f42651e1c2ce4de4023db4efcfd89f8eede2d5d67a25cf12796dbabc39c`.
+
+The private build passed **217 Android tests** (23 classes, no failures or skips),
+lint/assembly, **142 tooling tests**, all **221** runtime/notice input checks,
+v2 signing and 16 KiB alignment. Its certificate and all **16 native payloads**
+match version 15. The regression failed with the old validator and passes with
+the correction. Both original-auth host fixtures pass with production-generated
+UUID roles: four clean auth stops and 40 SQL health checks in total. The restored
+Thor backup passes all 24 strict metadata checks before and after auth, preserves
+account/character counts and shuts down through SQL with exit zero.
+See [private APK evidence](evidence/android-2026-10-23-private-auth-role-apk.json),
+[seed host evidence](evidence/database-2026-10-23-host-local-auth-role.json) and
+[restored-backup host evidence](evidence/database-2026-10-23-host-thor-backup-auth-role.json).
+Host TCP adapters remain distinct from Android socket/ARM64 execution.
+
+Install in place and follow [one local auth test](local-auth-service.md). Physical
+code 16 is unverified. Keep the current realm, backup and imported dependencies;
+no seed/updater/lifecycle/backup milestone needs repeating.

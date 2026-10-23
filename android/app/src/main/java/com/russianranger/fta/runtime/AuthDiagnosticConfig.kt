@@ -8,7 +8,8 @@ object AuthDiagnosticConfig {
         listOf(socket, client, sourceDirectory, tempDirectory).forEach { path ->
             require(path.isAbsolute && path.path.none { it in "\";\r\n\u0000" }) { "Unsafe private auth configuration path" }
         }
-        require(user.matches(Regex("[a-z_]{1,32}")))
+        // Generated local roles include UUID hexadecimal digits; delimiters remain forbidden.
+        require(user.matches(Regex("[a-z_][a-z0-9_]{0,31}")))
         require(password.matches(Regex("[a-f0-9]{48}")))
         return """
             [authserver]

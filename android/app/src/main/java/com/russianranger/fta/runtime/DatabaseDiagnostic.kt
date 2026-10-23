@@ -280,12 +280,14 @@ class DatabaseDiagnostic(
         val source = WorldUpdaterStore().stage(archive, lock, File(visit, "runtime-sql"), ::checkCancelled)
         val temp = File(visit, "auth-temp").apply { check(mkdir()) }
         val config = File(visit, "authserver.conf")
-        val user = "fta_local_" + UUID.randomUUID().toString().replace("-", "").take(16)
+        val user = LocalAuthProbe.databaseUser(UUID.randomUUID())
         val password = ByteArray(24).also { SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it.toInt() and 255) }
         val username = "FTA" + UUID.randomUUID().toString().replace("-", "").take(13).uppercase()
         check(client("SELECT COUNT(*) FROM acore_auth.account WHERE username='$username';", 5000).trim() == "0")
         val port = LocalAuthProbe.unusedPort()
         check(LocalAuthProbe.closed(port))
+        // Validate generated credentials and private paths before changing realm state or creating a role.
+        val renderedConfig = LocalAuthProbe.config(socket, runtime.executables.getValue("database-client"), source, temp, user, password, port)
         val staleFlagCleared = LocalRealmAuthState.prepare { client(it, 5000) }
         observe("offlineRealmStatePrepared", true)
         observe("staleStartupFlagCleared", staleFlagCleared)
@@ -304,7 +306,7 @@ class DatabaseDiagnostic(
             client("CREATE USER '$user'@'localhost' IDENTIFIED BY '$password';", 5000)
             created = true
             client("GRANT ALL PRIVILEGES ON acore_auth.* TO '$user'@'localhost';", 5000)
-            config.writeText(LocalAuthProbe.config(socket, runtime.executables.getValue("database-client"), source, temp, user, password, port))
+            config.writeText(renderedConfig)
             check(config.setReadable(false, false) && config.setWritable(false, false) && config.setReadable(true, true) && config.setWritable(true, true))
             LocalAuthProtocol.run(object : LocalAuthProtocol.Driver {
                 override fun checkActive() = checkCancelled()

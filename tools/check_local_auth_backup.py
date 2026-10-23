@@ -91,7 +91,6 @@ def main():
                 counts = cli.query('SELECT COUNT(*) FROM acore_auth.account; SELECT COUNT(*) FROM acore_characters.characters;')
                 assert cli.query("SELECT COUNT(*) FROM acore_auth.account WHERE username='FTA0123456789ABC';") == '0'
                 password = secrets.token_hex(24)
-                cli.query("CREATE USER 'fta_local_host'@'127.0.0.1' IDENTIFIED BY '" + password + "'; GRANT ALL PRIVILEGES ON acore_auth.* TO 'fta_local_host'@'127.0.0.1';")
                 props = {'client': str(args.client), 'auth': str(args.auth), 'libraries': str(args.libraries), 'password': password, 'databasePort': str(port)}
                 session = work / 'host-session.properties'; session.write_text(''.join(k + '=' + v + '\n' for k, v in props.items())); session.chmod(0o600)
                 (work / 'client.args').write_text('\n'.join(cli.command[1:]) + '\n')
@@ -102,8 +101,7 @@ def main():
                     sql_errors = sorted(set(re.findall(r'ERROR ([0-9]{1,5})', text)))
                     eligibility = cli.query("SELECT COUNT(*)>0 FROM acore_auth.realmlist; SELECT COUNT(*)>0 FROM acore_auth.realmlist WHERE (flag | 2) <> 3;")
                     raise RuntimeError('Original auth on restored backup failed; markers=' + ','.join(markers) + '; SQL errors=' + ','.join(sql_errors) + '; realm eligibility booleans=' + eligibility.replace('\n', ',') + '; ' + result.stderr[-1200:])
-                assert result.stdout.splitlines() == ['originalAuthProtocolAndRestartsPassed=true', 'authCleanStops=2', 'databaseHealthChecks=20', 'staleStartupFlagCleared=true']
-                cli.query("DROP USER 'fta_local_host'@'127.0.0.1';")
+                assert result.stdout.splitlines() == ['originalAuthProtocolAndRestartsPassed=true', 'authCleanStops=2', 'databaseHealthChecks=20', 'staleStartupFlagCleared=true', 'generatedDatabaseRoleAndCleanupPassed=true']
                 metadata()
                 assert cli.query('SELECT COUNT(*) FROM acore_auth.account; SELECT COUNT(*) FROM acore_characters.characters;') == counts
                 cli.query('SHUTDOWN;'); assert process.wait(timeout=15) == 0, 'Restored host database did not exit cleanly'
@@ -115,6 +113,7 @@ def main():
     assert sha(args.backup) == args.backup_sha256
     sources = ['android/app/src/main/java/com/russianranger/fta/runtime/ColdRealmBackup.kt',
         'android/app/src/main/java/com/russianranger/fta/runtime/LocalAuthProbe.kt',
+        'android/app/src/main/java/com/russianranger/fta/runtime/AuthDiagnosticConfig.kt',
         'android/app/src/main/java/com/russianranger/fta/runtime/LocalRealmAuthState.kt',
         'android/app/src/main/java/com/russianranger/fta/runtime/WorldUpdaterEvidence.kt',
         'tests/fixtures/LocalAuthBackupHost.java', 'tests/fixtures/LocalAuthHost.java', 'tools/check_local_auth_backup.py']
@@ -122,6 +121,7 @@ def main():
         'backupSha256': args.backup_sha256, 'originalBackupUnchanged': True, 'productionRestorePassed': True,
         'originalSeedReimported': False, 'sourceKnownStaleStartupFlagCleared': True, 'configuredRealmExplicitlyKeptOffline': True, 'strictMetadataChecksBefore': 24, 'strictMetadataChecksAfter': 24,
         'authCleanStops': 2, 'build12340UnknownAccountProtocolPassed': True, 'databaseHealthChecks': 20,
+        'productionUuidDatabaseRoleAndConfigUsed': True, 'temporaryDatabaseRoleRemoved': True,
         'existingAccountAndCharacterCountsUnchanged': True, 'databaseCleanSqlShutdownExitCode': 0,
         'hostDatabaseTransport': 'private-loopback-with-generated-host-only-role', 'androidSocketCredentialsExecuted': False, 'serverSha256': sha(args.server), 'authserverSha256': sha(args.auth),
         'sourceSha256': {name: sha(ROOT / name) for name in sources}, 'gameLoginQualified': False, 'worldReady': False}

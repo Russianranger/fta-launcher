@@ -7,10 +7,12 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.UUID
 
 /** Source-derived build-12340 challenge. No password, account creation or login proof is sent. */
 object LocalAuthProbe {
     private val loopback = InetAddress.getByAddress(byteArrayOf(127, 0, 0, 1))
+    fun databaseUser(id: UUID): String = "fta_local_" + id.toString().replace("-", "").take(16)
     fun unusedPort(): Int = ServerSocket(0, 1, loopback).use { it.localPort }
     fun packet(name: String): ByteArray {
         require(name.matches(Regex("FTA[A-F0-9]{13}")))

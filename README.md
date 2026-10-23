@@ -73,14 +73,21 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.9.0-local-auth** (code **15**)
-passed **213 Android tests**, lint/assembly, 142 tooling tests, signing/alignment
-and 221 packaged input checks. Its signer and all 16 native payloads match code
-14. It checks the retained database and two original auth listener starts/stops
-on IPv4 loopback. A verified backup is required. The source-known stale startup
-flag is cleared only for the guarded build-12340 realm, which remains offline.
-See [local auth instructions](docs/local-auth-service.md) and
-[exact APK evidence](docs/evidence/android-2026-10-23-private-local-auth-apk.json).
+signing and validation. Latest private version **0.9.1-auth-role** (code **16**)
+fixes the code 15 launcher setup failure: its generated hexadecimal database
+username was rejected by a letters-only validator before authserver started.
+Configuration now validates before database writes, with safe ASCII digit support
+and unchanged delimiter/length restrictions. The retained realm, all 24 metadata
+expectations and guarded offline flag transition passed on code 15; local auth
+remains unqualified until code 16's physical test. No native or original SQL
+change is needed. See [local auth instructions](docs/local-auth-service.md),
+[device evidence](docs/evidence/android-2026-10-23-thor-local-auth-attempt.json) and
+[exact APK evidence](docs/evidence/android-2026-10-23-private-auth-role-apk.json).
+
+The corrected private build passes 217 Android tests, lint/assembly, 142 tooling
+tests, 221 packaged-input checks and signing/alignment. Its certificate and all
+16 native payloads match code 15. Both real-auth host tests pass with generated
+UUID roles; Android execution of code 16 remains unverified.
 
 Physical code **14 passed cold backup and two isolated restored reopens**. The
 uploaded ZIP matches the recorded identity and every manifest file hash. Its
@@ -163,7 +170,7 @@ tables. Validation uses the measured archive inventory.
 | Android Stop action and runtime service-process death/recovery | Passed on physical Thor code 12; all seven observations and 24 complete records |
 | Fresh-only persistent realm storage and reuse without seed replay | Passed on physical Thor code 13: same active generation, no reimport, two clean reopens |
 | Cold realm backup and isolated restore | Physical code 14 passed; uploaded ZIP independently verified; earlier JSON lacks SAF readback receipt |
-| Retained local auth listener/restart | Host original auth and restored Thor backup pass; private code 15 physical test pending |
+| Retained local auth listener/restart | Code 15 exposed generated-role config failure; code 16 corrects it, physical test pending |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |

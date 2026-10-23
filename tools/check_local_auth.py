@@ -52,7 +52,6 @@ def main():
         assert cli.query("SELECT COUNT(*) FROM acore_auth.account WHERE username='FTA0123456789ABC';") == '0'
         accounts = cli.query('SELECT COUNT(*) FROM acore_auth.account;')
         password = secrets.token_hex(24)
-        cli.query("CREATE USER 'fta_local_host'@'127.0.0.1' IDENTIFIED BY '" + password + "'; GRANT ALL PRIVILEGES ON acore_auth.* TO 'fta_local_host'@'127.0.0.1';")
         port = next(x.split('=', 1)[1] for x in cli.command if x.startswith('--port='))
         props = {'client': str(args.client), 'auth': str(args.auth), 'libraries': str(args.libraries), 'password': password, 'databasePort': port}
         session = work / 'host-session.properties'; session.write_text(''.join(k + '=' + v + '\n' for k, v in props.items())); session.chmod(0o600)
@@ -62,11 +61,9 @@ def main():
         if result.returncode:
             # Only JVM exception summaries; never emit native logs, SQL, credentials or rows.
             raise RuntimeError('Host auth protocol failed: ' + result.stderr[-3000:])
-        assert result.stdout.splitlines() == ['originalAuthProtocolAndRestartsPassed=true', 'authCleanStops=2', 'databaseHealthChecks=20', 'staleStartupFlagCleared=false']
+        assert result.stdout.splitlines() == ['originalAuthProtocolAndRestartsPassed=true', 'authCleanStops=2', 'databaseHealthChecks=20', 'staleStartupFlagCleared=false', 'generatedDatabaseRoleAndCleanupPassed=true']
         assert cli.query('SELECT COUNT(*) FROM acore_auth.account;') == accounts
         assert cli.query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='acore_auth';") == '27'
-        cli.query("DROP USER 'fta_local_host'@'127.0.0.1';")
-        assert cli.query("SELECT COUNT(*) FROM mysql.user WHERE User='fta_local_host';") == '0'
         version = cli.query('SELECT VERSION();'); assert version == '12.3.2-MariaDB'
         cli.query('SHUTDOWN;')
         end = time.monotonic() + 15
@@ -86,6 +83,7 @@ def main():
         'originalAuthTablesImportedUnchanged': 27, 'originalAuthUpdaterEnabled': True, 'configuredRealmExplicitlyKeptOffline': True, 'authCleanStops': 2,
         'build12340UnknownAccountProtocolPassed': True, 'closedListenerAfterBothStops': True,
         'databaseHealthChecks': 20, 'existingGameAccountCountUnchanged': True, 'temporaryDatabaseRoleRemoved': True,
+        'productionUuidDatabaseRoleAndConfigUsed': True,
         'hostDatabaseVersion': version, 'hostDatabaseTransport': 'private-generated-loopback', 'databaseSqlShutdownRequested': True, 'databaseListenerClosedAfterShutdown': True,
         'serverSha256': sha(args.server), 'authserverSha256': sha(args.auth), 'databaseZipSha256': lock['archiveSha256'],
         'sourceSha256': {name: sha(ROOT / name) for name in sources}, 'gameLoginQualified': False, 'worldReady': False}

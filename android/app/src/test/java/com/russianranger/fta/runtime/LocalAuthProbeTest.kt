@@ -12,6 +12,20 @@ import java.util.concurrent.TimeUnit
 
 class LocalAuthProbeTest {
     private val name = "FTA0123456789ABC"
+    @Test fun productionGeneratedDatabaseRoleCanRenderTheListenerConfig() {
+        val user = LocalAuthProbe.databaseUser(UUID.fromString("01234567-89ab-4cde-8fab-0123456789ab"))
+        assertEquals("fta_local_0123456789ab4cde", user)
+        val config = LocalAuthProbe.config(File("/private/db.sock"), File("/native/client"), File("/private/Data"), File("/private/tmp"), user, "0123456789abcdef".repeat(3), 3724)
+        assertTrue(config.contains("LoginDatabaseInfo = \".;/private/db.sock;$user;0123456789abcdef0123456789abcdef0123456789abcdef;acore_auth\""))
+        assertTrue(config.contains("RealmServerPort = 3724\n"))
+    }
+    @Test fun generatedV4DatabaseRolesAlwaysIncludeTheVersionDigitAndRemainValid() {
+        repeat(100) {
+            val user = LocalAuthProbe.databaseUser(UUID.randomUUID())
+            assertEquals('4', user["fta_local_".length + 12])
+            LocalAuthProbe.config(File("/db.sock"), File("/client"), File("/Data"), File("/tmp"), user, "a".repeat(48), 3724)
+        }
+    }
     @Test fun originalWirePacketMatchesBuild12340Structure() {
         val bytes = LocalAuthProbe.packet(name)
         val hex = bytes.joinToString("") { "%02x".format(it.toInt() and 255) }

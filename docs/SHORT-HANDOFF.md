@@ -7,19 +7,40 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.9.0-local-auth**, version code **15**.
-APK SHA256: `95749ca8c01008c816618a9942774025d11468c317325b9c34f1acc6ffdf669c`.
-The same certificate and all 16 native payloads match physically passing code 14.
-The private build passed **213 Android tests** (23 classes), lint/assembly,
-**142 tooling tests**, all 221 packaged runtime/notice checks, v2 signing and
-16 KiB alignment. The original host authserver passed the production Kotlin
-protocol/lifecycle and JNI with both the unchanged auth seed and a production
-restore of the exact uploaded Thor backup. Each test checked two clean auth
-stops and 20 SQL health probes. The restored backup passed all 24 metadata
-expectations before and after auth, with clean SQL shutdown and unchanged
-account/character counts. Host TCP adapters use generated temporary roles;
-Android socket credentials, ARM64 execution and service behavior remain separate.
-See `docs/local-auth-service.md` and the host/private APK evidence files.
+Latest private update: **0.9.1-auth-role**, version code **16**.
+APK SHA256: `8d472f42651e1c2ce4de4023db4efcfd89f8eede2d5d67a25cf12796dbabc39c`.
+
+**Physical code 15 isolated a launcher setup defect.** The exact private APK
+reopened the retained realm, passed all 24 metadata checks and the guarded offline
+transition, then failed before any auth process started. All 13 recorded native
+invocations exited zero; the temporary database role was removed and
+`activeGenerationVerified=true`. SQL shutdown was not observed, so exit zero is
+not promoted to a passed shutdown gate. Report SHA256:
+`941e1bc3a90f6a45933ff07508f878a6efa61aed49d89ba432accc8b15af0665`.
+See `docs/evidence/android-2026-10-23-thor-local-auth-attempt.json`.
+
+The source and regression identify the precise cause: generated
+`fta_local_<UUID hex>` roles always contain the UUID-v4 version digit **4**, but
+`AuthDiagnosticConfig` accepted only letters and underscores. Code 16 admits
+safe ASCII digits after the first character, retaining the 32-character bound
+and rejection of configuration/SQL delimiters. It validates config before realm
+state changes or role creation. The production UUID name generator is shared
+with regression tests and both real-auth host fixtures; earlier fixtures used
+an alphabetic fixed name and did not cover this boundary. No native, original
+SQL, schema expectation, updater receipt, realm build or flag policy changes.
+
+The private build passed **217 Android tests** (23 classes, no failures or skips),
+lint/assembly, **142 tooling tests**, all **221** runtime/notice input checks,
+v2 signing and 16 KiB alignment. Its certificate and all **16 native payloads**
+match version 15. The regression failed with the old validator and passes with
+the correction. Both original-auth host fixtures pass with production-generated
+UUID roles: four clean auth stops and 40 SQL health checks in total. The restored
+Thor backup passes all 24 strict metadata checks before and after auth, preserves
+account/character counts and shuts down through SQL with exit zero.
+See [private APK evidence](evidence/android-2026-10-23-private-auth-role-apk.json),
+[seed host evidence](evidence/database-2026-10-23-host-local-auth-role.json) and
+[restored-backup host evidence](evidence/database-2026-10-23-host-thor-backup-auth-role.json).
+Host TCP adapters remain distinct from Android socket/ARM64 execution.
 
 **Physical code 14 passed backup/restore.** All eight flags and all three database
 opens passed, with 21 successful native records and clean SQL shutdowns. The
@@ -41,12 +62,12 @@ flags 0..3, then clears only the stale startup bit while explicitly retaining
 OFFLINE. No schema, receipt, account or build expectation is relaxed. See
 `docs/evidence/database-2026-10-23-auth-startup-flag-boundary.json`.
 
-**Next substantial physical test:** install private code 15 in place and select
+**Next substantial physical test:** install private code 16 in place and select
 **Test local auth service**, then export only the diagnostic JSON. Expect
 `LOCAL_AUTH_PASSED`, `localAuthQualified=true`, all required checks true and two
-clean auth stops before SQL database shutdown. The first run should also report
-`staleStartupFlagCleared=true`. Keep the realm, verified backup, Database.zip and
-dependencies. No seed replay occurs. Physical code 15 remains unverified.
+clean auth stops before SQL database shutdown. Code 15 already cleared the stale flag, so
+`staleStartupFlagCleared=false` is valid on this follow-up. Keep the realm, verified backup, Database.zip and
+dependencies. No seed replay occurs. Physical code 16 remains unverified.
 
 Previous private update: **0.8.0-realm-backup**, version code **14**.
 APK SHA256: `e268967eb5cc95d2a17161daf20a22f5719767b170db6cff95457a9fdb5880e8`.
@@ -104,7 +125,7 @@ Generic disposable flags in this separate scope do not revoke prior passes.
 Do not repeat the initial persistent preparation milestone.
 
 Cold backup and isolated restore passed physically in code 14. The next gate is
-retained local auth startup/restart in code 15; see `docs/local-auth-service.md`.
+retained local auth startup/restart in code 16; see `docs/local-auth-service.md`.
 World startup still requires matching client data and service orchestration.
 
 Passing physical updater diagnostic: **0.5.2-metadata-timezone**, version code **10**.
