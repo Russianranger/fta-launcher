@@ -73,12 +73,19 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.6.0-database-lifecycle**
-(code **11**) passed all **150 Android tests**, lint, signing/alignment and 221 exact
-runtime/notice checks. All 16 native payloads remain byte-identical to version 10.
-The same persistent certificate permits an in-place update with imports retained.
-See [lifecycle test instructions](docs/database-lifecycle-diagnostic.md) and
-[exact APK evidence](docs/evidence/android-2026-10-23-private-lifecycle-apk.json).
+signing and validation. Latest private version **0.6.1-runtime-recovery**
+(code **12**) passed all **164 Android tests**, lint, signing/alignment and 221 exact
+runtime/notice checks. The provider, authserver, worldserver and dependencies
+(all 15 other native payloads) match code 11 byte for byte. Its process supervisor
+adds a read-only owned-child identity API. The same persistent certificate permits
+an in-place update with imports retained. See [runtime recovery instructions](docs/runtime-recovery-diagnostic.md)
+and [exact APK evidence](docs/evidence/android-2026-10-23-private-runtime-recovery-apk.json).
+
+Physical code **11 passed database lifecycle and screen-off health**, with all
+ten observations and 85 complete native records. The [physical evidence](docs/evidence/android-2026-10-23-thor-lifecycle-pass.json)
+qualifies cancellation, clean restart, forced database-stop recovery and screen-off
+SQL operation. Code 12 adds one automatic test for the actual Stop action and
+separate Android service-process death; its physical execution remains unverified.
 
 Physical version **10 passed all 24 compiled-updater checks**, both complete
 world-column snapshots matched the original host reference, and MariaDB shut
@@ -89,10 +96,10 @@ time and native bytes remain unchanged. See the
 [resolved diagnosis](docs/world-column-diagnostic.md) and
 [passing physical evidence](docs/evidence/android-2026-10-23-thor-compiled-updater-pass.json).
 No repeat updater run is needed for the unchanged implementation.
-The next private diagnostic exercises cancellation, restart, crash recovery and
-screen-off SQL health using a small disposable database without reimporting the
-seed. Its physical execution remains unverified. The existing native source
-companion remains applicable; no source ZIP is needed on the device.
+The production recovery protocol and JNI owner passed real host MariaDB process
+termination and same-database recovery. This does not qualify Android services.
+The existing provider/server source companion remains applicable; the updated
+supervisor source is in this repository. No source ZIP is needed on the device.
 The original auth updater/dry-run gate already
 [passed on physical Thor in version 5](docs/evidence/android-2026-10-22-thor-resolver-pass.json);
 version 6 reached 158 seed tables, then failed on its first ASCII column.
@@ -143,12 +150,13 @@ tables. Validation uses the measured archive inventory.
 | Full seed import on pinned Android MariaDB provider | Passed on physical Thor: 563 tables, one trigger, exact three-schema/receipt baselines and clean SQL shutdown |
 | Android ARM64 worldserver and all 52 required modules | Build and private staging passed; world readiness remains open |
 | Original compiled three-database updater | Passed on physical Thor: 24/24 strict checks and exact before/after host snapshots |
-| Disposable database cancellation/restart/crash recovery | Production Kotlin/JNI host probe passed; private code 11 physical test pending |
+| Disposable database cancellation/restart/crash recovery and screen-off health | Passed on physical Thor code 11: all ten observations, 85 complete records |
+| Android Stop action and runtime service-process death/recovery | Production protocol/SQL/JNI host test passed; private code 12 physical test pending |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-The next device gate is the [database lifecycle diagnostic](docs/database-lifecycle-diagnostic.md).
+The next device gate is the [runtime recovery diagnostic](docs/runtime-recovery-diagnostic.md).
 The ARM64 world build and original compiled updater have passing evidence;
 preserve their C++20, all 52 modules, static Lua 5.2, source hashes and strict
 [updater protocol](docs/world-updater-gate.md). Android service-process death and

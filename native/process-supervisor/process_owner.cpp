@@ -179,6 +179,20 @@ std::int64_t start(const StartOptions& options) {
     }
 }
 
+int process_id(std::int64_t handle) {
+    auto owned = lookup(handle);
+    std::lock_guard<std::mutex> guard(owned->mutex);
+    if (owned->status != running) fail("Owned process has already exited");
+    // Observation only: never reap or clean up descendants while taking identity.
+    siginfo_t info{};
+    int result;
+    do { result = waitid(P_PID, static_cast<id_t>(owned->pid), &info, WEXITED | WNOHANG | WNOWAIT); }
+    while (result && errno == EINTR);
+    if (result) fail("Owned process could not be observed");
+    if (info.si_pid) fail("Owned process has already exited");
+    return owned->pid;
+}
+
 int wait_for(std::int64_t handle, std::int64_t timeout_ms) {
     auto owned = lookup(handle);
     const auto end = std::chrono::steady_clock::now() + std::chrono::milliseconds(std::clamp<std::int64_t>(timeout_ms,0,600000));

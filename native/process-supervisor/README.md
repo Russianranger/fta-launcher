@@ -19,6 +19,13 @@ SIGKILL protects even a child that ignores TERM if the owning runtime
 thread/process dies. The current database test is disposable. Persistent
 database crash recovery remains a separate runtime responsibility.
 
+`process_id(handle)` exposes only a live, directly owned child for observation.
+It uses `waitid(WNOWAIT)` without reaping, signalling or changing the registry;
+an exited leader or unknown handle is refused. The recovery controller combines
+this PID with the kernel start time and verifies initial parentage. Reparenting
+alone is never termination, and inaccessible/malformed procfs records fail the
+test. No public API accepts a caller-selected PID to stop.
+
 Two reader threads drain stdout/stderr so a child cannot block on a full pipe.
 Each private mode-0600 log retains at most 8 MiB while excess output is discarded.
 The cap applies only to captured logs, not database files. Final pipe draining is

@@ -18,7 +18,9 @@ class DatabaseDiagnostic(
     private val includeAuth: Boolean = false,
     private val includeFullSeed: Boolean = false,
     private val includeWorldUpdater: Boolean = false,
-    private val includeLifecycle: Boolean = false
+    private val includeLifecycle: Boolean = false,
+    private val recoveryStore: RecoveryStore? = null,
+    private val recoveryPhase: RecoveryPhase? = null
 ) {
     private val owned = ConcurrentHashMap<Long, String>()
     private lateinit var root: File
@@ -37,12 +39,14 @@ class DatabaseDiagnostic(
     private val deadline = System.nanoTime() + (if (includeWorldUpdater) 2400L else if (includeFullSeed) 1800L else if (includeAuth) 420L else 300L) * 1_000_000_000L
 
     fun run(): String {
-        require(listOf(includeAuth, includeFullSeed, includeWorldUpdater, includeLifecycle).count { it } <= 1) { "Select one diagnostic scope" }
+        require(listOf(includeAuth, includeFullSeed, includeWorldUpdater, includeLifecycle, recoveryStore != null).count { it } <= 1) { "Select one diagnostic scope" }
+        require((recoveryStore == null) == (recoveryPhase == null))
         runtime = PackagedRuntime.inspect(context)
         if (includeAuth) require("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables)
         if (includeWorldUpdater) require("worldserver" in runtime.manifest.capabilities && "world-server" in runtime.executables &&
             runtime.manifest.files.any { it.path == WorldUpdaterMetadata.PATH }) { "The compiled world updater payload is unavailable" }
         require(runtime.manifest.bootstrap != null) { "A pinned bootstrap recipe is required" }
+        if (recoveryPhase == RecoveryPhase.RESUME) return runRecoveryResume(recoveryStore!!)
         val parent = File(context.filesDir, "runtime/database-diagnostics").apply { check(mkdirs() || isDirectory) }
         // At most two previous diagnostic directories are retained. These never hold user saves.
         parent.listFiles()?.filter { it.isDirectory && it.name.startsWith("g-") }
@@ -54,6 +58,7 @@ class DatabaseDiagnostic(
         require(attemptId != null && NativeInvocationJournal.validAttemptId(attemptId)) { "Current diagnostic attempt identity is unavailable" }
         currentAttemptId = attemptId
         invocationJournal = NativeInvocationJournal(File(root, "native-invocations.properties"), attemptId)
+        recoveryStore?.write(RecoveryWorkerRecord(recoveryPhase!!, rootName = root.name))
         checkCancelled()
         setStage("STAGING", "Verifying packaged database bootstrap and system data.")
         val bootstrap = runtime.stageData(context, File(root, "payload"), ::checkCancelled)
@@ -72,17 +77,7 @@ class DatabaseDiagnostic(
         // Linux sockaddr_un paths are limited to 108 bytes, including termination.
         check(socket.absolutePath.toByteArray().size < 104) { "Private database socket path is too long" }
         val pluginDirectory = File(root, "plugin").apply { check(mkdir()) }
-        val options = listOf(
-            "--no-defaults", "--basedir=${provider.absolutePath}", "--datadir=${datadir.absolutePath}",
-            "--plugin-dir=${pluginDirectory.absolutePath}",
-            "--lc-messages-dir=${File(provider, "share/mysql").absolutePath}",
-            "--character-sets-dir=${characterSetsDirectory.absolutePath}",
-            "--socket=${socket.absolutePath}", "--pid-file=${File(root, "db.pid").absolutePath}",
-            "--skip-networking", "--skip-name-resolve", "--performance-schema=OFF",
-            "--innodb-buffer-pool-size=64M", "--innodb-log-file-size=16M", "--aria-pagecache-buffer-size=16M", "--key-buffer-size=8M",
-            "--max-connections=8", "--thread-cache-size=2", "--tmp-table-size=8M", "--max-heap-table-size=8M",
-            "--max-allowed-packet=${if (needsFullSeed) "256M" else "16M"}"
-        )
+        val options = databaseOptions(provider, datadir, pluginDirectory)
         try {
             setStage("BOOTSTRAPPING", "Initializing a fresh disposable database. Existing saves are untouched.")
             runTool("database-server", options + listOf("--bootstrap", "--log-warnings=0", "--enforce-storage-engine="), bootstrap, 180_000)
@@ -142,6 +137,7 @@ class DatabaseDiagnostic(
             check(values["FTA_UNICODE_ROWS"] == "1") { "Unicode collation round trip failed" }
             check(values["FTA_ASCII_ROWS"] == "1") { "ASCII character-set round trip failed" }
             check(values["FTA_ROLLBACK_ROWS"] == "0") { "InnoDB rollback probe failed" }
+            if (recoveryStore != null) runRecoveryHold(recoveryStore, recoveryPhase!!)
             if (includeLifecycle) {
                 runLifecycleDiagnostic(options)
                 return "Disposable database lifecycle checks passed: transaction cancellation and rollback, clean restart, SIGKILL recovery with committed data retained and an interrupted transaction rolled back, and final SQL shutdown. Screen-off observations are in the exported report. Android service-process death, realm storage and gameplay remain separate gates."
@@ -180,9 +176,100 @@ class DatabaseDiagnostic(
         }
     }
 
+    private fun databaseOptions(provider: File, datadir: File, pluginDirectory: File) = listOf(
+            "--no-defaults", "--basedir=${provider.absolutePath}", "--datadir=${datadir.absolutePath}",
+            "--plugin-dir=${pluginDirectory.absolutePath}",
+            "--lc-messages-dir=${File(provider, "share/mysql").absolutePath}",
+            "--character-sets-dir=${characterSetsDirectory.absolutePath}",
+            "--socket=${socket.absolutePath}", "--pid-file=${File(root, "db.pid").absolutePath}",
+            "--skip-networking", "--skip-name-resolve", "--performance-schema=OFF",
+            "--innodb-buffer-pool-size=64M", "--innodb-log-file-size=16M", "--aria-pagecache-buffer-size=16M", "--key-buffer-size=8M",
+            "--max-connections=8", "--thread-cache-size=2", "--tmp-table-size=8M", "--max-heap-table-size=8M",
+            "--max-allowed-packet=${if (needsFullSeed) "256M" else "16M"}"
+        )
+
     private fun checkCancelled() {
         check(!cancelled.get()) { "Database diagnostic cancelled" }
         check(System.nanoTime() < deadline) { "Database diagnostic exceeded its total deadline" }
+    }
+
+    private fun runRecoveryHold(store: RecoveryStore, phase: RecoveryPhase): Nothing {
+        require(phase in setOf(RecoveryPhase.CANCEL, RecoveryPhase.CRASH) && currentAttemptId == store.attemptId)
+        setStage("RECOVERY_HOLD", "Preparing the disposable service recovery checkpoint.")
+        RecoveryCanary.create(store.attemptId) { client(it, 10_000) }
+        val script = File(root, "recovery-transaction.sql").apply { writeText(DatabaseLifecycleProbe.TRANSACTION) }
+        val handle = launch("database-client", listOf("--defaults-file=${clientOptions!!.absolutePath}",
+            "--character-sets-dir=${characterSetsDirectory.absolutePath}", "--batch", "--skip-column-names", "--connect-timeout=2"),
+            script, "tool-${++step}", 300_000)
+        val readyEnd = System.nanoTime() + 10_000_000_000L
+        while (true) {
+            checkCancelled()
+            check(waitTracked(handle, 0) == Int.MIN_VALUE)
+            if (client(DatabaseLifecycleProbe.ACTIVE, 2_000).trim() == "1") break
+            check(System.nanoTime() < readyEnd); Thread.sleep(100)
+        }
+        val owner = ProcessObservation.self(android.os.Process.myPid())
+        val children = listOf(server, handle).map { ProcessObservation.live(NativeProcessBridge.processId(it)) }
+        check(children.all { it.parentPid == owner.pid } && children.map { it.pid }.distinct().size == 2)
+        store.write(RecoveryWorkerRecord(phase, "READY", root.name, owner, children))
+        // Controller either uses the real Stop PendingIntent, or asks this nonexported
+        // service to kill only its own process. Losing the controller times out here.
+        while (true) {
+            checkCancelled()
+            check(waitTracked(server, 0) == Int.MIN_VALUE && waitTracked(handle, 0) == Int.MIN_VALUE)
+            Thread.sleep(100)
+        }
+    }
+
+    private fun runRecoveryResume(store: RecoveryStore): String {
+        val previous = store.read(RecoveryPhase.CRASH) ?: error("Crash checkpoint is absent")
+        require(RuntimeRecoveryProtocol.ready(previous))
+        require(ProcessObservation.ended(previous.owner!!) && previous.children.all { ProcessObservation.ended(it) })
+        root = store.verifiedRoot(File(context.filesDir, "runtime/database-diagnostics"), previous)
+        val datadir = File(root, "database")
+        require(java.nio.file.Files.isDirectory(datadir.toPath(), java.nio.file.LinkOption.NOFOLLOW_LINKS))
+        val provider = File(root, "payload/data/provider")
+        runtime.manifest.files.filter { it.role == "data" }.forEach { entry ->
+            checkCancelled(); RuntimeManifest.verifyFile(File(root, "payload/${entry.path}"), entry)
+        }
+        characterSetsDirectory = File(provider, "share/mysql/charsets")
+        socket = File(context.filesDir, "run/d.sock")
+        val credentials = File(root, "client.cnf")
+        require(java.nio.file.Files.isRegularFile(credentials.toPath(), java.nio.file.LinkOption.NOFOLLOW_LINKS) && credentials.length() <= 1024)
+        val lines = credentials.readLines()
+        require(lines.size == 5 && lines[0] == "[client]" && lines[1] == "user=root" &&
+            lines[2].matches(Regex("password=[0-9a-f]{48}")) && lines[3] == "protocol=socket" && lines[4] == "socket=${socket.absolutePath}")
+        clientOptions = credentials
+        currentAttemptId = store.attemptId
+        invocationJournal = NativeInvocationJournal(File(root, "native-recovery-resume.properties"), store.attemptId)
+        // Reusing the datadir must not overwrite the killed worker's native logs.
+        check(File(root, "recovery-logs").mkdir())
+        val owner = ProcessObservation.self(android.os.Process.myPid())
+        require(!previous.owner.sameProcess(owner))
+        store.write(RecoveryWorkerRecord(RecoveryPhase.RESUME, rootName = root.name, owner = owner))
+        try {
+            if (socket.exists()) check(socket.delete())
+            setStage("RECOVERY_RESUME", "Reopening the disposable database after runtime service death.")
+            server = launch("database-server", databaseOptions(provider, datadir, File(root, "plugin")), null, "server")
+            val readyEnd = System.nanoTime() + 45_000_000_000L
+            while (true) {
+                checkCancelled(); check(waitTracked(server, 0) == Int.MIN_VALUE)
+                if (socket.exists() && runCatching { client("SELECT 1;", 2_000).trim() == "1" }.getOrDefault(false)) break
+                check(System.nanoTime() < readyEnd); Thread.sleep(150)
+            }
+            evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "database_ready") }
+            setStage("RECOVERY_VALIDATE", "Checking recovered commit, interrupted transaction and clean shutdown.")
+            RecoveryCanary.verify(store.attemptId) { client(it, 10_000) }
+            client("SHUTDOWN;", 10_000)
+            evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "sql_shutdown_requested") }
+            check(waitTracked(server, 15_000) == 0)
+            evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "clean_shutdown") }
+            owned.remove(server); evidenceHandles.remove(server); server = 0
+            store.state(RecoveryPhase.RESUME, "RECOVERED")
+            return "Disposable database recovered after runtime service death and shut down cleanly."
+        } finally {
+            stopOwned(); credentials.delete(); socket.delete()
+        }
     }
 
     private fun runLifecycleDiagnostic(options: List<String>) {
@@ -546,7 +633,9 @@ class DatabaseDiagnostic(
         status(stage, message)
     }
 
-    private fun logBytes(label: String, suffix: String) = File(root, "$label.$suffix").length()
+    private fun logFile(label: String, suffix: String) = File(
+        if (recoveryPhase == RecoveryPhase.RESUME) File(root, "recovery-logs") else root, "$label.$suffix")
+    private fun logBytes(label: String, suffix: String) = logFile(label, suffix).length()
 
     private fun finishEvidence(handle: Long, outcome: String, exitCode: Int?) {
         val id = evidenceHandles[handle] ?: return
@@ -587,7 +676,7 @@ class DatabaseDiagnostic(
         val evidence = invocationJournal?.begin(label, role, currentStage, timeoutMs)
         val handle = try {
             NativeProcessBridge.start(executable.absolutePath, args.toTypedArray(), environment(role),
-                root.absolutePath, stdin?.absolutePath, File(root, "$label.out").absolutePath, File(root, "$label.err").absolutePath)
+                root.absolutePath, stdin?.absolutePath, logFile(label, "out").absolutePath, logFile(label, "err").absolutePath)
         } catch (failure: Exception) {
             evidence?.let { invocationJournal?.finish(it, "start_failed", null, logBytes(label, "out"), logBytes(label, "err")) }
             throw failure
@@ -614,7 +703,7 @@ class DatabaseDiagnostic(
             }
             if (exit == Int.MIN_VALUE) finishEvidence(handle, "timed_out", null)
             check(exit == 0) { "Native diagnostic command failed or timed out" }
-            val output = File(root, "$label.out")
+            val output = logFile(label, "out")
             if (output.length() > 64 * 1024) {
                 invocationJournal?.validationFailure(role, currentStage, "output_limit_exceeded")
                 error("Native diagnostic output exceeded its limit")
@@ -800,7 +889,8 @@ internal class NativeInvocationJournal(private val file: File, private val attem
         const val MAX_LOG_BYTES = 8 * 1024 * 1024L
         private val roles = setOf("database-server", "database-client", "auth-server", "world-server")
         private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP",
-            "LIFECYCLE_WRITE", "LIFECYCLE_RESTART", "LIFECYCLE_CANCEL", "LIFECYCLE_SCREEN_OFF", "LIFECYCLE_CRASH", "LIFECYCLE_FINISH")
+            "LIFECYCLE_WRITE", "LIFECYCLE_RESTART", "LIFECYCLE_CANCEL", "LIFECYCLE_SCREEN_OFF", "LIFECYCLE_CRASH", "LIFECYCLE_FINISH",
+            "RECOVERY_HOLD", "RECOVERY_RESUME", "RECOVERY_VALIDATE")
         private val outcomes = setOf("running", "exited", "timed_out", "cancelled", "start_failed", "wait_failed", "stopped", "supervisor_failed")
         private val validations = setOf("output_limit_exceeded", "version_marker_missing", "completion_marker_missing", "world_boundary_invalid", "world_postcondition_mismatch")
 

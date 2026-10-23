@@ -1,0 +1,31 @@
+{
+  "formatVersion": 1,
+  "scope": "host-production-recovery-protocol-sql-and-jni",
+  "androidExecuted": false,
+  "androidStopActionDelivered": false,
+  "seedImported": false,
+  "hostProviderVersion": "12.3.2-MariaDB",
+  "hostTransport": "private-loopback-with-generated-credentials",
+  "hostProcNamespaceTranslation": true,
+  "checks": {
+    "stopActionDelivered": true,
+    "stopCleanupObserved": true,
+    "ownerDeathRequested": true,
+    "ownerDeathObserved": true,
+    "nativeChildrenTerminated": true,
+    "sameDatabaseRecovered": true,
+    "finalCleanShutdown": true,
+    "bothOrphansReapedSigkill": true,
+    "noAdoptedChildrenRemain": true
+  },
+  "sourceSha256": {
+    "native/process-supervisor/process_owner.cpp": "0625ebab96c14fa8e6de4048a056d185de6aa7c85a7f3df23f2db968e47ef860",
+    "native/process-supervisor/process_supervisor.cpp": "f64e6fdea1b7dfd8f9523f122a8086533677bf39187962ecdb056ba6de2b51ab",
+    "android/app/src/main/java/com/russianranger/fta/runtime/RecoveryProtocol.kt": "5b0b23e18e5085d16e8df808164ef9b62dd4d5e7512cb9b77762dba94195afd9",
+    "android/app/src/main/java/com/russianranger/fta/runtime/DatabaseLifecycleProbe.kt": "9c500d136a7bd99b4785328f4f340e7e2efef23f24558e655f40b22a27929dd1",
+    "tests/fixtures/RuntimeRecoveryHost.java": "f491acee6bc3d5bb3823fa35a77930e18ce778ce5f18a97d943fbe3adf4459f2",
+    "tests/fixtures/DatabaseLifecycleHost.java": "bef75f9acb840ade42b1d8680787a4c53b5fe0e9e521429b865413285f16f03d"
+  },
+  "serverSha256": "6ce57fb4ff16449fab69cd9e9079a37b1a18c517a9f293a90205cd843b32bbee",
+  "clientSha256": "a9871d797e17151c21e2c7904eca1591ed7c26f28aa2573c869f4821f0487f13"
+}

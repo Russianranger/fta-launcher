@@ -7,29 +7,43 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.6.0-database-lifecycle**, version code **11**.
-APK SHA256: `ad6a38bcfa7a22deba4f648cf779c85ca5376ad918553009effd61ddf400d517`.
-The same private certificate and all 16 native payloads match version 10. All
-221 runtime/notice inputs, signature and 16 KiB alignment verified. All **150**
-Android tests (19 classes), lint/assembly and **142** tooling tests passed.
-Expanded native owner tests passed five repetitions and ASan/UBSan; LeakSanitizer
-could not inspect this host's task namespace and is explicitly not claimed.
-The production Kotlin lifecycle probe and JNI owner passed against real host
-MariaDB 12.3.2, including SIGKILL crash recovery, transaction cancellation and
-committed-data preservation. A separately killed owning JVM also killed its
-native database; recovery passed with no adopted children remaining. Host checks
-use an isolated credentialed loopback connection, not Android's private socket.
-See `docs/evidence/database-2026-10-23-host-lifecycle.json` and
-`docs/evidence/android-2026-10-23-private-lifecycle-apk.json`.
+Latest private update: **0.6.1-runtime-recovery**, version code **12**.
+APK SHA256: `5fa04d6e7837595d58526a3a7e773df503c0dd5d80eaab639fc8e097e6ebf8c5`.
+The private signer matches code 11; all **15 provider/server/dependency payloads**
+remain byte-identical. Only the source-built process supervisor changes, adding
+an observation-only owned-child PID accessor for independent death detection.
+All **164 Android tests** (20 classes), lint/assembly, **142 tooling tests**, all
+221 packaged runtime/notice inputs, v2 signature and 16 KiB alignment passed.
+Native ownership passed five runs and ASan/UBSan; LeakSanitizer remains unavailable
+on this host. The production recovery protocol, canary SQL and JNI owner passed
+against real host MariaDB 12.3.2: Stop cleanup, owning-JVM SIGKILL, termination of
+both native children, same-database recovery, rollback and final SQL shutdown.
+Host evidence does not establish Android intent delivery or service death.
+See `docs/evidence/database-2026-10-23-host-runtime-recovery.json` and
+`docs/evidence/android-2026-10-23-private-runtime-recovery-apk.json`.
 
-**Next substantial physical test:** update to private code 11, select **Test
-database lifecycle**, lock the Thor for two minutes when its screen-off stage
-appears, then export the JSON. This one run covers client cancellation/rollback,
-clean restart, actual forced database-stop recovery, and observed screen-off SQL
-health. No seed reimport, updater repeat or native dependency replacement is
-needed. Physical version 11 execution remains unverified. Android service-process
-death and notification/UI cancellation are still distinct future observations.
+**Physical version 11 passed all ten lifecycle observations**, including
+screen-off SQL health. The exact code 11 APK SHA256 is
+`ad6a38bcfa7a22deba4f648cf779c85ca5376ad918553009effd61ddf400d517`.
+Its 85 current-attempt native records are complete with no dropped/truncated
+records, timeout or validation error. The forced database exit 137 and two
+interrupted clients are expected test actions. Both clean shutdowns exit 0.
+`databaseLifecycleQualified` and `screenOffLifecycleQualified` are true;
+`serviceProcessDeathQualified` remains false. Report SHA256:
+`76eba7e19406fb462d124f5f963712cd2da3676f0c50eb9418dcda8693453d50`.
+See `docs/evidence/android-2026-10-23-thor-lifecycle-pass.json`.
+Do not reinterpret the connection failure during the deliberate database kill
+as a TLS or schema defect. Do not repeat the passed lifecycle/updater tests.
 
+**Next substantial physical test:** update in place to private code 12, select
+**Test runtime recovery**, keep the app open and let all three phases finish,
+then **Export diagnostic report**. No manual Stop, screen-off step, seed reimport,
+source ZIP or dependency replacement is needed. The surviving controller sends
+the real Stop PendingIntent, then kills only the separate test service process
+and independently observes its two native children before reopening the same
+disposable database. Physical code 12 execution remains unverified. A passing
+report requires `runtimeRecoveryQualified`, `serviceProcessDeathQualified` and
+`stopActionQualified` all true. See `docs/runtime-recovery-diagnostic.md`.
 
 Passing physical updater diagnostic: **0.5.2-metadata-timezone**, version code **10**.
 APK SHA256: `a6e562ec8cb1f8e13267a8825f787ae10fdc94d9034945c69e590243f1d188fd`.
@@ -46,7 +60,7 @@ inputs passed. APK SHA256:
 `1b478f1c1d99ca4928b47429068e6ad7adc6710540d9af4ecfbd0d3bbd6e09aa`.
 See `docs/evidence/android-2026-10-22-private-column-apk.json`.
 
-All **16 native payloads are byte-identical to version 8**, including the original
+Version 9 kept **all 16 native payloads byte-identical to version 8**, including the original
 worldserver, provider, authserver and supervisor. The final APK restores the
 verified code 8 supervisor after clean assembly (the rebuilt Debug helper has
 different path-dependent bytes), then aligns and signs with the same persistent
@@ -110,13 +124,11 @@ See `docs/evidence/android-2026-10-23-thor-compiled-updater-pass.json`.
 Do not repeat the updater test just to establish this already-passed milestone.
 The missing-map stop still does not establish world readiness or gameplay.
 
-The next implementation is the bounded **Test database lifecycle** mode; see
-`docs/database-lifecycle-diagnostic.md`. It uses a small fresh synthetic database,
-never opens imported seed SQL or realm saves, and exercises cancellation, clean
-restart and forced-stop recovery. It records measured screen-off SQL health.
-Android service/JVM death remains separate from deliberately killing MariaDB.
-Private updates must retain the signing key and strictly increase the code.
-Public CI APKs use another certificate and cannot replace a private update.
+The bounded **Test database lifecycle** mode now has passing physical evidence;
+see `docs/database-lifecycle-diagnostic.md`. The new recovery mode remains a
+small synthetic disposable test and never opens imported seed SQL or realm
+saves. Private updates retain the key and strictly increase the code. Public CI
+APKs use another certificate and cannot replace a private update.
 
 Physical version 6 imported **158 tables**, then failed on the first ASCII column
 with MariaDB error **1115** at line 19. The native client exited 1 in 83 ms;

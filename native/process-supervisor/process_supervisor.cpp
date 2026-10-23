@@ -29,6 +29,11 @@ Java_com_russianranger_fta_runtime_NativeProcessBridge_start(JNIEnv* env,jobject
     catch (const std::exception& problem) { error(env,problem); return 0; }
 }
 extern "C" JNIEXPORT jint JNICALL
+Java_com_russianranger_fta_runtime_NativeProcessBridge_processId(JNIEnv* env,jobject,jlong handle) {
+    try { return fta::process_id(handle); }
+    catch (const std::exception& problem) { error(env,problem); return -1; }
+}
+extern "C" JNIEXPORT jint JNICALL
 Java_com_russianranger_fta_runtime_NativeProcessBridge_waitFor(JNIEnv* env,jobject,jlong handle,jlong timeout) {
     try { return fta::wait_for(handle,timeout); }
     catch (const std::exception& problem) { error(env,problem); return fta::running; }

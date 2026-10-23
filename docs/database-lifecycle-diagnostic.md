@@ -5,7 +5,17 @@ complete world snapshots matching the unchanged host reference, prepared
 statements, expected missing-map boundary and clean database shutdown. Preserve
 that milestone. This next diagnostic does not reimport the seed or rerun world.
 
-## One physical test
+## Physical result
+
+Version 11 has **passed** on the AYN Thor: `databaseLifecycleQualified=true`,
+`screenOffLifecycleQualified=true`, all ten flags true and 85 complete native
+records with no timeout, truncation, dropped entry or validation error. Both
+clean stops exited 0; the deliberate forced stop exited 137. Its two client
+interruptions were expected. See [physical evidence](evidence/android-2026-10-23-thor-lifecycle-pass.json).
+Do not repeat this milestone. The next single test is [runtime recovery](runtime-recovery-diagnostic.md),
+which independently checks the app's Stop action and Android service-process death.
+
+## Archived version 11 physical procedure
 
 APK identity: SHA256
 `ad6a38bcfa7a22deba4f648cf779c85ca5376ad918553009effd61ddf400d517`,

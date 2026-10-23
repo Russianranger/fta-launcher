@@ -28,9 +28,14 @@ int main() {
     struct stat info{}; assert(stat((root+"/out").c_str(),&info)==0); assert((info.st_mode & 0777)==0600);
     options.executable="/bin/sleep"; options.arguments={"30"};
     const auto live=fta::start(options);
+    const auto live_pid=fta::process_id(live);
+    assert(live_pid>0 && live_pid!=getpid() && kill(live_pid,0)==0);
     assert(fta::wait_for(live,10)==fta::running);
     assert(fta::stop(live,2000)==143);
     assert(fta::wait_for(live,0)==143);
+    bool dead_identity_refused=false;
+    try { fta::process_id(live); } catch (...) { dead_identity_refused=true; }
+    assert(dead_identity_refused);
     sigset_t blocked, previous;
     sigemptyset(&blocked); sigaddset(&blocked,SIGTERM);
     assert(sigprocmask(SIG_BLOCK,&blocked,&previous)==0);

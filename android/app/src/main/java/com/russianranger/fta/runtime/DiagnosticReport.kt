@@ -34,8 +34,8 @@ object DiagnosticReport {
             .put("worldserverQualified", false)
         val scopeFile = File(context.filesDir, "runtime/diagnostic-scope.txt")
         val scope = if (scopeFile.isFile && scopeFile.length() < 32) scopeFile.readText() else "database"
-        result.put("requestedDiagnostic", if (scope in setOf("auth-updater", "full-seed", "compiled-updater", "database-lifecycle")) scope else "database")
-        result.put("scope", when (scope) { "database-lifecycle" -> "disposable-native-database-lifecycle-diagnostic"; "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; "compiled-updater" -> "disposable-native-compiled-updater-diagnostic"; else -> "disposable-native-database-diagnostic" })
+        result.put("requestedDiagnostic", if (scope in setOf("auth-updater", "full-seed", "compiled-updater", "database-lifecycle", "runtime-recovery")) scope else "database")
+        result.put("scope", when (scope) { "runtime-recovery" -> "disposable-runtime-recovery-diagnostic"; "database-lifecycle" -> "disposable-native-database-lifecycle-diagnostic"; "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; "compiled-updater" -> "disposable-native-compiled-updater-diagnostic"; else -> "disposable-native-database-diagnostic" })
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val currentAttempt = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
             ?.takeIf { NativeInvocationJournal.validAttemptId(it) }
@@ -187,6 +187,23 @@ object DiagnosticReport {
         val session = matching?.first
         val journal = matching?.second
         val invocations = journal?.first.orEmpty()
+        if (scope == "runtime-recovery" && currentAttempt != null) {
+            val file = File(context.filesDir, "runtime/runtime-recovery.json")
+            val raw = if (file.isFile && file.length() <= 4096) runCatching { JSONObject(file.readText()) }.getOrNull() else null
+            val fields = RuntimeRecoveryProtocol.fields
+            val valid = raw?.opt("formatVersion") == 1 && raw.opt("attemptId") == currentAttempt && raw.opt("seedImported") == false &&
+                fields.all { raw.opt(it) is Boolean }
+            val flags = if (valid) fields.associateWith { raw!!.getBoolean(it) } else emptyMap()
+            val proof = RuntimeRecoveryEvidence.read(context.filesDir, currentAttempt, flags)
+            val passed = proof.qualified && lines.firstOrNull() == RuntimeRecoveryProtocol.PASSED
+            result.put("runtimeRecoveryDiagnostic", JSONObject(flags as Map<*, *>).put("attemptId", currentAttempt)
+                .put("phases", JSONObject(proof.phases)).put("seedImported", false)
+                .put("nativeExitSignalsObserved", false))
+                .put("runtimeRecoveryQualified", passed).put("serviceProcessDeathQualified", passed)
+                .put("stopActionQualified", passed)
+                .put("privacy", "Raw SQL, rows, credentials, paths, PIDs and process start times are omitted. Phase journals are bound to this attempt. Historical running entries in the killed worker are interpreted only with independent termination evidence.")
+            return result.toString(2)
+        }
         if (scope == "database-lifecycle" && currentAttempt != null) {
             val file = File(context.filesDir, "runtime/database-lifecycle.json")
             val raw = if (file.isFile && file.length() <= 4096) runCatching { JSONObject(file.readText()) }.getOrNull() else null

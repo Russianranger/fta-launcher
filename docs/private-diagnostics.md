@@ -154,12 +154,24 @@ Physical version 10 now [passes all 24 checks and both complete host snapshots](
 
 ## Database lifecycle checkpoint
 
-Latest private code **11**, `0.6.0-database-lifecycle`, uses the same certificate
-and all 16 unchanged native payloads. Its 150 Android tests, lint/assembly,
-142 tooling tests, 221 packaged inputs and signing/alignment passed. The real
-host production Kotlin/JNI probe passed cancellation, clean restart, forced-stop
-recovery and owner-JVM SIGKILL recovery. Physical version 11 remains unverified.
-See [exact APK evidence](evidence/android-2026-10-23-private-lifecycle-apk.json)
-and the [one-run physical instructions](database-lifecycle-diagnostic.md).
-This test requires no seed import or compiled-updater repeat. Future private
-builds must exceed code 11 and reuse the same key.
+Private code **11**, `0.6.0-database-lifecycle`, retained the certificate and all
+16 native payloads. It now [passes physical lifecycle and screen-off checks](evidence/android-2026-10-23-thor-lifecycle-pass.json):
+all ten observations, 85 complete records and both clean shutdowns, with only the
+intentional forced stop and client interruptions. No repeat run is needed.
+
+## Runtime service recovery checkpoint
+
+Latest private code **12**, `0.6.1-runtime-recovery`, keeps the same certificate
+and all 15 provider/server/dependency native payloads. It rebuilds only the
+process supervisor to expose a live owned-child PID for read-only observation.
+Do **not** restore the older supervisor during packaging: it lacks this JNI API.
+Its source and build identity accompany [the exact APK evidence](evidence/android-2026-10-23-private-runtime-recovery-apk.json).
+All 164 Android tests, lint/assembly, 142 tooling tests, native ownership checks,
+ASan/UBSan, 221 packaged inputs and signing/alignment passed. Real host MariaDB
+passed the shared recovery protocol, committed-data/rollback SQL and JNI owner.
+
+Physical code 12 remains unverified. Install it as an ordinary update; do not
+uninstall or clear imports. Follow [the one-run recovery test](runtime-recovery-diagnostic.md).
+It requires no seed reimport, updater repeat, manual force stop or screen-off
+step. Future private builds must exceed code 12 and reuse the same key. Public
+debug releases remain unsuitable for updating this private installation.

@@ -16,4 +16,6 @@ struct StartOptions {
 std::int64_t start(const StartOptions& options);
 int wait_for(std::int64_t handle, std::int64_t timeout_ms);
 int stop(std::int64_t handle, std::int64_t grace_ms);
+// Observation only. Fails if the owned leader has already exited; never accepts a PID.
+int process_id(std::int64_t handle);
 }

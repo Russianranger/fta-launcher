@@ -15,4 +15,6 @@ object NativeProcessBridge {
     /** Int.MIN_VALUE means still running; other values are exit status or 128 + signal. */
     external fun waitFor(handle: Long, timeoutMs: Long): Int
     external fun stop(handle: Long, graceMs: Long): Int
+    /** Read-only identity of a live owned leader; no caller-selected PID is accepted. */
+    external fun processId(handle: Long): Int
 }
