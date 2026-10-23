@@ -17,7 +17,8 @@ class DatabaseDiagnostic(
     private val status: (String, String) -> Unit,
     private val includeAuth: Boolean = false,
     private val includeFullSeed: Boolean = false,
-    private val includeWorldUpdater: Boolean = false
+    private val includeWorldUpdater: Boolean = false,
+    private val includeLifecycle: Boolean = false
 ) {
     private val owned = ConcurrentHashMap<Long, String>()
     private lateinit var root: File
@@ -36,7 +37,7 @@ class DatabaseDiagnostic(
     private val deadline = System.nanoTime() + (if (includeWorldUpdater) 2400L else if (includeFullSeed) 1800L else if (includeAuth) 420L else 300L) * 1_000_000_000L
 
     fun run(): String {
-        require(listOf(includeAuth, includeFullSeed, includeWorldUpdater).count { it } <= 1) { "Select one diagnostic scope" }
+        require(listOf(includeAuth, includeFullSeed, includeWorldUpdater, includeLifecycle).count { it } <= 1) { "Select one diagnostic scope" }
         runtime = PackagedRuntime.inspect(context)
         if (includeAuth) require("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables)
         if (includeWorldUpdater) require("worldserver" in runtime.manifest.capabilities && "world-server" in runtime.executables &&
@@ -141,6 +142,10 @@ class DatabaseDiagnostic(
             check(values["FTA_UNICODE_ROWS"] == "1") { "Unicode collation round trip failed" }
             check(values["FTA_ASCII_ROWS"] == "1") { "ASCII character-set round trip failed" }
             check(values["FTA_ROLLBACK_ROWS"] == "0") { "InnoDB rollback probe failed" }
+            if (includeLifecycle) {
+                runLifecycleDiagnostic(options)
+                return "Disposable database lifecycle checks passed: transaction cancellation and rollback, clean restart, SIGKILL recovery with committed data retained and an interrupted transaction rolled back, and final SQL shutdown. Screen-off observations are in the exported report. Android service-process death, realm storage and gameplay remain separate gates."
+            }
             if (includeAuth) runAuthUpdaterDiagnostic()
             if (needsFullSeed) runFullSeedDiagnostic()
             if (includeWorldUpdater) runWorldUpdaterDiagnostic()
@@ -178,6 +183,79 @@ class DatabaseDiagnostic(
     private fun checkCancelled() {
         check(!cancelled.get()) { "Database diagnostic cancelled" }
         check(System.nanoTime() < deadline) { "Database diagnostic exceeded its total deadline" }
+    }
+
+    private fun runLifecycleDiagnostic(options: List<String>) {
+        val flags = DatabaseLifecycleProbe.fields.associateWith { false }.toMutableMap()
+        fun receipt() {
+            val info = JSONObject(flags as Map<*, *>).put("formatVersion", 1)
+                .put("attemptId", currentAttemptId).put("seedImported", false)
+                .put("serviceProcessDeathQualified", false)
+            val atomic = AtomicFile(File(context.filesDir, "runtime/database-lifecycle.json"))
+            val output = atomic.startWrite()
+            try { output.write(info.toString().toByteArray()); atomic.finishWrite(output) }
+            catch (failure: Exception) { atomic.failWrite(output); throw failure }
+        }
+        receipt()
+        val driver = object : DatabaseLifecycleProbe.Driver {
+            override fun query(sql: String) = client(sql, 10_000)
+            override fun beginClient(sql: String): Long {
+                val script = File(root, "lifecycle-transaction.sql").apply { writeText(sql) }
+                return launch("database-client", listOf("--defaults-file=${clientOptions!!.absolutePath}",
+                    "--character-sets-dir=${characterSetsDirectory.absolutePath}", "--batch", "--skip-column-names", "--connect-timeout=2"),
+                    script, "tool-${++step}", 300_000)
+            }
+            override fun clientRunning(handle: Long) = waitTracked(handle, 0) == Int.MIN_VALUE
+            override fun cancelClient(handle: Long): Int {
+                val exit = NativeProcessBridge.stop(handle, 1_000)
+                check(exit != Int.MIN_VALUE) { "Lifecycle client was not reaped" }
+                finishEvidence(handle, "cancelled", exit)
+                owned.remove(handle); evidenceHandles.remove(handle)
+                return exit
+            }
+            override fun stopDatabase(force: Boolean): Int {
+                val handle = server
+                check(handle != 0L)
+                val exit = if (force) {
+                    NativeProcessBridge.stop(handle, 0).also { finishEvidence(handle, "stopped", it.takeIf { value -> value != Int.MIN_VALUE }) }
+                } else {
+                    client("SHUTDOWN;", 10_000)
+                    evidenceHandles[handle]?.let { invocationJournal?.checkpoint(it, "sql_shutdown_requested") }
+                    waitTracked(handle, 15_000).also {
+                        if (it == 0) evidenceHandles[handle]?.let { id -> invocationJournal?.checkpoint(id, "clean_shutdown") }
+                    }
+                }
+                check(exit != Int.MIN_VALUE) { "Lifecycle database was not reaped" }
+                owned.remove(handle); evidenceHandles.remove(handle); server = 0
+                return exit
+            }
+            override fun restartDatabase() {
+                check(server == 0L) { "Previous database is still owned" }
+                // Only after observed termination may the same disposable datadir/socket reopen.
+                if (socket.exists()) check(socket.delete())
+                server = launch("database-server", options, null, "tool-${++step}")
+                val readyDeadline = System.nanoTime() + 45_000_000_000L
+                while (true) {
+                    checkCancelled()
+                    check(waitTracked(server, 0) == Int.MIN_VALUE) { "Database exited during lifecycle restart" }
+                    if (socket.exists() && runCatching { client("SELECT 1;", 2_000).trim() == "1" }.getOrDefault(false)) break
+                    check(System.nanoTime() < readyDeadline) { "Database restart did not become ready" }
+                    Thread.sleep(150)
+                }
+                evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "database_ready") }
+            }
+            override fun stage(value: String) = setStage(value, when (value) {
+                "LIFECYCLE_SCREEN_OFF" -> "Screen-off check is running for 90 seconds. Lock the Thor now, wait two minutes, then reopen and export the report."
+                "LIFECYCLE_CRASH" -> "Testing forced-stop recovery of the disposable database."
+                "LIFECYCLE_CANCEL" -> "Cancelling a live disposable transaction and checking rollback."
+                else -> "Testing disposable database durability and clean restart."
+            })
+            override fun checkActive() = checkCancelled()
+            override fun pause(ms: Long) { checkCancelled(); Thread.sleep(ms); checkCancelled() }
+            override fun monotonicMs() = System.nanoTime() / 1_000_000
+            override fun screenOff() = !context.getSystemService(android.os.PowerManager::class.java).isInteractive
+        }
+        DatabaseLifecycleProbe.run(driver) { flags[it] = true; receipt() }
     }
 
     private fun runAuthUpdaterDiagnostic() {
@@ -721,7 +799,8 @@ internal class NativeInvocationJournal(private val file: File, private val attem
         const val MAX_FILE_BYTES = 2 * 1024 * 1024L
         const val MAX_LOG_BYTES = 8 * 1024 * 1024L
         private val roles = setOf("database-server", "database-client", "auth-server", "world-server")
-        private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP")
+        private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP",
+            "LIFECYCLE_WRITE", "LIFECYCLE_RESTART", "LIFECYCLE_CANCEL", "LIFECYCLE_SCREEN_OFF", "LIFECYCLE_CRASH", "LIFECYCLE_FINISH")
         private val outcomes = setOf("running", "exited", "timed_out", "cancelled", "start_failed", "wait_failed", "stopped", "supervisor_failed")
         private val validations = setOf("output_limit_exceeded", "version_marker_missing", "completion_marker_missing", "world_boundary_invalid", "world_postcondition_mismatch")
 

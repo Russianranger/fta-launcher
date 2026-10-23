@@ -7,12 +7,36 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private diagnostic: **0.5.2-metadata-timezone**, version code **10**.
+Latest private update: **0.6.0-database-lifecycle**, version code **11**.
+APK SHA256: `ad6a38bcfa7a22deba4f648cf779c85ca5376ad918553009effd61ddf400d517`.
+The same private certificate and all 16 native payloads match version 10. All
+221 runtime/notice inputs, signature and 16 KiB alignment verified. All **150**
+Android tests (19 classes), lint/assembly and **142** tooling tests passed.
+Expanded native owner tests passed five repetitions and ASan/UBSan; LeakSanitizer
+could not inspect this host's task namespace and is explicitly not claimed.
+The production Kotlin lifecycle probe and JNI owner passed against real host
+MariaDB 12.3.2, including SIGKILL crash recovery, transaction cancellation and
+committed-data preservation. A separately killed owning JVM also killed its
+native database; recovery passed with no adopted children remaining. Host checks
+use an isolated credentialed loopback connection, not Android's private socket.
+See `docs/evidence/database-2026-10-23-host-lifecycle.json` and
+`docs/evidence/android-2026-10-23-private-lifecycle-apk.json`.
+
+**Next substantial physical test:** update to private code 11, select **Test
+database lifecycle**, lock the Thor for two minutes when its screen-off stage
+appears, then export the JSON. This one run covers client cancellation/rollback,
+clean restart, actual forced database-stop recovery, and observed screen-off SQL
+health. No seed reimport, updater repeat or native dependency replacement is
+needed. Physical version 11 execution remains unverified. Android service-process
+death and notification/UI cancellation are still distinct future observations.
+
+
+Passing physical updater diagnostic: **0.5.2-metadata-timezone**, version code **10**.
 APK SHA256: `a6e562ec8cb1f8e13267a8825f787ae10fdc94d9034945c69e590243f1d188fd`.
 The production implementation passed 143 Android tests, lint and assembly, plus
 142 tooling tests. Signature/alignment and all 221 packaged runtime/notice inputs
 passed; certificate and all 16 native payloads match version 9. Native source
-companion remains unchanged. Physical version 10 execution is unverified.
+companion remains unchanged. Physical version 10 now passes the compiled updater gate.
 See `docs/evidence/android-2026-10-23-private-timezone-apk.json`.
 
 Previous private diagnostic: **0.5.1-column-diagnostic**, version code **9**.
@@ -42,7 +66,7 @@ records are present without dropped entries, truncation, timeout or cancellation
 MariaDB received SQL shutdown and exited 0. Report SHA256:
 `6c246c9566e1bca3db84f1e61409a85624b5327ebddca3bdbcd8a1571566feb1`.
 See `docs/evidence/android-2026-10-22-thor-compiled-updater-attempt.json`.
-Overall compiled-updater qualification remains **false**.
+At version 8, compiled-updater qualification was **false**; version 10 passes below.
 
 Version 9 preserves both locks, original SQL, all 24 strict checks and the native
 runtime. It adds bounded read-only world-column counts/hashes before and after
@@ -61,8 +85,7 @@ execution. See `docs/world-column-diagnostic.md` and its hash-only fixtures.
 post-table index 103. Its before/after table hash is unchanged; every other table
 and all four floating-default probes match the host. The original compiled
 updaters/prepared statements/missing-map boundary and clean SQL shutdown repeat
-successfully. Strict final validation remains 23/24, so overall qualification is
-still false. See `docs/evidence/android-2026-10-23-thor-column-attempt.json`.
+successfully. Version 9 strict final validation was 23/24, so that attempt remains unqualified. See `docs/evidence/android-2026-10-23-thor-column-attempt.json`.
 
 The exact MariaDB 12.3.2 host reproduces the Thor table hash at session UTC−06:00
 and the original reference at UTC+07:00. Only the rendered defaults of
@@ -74,17 +97,26 @@ preserving both locks, all 24 strict checks, source SQL and all native bytes.
 Server/global time zones, import/updater sessions and stored timestamps are not
 changed. See `docs/world-column-diagnostic.md` for the measured reproduction.
 
-**Next substantial physical test:** install private **0.5.2-metadata-timezone**
-(code **10**) over version 9, keep Database.zip imported, have at least 3 GiB free,
-and select **Test compiled three-database updater** once, then export the report.
-Expected result: all 24 checks pass, both snapshots match the original host
-fixture and clean shutdown is observed. That result requires actual Thor evidence;
-do not mark it passed from the host model. No separate auth/full-seed test is
-needed; the integrated diagnostic retains its mandatory fresh baseline. A source
-ZIP is not required. Deadlines remain 40 minutes overall / 10 minutes for world.
-Future private versions must use the same signing key and code **greater than 10**.
-Public provider-only CI APKs use another certificate and cannot replace this
-private update. Gameplay, persistent services and world readiness remain separate.
+**Physical version 10 passed all 24 final checks.** The new report is bound to
+APK `a6e562ec8cb1f8e13267a8825f787ae10fdc94d9034945c69e590243f1d188fd`.
+Both complete snapshots exactly equal the original host fixture: all 371 before
+and 372 after table entries, aggregates and four component probes. The 15-check
+fresh seed baseline, all three original compiled updaters, every statement and
+the expected missing-map boundary passed. All 587 native records are present;
+there was no timeout, cancellation, validation failure or truncation. MariaDB
+received SQL shutdown and exited 0. `compiledUpdaterQualified` is **true**.
+Report SHA256: `a27638df5a2b779747e9f3714a42dd03a58e198de867edb21f89a63b5a518ca0`.
+See `docs/evidence/android-2026-10-23-thor-compiled-updater-pass.json`.
+Do not repeat the updater test just to establish this already-passed milestone.
+The missing-map stop still does not establish world readiness or gameplay.
+
+The next implementation is the bounded **Test database lifecycle** mode; see
+`docs/database-lifecycle-diagnostic.md`. It uses a small fresh synthetic database,
+never opens imported seed SQL or realm saves, and exercises cancellation, clean
+restart and forced-stop recovery. It records measured screen-off SQL health.
+Android service/JVM death remains separate from deliberately killing MariaDB.
+Private updates must retain the signing key and strictly increase the code.
+Public CI APKs use another certificate and cannot replace a private update.
 
 Physical version 6 imported **158 tables**, then failed on the first ASCII column
 with MariaDB error **1115** at line 19. The native client exited 1 in 83 ms;
@@ -259,13 +291,14 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
    stripping keeps the unchanged final ELF within Android runtime size bounds;
    symbols remain available. See `docs/native-build.md` and `docs/world-runtime.md`.
 4. Preserve physical versions 8/9 and the exact host time-zone reproduction.
-   Obtain the version 10 all-24-check Thor result before treating the compiled
-   updater as qualified; expected metadata remains unchanged. The mode first repeats the
+   Version 10 supplies the all-24-check Thor result and exact full snapshot match.
+   The compiled updater gate is qualified; expected metadata remains unchanged.
+   If a later change requires rerunning this mode, it first repeats the
    passing full-seed gate, then runs original **normal** world startup through
    the missing-map boundary. **Do not use world `--dry-run` for this gate**:
    failed SQL can write receipts before a final error-counter check that missing
    DBCs prevent reaching. Follow `docs/world-updater-gate.md`.
-5. After that gate passes, qualify abnormal lifecycle/cancellation/process-death
+5. With that gate passed, qualify abnormal lifecycle/cancellation/process-death
    cleanup and matching DBC/maps/vmaps/mmaps before persistent services or realm
    gameplay. No game assets were supplied. Later work includes controlled
    database → auth → world startup, account provisioning and restart-safe storage.
@@ -301,8 +334,8 @@ build, a setup APK or a CI artifact with a successful Thor runtime test.
 The initial shell lacked build tools; host tools/dependencies are now staged
 privately and the exact host database gate has run. Do not repeat that old
 missing-tools status as a current blocker. ARM64 auth compilation, private staging and the physical auth dry run passed;
-the compiled-updater and lifecycle diagnostics require their own physical
-evidence. The complete v13 world cross-build and private APK checks passed. Inspect the exact commit's GitHub CI results before
+the compiled updater now has passing physical evidence; abnormal lifecycle
+behavior still requires its own physical evidence. The complete v13 world cross-build and private APK checks passed. Inspect the exact commit's GitHub CI results before
 reporting setup APK checks as passed; native compilation has its own build report.
 
 Workspace recovery: previous scratch bytes and world objects were pruned by

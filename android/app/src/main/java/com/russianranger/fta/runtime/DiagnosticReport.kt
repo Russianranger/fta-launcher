@@ -34,8 +34,8 @@ object DiagnosticReport {
             .put("worldserverQualified", false)
         val scopeFile = File(context.filesDir, "runtime/diagnostic-scope.txt")
         val scope = if (scopeFile.isFile && scopeFile.length() < 32) scopeFile.readText() else "database"
-        result.put("requestedDiagnostic", if (scope in setOf("auth-updater", "full-seed", "compiled-updater")) scope else "database")
-        result.put("scope", when (scope) { "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; "compiled-updater" -> "disposable-native-compiled-updater-diagnostic"; else -> "disposable-native-database-diagnostic" })
+        result.put("requestedDiagnostic", if (scope in setOf("auth-updater", "full-seed", "compiled-updater", "database-lifecycle")) scope else "database")
+        result.put("scope", when (scope) { "database-lifecycle" -> "disposable-native-database-lifecycle-diagnostic"; "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; "compiled-updater" -> "disposable-native-compiled-updater-diagnostic"; else -> "disposable-native-database-diagnostic" })
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val currentAttempt = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
             ?.takeIf { NativeInvocationJournal.validAttemptId(it) }
@@ -187,6 +187,19 @@ object DiagnosticReport {
         val session = matching?.first
         val journal = matching?.second
         val invocations = journal?.first.orEmpty()
+        if (scope == "database-lifecycle" && currentAttempt != null) {
+            val file = File(context.filesDir, "runtime/database-lifecycle.json")
+            val raw = if (file.isFile && file.length() <= 4096) runCatching { JSONObject(file.readText()) }.getOrNull() else null
+            val flags = if (raw?.opt("formatVersion") == 1 && raw.opt("attemptId") == currentAttempt &&
+                raw.opt("seedImported") == false && raw.opt("serviceProcessDeathQualified") == false)
+                DatabaseLifecycleProbe.safeValues(DatabaseLifecycleProbe.fields.associateWith { raw.opt(it) }) else emptyMap()
+            if (flags.isNotEmpty()) result.put("databaseLifecycleDiagnostic", JSONObject(flags as Map<*, *>)
+                .put("attemptId", currentAttempt).put("seedImported", false).put("serviceProcessDeathQualified", false))
+            val qualified = DatabaseLifecycleProbe.qualified(flags, lines.firstOrNull(), invocations, journal?.second ?: 0)
+            result.put("databaseLifecycleQualified", qualified)
+                .put("screenOffLifecycleQualified", qualified && flags["screenOffObserved"] == true && flags["screenOffHealth"] == true)
+                .put("serviceProcessDeathQualified", false)
+        }
         result.put("seedCompatibilityQualified", FullSeedEvidence.qualified(seedValidated,
             lines.firstOrNull(), invocations, journal?.second ?: 0))
         result.put("compiledUpdaterQualified", WorldUpdaterEvidence.qualified(updaterValidated,

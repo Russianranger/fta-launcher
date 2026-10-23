@@ -1,0 +1,119 @@
+{
+  "formatVersion": 1,
+  "evidenceKind": "user-exported-physical-device-report",
+  "reportSha256": "a27638df5a2b779747e9f3714a42dd03a58e198de867edb21f89a63b5a518ca0",
+  "appVersionCode": 10,
+  "appVersionName": "0.5.2-metadata-timezone",
+  "apkSha256": "a6e562ec8cb1f8e13267a8825f787ae10fdc94d9034945c69e590243f1d188fd",
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "diagnosticState": "COMPILED_UPDATER_DIAGNOSTIC_PASSED",
+  "currentAttemptEvidenceBound": true,
+  "compiledUpdaterQualified": true,
+  "seedCompatibilityQualified": true,
+  "fullSeedBaselineChecksPassed": 15,
+  "finalChecksPassed": 24,
+  "finalChecksTotal": 24,
+  "compiledUpdaterDiagnostic": {
+    "plannedRuntimeSqlFiles": 236,
+    "moduleCount": 52,
+    "moduleSqlCount": 0,
+    "stagedRuntimeSqlFiles": 236,
+    "authUpdaterCompleted": true,
+    "characterUpdaterCompleted": true,
+    "worldUpdaterCompleted": true,
+    "allStatementsPrepared": true,
+    "originalMissingMapBoundaryObserved": true,
+    "normalStartupOnly": true,
+    "completeNativeLogs": true,
+    "noNativeSqlFailures": true,
+    "freshSeedBaselinePassed": true,
+    "compiledUpdaterPassed": true,
+    "runtimeSqlAttempted": true,
+    "runtimeSqlCompletionQualified": true,
+    "sourceProfile": "android-arm64-world-v13",
+    "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+    "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+    "worldStartupQualified": false,
+    "worldTcpListener": false,
+    "sourceTreeSha256": "847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064",
+    "worldExecutableSha256": "97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766",
+    "worldUpdaterLockSha256": "466c1c6673d7f939b14c4b6f4dc787efa58ac6c8fa91e982c76151a3f1f8c02f",
+    "schemas": {
+      "acore_auth": {
+        "tableInventoryMatches": true,
+        "triggerInventoryMatches": true,
+        "routinesMatch": true,
+        "eventsMatch": true,
+        "receiptBaselineMatches": true,
+        "releaseReceiptBaselineMatches": true,
+        "columnInventoryMatches": true,
+        "includeInventoryMatches": true
+      },
+      "acore_characters": {
+        "tableInventoryMatches": true,
+        "triggerInventoryMatches": true,
+        "routinesMatch": true,
+        "eventsMatch": true,
+        "receiptBaselineMatches": true,
+        "releaseReceiptBaselineMatches": true,
+        "columnInventoryMatches": true,
+        "includeInventoryMatches": true
+      },
+      "acore_world": {
+        "tableInventoryMatches": true,
+        "triggerInventoryMatches": true,
+        "routinesMatch": true,
+        "eventsMatch": true,
+        "receiptBaselineMatches": true,
+        "releaseReceiptBaselineMatches": true,
+        "columnInventoryMatches": true,
+        "includeInventoryMatches": true
+      }
+    }
+  },
+  "completeNativeRecords": 587,
+  "droppedNativeRecords": 0,
+  "truncated": false,
+  "timedOut": false,
+  "cancelled": false,
+  "databaseReadyObserved": true,
+  "sqlShutdownRequested": true,
+  "cleanShutdownObserved": true,
+  "databaseExitCode": 0,
+  "providerManifestSha256": "dda46e9555ad3b58acdbb0125fccdc89850de78a56159ee2bfcbfbde8f529c8b",
+  "processSupervisorSha256": "8a1a9726687b646fc369ce937d46816df0efbb131be510e61e2075a90fd4b9cb",
+  "snapshots": {
+    "before": {
+      "exactSnapshotMatchesHost": true,
+      "tableCount": 371,
+      "aggregate": {
+        "count": 5109,
+        "bytes": 576088,
+        "sha256": "6288d39be2c9b884ac680f73e41847d7c1cc2152660da3991f4fb32f54b42e79"
+      }
+    },
+    "after": {
+      "exactSnapshotMatchesHost": true,
+      "tableCount": 372,
+      "aggregate": {
+        "count": 5116,
+        "bytes": 576898,
+        "sha256": "9b39a91f663443146a7cc4c199fcabb03dbe05a690e63e4f1c990f7932dffd04"
+      }
+    }
+  },
+  "originalSqlPreserved": true,
+  "strictExpectedMetadataPreserved": true,
+  "worldReady": false,
+  "persistentLifecycleQualified": false
+}

@@ -41,10 +41,14 @@ output contains hashes/flags only; the disposable database is shut down.
 See [physical evidence](evidence/android-2026-10-23-thor-column-attempt.json) and
 [production-query regression](evidence/database-2026-10-23-column-timezone-regression.json).
 
-Install private version 10 over version 9, retain Database.zip/native inputs and
-run **Test compiled three-database updater** once. Export the JSON after shutdown,
-even if it fails. Expect all 24 strict checks and both original host snapshots to
-match; physical success remains unverified until that report is inspected.
+The physical version 10 report now passes all 24 strict checks, with
+`compiledUpdaterQualified=true`. Both complete before/after snapshots exactly
+match the original host fixture, including every table and component probe.
+MariaDB shut down cleanly with exit 0; all 587 native records are complete.
+See [passing physical evidence](evidence/android-2026-10-23-thor-compiled-updater-pass.json).
+This closes the metadata mismatch without changing expected schema fingerprints,
+original SQL or native bytes. Continue to lifecycle and matching game-data gates;
+no repeat updater run is required for the unchanged implementation.
 
 ## Version 9 diagnostic design and historical evidence
 

@@ -37,6 +37,33 @@ int main() {
     const auto masked=fta::start(options);
     assert(sigprocmask(SIG_SETMASK,&previous,nullptr)==0);
     assert(fta::stop(masked,2000)==143);
+    // A TERM-ignoring child must be forcibly killed and reaped within the bound.
+    options.executable="/bin/sh";
+    options.arguments={"-c","trap '' TERM; echo ready; exec /bin/sleep 30"};
+    const auto stubborn=fta::start(options);
+    bool ready=false;
+    for (int i=0;i<100 && !ready;++i) {
+        std::ifstream file(options.output); std::string line; file >> line; ready=line=="ready";
+        if (!ready) std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+    assert(ready);
+    const auto kill_started=std::chrono::steady_clock::now();
+    assert(fta::stop(stubborn,50)==137);
+    assert(std::chrono::steady_clock::now()-kill_started<std::chrono::seconds(3));
+    assert(fta::wait_for(stubborn,0)==137);
+    // Concurrent cancellation/wait must agree and may not target another child.
+    options.executable="/bin/sleep"; options.arguments={"30"};
+    const auto unrelated=fta::start(options);
+    options.output=root+"/parallel-out"; options.error=root+"/parallel-err";
+    const auto shared=fta::start(options);
+    int stop_result=0, wait_result=0;
+    std::thread stopper([&] { stop_result=fta::stop(shared,1000); });
+    std::thread waiter([&] { wait_result=fta::wait_for(shared,5000); });
+    stopper.join(); waiter.join();
+    assert(stop_result==143 && wait_result==143);
+    assert(fta::wait_for(unrelated,0)==fta::running);
+    assert(fta::stop(unrelated,1000)==143);
+    options.output=root+"/out"; options.error=root+"/err";
     options.executable="/bin/sh"; options.arguments={"-c","head -c 10000000 /dev/zero"};
     auto loud=fta::start(options); assert(fta::wait_for(loud,10000)==0);
     assert(std::filesystem::file_size(root+"/out")==8*1024*1024);
@@ -62,18 +89,23 @@ int main() {
             if (native_child<=0) std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
         const auto ignored=write(report[1],&native_child,sizeof(native_child)); (void)ignored;
-        _exit(native_child>0 ? 0 : 1);
+        if (native_child<=0) _exit(1);
+        for (;;) pause();
     }
     close(report[1]); pid_t orphan=0;
     assert(read(report[0],&orphan,sizeof(orphan))==sizeof(orphan)); close(report[0]);
-    int owner_status=0; assert(waitpid(owner,&owner_status,0)==owner && WEXITSTATUS(owner_status)==0);
     assert(orphan>0);
+    assert(kill(owner,SIGKILL)==0);
+    int owner_status=0; assert(waitpid(owner,&owner_status,0)==owner && WIFSIGNALED(owner_status) && WTERMSIG(owner_status)==SIGKILL);
     int orphan_status=0; pid_t observed=0;
     for (int i=0;i<100 && observed==0;++i) {
         observed=waitpid(orphan,&orphan_status,WNOHANG);
         if (!observed) std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
     assert(observed==orphan && WIFSIGNALED(orphan_status) && WTERMSIG(orphan_status)==SIGKILL);
+    // More than the registry capacity of completed commands must not leak slots.
+    options.executable="/bin/true"; options.arguments={};
+    for (int i=0;i<80;++i) { const auto handle=fta::start(options); assert(fta::wait_for(handle,5000)==0); }
     options.executable="/does/not/exist";
     bool refused=false; try { fta::start(options); } catch (...) { refused=true; } assert(refused);
     refused=false; try { fta::stop(99999999,0); } catch (...) { refused=true; } assert(refused);
@@ -82,5 +114,5 @@ int main() {
     assert(symlink((root+"/err").c_str(),(root+"/out").c_str())==0);
     refused=false; try { fta::start(options); } catch (...) { refused=true; } assert(refused);
     std::filesystem::remove_all(root);
-    std::cout << "Native owner tests: PASS (exit, idempotence, TERM, log bound, IO modes, rejected exec/handles/symlinks)\n";
+    std::cout << "Native owner tests: PASS (exit, idempotence, TERM/KILL, concurrent stop/wait, unrelated child isolation, owner SIGKILL, group cleanup, 80-command churn, log bound, IO modes, rejected exec/handles/symlinks)\n";
 }

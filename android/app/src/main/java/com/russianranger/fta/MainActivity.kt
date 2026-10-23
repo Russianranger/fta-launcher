@@ -45,10 +45,12 @@ class MainActivity : Activity() {
     private lateinit var runtimeBundleStatus: TextView
     private lateinit var runtimeBundleButton: Button
     private lateinit var diagnosticButton: Button
+    private lateinit var lifecycleDiagnosticButton: Button
     private lateinit var authDiagnosticButton: Button
     private lateinit var fullSeedDiagnosticButton: Button
     private lateinit var worldUpdaterDiagnosticButton: Button
     private lateinit var worldUpdaterTestHelp: TextView
+    private var pendingLifecycleCheck = false
     private var pendingAuthCheck = false
     private var pendingFullSeedCheck = false
     private var pendingWorldUpdaterCheck = false
@@ -62,6 +64,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pendingLifecycleCheck = savedInstanceState?.getBoolean("pendingLifecycleCheck") ?: false
         pendingAuthCheck = savedInstanceState?.getBoolean("pendingAuthCheck") ?: false
         pendingFullSeedCheck = savedInstanceState?.getBoolean("pendingFullSeedCheck") ?: false
         pendingWorldUpdaterCheck = savedInstanceState?.getBoolean("pendingWorldUpdaterCheck") ?: false
@@ -121,6 +124,9 @@ class MainActivity : Activity() {
         status.addView(action("Start game server") {}.apply { isEnabled = false })
         diagnosticButton = action("Test native database") { requestDatabaseCheck() }
         status.addView(diagnosticButton)
+        lifecycleDiagnosticButton = action("Test database lifecycle") { requestDatabaseCheck(includeLifecycle = true) }
+        status.addView(lifecycleDiagnosticButton)
+        status.addView(label("Tests cancellation, restart and crash recovery without importing the seed. When the screen-off stage appears, lock the Thor for two minutes, then export the report.", 13, muted))
         authDiagnosticButton = action("Test original auth updater") { requestDatabaseCheck(true) }
         status.addView(authDiagnosticButton)
         authTestHelp = label("For the auth test, only Database.zip is needed. It imports the matching auth files into a fresh temporary database. No source ZIP is needed.", 13, muted)
@@ -203,6 +209,7 @@ class MainActivity : Activity() {
         val testing = databaseCheckRunning()
         val requested = requestedAt != 0L && SystemClock.elapsedRealtime() - requestedAt < 3000
         diagnosticButton.isEnabled = app.packagedRuntime?.manifest?.bootstrap != null && !app.busy && !testing && !requested
+        lifecycleDiagnosticButton.isEnabled = diagnosticButton.isEnabled
         val authPackaged = app.packagedRuntime?.manifest?.let { manifest ->
             "authserver" in manifest.capabilities && manifest.files.any { it.path == "data/metadata/auth-seed-lock.json" }
         } == true
@@ -234,7 +241,7 @@ class MainActivity : Activity() {
             runCatching { diagnostic.readLines() }.getOrDefault(emptyList()) else emptyList()
         diagnosticStatus.text = if (diagnosticLines.size >= 3) diagnosticLines.drop(2).joinToString("\n")
             else "No native database test has completed on this device."
-        if (!testing && !requested && diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION")) {
+        if (!testing && !requested && (diagnosticLines.firstOrNull()?.startsWith("LIFECYCLE_") == true || diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION"))) {
             diagnosticStatus.text = "The previous test did not finish. No readiness result was recorded."
         }
         if (testing) diagnosticStatus.text = "Database test in progress.\n${diagnosticStatus.text}"
@@ -257,13 +264,15 @@ class MainActivity : Activity() {
         .getRunningServices(20).any { it.service.className == RuntimeDiagnosticService::class.java.name }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("pendingLifecycleCheck", pendingLifecycleCheck)
         outState.putBoolean("pendingAuthCheck", pendingAuthCheck)
         outState.putBoolean("pendingFullSeedCheck", pendingFullSeedCheck)
         outState.putBoolean("pendingWorldUpdaterCheck", pendingWorldUpdaterCheck)
         super.onSaveInstanceState(outState)
     }
 
-    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false) {
+    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false) {
+        pendingLifecycleCheck = includeLifecycle
         pendingAuthCheck = includeAuth
         pendingFullSeedCheck = includeFullSeed
         pendingWorldUpdaterCheck = includeWorldUpdater
@@ -271,18 +280,18 @@ class MainActivity : Activity() {
             !getPreferences(MODE_PRIVATE).getBoolean("notificationAsked", false)) {
             getPreferences(MODE_PRIVATE).edit().putBoolean("notificationAsked", true).apply()
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 201)
-        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck)
+        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Notification permission is optional for an explicitly requested foreground service.
-        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck)
+        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck)
     }
 
-    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false) {
+    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false) {
         try {
-            startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(if (includeWorldUpdater) RuntimeDiagnosticService.ACTION_CHECK_WORLD_UPDATER else if (includeFullSeed) RuntimeDiagnosticService.ACTION_CHECK_FULL_SEED else if (includeAuth) RuntimeDiagnosticService.ACTION_CHECK_AUTH else RuntimeDiagnosticService.ACTION_CHECK))
+            startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(if (includeLifecycle) RuntimeDiagnosticService.ACTION_CHECK_LIFECYCLE else if (includeWorldUpdater) RuntimeDiagnosticService.ACTION_CHECK_WORLD_UPDATER else if (includeFullSeed) RuntimeDiagnosticService.ACTION_CHECK_FULL_SEED else if (includeAuth) RuntimeDiagnosticService.ACTION_CHECK_AUTH else RuntimeDiagnosticService.ACTION_CHECK))
             requestedAt = SystemClock.elapsedRealtime()
             update()
         } catch (_: Exception) {

@@ -35,17 +35,19 @@ class RuntimeDiagnosticService : Service() {
             if (!started) stopSelf()
             return START_NOT_STICKY
         }
-        if (intent?.action !in setOf(ACTION_CHECK, ACTION_CHECK_AUTH, ACTION_CHECK_FULL_SEED, ACTION_CHECK_WORLD_UPDATER)) { stopSelf(); return START_NOT_STICKY }
+        if (intent?.action !in setOf(ACTION_CHECK, ACTION_CHECK_AUTH, ACTION_CHECK_FULL_SEED, ACTION_CHECK_WORLD_UPDATER, ACTION_CHECK_LIFECYCLE)) { stopSelf(); return START_NOT_STICKY }
         if (started) return START_NOT_STICKY
         started = true
         val includeAuth = intent?.action == ACTION_CHECK_AUTH
         val includeFullSeed = intent?.action == ACTION_CHECK_FULL_SEED
         val includeWorldUpdater = intent?.action == ACTION_CHECK_WORLD_UPDATER
+        val includeLifecycle = intent?.action == ACTION_CHECK_LIFECYCLE
         val scope = File(filesDir, "runtime").apply { mkdirs() }
         attemptId = java.util.UUID.randomUUID().toString()
         writeAtomicText(File(scope, "diagnostic-attempt.id"), attemptId!!)
         writeStatus("CHECKING", "Preparing a fresh native diagnostic attempt.")
-        File(scope, "diagnostic-scope.txt").writeText(if (includeWorldUpdater) "compiled-updater" else if (includeFullSeed) "full-seed" else if (includeAuth) "auth-updater" else "database")
+        File(scope, "diagnostic-scope.txt").writeText(if (includeLifecycle) "database-lifecycle" else if (includeWorldUpdater) "compiled-updater" else if (includeFullSeed) "full-seed" else if (includeAuth) "auth-updater" else "database")
+        if (includeLifecycle) AtomicFile(File(scope, "database-lifecycle.json")).delete()
         if (includeAuth) AtomicFile(File(scope, "auth-diagnostic.json")).delete()
         if (includeFullSeed || includeWorldUpdater) AtomicFile(File(scope, "full-seed-diagnostic.json")).delete()
         if (includeWorldUpdater) AtomicFile(File(scope, "world-updater-diagnostic.json")).delete()
@@ -55,7 +57,7 @@ class RuntimeDiagnosticService : Service() {
         val stop = PendingIntent.getService(this, 1, Intent(this, RuntimeDiagnosticService::class.java).setAction(ACTION_STOP), PendingIntent.FLAG_IMMUTABLE)
         val notification = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_ashes)
-            .setContentTitle(if (includeWorldUpdater) "From the Ashes compiled updater test" else if (includeFullSeed) "From the Ashes full seed test" else if (includeAuth) "From the Ashes auth updater test" else "From the Ashes database test")
+            .setContentTitle(if (includeLifecycle) "From the Ashes database lifecycle test" else if (includeWorldUpdater) "From the Ashes compiled updater test" else if (includeFullSeed) "From the Ashes full seed test" else if (includeAuth) "From the Ashes auth updater test" else "From the Ashes database test")
             .setContentText("Testing a fresh private database. Existing saves are untouched.")
             .setContentIntent(content)
             .setOngoing(true)
@@ -68,10 +70,10 @@ class RuntimeDiagnosticService : Service() {
         worker.execute {
             try {
                 writeStatus("CHECKING", "Verifying immutable packaged provider files.")
-                val test = DatabaseDiagnostic(this, cancelled, ::writeStatus, includeAuth, includeFullSeed, includeWorldUpdater)
+                val test = DatabaseDiagnostic(this, cancelled, ::writeStatus, includeAuth, includeFullSeed, includeWorldUpdater, includeLifecycle)
                 diagnostic = test
                 val result = test.run()
-                writeStatus(if (includeWorldUpdater) WorldUpdaterEvidence.PASSED else if (includeFullSeed) "FULL_SEED_DIAGNOSTIC_PASSED" else if (includeAuth) "AUTH_UPDATER_DIAGNOSTIC_PASSED" else "DATABASE_DIAGNOSTIC_PASSED", result)
+                writeStatus(if (includeLifecycle) DatabaseLifecycleProbe.PASSED else if (includeWorldUpdater) WorldUpdaterEvidence.PASSED else if (includeFullSeed) "FULL_SEED_DIAGNOSTIC_PASSED" else if (includeAuth) "AUTH_UPDATER_DIAGNOSTIC_PASSED" else "DATABASE_DIAGNOSTIC_PASSED", result)
             } catch (_: Exception) {
                 writeStatus(if (cancelled.get()) "STOPPED" else "FAILED",
                     if (cancelled.get()) "Database diagnostic stopped. Existing saves were untouched."
@@ -128,6 +130,7 @@ class RuntimeDiagnosticService : Service() {
         const val ACTION_CHECK_AUTH = "com.russianranger.fta.CHECK_NATIVE_AUTH_UPDATER"
         const val ACTION_CHECK_FULL_SEED = "com.russianranger.fta.CHECK_NATIVE_FULL_SEED"
         const val ACTION_CHECK_WORLD_UPDATER = "com.russianranger.fta.CHECK_NATIVE_WORLD_UPDATER"
+        const val ACTION_CHECK_LIFECYCLE = "com.russianranger.fta.CHECK_NATIVE_DATABASE_LIFECYCLE"
         const val ACTION_STOP = "com.russianranger.fta.STOP_NATIVE_DATABASE_CHECK"
         private const val CHANNEL = "fta-native-diagnostics"
         private const val NOTIFICATION = 41
