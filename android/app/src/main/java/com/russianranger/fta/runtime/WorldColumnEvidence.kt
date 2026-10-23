@@ -40,7 +40,7 @@ internal object WorldColumnEvidence {
         val components = listOf("HEX(column_type)", "HEX(is_nullable)",
             "IF(column_default IS NULL,'~',HEX(column_default))",
             "IF(collation_name IS NULL,'~',HEX(collation_name))", "HEX(extra)")
-        return "SET SESSION group_concat_max_len=$CONCAT_LIMIT;\n" +
+        return WorldUpdaterEvidence.COLUMN_TIME_ZONE_SQL + "SET SESSION group_concat_max_len=$CONCAT_LIMIT;\n" +
             "SELECT CONCAT('FTA_COLUMNS=',COUNT(*),':',COALESCE(SUM(OCTET_LENGTH($row)),0),':'," +
             "COALESCE(OCTET_LENGTH($joined),0),':',COALESCE(SUM(0),0),':',COALESCE(SHA2($joined,256),SHA2('',256))) FROM $source;\n" +
             "SELECT CONCAT('FTA_COLUMN_TABLE=',CASE BINARY tableName $tableCase ELSE -1 END,':',columnCount,':'," +

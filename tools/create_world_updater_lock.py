@@ -64,6 +64,9 @@ CANONICAL_COLUMNS = ("UTF-8(HEX(table_name) + ':' + HEX(column_name) + ':' + ord
     "nullable HEX(collation_name) + ':' + HEX(extra) + LF), ordered by BINARY table_name, ordinal_position; NULL is '~'")
 CANONICAL_RELEASES = ("UTF-8(release_id + TAB + name + TAB + exact-case sha256 + TAB + status + TAB + once_only + LF), "
                       "ordered by BINARY release_id, BINARY name; no timestamps")
+# Preserve the original fixture's measured representation of TIMESTAMP defaults.
+# Session-only: seed scripts and runtime updater SQL keep their own time zones.
+COLUMN_TIME_ZONE_SQL = "SET SESSION time_zone='+07:00';\n"
 
 
 def include_directories() -> list[dict]:
@@ -129,7 +132,7 @@ def column_query(schema: str) -> str:
     row = ("CONCAT(HEX(table_name),':',HEX(column_name),':',ordinal_position,':',HEX(column_type),':',"
            "HEX(is_nullable),':',IF(column_default IS NULL,'~',HEX(column_default)),':',"
            "IF(collation_name IS NULL,'~',HEX(collation_name)),':',HEX(extra),CHAR(10))")
-    return aggregate_query("FTA_COLUMNS", f"information_schema.columns WHERE table_schema='{schema}'",
+    return COLUMN_TIME_ZONE_SQL + aggregate_query("FTA_COLUMNS", f"information_schema.columns WHERE table_schema='{schema}'",
                            row, "BINARY table_name,ordinal_position")
 
 

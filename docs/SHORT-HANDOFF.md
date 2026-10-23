@@ -7,7 +7,15 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private diagnostic: **0.5.1-column-diagnostic**, version code **9**.
+Latest private diagnostic: **0.5.2-metadata-timezone**, version code **10**.
+APK SHA256: `a6e562ec8cb1f8e13267a8825f787ae10fdc94d9034945c69e590243f1d188fd`.
+The production implementation passed 143 Android tests, lint and assembly, plus
+142 tooling tests. Signature/alignment and all 221 packaged runtime/notice inputs
+passed; certificate and all 16 native payloads match version 9. Native source
+companion remains unchanged. Physical version 10 execution is unverified.
+See `docs/evidence/android-2026-10-23-private-timezone-apk.json`.
+
+Previous private diagnostic: **0.5.1-column-diagnostic**, version code **9**.
 Its clean build passed **143 Android tests** (18 classes, no failures/errors/skips),
 lint and assembly. Final signature/alignment and all **221** provider/notice
 inputs passed. APK SHA256:
@@ -40,9 +48,8 @@ Version 9 preserves both locks, original SQL, all 24 strict checks and the nativ
 runtime. It adds bounded read-only world-column counts/hashes before and after
 startup, per-table indices into the signed table list, and component hashes for
 four source-known floating defaults. Reports omit SQL, defaults and row data.
-No cause is asserted: the old baseline never fingerprinted seed columns, so the
-mismatch may predate the updater. Source review found no unmodeled pre-map world
-column ALTER. Floating-default formatting is only a hypothesis.
+At that checkpoint the cause was unknown; the subsequent physical version 9
+report and host time-zone reproduction below resolve that uncertainty.
 
 The actual new production Kotlin query/parser passed on a fresh exact host
 MariaDB 12.3.2 seed and source-policy model: complete 371/372-table snapshots,
@@ -50,13 +57,32 @@ all canonical postconditions unchanged, utf8/utf8mb4 outputs identical, and
 142,271-byte pretty diagnostic export. This is host evidence, not Android
 execution. See `docs/world-column-diagnostic.md` and its hash-only fixtures.
 
-**Next substantial physical test:** install version 9 over version 8, keep
-Database.zip imported, have at least 3 GiB free, select **Test compiled
-three-database updater**, then export the JSON report even if the same mismatch
-appears. The new `worldColumnDiagnostic` distinguishes before/after shape and
-localizes differing tables/components. A source ZIP is not required on device.
-The 40-minute overall and 10-minute world-process deadlines remain unchanged.
-Future private versions must use the same signing key and code **greater than 9**.
+**Physical version 9 localized the remaining mismatch to `game_event`**, signed
+post-table index 103. Its before/after table hash is unchanged; every other table
+and all four floating-default probes match the host. The original compiled
+updaters/prepared statements/missing-map boundary and clean SQL shutdown repeat
+successfully. Strict final validation remains 23/24, so overall qualification is
+still false. See `docs/evidence/android-2026-10-23-thor-column-attempt.json`.
+
+The exact MariaDB 12.3.2 host reproduces the Thor table hash at session UTC−06:00
+and the original reference at UTC+07:00. Only the rendered defaults of
+`game_event.start_time` and `game_event.end_time` differ. This is a metadata-session
+time-zone discrepancy already present before the updater, not evidence of a
+migration failure. The dump itself sets UTC for its original import. Version 10
+pins only the read-only metadata sessions to the existing reference's +07:00,
+preserving both locks, all 24 strict checks, source SQL and all native bytes.
+Server/global time zones, import/updater sessions and stored timestamps are not
+changed. See `docs/world-column-diagnostic.md` for the measured reproduction.
+
+**Next substantial physical test:** install private **0.5.2-metadata-timezone**
+(code **10**) over version 9, keep Database.zip imported, have at least 3 GiB free,
+and select **Test compiled three-database updater** once, then export the report.
+Expected result: all 24 checks pass, both snapshots match the original host
+fixture and clean shutdown is observed. That result requires actual Thor evidence;
+do not mark it passed from the host model. No separate auth/full-seed test is
+needed; the integrated diagnostic retains its mandatory fresh baseline. A source
+ZIP is not required. Deadlines remain 40 minutes overall / 10 minutes for world.
+Future private versions must use the same signing key and code **greater than 10**.
 Public provider-only CI APKs use another certificate and cannot replace this
 private update. Gameplay, persistent services and world readiness remain separate.
 
@@ -232,9 +258,9 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
    timestamp values and atomic shared-settings semantics. Link-time debug
    stripping keeps the unchanged final ELF within Android runtime size bounds;
    symbols remain available. See `docs/native-build.md` and `docs/world-runtime.md`.
-4. Preserve the physical version 8 partial updater evidence and obtain the
-   version 9 column diagnostics before changing any expected metadata or
-   treating the compiled updater as qualified. The mode first repeats the
+4. Preserve physical versions 8/9 and the exact host time-zone reproduction.
+   Obtain the version 10 all-24-check Thor result before treating the compiled
+   updater as qualified; expected metadata remains unchanged. The mode first repeats the
    passing full-seed gate, then runs original **normal** world startup through
    the missing-map boundary. **Do not use world `--dry-run` for this gate**:
    failed SQL can write receipts before a final error-counter check that missing

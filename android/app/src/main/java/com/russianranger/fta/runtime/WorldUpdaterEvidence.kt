@@ -6,6 +6,11 @@ import java.nio.charset.CodingErrorAction
 
 /** Only fixed booleans are exported. Native logs and SQL remain private. */
 internal object WorldUpdaterEvidence {
+    // The immutable host fixture was measured in UTC+07:00. TIMESTAMP defaults
+    // in information_schema are rendered in the inspecting session's time zone.
+    // Pin that representation only for metadata reads; never change global/server
+    // time, importer/updater sessions, stored timestamps, or expected hashes.
+    const val COLUMN_TIME_ZONE_SQL = "SET SESSION time_zone='+07:00';\n"
     const val MAX_OUTPUT_BYTES = 4 * 1024 * 1024
     const val PASSED = "COMPILED_UPDATER_DIAGNOSTIC_PASSED"
     val boundaryFields = listOf("authUpdaterCompleted", "characterUpdaterCompleted", "worldUpdaterCompleted",
@@ -126,7 +131,7 @@ internal object WorldUpdaterEvidence {
         val releaseSql = if ("fta_release_updates" in schema.tableNames)
             aggregateSql("FTA_RELEASES", "`${schema.name}`.`fta_release_updates`", release, "BINARY release_id,BINARY name", invalidRelease)
             else "SELECT 'FTA_RELEASES=0:0:0:0:$EMPTY_SHA256';"
-        return FullSeedEvidence.inventorySql(seedShape, files) + "\n" + FullSeedEvidence.receiptSql(seedShape) + "\n" +
+        return COLUMN_TIME_ZONE_SQL + FullSeedEvidence.inventorySql(seedShape, files) + "\n" + FullSeedEvidence.receiptSql(seedShape) + "\n" +
             aggregateSql("FTA_COLUMNS", "information_schema.columns WHERE table_schema='${schema.name}'", columns,
                 "BINARY table_name,ordinal_position", "0") + "\n" + releaseSql + "\n" + includeSql(schema.name, includes)
     }

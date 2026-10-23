@@ -1,0 +1,104 @@
+{
+  "all24PostconditionsPassedAcrossOffsets": [
+    "-06:00",
+    "+00:00",
+    "+05:30",
+    "+07:00",
+    "+13:00"
+  ],
+  "androidExecuted": false,
+  "archiveSha256": "56a6d3187d6c5fe308e2a5772a19bb087cb55dc999e585db5409bc5469a107f7",
+  "compiledWorldExecuted": false,
+  "deviceReportSha256": "5ced7288f8ed2593bcd92ba25d3fa5efc5b6fedd9580aeea9bd219cad8c00588",
+  "differingComponents": {
+    "end_time": [
+      "default"
+    ],
+    "start_time": [
+      "default"
+    ]
+  },
+  "disposableSandboxShutdownCompleted": true,
+  "formatVersion": 1,
+  "fullSeedBaselinePassed": true,
+  "globalTimeZoneUnchanged": true,
+  "originalSqlUnchanged": true,
+  "productionClassSha256": {
+    "WorldColumnEvidence": "74107f91e275168acbd4922908f3069be32fd30e4cd28327f15a9f19159cfd68",
+    "WorldUpdaterEvidence": "7e16b0bf838f14b3d3ab935abdc7e7199b1e79a0a7da774ab23fac1669b3a4a9"
+  },
+  "productionKotlinParserAndReceiptRoundTripPassed": true,
+  "productionSqlSha256": [
+    "12136ca11247da1808a330f62e47aead2dba53f571eac5bb555de4acb4d31aab",
+    "819380c5300766ea12dfde2ac8801d55ade030235a2f4ff6a7d1b0bde7b2eb49",
+    "2e868565f947123644f0371e07bd60ebec2f972e8b1715d3e683e5a3b03dcbab"
+  ],
+  "realSchemaMutationRejected": true,
+  "referenceSessionTimeZone": "+07:00",
+  "reproducedDeviceSessionTimeZone": "-06:00",
+  "schemaPrivilegesOnly": true,
+  "scope": "host-source-policy-model-only",
+  "snapshotSqlSha256": "294da69eb7c392b828ec6d7f0971464a0b77681e424efb1d2f4f89758337b073",
+  "snapshots": {
+    "after": {
+      "aggregate": {
+        "bytes": 576898,
+        "count": 5116,
+        "sha256": "9b39a91f663443146a7cc4c199fcabb03dbe05a690e63e4f1c990f7932dffd04"
+      },
+      "correctedAllOffsetsMatchReference": [
+        "-06:00",
+        "+00:00",
+        "+05:30",
+        "+07:00",
+        "+13:00"
+      ],
+      "legacyDeviceReproduced": true,
+      "legacyHostReproduced": true
+    },
+    "before": {
+      "aggregate": {
+        "bytes": 576088,
+        "count": 5109,
+        "sha256": "6288d39be2c9b884ac680f73e41847d7c1cc2152660da3991f4fb32f54b42e79"
+      },
+      "correctedAllOffsetsMatchReference": [
+        "-06:00",
+        "+00:00",
+        "+05:30",
+        "+07:00",
+        "+13:00"
+      ],
+      "legacyDeviceReproduced": true,
+      "legacyHostReproduced": true
+    }
+  },
+  "sourceTreeSha256": "847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064",
+  "strictExpectedMetadataUnchanged": true,
+  "transitions": {
+    "acore_auth": {
+      "archivedBefore": 1,
+      "orphanRemaining": 11,
+      "orphanWarnings": 11,
+      "recentBefore": 11,
+      "verified": 1
+    },
+    "acore_characters": {
+      "applied": 3,
+      "archivedBefore": 24,
+      "orphanRemaining": 31,
+      "orphanWarnings": 30,
+      "reapplied": 19,
+      "recentBefore": 26
+    },
+    "acore_world": {
+      "applied": 3,
+      "archivedBefore": 2320,
+      "orphanRemaining": 2981,
+      "orphanWarnings": 2981,
+      "recentBefore": 871,
+      "verified": 210
+    }
+  },
+  "worldUpdaterLockSha256": "466c1c6673d7f939b14c4b6f4dc787efa58ac6c8fa91e982c76151a3f1f8c02f"
+}

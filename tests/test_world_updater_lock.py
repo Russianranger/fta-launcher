@@ -200,6 +200,9 @@ class WorldLockTests(unittest.TestCase):
             with self.assertRaises(GateError):
                 parse_aggregate(value, "FTA_COLUMNS", "column")
         self.assertIn("HEX(column_default)", column_query("acore_world"))
+        for schema in SCHEMAS:
+            self.assertTrue(column_query(schema).startswith("SET SESSION time_zone='+07:00';\n"))
+            self.assertNotIn("SET GLOBAL", column_query(schema))
         self.assertIn("ORDER BY BINARY table_name,ordinal_position", column_query("acore_world"))
         self.assertIn("SHA2('',256)", release_query("acore_auth"))
         self.assertNotIn("UPPER(", release_query("acore_characters"))

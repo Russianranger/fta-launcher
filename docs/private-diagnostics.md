@@ -130,7 +130,7 @@ Future private updates must reuse this key and use a version code greater than 8
 
 ## Column metadata checkpoint
 
-Latest private code **9**, `0.5.1-column-diagnostic`, preserves all 16 native
+Previous private code **9**, `0.5.1-column-diagnostic`, preserves all 16 native
 payloads, the signed runtime manifest, both locks and original SQL from version 8.
 It adds read-only before/after world-column observations so a failed strict check
 can be localized without exposing query results. See
@@ -140,3 +140,17 @@ Install over version 8, retain Database.zip, keep 3 GiB free and run the same
 **Test compiled three-database updater** action. Export the report even if the
 same failure remains. Future private versions must exceed code 9 and reuse the
 persistent certificate. The native source companion from version 8 is unchanged.
+
+## Metadata time-zone correction
+
+Private code **10**, `0.5.2-metadata-timezone`, fixes the proven metadata-session
+time-zone mismatch in the two `game_event` timestamp defaults. It retains the
+exact version 9 certificate, all 16 native payloads, both metadata locks and
+original SQL. Only metadata readers use the original host reference's explicit
++07:00 session setting; import/updater sessions and server time remain untouched.
+See [cause and reproducible regression](world-column-diagnostic.md) and
+[APK evidence](evidence/android-2026-10-23-private-timezone-apk.json).
+Install over version 9, retain imports, keep 3 GiB free and run **Test compiled
+three-database updater** once. Expected: 24/24 checks and clean shutdown. Export
+the report even on failure; Android qualification is not claimed before that
+physical test. Future private builds must exceed code 10 with the same key.

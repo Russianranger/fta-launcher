@@ -73,17 +73,20 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version `0.5.1-column-diagnostic`
-(code 9) passed all 143 Android tests, lint, signing/alignment and 221 exact
-runtime/notice checks. All 16 native payloads remain byte-identical to version 8,
-which completed the original ARM64 updater through the expected missing-map stop
-but failed the world column fingerprint (23/24 postchecks passed). The gate
-remains unqualified. Version 9 adds read-only before/after metadata hashes while
-preserving strict expectations and SQL. See the
+signing and validation. Latest private version `0.5.2-metadata-timezone`
+(code 10) passed all 143 Android tests, lint, signing/alignment and 221 exact
+runtime/notice checks. All 16 native payloads remain byte-identical to versions 8/9.
+Physical version 9 localized its single failing postcheck to the timestamp-default
+representation of `game_event`, already different before the updater. Exact host
+reproduction proves a metadata-session time-zone discrepancy. Version 10 pins
+only metadata readers to the original reference's +07:00; SQL, strict expected
+hashes, global time and native code remain unchanged. All 24 checks pass in the
+host model across five inherited offsets, and a real schema mutation is rejected.
+Physical version 10 and the overall compiled-updater gate remain unqualified. See the
 [diagnostic scope](docs/world-column-diagnostic.md) and
-[exact APK evidence](docs/evidence/android-2026-10-22-private-column-apk.json).
+[exact APK evidence](docs/evidence/android-2026-10-23-private-timezone-apk.json).
 Install as an update, rerun **Test compiled three-database updater**, and export
-the report even if the unchanged check still fails. The existing native source
+the report after shutdown. The existing native source
 companion remains applicable; no source ZIP is needed on the device.
 The original auth updater/dry-run gate already
 [passed on physical Thor in version 5](docs/evidence/android-2026-10-22-thor-resolver-pass.json);

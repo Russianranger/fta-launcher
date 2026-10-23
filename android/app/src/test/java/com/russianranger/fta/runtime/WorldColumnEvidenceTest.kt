@@ -98,6 +98,11 @@ class WorldColumnEvidenceTest {
 
     @Test fun queryUsesOnlyBoundedCatalogHashesAndRejectsUntrustedIdentifiers() {
         val sql = WorldColumnEvidence.schemaSql(schema)
+        assertTrue(sql.startsWith("SET SESSION time_zone='+07:00';\n"))
+        assertTrue(WorldUpdaterEvidence.schemaSql(schema, listOf(
+            WorldIncludeDirectory("data/sql/updates/db_world", "RELEASED", "acore_world")
+        )).startsWith("SET SESSION time_zone='+07:00';\n"))
+        assertFalse(sql.contains("SET GLOBAL"))
         assertTrue(sql.contains("group_concat_max_len=1048576"))
         assertTrue(sql.contains("GROUP BY BINARY table_name"))
         assertTrue(sql.contains("ORDER BY BINARY table_name,ordinal_position"))
