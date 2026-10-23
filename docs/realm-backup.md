@@ -15,7 +15,17 @@ APK SHA256: `e268967eb5cc95d2a17161daf20a22f5719767b170db6cff95457a9fdb5880e8`.
 The private build passed 198 Android tests, lint/assembly, 142 tooling tests,
 221 packaged input checks and signature/alignment verification.
 
-## One substantial physical test
+## Physical code 14 result
+
+The supplied report passed all eight flags, all three database opens and all 21
+native records. The uploaded ZIP matches its recorded size and hash; every
+manifest entry was independently verified. The JSON predates the ZIP export, so
+its export-readback flag remains false and the Android readback receipt itself
+is unobserved. This does not invalidate the successful backup/restore or exact
+uploaded copy. See [physical evidence](evidence/android-2026-10-23-thor-realm-backup-pass.json).
+Do not repeat this milestone; continue to [local auth](local-auth-service.md).
+
+## Archived code 14 procedure
 
 1. Update in place with the private code 14 APK. Retain app storage, the verified
    input ZIPs and native dependencies; do not use the public debug APK.
@@ -30,8 +40,7 @@ The private build passed 198 Android tests, lint/assembly, 142 tooling tests,
 Expect `REALM_BACKUP_PASSED`, `realmBackupQualified=true`, all eight nested
 checks true, `realmBackupDiagnostic.exportedCopyVerified=true` after ZIP export,
 and three complete native journals (`original`, `restore1`,
-`restore2`), each with clean database shutdown. Physical code 14 remains
-unverified until its report is inspected. No repeat of the earlier updater,
+`restore2`), each with clean database shutdown. Physical code 14 passed as described above. No repeat of the earlier updater,
 lifecycle, service recovery or initial persistent installation is needed.
 
 The backup contains database/account data and private database credentials;

@@ -1,0 +1,27 @@
+{
+  "formatVersion": 1,
+  "scope": "source-and-uploaded-backup-local-auth-startup-boundary",
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "backupSha256": "0b5fb6ef6912add622f6371d5a1cfcbde3bd63155d03b95ecec6e6d0fa36df8f",
+  "sourceConfiguredRealmId": 1,
+  "requiredClientBuild": 12340,
+  "originalWorldStartupSetsVersionMismatchBeforeMapLoad": true,
+  "originalWorldStartupClearsVersionMismatchOnlyAfterSuccessfulLoad": true,
+  "originalAuthStartupSetsOfflineBit": true,
+  "originalAuthRealmFilterExcludesFlag3": true,
+  "restoredBackupStrictMetadataChecksBeforeAuth": 24,
+  "restoredBackupHasRealmRows": true,
+  "restoredBackupHasEligibleRealmAfterOffline": false,
+  "originalAuthUpdaterReportedUpToDate": true,
+  "nativeSqlErrorObserved": false,
+  "originalAuthRefusedEmptyEligibleRealmList": true,
+  "proposedTransition": "For configured realm 1 only, require gamebuild 12340 and startup flags in 0..3; clear bit 1 and set offline bit 2. Preserve other rows, account/character data, SQL and strict metadata expectations.",
+  "worldReady": false,
+  "sourceFileSha256": {
+    "src/server/apps/worldserver/Main.cpp": "782a1100dcbc84c24b924f6394ee3cb7ec33712881089274aaa3f22974edd1a0",
+    "src/server/apps/authserver/Main.cpp": "9cbab69199081c637ac99c55ed87a76c0bc2a567f26b54ec67d9f321aa82cd8f",
+    "src/server/apps/authserver/Server/AuthSession.cpp": "58e8fe542a3918cbb674e60ba117e25e1cdbaa9841efd96c2a44d4672e261bb9",
+    "src/server/apps/authserver/Authentication/AuthCodes.h": "bbca47ce069ad788ed3582b5683aee3cdf692055e12d287edb1d09c656f06756",
+    "src/server/database/Database/Implementation/LoginDatabase.cpp": "6bcefae8c133c7251d8cc0fbf181ca2e3d52a9d1a89fa5eeee41c8ceaee99428"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "formatVersion": 1,
+  "scope": "host-original-auth-on-production-restored-thor-backup",
+  "androidExecuted": false,
+  "backupSha256": "0b5fb6ef6912add622f6371d5a1cfcbde3bd63155d03b95ecec6e6d0fa36df8f",
+  "originalBackupUnchanged": true,
+  "productionRestorePassed": true,
+  "originalSeedReimported": false,
+  "sourceKnownStaleStartupFlagCleared": true,
+  "configuredRealmExplicitlyKeptOffline": true,
+  "strictMetadataChecksBefore": 24,
+  "strictMetadataChecksAfter": 24,
+  "authCleanStops": 2,
+  "build12340UnknownAccountProtocolPassed": true,
+  "databaseHealthChecks": 20,
+  "existingAccountAndCharacterCountsUnchanged": true,
+  "databaseCleanSqlShutdownExitCode": 0,
+  "hostDatabaseTransport": "private-loopback-with-generated-host-only-role",
+  "androidSocketCredentialsExecuted": false,
+  "serverSha256": "6ce57fb4ff16449fab69cd9e9079a37b1a18c517a9f293a90205cd843b32bbee",
+  "authserverSha256": "97b3d445473ec3ae609314c25d7e45568abcabf8dc98f018e704e08fad0ec928",
+  "sourceSha256": {
+    "android/app/src/main/java/com/russianranger/fta/runtime/ColdRealmBackup.kt": "2c4ef133254adcc56fff94ba4be8e7abeb4cfbced2b7b15c8a8456de38df5442",
+    "android/app/src/main/java/com/russianranger/fta/runtime/LocalAuthProbe.kt": "24cd008663040fefd0f3254ac47d541ce003e77a6e3c1a74bad8f32d67b40981",
+    "android/app/src/main/java/com/russianranger/fta/runtime/LocalRealmAuthState.kt": "614a3dedb243c5c05069bc41e515f9743fa1443475abf3c05d4783a83a3788f4",
+    "android/app/src/main/java/com/russianranger/fta/runtime/WorldUpdaterEvidence.kt": "86e8d389a56a16b58783ec886fa3199851625b21111bc495b95cd1ddb0c135d8",
+    "tests/fixtures/LocalAuthBackupHost.java": "eeb90e7f2a3c0cb5dc448ba79fb75d5e18f7448bd7dfabe0afa7cec4fa70a800",
+    "tests/fixtures/LocalAuthHost.java": "74251047ebe8a37b28c4e075b501cb8a6399bdafb6de4a13bb75ee702cd1e0d4",
+    "tools/check_local_auth_backup.py": "868983880a850705b357bde957c3e2035f541cb056935926b54708a50f52ff41"
+  },
+  "gameLoginQualified": false,
+  "worldReady": false
+}

@@ -73,13 +73,19 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.8.0-realm-backup**
-(code **14**) passed **198 Android tests**, lint/assembly, 142 tooling tests,
-signing/alignment and 221 packaged input checks. Its signer and all 16 native
-payloads match code 13. It creates a cold backup, verifies two reopens of an
-isolated restore, and checks the exported ZIP by reading it back. The active
-realm is preserved. See [backup instructions](docs/realm-backup.md) and
-[exact APK evidence](docs/evidence/android-2026-10-23-private-realm-backup-apk.json).
+signing and validation. Latest private version **0.9.0-local-auth** (code **15**)
+passed **213 Android tests**, lint/assembly, 142 tooling tests, signing/alignment
+and 221 packaged input checks. Its signer and all 16 native payloads match code
+14. It checks the retained database and two original auth listener starts/stops
+on IPv4 loopback. A verified backup is required. The source-known stale startup
+flag is cleared only for the guarded build-12340 realm, which remains offline.
+See [local auth instructions](docs/local-auth-service.md) and
+[exact APK evidence](docs/evidence/android-2026-10-23-private-local-auth-apk.json).
+
+Physical code **14 passed cold backup and two isolated restored reopens**. The
+uploaded ZIP matches the recorded identity and every manifest file hash. Its
+JSON was exported before the ZIP, so the earlier export-readback flag is false;
+the copy was independently verified here. No backup retest is needed.
 
 Physical code **11 passed database lifecycle and screen-off health**. Code **12
 passed Stop delivery, runtime service-process death, independent native-child
@@ -156,12 +162,13 @@ tables. Validation uses the measured archive inventory.
 | Disposable database cancellation/restart/crash recovery and screen-off health | Passed on physical Thor code 11: all ten observations, 85 complete records |
 | Android Stop action and runtime service-process death/recovery | Passed on physical Thor code 12; all seven observations and 24 complete records |
 | Fresh-only persistent realm storage and reuse without seed replay | Passed on physical Thor code 13: same active generation, no reimport, two clean reopens |
-| Cold realm backup, isolated restore and verified ZIP export | Implemented; host data/file/ownership tests pass; private code 14 physical check pending |
+| Cold realm backup and isolated restore | Physical code 14 passed; uploaded ZIP independently verified; earlier JSON lacks SAF readback receipt |
+| Retained local auth listener/restart | Host original auth and restored Thor backup pass; private code 15 physical test pending |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-The next device gate is [cold backup and isolated restore](docs/realm-backup.md).
+The next device gate is [retained local auth startup and restart](docs/local-auth-service.md).
 The ARM64 world build and original compiled updater have passing evidence;
 preserve their C++20, all 52 modules, static Lua 5.2, source hashes and strict
 [updater protocol](docs/world-updater-gate.md). Android service-process death is now qualified for the isolated runtime.

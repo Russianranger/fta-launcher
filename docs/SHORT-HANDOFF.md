@@ -7,24 +7,52 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.8.0-realm-backup**, version code **14**.
-APK SHA256: `e268967eb5cc95d2a17161daf20a22f5719767b170db6cff95457a9fdb5880e8`.
-The same certificate and all 16 native payloads match physically passing code 13.
-The private build passed **198 Android tests** (22 classes), lint/assembly,
-**142 tooling tests**, all 221 packaged runtime/notice inputs, v2 signature and
-16 KiB alignment. The production cold-backup/restore protocol passed exact host
-MariaDB 12.3.2: two restored reopens, seven clean SQL stops, retained binary data,
-unchanged original files/pointer and an original reopen under a second JVM.
-See `docs/evidence/android-2026-10-23-private-realm-backup-apk.json` and
-`docs/evidence/database-2026-10-23-host-realm-backup.json`.
+Latest private update: **0.9.0-local-auth**, version code **15**.
+APK SHA256: `95749ca8c01008c816618a9942774025d11468c317325b9c34f1acc6ffdf669c`.
+The same certificate and all 16 native payloads match physically passing code 14.
+The private build passed **213 Android tests** (23 classes), lint/assembly,
+**142 tooling tests**, all 221 packaged runtime/notice checks, v2 signing and
+16 KiB alignment. The original host authserver passed the production Kotlin
+protocol/lifecycle and JNI with both the unchanged auth seed and a production
+restore of the exact uploaded Thor backup. Each test checked two clean auth
+stops and 20 SQL health probes. The restored backup passed all 24 metadata
+expectations before and after auth, with clean SQL shutdown and unchanged
+account/character counts. Host TCP adapters use generated temporary roles;
+Android socket credentials, ARM64 execution and service behavior remain separate.
+See `docs/local-auth-service.md` and the host/private APK evidence files.
 
-**Next substantial physical test:** install private code 14 in place, select
-**Create / verify realm backup**, then export the verified backup to a private
-location. Export and share only the diagnostic JSON. Expect `REALM_BACKUP_PASSED`,
-`realmBackupQualified=true` and `realmBackupDiagnostic.exportedCopyVerified=true`.
-No seed/updater replay or active-realm replacement occurs. Keep input ZIPs and
-dependencies; allow room for two additional database copies plus 256 MiB.
-Physical code 14 remains unverified. See `docs/realm-backup.md`.
+**Physical code 14 passed backup/restore.** All eight flags and all three database
+opens passed, with 21 successful native records and clean SQL shutdowns. The
+uploaded ZIP exactly matches the reported 181,937,064 bytes and SHA256
+`0b5fb6ef6912add622f6371d5a1cfcbde3bd63155d03b95ecec6e6d0fa36df8f`;
+every one of its 1,357 file hashes verified. The JSON predates ZIP export, so its
+`exportedCopyVerified` flag is false; the uploaded copy independently verifies,
+but the Android SAF readback receipt itself remains unobserved. Do not repeat
+the backup/restore milestone. Report SHA256:
+`c90bd8fae69ee2e7fb7880cf70ef3996c2519278c08f2e910b643c7931ad3eab`.
+See `docs/evidence/android-2026-10-23-thor-realm-backup-pass.json`.
+
+**Measured next-start blocker:** original world startup sets VERSION_MISMATCH
+before loading maps and clears it only on successful initialization. The qualified
+missing-map stop leaves that bit; original auth adds OFFLINE, and flag 3 is
+excluded from its realm list. The restored Thor backup reproduced that refusal
+while all 24 metadata checks passed. Code 15 guards realm 1, gamebuild 12340 and
+flags 0..3, then clears only the stale startup bit while explicitly retaining
+OFFLINE. No schema, receipt, account or build expectation is relaxed. See
+`docs/evidence/database-2026-10-23-auth-startup-flag-boundary.json`.
+
+**Next substantial physical test:** install private code 15 in place and select
+**Test local auth service**, then export only the diagnostic JSON. Expect
+`LOCAL_AUTH_PASSED`, `localAuthQualified=true`, all required checks true and two
+clean auth stops before SQL database shutdown. The first run should also report
+`staleStartupFlagCleared=true`. Keep the realm, verified backup, Database.zip and
+dependencies. No seed replay occurs. Physical code 15 remains unverified.
+
+Previous private update: **0.8.0-realm-backup**, version code **14**.
+APK SHA256: `e268967eb5cc95d2a17161daf20a22f5719767b170db6cff95457a9fdb5880e8`.
+It passed 198 Android tests, 142 tooling tests, lint/assembly, all 221 packaged
+inputs, signature/alignment and real MariaDB backup/restore across two JVMs.
+See `docs/evidence/android-2026-10-23-private-realm-backup-apk.json`.
 
 Previous private update: **0.7.0-persistent-realm**, version code **13**.
 APK SHA256: `898c64163e0c62e35cca358ec6032e3220126fa07b1a27772c2b4b1a003543ee`.
@@ -75,9 +103,8 @@ See `docs/evidence/android-2026-10-23-thor-persistent-realm-pass.json`.
 Generic disposable flags in this separate scope do not revoke prior passes.
 Do not repeat the initial persistent preparation milestone.
 
-Cold backup with an isolated restore rehearsal and private ZIP export is now
-implemented in code 14. It preserves the active realm and never replays seed SQL.
-See `docs/realm-backup.md` for the next substantial combined device check.
+Cold backup and isolated restore passed physically in code 14. The next gate is
+retained local auth startup/restart in code 15; see `docs/local-auth-service.md`.
 World startup still requires matching client data and service orchestration.
 
 Passing physical updater diagnostic: **0.5.2-metadata-timezone**, version code **10**.

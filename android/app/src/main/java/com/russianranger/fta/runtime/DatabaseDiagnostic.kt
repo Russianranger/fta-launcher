@@ -21,7 +21,8 @@ class DatabaseDiagnostic(
     private val includeLifecycle: Boolean = false,
     private val recoveryStore: RecoveryStore? = null,
     private val recoveryPhase: RecoveryPhase? = null,
-    private val realm: RealmDatabaseSession? = null
+    private val realm: RealmDatabaseSession? = null,
+    private val localAuthObserve: ((String, Boolean) -> Unit)? = null
 ) {
     private val owned = ConcurrentHashMap<Long, String>()
     private lateinit var root: File
@@ -45,6 +46,7 @@ class DatabaseDiagnostic(
         require(listOf(includeAuth, includeFullSeed, includeWorldUpdater, includeLifecycle, recoveryStore != null).count { it } <= 1) { "Select one diagnostic scope" }
         require((recoveryStore == null) == (recoveryPhase == null))
         if (realm != null) require(!includeAuth && !includeFullSeed && !includeLifecycle && recoveryStore == null && includeWorldUpdater == realm.preparing)
+        require(localAuthObserve == null || (realm != null && !realm.preparing))
         runtime = PackagedRuntime.inspect(context)
         if (includeAuth) require("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables)
         if (includeWorldUpdater) require("worldserver" in runtime.manifest.capabilities && "world-server" in runtime.executables &&
@@ -243,17 +245,99 @@ class DatabaseDiagnostic(
             lock.schemas.forEach { schema ->
                 check(WorldUpdaterEvidence.parseValidation(client(WorldUpdaterEvidence.schemaSql(schema, lock.includeDirectories), 30_000), schema).values.all { it })
             }
+            if (localAuthObserve != null) {
+                localAuthObserve.invoke("metadataBeforePassed", true)
+                runLocalAuthListener(localAuthObserve)
+                setStage("REALM_METADATA", "Rechecking all 24 original database expectations after auth restarts.")
+                lock.schemas.forEach { schema ->
+                    check(WorldUpdaterEvidence.parseValidation(client(WorldUpdaterEvidence.schemaSql(schema, lock.includeDirectories), 30_000), schema).values.all { it })
+                }
+                setStage("REALM_VERIFY", "Rechecking the retained realm identity after auth restarts.")
+                RealmStorageCanary.verify(session.generation.id) { client(it, 10_000) }
+                localAuthObserve.invoke("metadataAfterPassed", true)
+            }
             setStage("STOPPING", "Stopping the retained realm database with SQL SHUTDOWN.")
             client("SHUTDOWN;", 10_000)
             evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "sql_shutdown_requested") }
             check(waitTracked(server, 15_000) == 0)
             evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "clean_shutdown") }
             owned.remove(server); evidenceHandles.remove(server); server = 0
+            localAuthObserve?.invoke("databaseCleanShutdown", true)
             return "Persistent realm identity, all 24 metadata checks and clean shutdown passed."
         } finally {
             if (server != 0L && !cancelled.get()) runCatching { client("SHUTDOWN;", 3_000); waitTracked(server, 3_000) }
             stopOwned(); socket.delete()
             // The retained credentials and datadir are never deleted on ordinary stop/failure.
+        }
+    }
+
+    private fun runLocalAuthListener(observe: (String, Boolean) -> Unit) {
+        require("auth-server" in runtime.executables)
+        val visit = requireNotNull(realmLogDirectory)
+        val lock = WorldUpdaterMetadata.load(context)
+        setStage("LOCAL_AUTH_SETUP", "Checking original auth inputs and creating a private local database role.")
+        val archive = VerifiedInputReader.resolve(File(context.filesDir, "imports"), Inputs.database, ::checkCancelled)
+        val source = WorldUpdaterStore().stage(archive, lock, File(visit, "runtime-sql"), ::checkCancelled)
+        val temp = File(visit, "auth-temp").apply { check(mkdir()) }
+        val config = File(visit, "authserver.conf")
+        val user = "fta_local_" + UUID.randomUUID().toString().replace("-", "").take(16)
+        val password = ByteArray(24).also { SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it.toInt() and 255) }
+        val username = "FTA" + UUID.randomUUID().toString().replace("-", "").take(13).uppercase()
+        check(client("SELECT COUNT(*) FROM acore_auth.account WHERE username='$username';", 5000).trim() == "0")
+        val port = LocalAuthProbe.unusedPort()
+        check(LocalAuthProbe.closed(port))
+        val staleFlagCleared = LocalRealmAuthState.prepare { client(it, 5000) }
+        observe("offlineRealmStatePrepared", true)
+        observe("staleStartupFlagCleared", staleFlagCleared)
+        var auth = 0L
+        var created = false
+        fun stopAuth(): Int {
+            if (auth == 0L) return 0
+            val handle = auth
+            val exit = NativeProcessBridge.stop(handle, 10_000)
+            finishEvidence(handle, if (exit == Int.MIN_VALUE) "timed_out" else "exited", exit.takeUnless { it == Int.MIN_VALUE })
+            evidenceHandles[handle]?.let { invocationJournal?.terminated(it, exit.takeUnless { value -> value == Int.MIN_VALUE }) }
+            if (exit != Int.MIN_VALUE) { owned.remove(handle); evidenceHandles.remove(handle); auth = 0 }
+            return exit
+        }
+        try {
+            client("CREATE USER '$user'@'localhost' IDENTIFIED BY '$password';", 5000)
+            created = true
+            client("GRANT ALL PRIVILEGES ON acore_auth.* TO '$user'@'localhost';", 5000)
+            config.writeText(LocalAuthProbe.config(socket, runtime.executables.getValue("database-client"), source, temp, user, password, port))
+            check(config.setReadable(false, false) && config.setWritable(false, false) && config.setReadable(true, true) && config.setWritable(true, true))
+            LocalAuthProtocol.run(object : LocalAuthProtocol.Driver {
+                override fun checkActive() = checkCancelled()
+                override fun start(pass: Int) {
+                    check(LocalAuthProbe.closed(port))
+                    setStage("LOCAL_AUTH_START", "Starting original loopback auth listener $pass of 2 with updater checks enabled.")
+                    auth = launch("auth-server", listOf("--config", config.absolutePath), null, "tool-${++step}", 90_000)
+                    val end = System.nanoTime() + 45_000_000_000L
+                    while (true) {
+                        checkCancelled(); check(waitTracked(server, 0) == Int.MIN_VALUE && waitTracked(auth, 0) == Int.MIN_VALUE)
+                        if (runCatching { LocalAuthProbe.exchange(port, username) }.isSuccess) break
+                        check(System.nanoTime() < end) { "Original auth listener did not become ready" }; Thread.sleep(150)
+                    }
+                }
+                override fun probe() {
+                    checkCancelled(); check(waitTracked(server, 0) == Int.MIN_VALUE && waitTracked(auth, 0) == Int.MIN_VALUE)
+                    LocalAuthProbe.exchange(port, username)
+                    check(waitTracked(auth, 0) == Int.MIN_VALUE)
+                }
+                override fun hold() {
+                    setStage("LOCAL_AUTH_HOLD", "Checking loopback authentication and retained database health for 20 seconds.")
+                    repeat(10) { checkCancelled(); Thread.sleep(2000); probe(); check(client("SELECT 1;", 2000).trim() == "1") }
+                }
+                override fun stop(): Int { setStage("LOCAL_AUTH_STOP", "Stopping the auth listener before the retained database."); return stopAuth() }
+                override fun listenerClosed() = LocalAuthProbe.closed(port)
+            }, observe)
+        } finally {
+            val stopped = stopAuth()
+            if (created && auth == 0L && stopped != Int.MIN_VALUE && !cancelled.get()) {
+                client("DROP USER '$user'@'localhost';", 5000)
+                observe("temporaryRoleRemoved", true)
+            }
+            config.delete(); File(temp, "mysql_ac.conf").delete()
         }
     }
 
@@ -961,7 +1045,7 @@ internal class NativeInvocationJournal(private val file: File, private val attem
         const val MAX_FILE_BYTES = 2 * 1024 * 1024L
         const val MAX_LOG_BYTES = 8 * 1024 * 1024L
         private val roles = setOf("database-server", "database-client", "auth-server", "world-server")
-        private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP",
+        private val stages = setOf("LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP", "CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP",
             "LIFECYCLE_WRITE", "LIFECYCLE_RESTART", "LIFECYCLE_CANCEL", "LIFECYCLE_SCREEN_OFF", "LIFECYCLE_CRASH", "LIFECYCLE_FINISH",
             "RECOVERY_HOLD", "RECOVERY_RESUME", "RECOVERY_VALIDATE", "REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")
         private val outcomes = setOf("running", "exited", "timed_out", "cancelled", "start_failed", "wait_failed", "stopped", "supervisor_failed")

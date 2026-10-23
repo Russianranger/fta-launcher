@@ -14,7 +14,7 @@ authserver, worldserver, module, native dependency or supervisor change.
 Code 13 has passed the later reuse invocation on the AYN Thor: all storage checks,
 14 complete successful native records, two clean database stops and no seed
 reimport. See [the evidence](evidence/android-2026-10-23-thor-persistent-realm-pass.json).
-Do not repeat this milestone; continue to [backup and restore verification](realm-backup.md).
+Do not repeat this milestone; backup/restore also passed in code 14. Continue to [local auth](local-auth-service.md).
 
 ## Archived code 13 procedure
 
@@ -95,7 +95,8 @@ may require later targeted cleanup rather than automatic deletion.
 
 If interruption occurs after the atomic pointer replacement, the next session
 recognizes that active generation and verifies it. It does not replay the seed.
-There is no backup/restore or migration UI yet; retain app storage and the original
+Code 14 adds verified backup/export and isolated restore; external restore activation
+and migration remain unavailable. Retain app storage and the original
 inputs while those subsequent safeguards are developed.
 
 ## Evidence and host qualification

@@ -185,14 +185,14 @@ and signing/alignment. The shared storage protocol/SQL/JNI also passed real host
 MariaDB across two owning JVMs without reimport or loss of retained data.
 
 Physical code 13 [passed retained database reuse](evidence/android-2026-10-23-thor-persistent-realm-pass.json).
-The next gate is [cold backup and isolated restore](realm-backup.md).
+The backup/restore gate also passed in code 14; the next gate is [local auth](local-auth-service.md).
 An ordinary same-key update preserves imports and retained generations. Future
-private builds must exceed code 14. Public debug releases cannot replace the
+private builds must exceed code 15. Public debug releases cannot replace the
 installed private diagnostic; never uninstall or clear data to force an update.
 
 ## Cold backup and restore checkpoint
 
-Latest private code **14**, `0.8.0-realm-backup`, retains the certificate and all
+Previous private code **14**, `0.8.0-realm-backup`, retains the certificate and all
 16 native payloads from code 13. It passes 198 Android tests, lint/assembly,
 142 tooling tests, 221 packaged inputs and signature/alignment checks. Its
 production archive/restore protocol and JNI owner pass exact host MariaDB 12.3.2,
@@ -202,5 +202,21 @@ files and an original reopen under a second JVM.
 The active realm is never replaced; no seed/updater SQL is replayed. The exported
 ZIP contains private database/account data and credentials. Share only the
 redacted diagnostic JSON. Follow [the one combined backup check](realm-backup.md).
-Physical code 14 remains unverified. Subsequent private builds must increase the
+Physical code 14 passed backup/restore; its uploaded ZIP independently matches
+the report and every manifest hash. Its earlier JSON lacks the later Android
+SAF readback receipt. Subsequent private builds must increase the
 version code and keep this signing certificate; public debug APKs cannot update it.
+
+## Local auth checkpoint
+
+Latest private code **15**, `0.9.0-local-auth`, retains the certificate and all
+16 native payloads from code 14. APK SHA256: `95749ca8c01008c816618a9942774025d11468c317325b9c34f1acc6ffdf669c`.
+It passes 213 Android tests, lint/assembly, 142 tooling tests, 221 packaged-input
+checks, signature/alignment and original-auth host qualification. The additional
+restored-Thor-backup test passes all 24 strict metadata checks before/after auth.
+
+Android INTERNET permission supports only the generated loopback listener and
+probe in this feature. Database access stays on the private Unix socket. The
+realm remains offline after the guarded source-derived startup-flag transition.
+Physical code 15 is unverified; follow [one local auth test](local-auth-service.md).
+Do not use public debug releases, uninstall the private app or clear its data.
