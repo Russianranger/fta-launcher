@@ -6,7 +6,15 @@ Those milestones remain established. Code **12**, **0.6.1-runtime-recovery**,
 adds one combined test for Android Stop delivery and separate service-process
 death, independent child termination, and recovery of the same disposable DB.
 
-## One physical test
+## Physical result
+
+Code 12 has passed on the AYN Thor: all seven flags, all three qualification
+booleans and all 24 phase records (9/9/6), followed by clean database exit 0.
+No timeout, truncation, dropped record or validation failure occurred. See
+[the physical result](evidence/android-2026-10-23-thor-runtime-recovery-pass.json).
+Do not repeat this milestone. Continue with [persistent realm storage](persistent-realm-storage.md).
+
+## Archived code 12 physical procedure
 
 Install the supplied private code 12 as an ordinary update. APK SHA256:
 `5fa04d6e7837595d58526a3a7e773df503c0dd5d80eaab639fc8e097e6ebf8c5`.
@@ -24,7 +32,7 @@ report**, save the JSON with Android's file picker and attach it, even on failur
 
 A passing report has `RUNTIME_RECOVERY_PASSED` and all three booleans true:
 `runtimeRecoveryQualified`, `serviceProcessDeathQualified`, `stopActionQualified`.
-Physical code 12 remains unverified until such a report is inspected.
+The inspected physical code 12 report now meets these criteria.
 
 ## Independent observations
 
@@ -102,8 +110,7 @@ service destruction, wrong roots and reused owner identities.
 Measured results: [host recovery](evidence/database-2026-10-23-host-runtime-recovery.json),
 [private APK](evidence/android-2026-10-23-private-runtime-recovery-apk.json), and
 [physical code 11 lifecycle](evidence/android-2026-10-23-thor-lifecycle-pass.json).
-After a physical recovery pass, the next implementation can promote the measured
-ownership/recovery rules into fresh-only persistent realm storage with restart
-and data-retention safeguards. Do not replay the populated seed over existing
+The physical recovery pass now supports the implemented fresh-only persistent
+realm storage path with restart and data-retention safeguards. Do not replay the populated seed over existing
 saves. Auth/world orchestration, local account provisioning, matching client
 DBC/maps/vmaps/mmaps, world entry and gameplay remain distinct later gates.

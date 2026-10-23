@@ -20,7 +20,8 @@ class DatabaseDiagnostic(
     private val includeWorldUpdater: Boolean = false,
     private val includeLifecycle: Boolean = false,
     private val recoveryStore: RecoveryStore? = null,
-    private val recoveryPhase: RecoveryPhase? = null
+    private val recoveryPhase: RecoveryPhase? = null,
+    private val realm: RealmDatabaseSession? = null
 ) {
     private val owned = ConcurrentHashMap<Long, String>()
     private lateinit var root: File
@@ -28,6 +29,8 @@ class DatabaseDiagnostic(
     private var server = 0L
     private var clientOptions: File? = null
     private var worldInspectorQueue: File? = null
+    private var realmLogDirectory: File? = null
+    private var realmServerHandle = 0L
     private lateinit var socket: File
     private lateinit var characterSetsDirectory: File
     private var step = 0
@@ -41,18 +44,22 @@ class DatabaseDiagnostic(
     fun run(): String {
         require(listOf(includeAuth, includeFullSeed, includeWorldUpdater, includeLifecycle, recoveryStore != null).count { it } <= 1) { "Select one diagnostic scope" }
         require((recoveryStore == null) == (recoveryPhase == null))
+        if (realm != null) require(!includeAuth && !includeFullSeed && !includeLifecycle && recoveryStore == null && includeWorldUpdater == realm.preparing)
         runtime = PackagedRuntime.inspect(context)
         if (includeAuth) require("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables)
         if (includeWorldUpdater) require("worldserver" in runtime.manifest.capabilities && "world-server" in runtime.executables &&
             runtime.manifest.files.any { it.path == WorldUpdaterMetadata.PATH }) { "The compiled world updater payload is unavailable" }
         require(runtime.manifest.bootstrap != null) { "A pinned bootstrap recipe is required" }
         if (recoveryPhase == RecoveryPhase.RESUME) return runRecoveryResume(recoveryStore!!)
-        val parent = File(context.filesDir, "runtime/database-diagnostics").apply { check(mkdirs() || isDirectory) }
+        if (realm != null && !realm.preparing) return runRealmReopen(realm)
+        val parent = if (realm == null) File(context.filesDir, "runtime/database-diagnostics").apply { check(mkdirs() || isDirectory) }
+            else realm.generation.directory.parentFile!!
         // At most two previous diagnostic directories are retained. These never hold user saves.
-        parent.listFiles()?.filter { it.isDirectory && it.name.startsWith("g-") }
+        if (realm == null) parent.listFiles()?.filter { it.isDirectory && it.name.startsWith("g-") }
             ?.sortedByDescending { it.lastModified() }?.drop(2)?.forEach { it.deleteRecursively() }
         check(parent.usableSpace >= (if (needsFullSeed) 3L * 1024 * 1024 * 1024 else 512L * 1024 * 1024)) { "Insufficient free private storage for the disposable diagnostic" }
-        root = File(parent, "g-${UUID.randomUUID()}").apply { check(mkdir()) }
+        root = if (realm == null) File(parent, "g-${UUID.randomUUID()}").apply { check(mkdir()) }
+            else realm.generation.directory.also { realm.store.requireFresh(realm.generation) }
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val attemptId = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
         require(attemptId != null && NativeInvocationJournal.validAttemptId(attemptId)) { "Current diagnostic attempt identity is unavailable" }
@@ -145,6 +152,11 @@ class DatabaseDiagnostic(
             if (includeAuth) runAuthUpdaterDiagnostic()
             if (needsFullSeed) runFullSeedDiagnostic()
             if (includeWorldUpdater) runWorldUpdaterDiagnostic()
+            if (realm != null) {
+                setStage("REALM_PREPARING", "Binding the new persistent realm to its launcher identity.")
+                RealmStorageCanary.create(realm.generation.id) { client(it, 10_000) }
+                client("DROP USER 'fta_world_diag'@'localhost';", 5_000)
+            }
             setStage("STOPPING", "Stopping the diagnostic database with SQL SHUTDOWN.")
             client("SHUTDOWN;", 10_000)
             evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "sql_shutdown_requested") }
@@ -171,7 +183,7 @@ class DatabaseDiagnostic(
                 }
             }
             stopOwned()
-            clientOptions?.delete()
+            if (realm == null) clientOptions?.delete()
             if (::socket.isInitialized) socket.delete()
         }
     }
@@ -191,6 +203,58 @@ class DatabaseDiagnostic(
     private fun checkCancelled() {
         check(!cancelled.get()) { "Database diagnostic cancelled" }
         check(System.nanoTime() < deadline) { "Database diagnostic exceeded its total deadline" }
+    }
+
+    private fun runRealmReopen(session: RealmDatabaseSession): String {
+        root = session.generation.directory
+        val datadir = File(root, "database")
+        require(java.nio.file.Files.isDirectory(datadir.toPath(), java.nio.file.LinkOption.NOFOLLOW_LINKS))
+        val provider = File(root, "payload/data/provider")
+        runtime.manifest.files.filter { it.role == "data" }.forEach { entry ->
+            checkCancelled(); RuntimeManifest.verifyFile(File(root, "payload/${entry.path}"), entry)
+        }
+        characterSetsDirectory = File(provider, "share/mysql/charsets")
+        socket = File(context.filesDir, "run/d.sock")
+        val credentials = File(root, "client.cnf")
+        require(java.nio.file.Files.isRegularFile(credentials.toPath(), java.nio.file.LinkOption.NOFOLLOW_LINKS) && credentials.length() <= 1024)
+        val lines = credentials.readLines()
+        require(lines.size == 5 && lines[0] == "[client]" && lines[1] == "user=root" &&
+            lines[2].matches(Regex("password=[0-9a-f]{48}")) && lines[3] == "protocol=socket" && lines[4] == "socket=${socket.absolutePath}")
+        clientOptions = credentials
+        currentAttemptId = session.attempt
+        realmLogDirectory = session.visitDirectory().apply { check(mkdirs()) }
+        invocationJournal = NativeInvocationJournal(File(realmLogDirectory, "native-invocations.properties"), session.attempt)
+        try {
+            if (socket.exists()) check(socket.delete())
+            setStage("REALM_REOPEN", "Opening the existing realm database without importing seed SQL.")
+            server = launch("database-server", databaseOptions(provider, datadir, File(root, "plugin")), null, "server")
+            val readyEnd = System.nanoTime() + 45_000_000_000L
+            while (true) {
+                checkCancelled(); check(waitTracked(server, 0) == Int.MIN_VALUE)
+                if (socket.exists() && runCatching { client("SELECT 1;", 2_000).trim() == "1" }.getOrDefault(false)) break
+                check(System.nanoTime() < readyEnd); Thread.sleep(150)
+            }
+            evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "database_ready") }
+            setStage("REALM_VERIFY", "Checking the retained realm identity and original database expectations.")
+            RealmStorageCanary.verify(session.generation.id) { client(it, 10_000) }
+            // Read-only exact schema/receipt checks. No updater, seed or user-row write runs here.
+            setStage("REALM_METADATA", "Checking all 24 unchanged schema and updater receipt expectations.")
+            val lock = WorldUpdaterMetadata.load(context)
+            lock.schemas.forEach { schema ->
+                check(WorldUpdaterEvidence.parseValidation(client(WorldUpdaterEvidence.schemaSql(schema, lock.includeDirectories), 30_000), schema).values.all { it })
+            }
+            setStage("STOPPING", "Stopping the retained realm database with SQL SHUTDOWN.")
+            client("SHUTDOWN;", 10_000)
+            evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "sql_shutdown_requested") }
+            check(waitTracked(server, 15_000) == 0)
+            evidenceHandles[server]?.let { invocationJournal?.checkpoint(it, "clean_shutdown") }
+            owned.remove(server); evidenceHandles.remove(server); server = 0
+            return "Persistent realm identity, all 24 metadata checks and clean shutdown passed."
+        } finally {
+            if (server != 0L && !cancelled.get()) runCatching { client("SHUTDOWN;", 3_000); waitTracked(server, 3_000) }
+            stopOwned(); socket.delete()
+            // The retained credentials and datadir are never deleted on ordinary stop/failure.
+        }
     }
 
     private fun runRecoveryHold(store: RecoveryStore, phase: RecoveryPhase): Nothing {
@@ -634,7 +698,7 @@ class DatabaseDiagnostic(
     }
 
     private fun logFile(label: String, suffix: String) = File(
-        if (recoveryPhase == RecoveryPhase.RESUME) File(root, "recovery-logs") else root, "$label.$suffix")
+        realmLogDirectory ?: if (recoveryPhase == RecoveryPhase.RESUME) File(root, "recovery-logs") else root, "$label.$suffix")
     private fun logBytes(label: String, suffix: String) = logFile(label, suffix).length()
 
     private fun finishEvidence(handle: Long, outcome: String, exitCode: Int?) {
@@ -646,7 +710,10 @@ class DatabaseDiagnostic(
     private fun waitTracked(handle: Long, timeoutMs: Long): Int {
         return try {
             val exit = NativeProcessBridge.waitFor(handle, timeoutMs)
-            if (exit != Int.MIN_VALUE) finishEvidence(handle, "exited", exit)
+            if (exit != Int.MIN_VALUE) {
+                finishEvidence(handle, "exited", exit)
+                if (handle == realmServerHandle) { realm!!.stopped(); realmServerHandle = 0L }
+            }
             exit
         } catch (failure: Exception) {
             finishEvidence(handle, "wait_failed", null)
@@ -659,9 +726,10 @@ class DatabaseDiagnostic(
             NativeEvidenceCleanup.stop(
                 recordBefore = { finishEvidence(handle, outcome, null) },
                 nativeStop = { NativeProcessBridge.stop(handle, graceMs) },
-                recordAfter = { exit -> evidenceHandles[handle]?.let {
-                    invocationJournal?.terminated(it, exit.takeIf { value -> value != Int.MIN_VALUE })
-                } }
+                recordAfter = { exit ->
+                    evidenceHandles[handle]?.let { invocationJournal?.terminated(it, exit.takeIf { value -> value != Int.MIN_VALUE }) }
+                    if (handle == realmServerHandle && exit != Int.MIN_VALUE) { realm!!.stopped(); realmServerHandle = 0L }
+                }
             )
         } finally {
             owned.remove(handle)
@@ -674,6 +742,7 @@ class DatabaseDiagnostic(
         val executable = runtime.executables.getValue(role)
         check(executable.canonicalFile.parentFile == runtime.nativeDirectory)
         val evidence = invocationJournal?.begin(label, role, currentStage, timeoutMs)
+        if (realm != null && role == "database-server") realm.launching()
         val handle = try {
             NativeProcessBridge.start(executable.absolutePath, args.toTypedArray(), environment(role),
                 root.absolutePath, stdin?.absolutePath, logFile(label, "out").absolutePath, logFile(label, "err").absolutePath)
@@ -683,6 +752,10 @@ class DatabaseDiagnostic(
         }
         owned[handle] = label
         if (evidence != null) evidenceHandles[handle] = evidence
+        if (realm != null && role == "database-server") {
+            realmServerHandle = handle
+            realm.started(NativeProcessBridge.processId(handle))
+        }
         if (cancelled.get()) {
             runCatching { stopTracked(handle, 1_000, "cancelled") }
             checkCancelled()
@@ -890,7 +963,7 @@ internal class NativeInvocationJournal(private val file: File, private val attem
         private val roles = setOf("database-server", "database-client", "auth-server", "world-server")
         private val stages = setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP",
             "LIFECYCLE_WRITE", "LIFECYCLE_RESTART", "LIFECYCLE_CANCEL", "LIFECYCLE_SCREEN_OFF", "LIFECYCLE_CRASH", "LIFECYCLE_FINISH",
-            "RECOVERY_HOLD", "RECOVERY_RESUME", "RECOVERY_VALIDATE")
+            "RECOVERY_HOLD", "RECOVERY_RESUME", "RECOVERY_VALIDATE", "REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")
         private val outcomes = setOf("running", "exited", "timed_out", "cancelled", "start_failed", "wait_failed", "stopped", "supervisor_failed")
         private val validations = setOf("output_limit_exceeded", "version_marker_missing", "completion_marker_missing", "world_boundary_invalid", "world_postcondition_mismatch")
 

@@ -161,7 +161,7 @@ intentional forced stop and client interruptions. No repeat run is needed.
 
 ## Runtime service recovery checkpoint
 
-Latest private code **12**, `0.6.1-runtime-recovery`, keeps the same certificate
+Private code **12**, `0.6.1-runtime-recovery`, keeps the same certificate
 and all 15 provider/server/dependency native payloads. It rebuilds only the
 process supervisor to expose a live owned-child PID for read-only observation.
 Do **not** restore the older supervisor during packaging: it lacks this JNI API.
@@ -170,8 +170,21 @@ All 164 Android tests, lint/assembly, 142 tooling tests, native ownership checks
 ASan/UBSan, 221 packaged inputs and signing/alignment passed. Real host MariaDB
 passed the shared recovery protocol, committed-data/rollback SQL and JNI owner.
 
-Physical code 12 remains unverified. Install it as an ordinary update; do not
-uninstall or clear imports. Follow [the one-run recovery test](runtime-recovery-diagnostic.md).
-It requires no seed reimport, updater repeat, manual force stop or screen-off
-step. Future private builds must exceed code 12 and reuse the same key. Public
-debug releases remain unsuitable for updating this private installation.
+Physical code 12 now [passes all runtime recovery gates](evidence/android-2026-10-23-thor-runtime-recovery-pass.json).
+Its Stop action, actual service-process death, independent native-child termination,
+same-database recovery and final SQL shutdown are established. No repeat is needed.
+
+## Persistent realm storage checkpoint
+
+Latest private code **13**, `0.7.0-persistent-realm`, retains the certificate and
+all 16 native payloads from code 12. Packaging verifies the supervisor's source
+identity before retaining those already qualified helper bytes. Do not restore
+an older pre-code-12 helper. The [APK evidence](evidence/android-2026-10-23-private-persistent-realm-apk.json)
+records 181 Android tests, lint/assembly, 142 tooling tests, 221 packaged inputs
+and signing/alignment. The shared storage protocol/SQL/JNI also passed real host
+MariaDB across two owning JVMs without reimport or loss of retained data.
+
+Physical code 13 remains unverified. Follow [the one persistent-storage test](persistent-realm-storage.md).
+An ordinary same-key update preserves imports and retained generations. Future
+private builds must exceed code 13. Public debug releases cannot replace the
+installed private diagnostic; never uninstall or clear data to force an update.

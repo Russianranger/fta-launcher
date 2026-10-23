@@ -7,20 +7,30 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.6.1-runtime-recovery**, version code **12**.
-APK SHA256: `5fa04d6e7837595d58526a3a7e773df503c0dd5d80eaab639fc8e097e6ebf8c5`.
-The private signer matches code 11; all **15 provider/server/dependency payloads**
-remain byte-identical. Only the source-built process supervisor changes, adding
-an observation-only owned-child PID accessor for independent death detection.
-All **164 Android tests** (20 classes), lint/assembly, **142 tooling tests**, all
-221 packaged runtime/notice inputs, v2 signature and 16 KiB alignment passed.
-Native ownership passed five runs and ASan/UBSan; LeakSanitizer remains unavailable
-on this host. The production recovery protocol, canary SQL and JNI owner passed
-against real host MariaDB 12.3.2: Stop cleanup, owning-JVM SIGKILL, termination of
-both native children, same-database recovery, rollback and final SQL shutdown.
-Host evidence does not establish Android intent delivery or service death.
-See `docs/evidence/database-2026-10-23-host-runtime-recovery.json` and
-`docs/evidence/android-2026-10-23-private-runtime-recovery-apk.json`.
+Latest private update: **0.7.0-persistent-realm**, version code **13**.
+APK SHA256: `898c64163e0c62e35cca358ec6032e3220126fa07b1a27772c2b4b1a003543ee`.
+The signer and **all 16 native payloads** match the physically passing code 12.
+The private build passed **181 Android tests** (21 classes), lint/assembly,
+**142 tooling tests**, all 221 packaged runtime/notice inputs, v2 signing and
+16 KiB alignment. Native/core/provider code is unchanged. Real host MariaDB
+passed the production generation/activation protocol, canary SQL and JNI owner:
+one fresh generation, four reopens across two owning JVM sessions, five clean
+SQL shutdowns, unchanged retained data and no reimport in the second session.
+See `docs/evidence/database-2026-10-23-host-persistent-realm.json` and
+`docs/evidence/android-2026-10-23-private-persistent-realm-apk.json`.
+
+**Physical version 12 passed runtime recovery.** Its exact APK SHA256 is
+`5fa04d6e7837595d58526a3a7e773df503c0dd5d80eaab639fc8e097e6ebf8c5`.
+All seven observations and all three qualification flags are true: Stop action,
+service-process death and same-database recovery. The 24 native records are
+complete (9 cancel, 9 crash, 6 resume), with no drops, timeout, truncation or
+validation failure. The crash writer's two historical running records are
+resolved by independent owner/child termination and recovery under a new owner.
+The final database received SQL shutdown and exited 0. Exact child exit signals
+remain unobserved on Android. Report SHA256:
+`b9b043d2f2763b003c0bdfc1f8d314263a37ab4ab9f64a68258d8099dc0e6833`.
+See `docs/evidence/android-2026-10-23-thor-runtime-recovery-pass.json`.
+Do not repeat the passed runtime-recovery diagnostic.
 
 **Physical version 11 passed all ten lifecycle observations**, including
 screen-off SQL health. The exact code 11 APK SHA256 is
@@ -35,15 +45,18 @@ See `docs/evidence/android-2026-10-23-thor-lifecycle-pass.json`.
 Do not reinterpret the connection failure during the deliberate database kill
 as a TLS or schema defect. Do not repeat the passed lifecycle/updater tests.
 
-**Next substantial physical test:** update in place to private code 12, select
-**Test runtime recovery**, keep the app open and let all three phases finish,
-then **Export diagnostic report**. No manual Stop, screen-off step, seed reimport,
-source ZIP or dependency replacement is needed. The surviving controller sends
-the real Stop PendingIntent, then kills only the separate test service process
-and independently observes its two native children before reopening the same
-disposable database. Physical code 12 execution remains unverified. A passing
-report requires `runtimeRecoveryQualified`, `serviceProcessDeathQualified` and
-`stopActionQualified` all true. See `docs/runtime-recovery-diagnostic.md`.
+**Next substantial physical test:** update in place to private code 13 and select
+**Prepare / verify persistent realm**. First use creates a new retained generation,
+runs the original seed/compiled updater with unchanged strict expectations,
+checks two cold database reopens, and atomically activates it only after clean
+shutdown. This is the first real installation, not another disposable updater
+qualification. Close/reopen the app, select the same action again and export the
+JSON. The second run must reuse the active generation without reading seed SQL;
+expect `persistentRealmStorageQualified=true` and
+`realmStorageDiagnostic.checks.seedImportNeeded=false` in that final report.
+Keep the verified ZIP and dependencies; never uninstall or clear app storage.
+Allow 3 GiB free for first preparation. Physical code 13 remains unverified.
+See `docs/persistent-realm-storage.md`.
 
 Passing physical updater diagnostic: **0.5.2-metadata-timezone**, version code **10**.
 APK SHA256: `a6e562ec8cb1f8e13267a8825f787ae10fdc94d9034945c69e590243f1d188fd`.

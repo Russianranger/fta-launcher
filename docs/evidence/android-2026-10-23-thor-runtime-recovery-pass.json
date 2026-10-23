@@ -1,0 +1,56 @@
+{
+  "formatVersion": 1,
+  "evidenceKind": "user-exported-physical-device-report",
+  "reportSha256": "b9b043d2f2763b003c0bdfc1f8d314263a37ab4ab9f64a68258d8099dc0e6833",
+  "appVersionCode": 12,
+  "appVersionName": "0.6.1-runtime-recovery",
+  "apkSha256": "5fa04d6e7837595d58526a3a7e773df503c0dd5d80eaab639fc8e097e6ebf8c5",
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "processSupervisorSha256": "67a49ac20e9a6c145cd063d9e058b13941ca0b77c5ea03dda7db5f6fd1a82dc9",
+  "providerManifestSha256": "dda46e9555ad3b58acdbb0125fccdc89850de78a56159ee2bfcbfbde8f529c8b",
+  "runtimeRecoveryQualified": true,
+  "serviceProcessDeathQualified": true,
+  "stopActionQualified": true,
+  "diagnosticState": "RUNTIME_RECOVERY_PASSED",
+  "currentAttemptEvidenceBound": true,
+  "checks": {
+    "stopActionDelivered": true,
+    "stopCleanupObserved": true,
+    "ownerDeathRequested": true,
+    "ownerDeathObserved": true,
+    "nativeChildrenTerminated": true,
+    "sameDatabaseRecovered": true,
+    "finalCleanShutdown": true
+  },
+  "phaseRecordCounts": {
+    "cancel": 9,
+    "crash": 9,
+    "resume": 6
+  },
+  "completeNativeRecords": 24,
+  "droppedNativeRecords": 0,
+  "timedOut": false,
+  "truncated": false,
+  "validationFailures": false,
+  "cancelDatabaseTerminationExitCode": 0,
+  "cancelClientTerminationExitCode": 143,
+  "crashHistoricalRunningRecords": 2,
+  "crashOwnerAndNativeTerminationIndependentlyObserved": true,
+  "nativeExitSignalsObserved": false,
+  "resumeDatabaseSqlShutdownRequested": true,
+  "resumeDatabaseExitCode": 0,
+  "seedImported": false,
+  "persistentRealmStorageQualified": false,
+  "worldReady": false,
+  "interpretation": "All recovery observations pass. The killed writer necessarily retains two historical running records; these are resolved by independent owner/child termination and successful recovery under a new owner, not reclassified as observed child exit signals."
+}

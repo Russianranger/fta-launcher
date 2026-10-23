@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "scope": "host-production-realm-storage-protocol-sql-and-jni",
+  "androidExecuted": false,
+  "originalSeedImported": false,
+  "compiledWorldUpdaterExecuted": false,
+  "hostProviderVersion": "12.3.2-MariaDB",
+  "hostTransport": "private-loopback-with-generated-credentials",
+  "owningJvmSessions": 2,
+  "freshPreparations": 1,
+  "sameDatabaseReopens": 4,
+  "cleanSqlShutdowns": 5,
+  "existingGenerationNeverReimported": true,
+  "activePointerUnchanged": true,
+  "retainedRowUnchanged": true,
+  "onlyOneGenerationCreated": true,
+  "writerLeaseReleased": true,
+  "sourceSha256": {
+    "android/app/src/main/java/com/russianranger/fta/runtime/PersistentRealmStore.kt": "44fb27e542f952ef024a5456ca8cfe926c508eec015b603124d02b38893ad8ce",
+    "native/process-supervisor/process_owner.cpp": "0625ebab96c14fa8e6de4048a056d185de6aa7c85a7f3df23f2db968e47ef860",
+    "native/process-supervisor/process_supervisor.cpp": "f64e6fdea1b7dfd8f9523f122a8086533677bf39187962ecdb056ba6de2b51ab",
+    "tests/fixtures/PersistentRealmHost.java": "d049e6fac93e3ddd9a5fbbab934a23d0859297cb59afa7ef3b31eeca0a056fc7",
+    "tests/fixtures/RuntimeRecoveryHost.java": "f491acee6bc3d5bb3823fa35a77930e18ce778ce5f18a97d943fbe3adf4459f2",
+    "tests/fixtures/DatabaseLifecycleHost.java": "bef75f9acb840ade42b1d8680787a4c53b5fe0e9e521429b865413285f16f03d"
+  },
+  "serverSha256": "6ce57fb4ff16449fab69cd9e9079a37b1a18c517a9f293a90205cd843b32bbee",
+  "clientSha256": "a9871d797e17151c21e2c7904eca1591ed7c26f28aa2573c869f4821f0487f13"
+}
