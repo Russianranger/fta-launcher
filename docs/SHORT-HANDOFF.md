@@ -7,7 +7,26 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.7.0-persistent-realm**, version code **13**.
+Latest private update: **0.8.0-realm-backup**, version code **14**.
+APK SHA256: `e268967eb5cc95d2a17161daf20a22f5719767b170db6cff95457a9fdb5880e8`.
+The same certificate and all 16 native payloads match physically passing code 13.
+The private build passed **198 Android tests** (22 classes), lint/assembly,
+**142 tooling tests**, all 221 packaged runtime/notice inputs, v2 signature and
+16 KiB alignment. The production cold-backup/restore protocol passed exact host
+MariaDB 12.3.2: two restored reopens, seven clean SQL stops, retained binary data,
+unchanged original files/pointer and an original reopen under a second JVM.
+See `docs/evidence/android-2026-10-23-private-realm-backup-apk.json` and
+`docs/evidence/database-2026-10-23-host-realm-backup.json`.
+
+**Next substantial physical test:** install private code 14 in place, select
+**Create / verify realm backup**, then export the verified backup to a private
+location. Export and share only the diagnostic JSON. Expect `REALM_BACKUP_PASSED`,
+`realmBackupQualified=true` and `realmBackupDiagnostic.exportedCopyVerified=true`.
+No seed/updater replay or active-realm replacement occurs. Keep input ZIPs and
+dependencies; allow room for two additional database copies plus 256 MiB.
+Physical code 14 remains unverified. See `docs/realm-backup.md`.
+
+Previous private update: **0.7.0-persistent-realm**, version code **13**.
 APK SHA256: `898c64163e0c62e35cca358ec6032e3220126fa07b1a27772c2b4b1a003543ee`.
 The signer and **all 16 native payloads** match the physically passing code 12.
 The private build passed **181 Android tests** (21 classes), lint/assembly,
@@ -45,18 +64,21 @@ See `docs/evidence/android-2026-10-23-thor-lifecycle-pass.json`.
 Do not reinterpret the connection failure during the deliberate database kill
 as a TLS or schema defect. Do not repeat the passed lifecycle/updater tests.
 
-**Next substantial physical test:** update in place to private code 13 and select
-**Prepare / verify persistent realm**. First use creates a new retained generation,
-runs the original seed/compiled updater with unchanged strict expectations,
-checks two cold database reopens, and atomically activates it only after clean
-shutdown. This is the first real installation, not another disposable updater
-qualification. Close/reopen the app, select the same action again and export the
-JSON. The second run must reuse the active generation without reading seed SQL;
-expect `persistentRealmStorageQualified=true` and
-`realmStorageDiagnostic.checks.seedImportNeeded=false` in that final report.
-Keep the verified ZIP and dependencies; never uninstall or clear app storage.
-Allow 3 GiB free for first preparation. Physical code 13 remains unverified.
-See `docs/persistent-realm-storage.md`.
+**Physical version 13 passed persistent realm reuse.** The exact code 13 APK
+above produced `REALM_STORAGE_PASSED`, `persistentRealmStorageQualified=true`,
+all seven storage checks, and `seedImportNeeded=false`. Its active generation and
+source identity were verified; both reopen journals contain seven successful
+native records, all 24 strict metadata checks and clean SQL shutdown. No timeout,
+cancellation, drop or validation failure occurred. Report SHA256:
+`c692974fa983b7ce1f829d02627f8156e5022083884abb0be41ea07f2d226a65`.
+See `docs/evidence/android-2026-10-23-thor-persistent-realm-pass.json`.
+Generic disposable flags in this separate scope do not revoke prior passes.
+Do not repeat the initial persistent preparation milestone.
+
+Cold backup with an isolated restore rehearsal and private ZIP export is now
+implemented in code 14. It preserves the active realm and never replays seed SQL.
+See `docs/realm-backup.md` for the next substantial combined device check.
+World startup still requires matching client data and service orchestration.
 
 Passing physical updater diagnostic: **0.5.2-metadata-timezone**, version code **10**.
 APK SHA256: `a6e562ec8cb1f8e13267a8825f787ae10fdc94d9034945c69e590243f1d188fd`.

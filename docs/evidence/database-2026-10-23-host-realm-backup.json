@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "scope": "host-production-cold-realm-backup-restore-sql-and-jni",
+  "androidExecuted": false,
+  "originalSeedImported": false,
+  "compiledWorldUpdaterExecuted": false,
+  "hostProviderVersion": "12.3.2-MariaDB",
+  "hostTransport": "private-loopback-with-generated-credentials",
+  "owningJvmSessions": 2,
+  "freshPreparations": 1,
+  "cleanSqlShutdowns": 7,
+  "restoredDatabaseReopens": 2,
+  "restoredBinaryRowsAndControlIdentityMatch": true,
+  "allRestoredFilesHashVerified": true,
+  "activeDatabaseFilesAndPointerUnchangedByBackup": true,
+  "activeReopenedAfterBackupInNewJvm": true,
+  "noSeedReplayDuringRestore": true,
+  "restoredCopyNeverActivated": true,
+  "completedRehearsalRemoved": true,
+  "sourceSha256": {
+    "android/app/src/main/java/com/russianranger/fta/runtime/ColdRealmBackup.kt": "2c4ef133254adcc56fff94ba4be8e7abeb4cfbced2b7b15c8a8456de38df5442",
+    "android/app/src/main/java/com/russianranger/fta/runtime/RealmBackupProtocol.kt": "233d4b7eb7e218e8a00db7851654ebd7fa05df019794915ddc306cd0ecdc50f1",
+    "android/app/src/main/java/com/russianranger/fta/runtime/PersistentRealmStore.kt": "32c2e58db1b037e701dccda848bd79518700d4779daab2dc9e59578dc8f0f3ce",
+    "native/process-supervisor/process_owner.cpp": "0625ebab96c14fa8e6de4048a056d185de6aa7c85a7f3df23f2db968e47ef860",
+    "native/process-supervisor/process_supervisor.cpp": "f64e6fdea1b7dfd8f9523f122a8086533677bf39187962ecdb056ba6de2b51ab",
+    "tests/fixtures/RealmBackupHost.java": "fad9a37f08e86399927fdc89e3e72da4b9f52be99cf1b07d69201c7a3325200e",
+    "tests/fixtures/RuntimeRecoveryHost.java": "f491acee6bc3d5bb3823fa35a77930e18ce778ce5f18a97d943fbe3adf4459f2",
+    "tests/fixtures/DatabaseLifecycleHost.java": "bef75f9acb840ade42b1d8680787a4c53b5fe0e9e521429b865413285f16f03d"
+  },
+  "serverSha256": "6ce57fb4ff16449fab69cd9e9079a37b1a18c517a9f293a90205cd843b32bbee",
+  "clientSha256": "a9871d797e17151c21e2c7904eca1591ed7c26f28aa2573c869f4821f0487f13"
+}

@@ -27,7 +27,7 @@ data class RealmDatabaseSession(val store: PersistentRealmStore, val generation:
 
 object RealmStorageDiagnostic {
     const val PASSED = "REALM_STORAGE_PASSED"
-    private fun identity(context: Context): Map<String, String> {
+    internal fun identity(context: Context): Map<String, String> {
         val runtime = PackagedRuntime.inspect(context)
         val build = runtime.manifest.worldBuild ?: error("Original compiled updater is unavailable")
         val manifest = context.assets.open("fta-runtime-manifest.json").use { it.readBytes() }
@@ -36,7 +36,8 @@ object RealmStorageDiagnostic {
             "worldExecutableSha256" to build.worldserverSha256, "updaterLockSha256" to build.compiledUpdaterLockSha256,
             "sourceTreeSha256" to build.sourceTreeSha256)
     }
-    private fun store(context: Context, identity: Map<String, String>) = PersistentRealmStore(File(context.filesDir, "persistent-realm"), identity) { dir ->
+    internal fun store(context: Context, identity: Map<String, String>) = PersistentRealmStore(File(context.filesDir, "persistent-realm"), identity, ::syncDirectory)
+    internal fun syncDirectory(dir: File) {
         val fd = if (android.os.Build.VERSION.SDK_INT >= 27)
             Os.open(dir.absolutePath, OsConstants.O_RDONLY or OsConstants.O_CLOEXEC, 0)
         else throw RuntimeUnavailable("Persistent realm storage requires Android 8.1 or newer")

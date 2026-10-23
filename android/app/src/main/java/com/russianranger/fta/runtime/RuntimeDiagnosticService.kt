@@ -50,7 +50,7 @@ class RuntimeDiagnosticService : Service() {
             if (!started) stopSelf()
             return START_NOT_STICKY
         }
-        if (intent?.action !in setOf(ACTION_CHECK, ACTION_CHECK_AUTH, ACTION_CHECK_FULL_SEED, ACTION_CHECK_WORLD_UPDATER, ACTION_CHECK_LIFECYCLE, ACTION_RECOVERY_WORKER, ACTION_REALM_STORAGE)) { stopSelf(); return START_NOT_STICKY }
+        if (intent?.action !in setOf(ACTION_CHECK, ACTION_CHECK_AUTH, ACTION_CHECK_FULL_SEED, ACTION_CHECK_WORLD_UPDATER, ACTION_CHECK_LIFECYCLE, ACTION_RECOVERY_WORKER, ACTION_REALM_STORAGE, ACTION_REALM_BACKUP)) { stopSelf(); return START_NOT_STICKY }
         if (started) return START_NOT_STICKY
         started = true
         val includeAuth = intent?.action == ACTION_CHECK_AUTH
@@ -58,6 +58,7 @@ class RuntimeDiagnosticService : Service() {
         val includeWorldUpdater = intent?.action == ACTION_CHECK_WORLD_UPDATER
         val includeLifecycle = intent?.action == ACTION_CHECK_LIFECYCLE
         val includeRealm = intent?.action == ACTION_REALM_STORAGE
+        val includeBackup = intent?.action == ACTION_REALM_BACKUP
         val scope = File(filesDir, "runtime").apply { mkdirs() }
         if (intent?.action == ACTION_RECOVERY_WORKER) {
             val requested = intent.getStringExtra(EXTRA_ATTEMPT).orEmpty()
@@ -76,7 +77,7 @@ class RuntimeDiagnosticService : Service() {
             writeAtomicText(File(scope, "diagnostic-attempt.id"), attemptId!!)
         }
         writeStatus("CHECKING", "Preparing a fresh native diagnostic attempt.")
-        if (recoveryStore == null) File(scope, "diagnostic-scope.txt").writeText(if (includeRealm) "realm-storage" else if (includeLifecycle) "database-lifecycle" else if (includeWorldUpdater) "compiled-updater" else if (includeFullSeed) "full-seed" else if (includeAuth) "auth-updater" else "database")
+        if (recoveryStore == null) File(scope, "diagnostic-scope.txt").writeText(if (includeBackup) "realm-backup" else if (includeRealm) "realm-storage" else if (includeLifecycle) "database-lifecycle" else if (includeWorldUpdater) "compiled-updater" else if (includeFullSeed) "full-seed" else if (includeAuth) "auth-updater" else "database")
         if (includeLifecycle) AtomicFile(File(scope, "database-lifecycle.json")).delete()
         if (includeAuth) AtomicFile(File(scope, "auth-diagnostic.json")).delete()
         if (includeFullSeed || includeWorldUpdater) AtomicFile(File(scope, "full-seed-diagnostic.json")).delete()
@@ -87,8 +88,8 @@ class RuntimeDiagnosticService : Service() {
         val stop = stopPendingIntent(this)
         val notification = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_ashes)
-            .setContentTitle(if (includeRealm) "From the Ashes persistent realm storage" else if (includeLifecycle) "From the Ashes database lifecycle test" else if (includeWorldUpdater) "From the Ashes compiled updater test" else if (includeFullSeed) "From the Ashes full seed test" else if (includeAuth) "From the Ashes auth updater test" else "From the Ashes database test")
-            .setContentText(if (includeRealm) "Preparing or checking retained realm storage." else "Testing a fresh private database. Existing saves are untouched.")
+            .setContentTitle(if (includeBackup) "From the Ashes realm backup" else if (includeRealm) "From the Ashes persistent realm storage" else if (includeLifecycle) "From the Ashes database lifecycle test" else if (includeWorldUpdater) "From the Ashes compiled updater test" else if (includeFullSeed) "From the Ashes full seed test" else if (includeAuth) "From the Ashes auth updater test" else "From the Ashes database test")
+            .setContentText(if (includeBackup) "Backing up and verifying an isolated restore." else if (includeRealm) "Preparing or checking retained realm storage." else "Testing a fresh private database. Existing saves are untouched.")
             .setContentIntent(content)
             .setOngoing(true)
             .addAction(Notification.Action.Builder(null, "Stop", stop).build())
@@ -96,10 +97,15 @@ class RuntimeDiagnosticService : Service() {
         if (Build.VERSION.SDK_INT >= 34) startForeground(NOTIFICATION, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         else startForeground(NOTIFICATION, notification)
         wakeLock = getSystemService(PowerManager::class.java)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "fta:databaseDiagnostic").apply { acquire(if (includeRealm) 3_180_000L else if (includeWorldUpdater) 2_580_000L else if (includeFullSeed) 1_980_000L else if (includeAuth) 480_000L else 360_000L) }
+            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "fta:databaseDiagnostic").apply { acquire(if (includeBackup) 1_980_000L else if (includeRealm) 3_180_000L else if (includeWorldUpdater) 2_580_000L else if (includeFullSeed) 1_980_000L else if (includeAuth) 480_000L else 360_000L) }
         worker.execute {
             try {
                 writeStatus("CHECKING", "Verifying immutable packaged provider files.")
+                if (includeBackup) {
+                    val result = RealmBackupDiagnostic.run(this, cancelled, ::writeStatus) { diagnostic = it }
+                    writeStatus(RealmBackupDiagnostic.PASSED, result)
+                    return@execute
+                }
                 if (includeRealm) {
                     val result = RealmStorageDiagnostic.run(this, cancelled, ::writeStatus) { diagnostic = it }
                     writeStatus(RealmStorageDiagnostic.PASSED, result)
@@ -177,6 +183,7 @@ class RuntimeDiagnosticService : Service() {
         const val ACTION_CHECK_WORLD_UPDATER = "com.russianranger.fta.CHECK_NATIVE_WORLD_UPDATER"
         const val ACTION_CHECK_LIFECYCLE = "com.russianranger.fta.CHECK_NATIVE_DATABASE_LIFECYCLE"
         const val ACTION_REALM_STORAGE = "com.russianranger.fta.PREPARE_REALM_STORAGE"
+        const val ACTION_REALM_BACKUP = "com.russianranger.fta.VERIFY_REALM_BACKUP"
         const val ACTION_RECOVERY_WORKER = "com.russianranger.fta.CHECK_RUNTIME_RECOVERY_WORKER"
         const val ACTION_RECOVERY_KILL = "com.russianranger.fta.KILL_RUNTIME_RECOVERY_OWNER"
         const val EXTRA_ATTEMPT = "recoveryAttempt"

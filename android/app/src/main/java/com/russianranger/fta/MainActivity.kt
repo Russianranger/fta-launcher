@@ -48,6 +48,8 @@ class MainActivity : Activity() {
     private lateinit var diagnosticButton: Button
     private lateinit var recoveryDiagnosticButton: Button
     private lateinit var realmStorageButton: Button
+    private lateinit var realmBackupButton: Button
+    private lateinit var exportBackupButton: Button
     private lateinit var lifecycleDiagnosticButton: Button
     private lateinit var authDiagnosticButton: Button
     private lateinit var fullSeedDiagnosticButton: Button
@@ -55,6 +57,7 @@ class MainActivity : Activity() {
     private lateinit var worldUpdaterTestHelp: TextView
     private var pendingRecoveryCheck = false
     private var pendingRealmStorage = false
+    private var pendingRealmBackup = false
     private var pendingLifecycleCheck = false
     private var pendingAuthCheck = false
     private var pendingFullSeedCheck = false
@@ -71,6 +74,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         pendingRecoveryCheck = savedInstanceState?.getBoolean("pendingRecoveryCheck") ?: false
         pendingRealmStorage = savedInstanceState?.getBoolean("pendingRealmStorage") ?: false
+        pendingRealmBackup = savedInstanceState?.getBoolean("pendingRealmBackup") ?: false
         pendingLifecycleCheck = savedInstanceState?.getBoolean("pendingLifecycleCheck") ?: false
         pendingAuthCheck = savedInstanceState?.getBoolean("pendingAuthCheck") ?: false
         pendingFullSeedCheck = savedInstanceState?.getBoolean("pendingFullSeedCheck") ?: false
@@ -132,6 +136,17 @@ class MainActivity : Activity() {
         realmStorageButton = action("Prepare / verify persistent realm") { requestDatabaseCheck(includeRealm = true) }
         status.addView(realmStorageButton)
         status.addView(label("Creates the realm database once, then checks two restarts. Later runs reuse it without importing the seed. Keep 3 GiB free for first preparation; existing realm data is retained. World startup still awaits matching game data.", 13, muted))
+        realmBackupButton = action("Create / verify realm backup") { requestDatabaseCheck(includeBackup = true) }
+        status.addView(realmBackupButton)
+        status.addView(label("Backs up the stopped realm and verifies two restarts of an isolated restored copy. The active realm is preserved. Allow space for two additional database copies.", 13, muted))
+        exportBackupButton = action("Export verified realm backup") {
+            startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE); type = "application/zip"
+                putExtra(Intent.EXTRA_TITLE, "FTA-realm-backup-${System.currentTimeMillis()}.zip")
+            }, 105)
+        }
+        status.addView(exportBackupButton)
+        status.addView(label("The backup includes private account data and database credentials. Keep it private; share only the diagnostic JSON for testing.", 13, muted))
         diagnosticButton = action("Test native database") { requestDatabaseCheck() }
         status.addView(diagnosticButton)
         lifecycleDiagnosticButton = action("Test database lifecycle") { requestDatabaseCheck(includeLifecycle = true) }
@@ -246,6 +261,8 @@ class MainActivity : Activity() {
         worldUpdaterTestHelp.visibility = if (worldUpdaterPackaged) View.VISIBLE else View.GONE
         worldUpdaterDiagnosticButton.isEnabled = worldUpdaterPackaged && database && !app.busy && !testing && !requested
         realmStorageButton.isEnabled = worldUpdaterPackaged && (database || File(filesDir, "persistent-realm/active.properties").exists()) && !app.busy && !testing && !requested
+        realmBackupButton.isEnabled = worldUpdaterPackaged && File(filesDir, "persistent-realm/active.properties").exists() && !app.busy && !testing && !requested
+        exportBackupButton.isEnabled = File(filesDir, "realm-backups/latest.json").isFile && !app.busy && !testing && !requested
         diagnosticStopButton.isEnabled = testing || requested
         exportReportButton.isEnabled = !app.busy
         runtimeBundleButton.isEnabled = app.runtimeBundles != null && !app.busy && !testing
@@ -257,7 +274,7 @@ class MainActivity : Activity() {
             runCatching { diagnostic.readLines() }.getOrDefault(emptyList()) else emptyList()
         diagnosticStatus.text = if (diagnosticLines.size >= 3) diagnosticLines.drop(2).joinToString("\n")
             else "No native database test has completed on this device."
-        if (!testing && !requested && ((diagnosticLines.firstOrNull()?.startsWith("LIFECYCLE_") == true || diagnosticLines.firstOrNull() == "RUNTIME_RECOVERY_RUNNING" || diagnosticLines.firstOrNull() in setOf("REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY")) || diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION"))) {
+        if (!testing && !requested && ((diagnosticLines.firstOrNull()?.startsWith("LIFECYCLE_") == true || diagnosticLines.firstOrNull()?.startsWith("BACKUP_") == true || diagnosticLines.firstOrNull() == "RUNTIME_RECOVERY_RUNNING" || diagnosticLines.firstOrNull() in setOf("REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")) || diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION"))) {
             diagnosticStatus.text = "The previous test did not finish. No readiness result was recorded."
         }
         if (testing) diagnosticStatus.text = "Database test in progress.\n${diagnosticStatus.text}"
@@ -286,6 +303,7 @@ class MainActivity : Activity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("pendingRecoveryCheck", pendingRecoveryCheck)
         outState.putBoolean("pendingRealmStorage", pendingRealmStorage)
+        outState.putBoolean("pendingRealmBackup", pendingRealmBackup)
         outState.putBoolean("pendingLifecycleCheck", pendingLifecycleCheck)
         outState.putBoolean("pendingAuthCheck", pendingAuthCheck)
         outState.putBoolean("pendingFullSeedCheck", pendingFullSeedCheck)
@@ -293,7 +311,8 @@ class MainActivity : Activity() {
         super.onSaveInstanceState(outState)
     }
 
-    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false) {
+    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false) {
+        pendingRealmBackup = includeBackup
         pendingRealmStorage = includeRealm
         pendingRecoveryCheck = includeRecovery
         pendingLifecycleCheck = includeLifecycle
@@ -304,18 +323,19 @@ class MainActivity : Activity() {
             !getPreferences(MODE_PRIVATE).getBoolean("notificationAsked", false)) {
             getPreferences(MODE_PRIVATE).edit().putBoolean("notificationAsked", true).apply()
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 201)
-        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage)
+        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Notification permission is optional for an explicitly requested foreground service.
-        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage)
+        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup)
     }
 
-    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false) {
+    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false) {
         try {
-            if (includeRealm) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_REALM_STORAGE))
+            if (includeBackup) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_REALM_BACKUP))
+            else if (includeRealm) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_REALM_STORAGE))
             else if (includeRecovery) startForegroundService(Intent(this, RuntimeRecoveryService::class.java).setAction(RuntimeRecoveryService.ACTION_START))
             else startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(if (includeLifecycle) RuntimeDiagnosticService.ACTION_CHECK_LIFECYCLE else if (includeWorldUpdater) RuntimeDiagnosticService.ACTION_CHECK_WORLD_UPDATER else if (includeFullSeed) RuntimeDiagnosticService.ACTION_CHECK_FULL_SEED else if (includeAuth) RuntimeDiagnosticService.ACTION_CHECK_AUTH else RuntimeDiagnosticService.ACTION_CHECK))
             requestedAt = SystemClock.elapsedRealtime()
@@ -338,6 +358,7 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) return
         if (requestCode == 104) { data?.data?.let { app.exportDiagnosticReport(it) }; return }
+        if (requestCode == 105) { data?.data?.let { app.exportRealmBackup(it) }; return }
         if (requestCode == 103) { data?.data?.let { app.importRuntimeBundle(it) }; return }
         val spec = when (requestCode) { 101 -> Inputs.source; 102 -> Inputs.database; else -> return }
         data?.data?.let { app.importArchive(spec, it) }

@@ -176,7 +176,7 @@ same-database recovery and final SQL shutdown are established. No repeat is need
 
 ## Persistent realm storage checkpoint
 
-Latest private code **13**, `0.7.0-persistent-realm`, retains the certificate and
+Private code **13**, `0.7.0-persistent-realm`, retains the certificate and
 all 16 native payloads from code 12. Packaging verifies the supervisor's source
 identity before retaining those already qualified helper bytes. Do not restore
 an older pre-code-12 helper. The [APK evidence](evidence/android-2026-10-23-private-persistent-realm-apk.json)
@@ -184,7 +184,23 @@ records 181 Android tests, lint/assembly, 142 tooling tests, 221 packaged inputs
 and signing/alignment. The shared storage protocol/SQL/JNI also passed real host
 MariaDB across two owning JVMs without reimport or loss of retained data.
 
-Physical code 13 remains unverified. Follow [the one persistent-storage test](persistent-realm-storage.md).
+Physical code 13 [passed retained database reuse](evidence/android-2026-10-23-thor-persistent-realm-pass.json).
+The next gate is [cold backup and isolated restore](realm-backup.md).
 An ordinary same-key update preserves imports and retained generations. Future
-private builds must exceed code 13. Public debug releases cannot replace the
+private builds must exceed code 14. Public debug releases cannot replace the
 installed private diagnostic; never uninstall or clear data to force an update.
+
+## Cold backup and restore checkpoint
+
+Latest private code **14**, `0.8.0-realm-backup`, retains the certificate and all
+16 native payloads from code 13. It passes 198 Android tests, lint/assembly,
+142 tooling tests, 221 packaged inputs and signature/alignment checks. Its
+production archive/restore protocol and JNI owner pass exact host MariaDB 12.3.2,
+including two restored reopens, seven clean SQL shutdowns, unchanged original
+files and an original reopen under a second JVM.
+
+The active realm is never replaced; no seed/updater SQL is replayed. The exported
+ZIP contains private database/account data and credentials. Share only the
+redacted diagnostic JSON. Follow [the one combined backup check](realm-backup.md).
+Physical code 14 remains unverified. Subsequent private builds must increase the
+version code and keep this signing certificate; public debug APKs cannot update it.

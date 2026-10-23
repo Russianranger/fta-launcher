@@ -73,11 +73,13 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.7.0-persistent-realm**
-(code **13**) passed **181 Android tests**, lint/assembly, 142 tooling tests,
+signing and validation. Latest private version **0.8.0-realm-backup**
+(code **14**) passed **198 Android tests**, lint/assembly, 142 tooling tests,
 signing/alignment and 221 packaged input checks. Its signer and all 16 native
-payloads match code 12. See [persistent realm instructions](docs/persistent-realm-storage.md)
-and [exact APK evidence](docs/evidence/android-2026-10-23-private-persistent-realm-apk.json).
+payloads match code 13. It creates a cold backup, verifies two reopens of an
+isolated restore, and checks the exported ZIP by reading it back. The active
+realm is preserved. See [backup instructions](docs/realm-backup.md) and
+[exact APK evidence](docs/evidence/android-2026-10-23-private-realm-backup-apk.json).
 
 Physical code **11 passed database lifecycle and screen-off health**. Code **12
 passed Stop delivery, runtime service-process death, independent native-child
@@ -85,7 +87,8 @@ termination and same-database recovery**, with 24 complete native records and a
 clean final shutdown. See the [physical recovery evidence](docs/evidence/android-2026-10-23-thor-runtime-recovery-pass.json).
 Code 13 installs a retained realm database once and verifies two cold reopens;
 later invocations reuse that generation without seed/updater replay. Its physical
-execution remains unverified. World startup and gameplay remain separate.
+execution now passes: the later invocation reused its active generation without seed import,
+with 14 complete native records and two clean shutdowns. World startup and gameplay remain separate.
 
 Physical version **10 passed all 24 compiled-updater checks**, both complete
 world-column snapshots matched the original host reference, and MariaDB shut
@@ -152,12 +155,13 @@ tables. Validation uses the measured archive inventory.
 | Original compiled three-database updater | Passed on physical Thor: 24/24 strict checks and exact before/after host snapshots |
 | Disposable database cancellation/restart/crash recovery and screen-off health | Passed on physical Thor code 11: all ten observations, 85 complete records |
 | Android Stop action and runtime service-process death/recovery | Passed on physical Thor code 12; all seven observations and 24 complete records |
-| Fresh-only persistent realm storage and reuse without seed replay | Implemented; host restart/retention and failure tests pass; private code 13 physical test pending |
+| Fresh-only persistent realm storage and reuse without seed replay | Passed on physical Thor code 13: same active generation, no reimport, two clean reopens |
+| Cold realm backup, isolated restore and verified ZIP export | Implemented; host data/file/ownership tests pass; private code 14 physical check pending |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-The next device gate is [persistent realm storage](docs/persistent-realm-storage.md).
+The next device gate is [cold backup and isolated restore](docs/realm-backup.md).
 The ARM64 world build and original compiled updater have passing evidence;
 preserve their C++20, all 52 modules, static Lua 5.2, source hashes and strict
 [updater protocol](docs/world-updater-gate.md). Android service-process death is now qualified for the isolated runtime.

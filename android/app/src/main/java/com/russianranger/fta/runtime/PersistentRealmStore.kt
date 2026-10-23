@@ -114,6 +114,22 @@ class PersistentRealmStore(
         requireLease(); check(active() == null && generation(realm.id) == realm)
         check(realm.directory.list()?.toSet() == setOf("identity.properties")) { "Seed import requires a new empty generation" }
     }
+    /** Restore only into a completely empty store; never replace an active generation. */
+    fun restorePrepared(id: String, restore: (File) -> Unit): RealmGeneration {
+        requireLease(); require(NativeInvocationJournal.validAttemptId(id))
+        check(!exists(activeFile) && !exists(pendingFile) && !exists(writerFile) && generations.list()?.isEmpty() == true)
+        val root = File(generations, "r-$id")
+        check(root.mkdir()); syncDirectory(generations)
+        restore(root)
+        val realm = generation(id)
+        preparedDigest(realm)
+        write(pendingFile, mapOf("realmId" to id))
+        return realm
+    }
+    fun activePointerDigest(): String {
+        requireLease(); check(active() != null)
+        return MessageDigest.getInstance("SHA-256").digest(activeFile.readBytes()).joinToString("") { "%02x".format(it.toInt() and 255) }
+    }
     fun prepared(realm: RealmGeneration) {
         requireLease(); check(active() == null && generation(realm.id) == realm && !exists(writerFile))
         check(!exists(preparedFile(realm)))

@@ -9,7 +9,14 @@ APK SHA256: `898c64163e0c62e35cca358ec6032e3220126fa07b1a27772c2b4b1a003543ee`.
 The private signer and all 16 native payloads match code 12. There is no provider,
 authserver, worldserver, module, native dependency or supervisor change.
 
-## One substantial physical test
+## Physical result
+
+Code 13 has passed the later reuse invocation on the AYN Thor: all storage checks,
+14 complete successful native records, two clean database stops and no seed
+reimport. See [the evidence](evidence/android-2026-10-23-thor-persistent-realm-pass.json).
+Do not repeat this milestone; continue to [backup and restore verification](realm-backup.md).
+
+## Archived code 13 procedure
 
 1. Install the private code 13 APK as an update. Keep the existing verified
    Database.zip and dependencies. Do not uninstall, clear app storage or use a
@@ -28,7 +35,7 @@ The final report should show `REALM_STORAGE_PASSED`,
 journals must be complete and qualified, with final SQL shutdown and exit 0.
 No manual force stop, screen-off test or disposable updater repeat is required.
 
-Physical code 13 remains unverified until that report is inspected. This creates
+The inspected physical code 13 report meets those criteria. This creates
 retained database storage; it does not yet start an auth/world listener or enable
 gameplay. Matching DBC/maps/vmaps/mmaps and service orchestration remain necessary.
 
@@ -113,7 +120,7 @@ endpoint. Supply the same explicit toolchain arguments as the recovery host tool
 The host fixture does not execute the Android directory-sync adapter, original
 seed or compiled ARM64 world updater. Those prior components have separate
 physical evidence; their composition into retained storage still requires the
-code 13 test. Unit tests additionally cover partial preparation, reopen failures,
+code 13 test, which has now passed. Unit tests additionally cover partial preparation, reopen failures,
 corrupt/missing active data, mismatched source receipts, symlinks, competing
 leases, living/ambiguous writers, interrupted activation and missing native
 schema/shutdown evidence.

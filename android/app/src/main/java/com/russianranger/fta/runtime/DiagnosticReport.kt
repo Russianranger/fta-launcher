@@ -34,8 +34,8 @@ object DiagnosticReport {
             .put("worldserverQualified", false)
         val scopeFile = File(context.filesDir, "runtime/diagnostic-scope.txt")
         val scope = if (scopeFile.isFile && scopeFile.length() < 32) scopeFile.readText() else "database"
-        result.put("requestedDiagnostic", if (scope in setOf("auth-updater", "full-seed", "compiled-updater", "database-lifecycle", "runtime-recovery", "realm-storage")) scope else "database")
-        result.put("scope", when (scope) { "realm-storage" -> "persistent-realm-storage"; "runtime-recovery" -> "disposable-runtime-recovery-diagnostic"; "database-lifecycle" -> "disposable-native-database-lifecycle-diagnostic"; "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; "compiled-updater" -> "disposable-native-compiled-updater-diagnostic"; else -> "disposable-native-database-diagnostic" })
+        result.put("requestedDiagnostic", if (scope in setOf("auth-updater", "full-seed", "compiled-updater", "database-lifecycle", "runtime-recovery", "realm-storage", "realm-backup")) scope else "database")
+        result.put("scope", when (scope) { "realm-backup" -> "persistent-realm-backup"; "realm-storage" -> "persistent-realm-storage"; "runtime-recovery" -> "disposable-runtime-recovery-diagnostic"; "database-lifecycle" -> "disposable-native-database-lifecycle-diagnostic"; "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; "compiled-updater" -> "disposable-native-compiled-updater-diagnostic"; else -> "disposable-native-database-diagnostic" })
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val currentAttempt = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
             ?.takeIf { NativeInvocationJournal.validAttemptId(it) }
@@ -178,6 +178,12 @@ object DiagnosticReport {
             .put("updatedAtEpochMs", lines.getOrNull(1)?.toLongOrNull() ?: JSONObject.NULL)
             .put("summary", if (lines.size >= 3) lines.drop(2).joinToString("\n").take(4096)
                 else "No status result was recorded for the current attempt."))
+        if (scope == "realm-backup" && currentAttempt != null) {
+            val proof = RealmBackupDiagnostic.export(context, currentAttempt, lines.firstOrNull())
+            result.put("realmBackupDiagnostic", JSONObject(proof)).put("realmBackupQualified", proof["qualified"] == true)
+                .put("privacy", "This diagnostic omits database contents, file inventories, credentials, paths and process identities. The separately exported backup contains private database data and credentials; keep it private.")
+            return result.toString(2)
+        }
         if (scope == "realm-storage" && currentAttempt != null) {
             val proof = RealmStorageDiagnostic.export(context, currentAttempt, lines.firstOrNull())
             result.put("realmStorageDiagnostic", JSONObject(proof)).put("persistentRealmStorageQualified", proof["qualified"] == true)

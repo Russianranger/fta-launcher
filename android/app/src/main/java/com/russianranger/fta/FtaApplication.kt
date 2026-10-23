@@ -174,6 +174,32 @@ class FtaApplication : Application() {
         }
     }
 
+    fun exportRealmBackup(uri: Uri) {
+        if (busy) return
+        busy = true
+        progressText = "Checking and exporting the verified private realm backup…"
+        observer?.invoke()
+        executor.execute {
+            try {
+                val identity = contentResolver.openOutputStream(uri, "wt")?.use {
+                    com.russianranger.fta.runtime.RealmBackupDiagnostic.exportLatest(this, it)
+                } ?: error("Backup destination unavailable")
+                contentResolver.openInputStream(uri)?.use {
+                    com.russianranger.fta.runtime.RealmBackupDiagnostic.verifyExport(this, identity, it)
+                } ?: error("Saved backup cannot be verified")
+                main.post {
+                    progressText = "Realm backup exported. Keep this file private; send only the diagnostic JSON for testing."
+                    record("Verified realm backup exported."); finishImport()
+                }
+            } catch (_: Exception) {
+                main.post {
+                    progressText = "Backup export failed. The verified private copy is retained; choose another destination and retry."
+                    record("Realm backup export failed."); finishImport()
+                }
+            }
+        }
+    }
+
     private fun finishImport() {
         busy = false
         observer?.invoke()
