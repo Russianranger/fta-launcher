@@ -22,7 +22,7 @@
             android:stopWithTask="false"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="User initiated isolated native database compatibility diagnostic with bounded process lifetime" />
+                android:value="User initiated local database and auth sessions with explicit Stop and a 30 minute limit, plus bounded compatibility diagnostics" />
         </service>
         <service
             android:name=".runtime.RuntimeRecoveryService"

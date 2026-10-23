@@ -29,16 +29,7 @@ object LocalAuthDiagnostic {
         store.exclusive {
             val realm = store.active() ?: error("Prepare the persistent realm first")
             receipt.put("realmId", realm.id); save()
-            val backup = read(File(context.filesDir, "realm-backups/latest.json"))
-            val backupAttempt = backup.getString("attemptId")
-            require(NativeInvocationJournal.validAttemptId(backupAttempt))
-            require(RealmBackupProtocol.fields.all { backup.opt(it) == true })
-            require(identity.all { (key, value) -> backup.getJSONObject("identity").opt(key) == value })
-            require(store.activePointerDigest() == backup.optString("activePointerSha256"))
-            val archive = File(context.filesDir, "realm-backups/b-$backupAttempt/realm-backup.zip")
-            require(Files.isRegularFile(archive.toPath(), NOFOLLOW_LINKS) && archive.length() == backup.getLong("archiveBytes"))
-            require(ColdRealmBackup.sha256(archive) { check(!cancelled.get()) } == backup.getString("archiveSha256"))
-            receipt.put("backupSha256", backup.getString("archiveSha256")); observed("verifiedBackupAvailable", true)
+            receipt.put("backupSha256", verifiedBackup(context, cancelled, identity, store)); observed("verifiedBackupAvailable", true)
             val session = RealmDatabaseSession(store, realm, attempt, false, 1)
             val test = DatabaseDiagnostic(context, cancelled, status, realm = session, localAuthObserve = ::observed)
             try { track(test); test.run() } finally { test.stopOwned(); track(null) }
@@ -47,7 +38,19 @@ object LocalAuthDiagnostic {
         }
         return "Local auth service passed: two original loopback listener starts, build-12340 protocol replies, sustained database health, clean auth stops and final SQL shutdown. All 24 metadata expectations still match. The realm and backup are retained; world startup and game login remain separate."
     }
-    internal fun nativeEvidence(file: File, attempt: String): Map<String, Any> {
+    internal fun verifiedBackup(context: Context, cancelled: AtomicBoolean, identity: Map<String, String>, store: PersistentRealmStore): String {
+        val backup = read(File(context.filesDir, "realm-backups/latest.json"))
+        val backupAttempt = backup.getString("attemptId")
+        require(NativeInvocationJournal.validAttemptId(backupAttempt))
+        require(RealmBackupProtocol.fields.all { backup.opt(it) == true })
+        require(identity.all { (key, value) -> backup.getJSONObject("identity").opt(key) == value })
+        require(store.activePointerDigest() == backup.optString("activePointerSha256"))
+        val archive = File(context.filesDir, "realm-backups/b-$backupAttempt/realm-backup.zip")
+        require(Files.isRegularFile(archive.toPath(), NOFOLLOW_LINKS) && archive.length() == backup.getLong("archiveBytes"))
+        require(ColdRealmBackup.sha256(archive) { check(!cancelled.get()) } == backup.getString("archiveSha256"))
+        return backup.getString("archiveSha256")
+    }
+    internal fun nativeEvidence(file: File, attempt: String, service: Boolean = false): Map<String, Any> {
         val (records, dropped) = NativeInvocationJournal.read(file, attempt) ?: return mapOf("available" to false, "qualified" to false)
         val complete = records.isNotEmpty() && dropped == 0 && records.all {
             it.outcome == "exited" && it.exitCode == 0 && !it.timedOut && !it.cancelled && it.validationFailure == null &&
@@ -56,10 +59,11 @@ object LocalAuthDiagnostic {
         val db = records.filter { it.role == "database-server" }
         val auth = records.filter { it.role == "auth-server" }
         val qualified = complete && db.size == 1 && db.single().let { it.readyObserved && it.sqlShutdownRequested && it.cleanShutdownObserved } &&
-            auth.size == 2 && auth.all { it.stage == "LOCAL_AUTH_START" && it.terminationExitCode == 0 } &&
+            auth.size == (if (service) 1 else 2) && auth.all { it.stage == "LOCAL_AUTH_START" && it.terminationExitCode == 0 } &&
             records.count { it.stage == "REALM_METADATA" && it.role == "database-client" } == 6 &&
             records.count { it.stage == "REALM_VERIFY" && it.role == "database-client" } == 2
         return mapOf("available" to true, "qualified" to qualified, "recordCount" to records.size, "droppedCount" to dropped,
+            "healthySamples" to records.count { it.stage == "LOCAL_SERVICE_RUNNING" && it.role == "database-client" },
             "nativeInvocations" to records.map { mapOf("id" to it.id, "role" to it.role, "stage" to it.stage,
                 "outcome" to it.outcome, "exitCode" to it.exitCode, "terminationExitCode" to it.terminationExitCode,
                 "timedOut" to it.timedOut, "cancelled" to it.cancelled, "validationFailure" to it.validationFailure,

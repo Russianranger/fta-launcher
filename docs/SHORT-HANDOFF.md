@@ -7,7 +7,49 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.9.1-auth-role**, version code **16**.
+Latest private update: **0.10.0-local-service**, version code **17**.
+APK SHA256: `864615af00847d0e648f3583fce353389b8be6db44093cbe1b671227d1685d94`.
+
+**Physical code 16 passed retained local auth.** The exact private APK below
+completed all 15 required checks, both original auth listener sessions and clean
+auth stops before SQL database shutdown. All 39 native records exited zero;
+none were dropped, timed out or cancelled. All 24 strict metadata checks passed
+before and after; the active realm and verified backup remain intact.
+`staleStartupFlagCleared=false` is expected because code 15 already cleared it.
+Report SHA256: `fbc4832bd11a1e420fab500018aee75ddbc42df5ed73bd14b1a1b4faa4062a7c`.
+See [physical pass](evidence/android-2026-10-23-thor-local-auth-pass.json).
+Do not repeat the automatic local-auth diagnostic.
+
+Code 17 adds **Start local database + auth**. This user-controlled foreground
+session reuses that measured backend and retained realm; Stop requests orderly
+auth termination, exact metadata revalidation and SQL shutdown. The session is
+limited to 30 minutes, never auto-restarts, and retains two session receipts so
+one JSON can show user Stop, screen-off health and a subsequent database reopen.
+No native payload, original SQL, schema/receipt expectations or source provenance
+changed. World startup and game login still require matching client assets.
+
+The private build passes **230 Android tests** (24 classes), lint/assembly,
+**142 tooling tests**, all **221** runtime/notice inputs, v2 signing and 16 KiB
+alignment. The signer and all **16 native payloads** match code 16. A host run
+uses the production user-stop protocol over two full sessions of the exact
+restored Thor backup: two clean auth stops, two SQL database shutdowns, all
+24 metadata checks before and after each, and unchanged account/character counts.
+Host TCP execution does not qualify Android foreground or screen-off behavior.
+See [APK evidence](evidence/android-2026-10-23-private-local-service-apk.json),
+[host evidence](evidence/database-2026-10-23-host-local-service.json) and
+[session details](local-service-sessions.md).
+
+**Next substantial physical test:** install private code 17 in place. Start the
+local database + auth, wait for running status, lock the screen for **2 minutes
+20 seconds**, then use notification **Stop** and wait for clean completion.
+Start once more, let it run for 20 seconds, stop and export one diagnostic JSON.
+Expect `LOCAL_SERVICE_STOPPED`, `localServiceQualified=true`,
+`localServiceRestartQualified=true` and `screenOffLocalServiceQualified=true`.
+If either session fails, export immediately. Keep the existing realm, backup,
+Database.zip and native dependencies. No old milestone needs repeating.
+Physical code 17 remains unverified.
+
+Previous private update: **0.9.1-auth-role**, version code **16**.
 APK SHA256: `8d472f42651e1c2ce4de4023db4efcfd89f8eede2d5d67a25cf12796dbabc39c`.
 
 **Physical code 15 isolated a launcher setup defect.** The exact private APK
@@ -61,13 +103,6 @@ while all 24 metadata checks passed. Code 15 guards realm 1, gamebuild 12340 and
 flags 0..3, then clears only the stale startup bit while explicitly retaining
 OFFLINE. No schema, receipt, account or build expectation is relaxed. See
 `docs/evidence/database-2026-10-23-auth-startup-flag-boundary.json`.
-
-**Next substantial physical test:** install private code 16 in place and select
-**Test local auth service**, then export only the diagnostic JSON. Expect
-`LOCAL_AUTH_PASSED`, `localAuthQualified=true`, all required checks true and two
-clean auth stops before SQL database shutdown. Code 15 already cleared the stale flag, so
-`staleStartupFlagCleared=false` is valid on this follow-up. Keep the realm, verified backup, Database.zip and
-dependencies. No seed replay occurs. Physical code 16 remains unverified.
 
 Previous private update: **0.8.0-realm-backup**, version code **14**.
 APK SHA256: `e268967eb5cc95d2a17161daf20a22f5719767b170db6cff95457a9fdb5880e8`.
@@ -124,8 +159,8 @@ See `docs/evidence/android-2026-10-23-thor-persistent-realm-pass.json`.
 Generic disposable flags in this separate scope do not revoke prior passes.
 Do not repeat the initial persistent preparation milestone.
 
-Cold backup and isolated restore passed physically in code 14. The next gate is
-retained local auth startup/restart in code 16; see `docs/local-auth-service.md`.
+Cold backup/restore and retained local auth passed physically in codes 14 and 16.
+The next gate is user-controlled service sessions in code 17; see `docs/local-service-sessions.md`.
 World startup still requires matching client data and service orchestration.
 
 Passing physical updater diagnostic: **0.5.2-metadata-timezone**, version code **10**.

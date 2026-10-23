@@ -48,6 +48,7 @@ class MainActivity : Activity() {
     private lateinit var diagnosticButton: Button
     private lateinit var recoveryDiagnosticButton: Button
     private lateinit var realmStorageButton: Button
+    private lateinit var localServiceButton: Button
     private lateinit var localAuthButton: Button
     private lateinit var realmBackupButton: Button
     private lateinit var exportBackupButton: Button
@@ -58,6 +59,7 @@ class MainActivity : Activity() {
     private lateinit var worldUpdaterTestHelp: TextView
     private var pendingRecoveryCheck = false
     private var pendingRealmStorage = false
+    private var pendingLocalService = false
     private var pendingLocalAuth = false
     private var pendingRealmBackup = false
     private var pendingLifecycleCheck = false
@@ -76,6 +78,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         pendingRecoveryCheck = savedInstanceState?.getBoolean("pendingRecoveryCheck") ?: false
         pendingRealmStorage = savedInstanceState?.getBoolean("pendingRealmStorage") ?: false
+        pendingLocalService = savedInstanceState?.getBoolean("pendingLocalService") ?: false
         pendingLocalAuth = savedInstanceState?.getBoolean("pendingLocalAuth") ?: false
         pendingRealmBackup = savedInstanceState?.getBoolean("pendingRealmBackup") ?: false
         pendingLifecycleCheck = savedInstanceState?.getBoolean("pendingLifecycleCheck") ?: false
@@ -139,6 +142,9 @@ class MainActivity : Activity() {
         realmStorageButton = action("Prepare / verify persistent realm") { requestDatabaseCheck(includeRealm = true) }
         status.addView(realmStorageButton)
         status.addView(label("Creates the realm database once, then checks two restarts. Later runs reuse it without importing the seed. Keep 3 GiB free for first preparation; existing realm data is retained. World startup still awaits matching game data.", 13, muted))
+        localServiceButton = action("Start local database + auth") { requestDatabaseCheck(includeLocalService = true) }
+        status.addView(localServiceButton)
+        status.addView(label("Keeps your retained database and local auth running until Stop, with a 30-minute session limit. Use the notification to stop cleanly. Game login and world startup await matching game data.", 13, muted))
         localAuthButton = action("Test local auth service") { requestDatabaseCheck(includeLocalAuth = true) }
         status.addView(localAuthButton)
         status.addView(label("Requires a verified realm backup. Opens the retained database, checks two local auth listener starts and clean stops, then shuts down the database. No game account is created. Allow about two minutes.", 13, muted))
@@ -173,7 +179,7 @@ class MainActivity : Activity() {
         worldUpdaterTestHelp = label("Imports a fresh full seed, then runs the original compiled updaters and checks exact resulting receipts and schema metadata. Requires Database.zip and 3 GiB free; allow up to 40 minutes. This test stops at missing maps and does not qualify world startup or gameplay.", 13, muted)
         status.addView(worldUpdaterTestHelp)
         status.addView(label("Creates a fresh disposable database, tests local operation, then shuts it down. Your imported seed and saves are untouched.", 13, muted))
-        diagnosticStopButton = action("Stop database test") {
+        diagnosticStopButton = action("Stop local service / test") {
             if (runtimeRecoveryRunning()) startService(Intent(this, RuntimeRecoveryService::class.java).setAction(RuntimeRecoveryService.ACTION_STOP))
             else RuntimeDiagnosticService.stopPendingIntent(this).send()
         }
@@ -269,6 +275,7 @@ class MainActivity : Activity() {
         realmStorageButton.isEnabled = worldUpdaterPackaged && (database || File(filesDir, "persistent-realm/active.properties").exists()) && !app.busy && !testing && !requested
         realmBackupButton.isEnabled = worldUpdaterPackaged && File(filesDir, "persistent-realm/active.properties").exists() && !app.busy && !testing && !requested
         localAuthButton.isEnabled = realmBackupButton.isEnabled && database && File(filesDir, "realm-backups/latest.json").isFile
+        localServiceButton.isEnabled = localAuthButton.isEnabled
         exportBackupButton.isEnabled = File(filesDir, "realm-backups/latest.json").isFile && !app.busy && !testing && !requested
         diagnosticStopButton.isEnabled = testing || requested
         exportReportButton.isEnabled = !app.busy
@@ -281,10 +288,10 @@ class MainActivity : Activity() {
             runCatching { diagnostic.readLines() }.getOrDefault(emptyList()) else emptyList()
         diagnosticStatus.text = if (diagnosticLines.size >= 3) diagnosticLines.drop(2).joinToString("\n")
             else "No native database test has completed on this device."
-        if (!testing && !requested && ((diagnosticLines.firstOrNull()?.startsWith("LIFECYCLE_") == true || diagnosticLines.firstOrNull()?.startsWith("BACKUP_") == true || diagnosticLines.firstOrNull() in setOf("LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP") || diagnosticLines.firstOrNull() == "RUNTIME_RECOVERY_RUNNING" || diagnosticLines.firstOrNull() in setOf("REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")) || diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION"))) {
+        if (!testing && !requested && ((diagnosticLines.firstOrNull()?.startsWith("LIFECYCLE_") == true || diagnosticLines.firstOrNull()?.startsWith("BACKUP_") == true || diagnosticLines.firstOrNull() in setOf("LOCAL_SERVICE_RUNNING", "LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP") || diagnosticLines.firstOrNull() == "RUNTIME_RECOVERY_RUNNING" || diagnosticLines.firstOrNull() in setOf("REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")) || diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION"))) {
             diagnosticStatus.text = "The previous test did not finish. No readiness result was recorded."
         }
-        if (testing) diagnosticStatus.text = "Database test in progress.\n${diagnosticStatus.text}"
+        if (testing) diagnosticStatus.text = "Runtime active.\n${diagnosticStatus.text}"
         if (requested && !testing) diagnosticStatus.text = "Starting the isolated database test…"
         sourceButton.isEnabled = !app.busy && !testing && app.store != null
         databaseButton.isEnabled = !app.busy && !testing && app.store != null
@@ -310,6 +317,7 @@ class MainActivity : Activity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("pendingRecoveryCheck", pendingRecoveryCheck)
         outState.putBoolean("pendingRealmStorage", pendingRealmStorage)
+        outState.putBoolean("pendingLocalService", pendingLocalService)
         outState.putBoolean("pendingLocalAuth", pendingLocalAuth)
         outState.putBoolean("pendingRealmBackup", pendingRealmBackup)
         outState.putBoolean("pendingLifecycleCheck", pendingLifecycleCheck)
@@ -319,7 +327,8 @@ class MainActivity : Activity() {
         super.onSaveInstanceState(outState)
     }
 
-    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false) {
+    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false) {
+        pendingLocalService = includeLocalService
         pendingLocalAuth = includeLocalAuth
         pendingRealmBackup = includeBackup
         pendingRealmStorage = includeRealm
@@ -332,18 +341,19 @@ class MainActivity : Activity() {
             !getPreferences(MODE_PRIVATE).getBoolean("notificationAsked", false)) {
             getPreferences(MODE_PRIVATE).edit().putBoolean("notificationAsked", true).apply()
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 201)
-        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth)
+        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth, pendingLocalService)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Notification permission is optional for an explicitly requested foreground service.
-        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth)
+        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth, pendingLocalService)
     }
 
-    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false) {
+    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false) {
         try {
-            if (includeLocalAuth) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_LOCAL_AUTH))
+            if (includeLocalService) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_LOCAL_SERVICE))
+            else if (includeLocalAuth) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_LOCAL_AUTH))
             else if (includeBackup) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_REALM_BACKUP))
             else if (includeRealm) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_REALM_STORAGE))
             else if (includeRecovery) startForegroundService(Intent(this, RuntimeRecoveryService::class.java).setAction(RuntimeRecoveryService.ACTION_START))

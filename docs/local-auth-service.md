@@ -53,24 +53,13 @@ startup. No blanket flag reset, build rewrite, account change or online claim
 is made. Original native behavior, source SQL and strict expectations remain
 unchanged. Normal original auth startup also retains its offline/ban handling.
 
-## One substantial physical test
+## Physical result
 
-1. Install the verified private code 16 APK in place. Keep the existing realm,
-   backup, Database.zip and native dependencies. Do not uninstall, clear app
-   storage or substitute a public debug APK.
-2. Select **Test local auth service**. Allow about two minutes. The test checks
-   both listener starts and stops automatically; it leaves the realm offline.
-3. Use **Export diagnostic report** after completion and send only that JSON.
-   If it fails or is stopped, export the report immediately.
-
-Expect `LOCAL_AUTH_PASSED`, `localAuthQualified=true`, all required nested checks
-true, two auth processes exiting zero, six strict metadata queries, two retained
-identity checks and a clean database shutdown. The supplied code 15 run already
-cleared the stale flag; `staleStartupFlagCleared=false` is valid for this retry
-because the realm is already in the verified offline state.
-
-No updater, lifecycle, recovery, first persistent preparation or backup test
-needs repeating. This is the next physical listener test, not a playable realm.
+**Passed on the Thor with private code 16.** All 15 required flags, 39 native
+invocations, both auth stops, all 24 metadata checks before and after, active
+realm identity and SQL shutdown passed. See the [physical evidence](evidence/android-2026-10-23-thor-local-auth-pass.json).
+Do not repeat this automatic test. The next gate is [user-controlled foreground
+sessions](local-service-sessions.md) in private code 17.
 
 ## Ownership, transport and privacy
 
@@ -127,7 +116,7 @@ and after auth. The latter never opens or modifies the uploaded ZIP itself.
 Host-only TCP adapters use generated private roles in disposable databases;
 they do not execute Android socket credentials, service behavior or ARM64 code.
 
-The next work after a passing physical report is retained service start/stop and
+Code 17 implements retained service start/stop. The next independent work is
 matching client-data import for database → auth → world orchestration. Matching
 DBC/maps/vmaps/mmaps are still required. Valid-account authentication, world
 entry, gameplay and external backup activation remain unqualified.

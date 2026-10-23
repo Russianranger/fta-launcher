@@ -23,6 +23,7 @@ def main():
     for name in ('server', 'client', 'auth', 'libraries', 'database-zip', 'backup', 'java-home', 'jni-header', 'kotlin-classes', 'kotlin-stdlib', 'output'):
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--backup-sha256', required=True)
+    parser.add_argument('--service', action='store_true', help='Two real database sessions using the production user-stop service protocol')
     args = parser.parse_args()
     assert sha(args.backup) == args.backup_sha256
     lock_path = ROOT / 'manifests/world-updater-lock.json'; lock = json.loads(lock_path.read_text())
@@ -64,55 +65,63 @@ def main():
             '--init-file=' + str(init), '--skip-name-resolve', '--performance-schema=OFF', '--innodb-buffer-pool-size=64M', '--innodb-log-file-size=16M',
             '--aria-pagecache-buffer-size=16M', '--key-buffer-size=8M', '--max-connections=8', '--thread-cache-size=2']
         if os.geteuid() == 0: server_args.append('--user=root')
-        with (work / 'database.log').open('w') as log:
-            process = subprocess.Popen(server_args, stdout=log, stderr=subprocess.STDOUT, cwd=work)
-            try:
-                end = time.monotonic() + 45
-                last_error = ''
-                while True:
-                    assert process.poll() is None, 'Restored host database exited before readiness'
-                    try:
-                        if cli.query('SELECT 1;') == '1': break
-                    except Exception as error: last_error = str(error)
-                    if time.monotonic() >= end:
-                        text = (work / 'database.log').read_text(errors='replace')
-                        markers = [m for m in ('ready for connections', 'Access denied', 'ERROR', 'syntax', 'init-file', 'Shutdown complete') if m in text]
-                        raise RuntimeError('Restored host database readiness deadline: ' + last_error + '; observed markers=' + ','.join(markers))
-                    time.sleep(0.1)
-                assert cli.query('SELECT VERSION();') == '12.3.2-MariaDB'
-                def metadata():
-                    for schema in ('acore_auth', 'acore_characters', 'acore_world'):
-                        with (work / (schema + '.sql')).open('rb') as script:
-                            (work / (schema + '.out')).write_text(cli.run(script=script))
-                    checked = subprocess.run(command + ['LocalAuthBackupHost', 'verify', str(work), str(lock_path)],
-                        capture_output=True, text=True, timeout=30)
-                    assert checked.returncode == 0 and checked.stdout.strip() == 'strictMetadataChecks=24', 'Restored metadata differs'
-                metadata()
-                counts = cli.query('SELECT COUNT(*) FROM acore_auth.account; SELECT COUNT(*) FROM acore_characters.characters;')
-                assert cli.query("SELECT COUNT(*) FROM acore_auth.account WHERE username='FTA0123456789ABC';") == '0'
-                password = secrets.token_hex(24)
-                props = {'client': str(args.client), 'auth': str(args.auth), 'libraries': str(args.libraries), 'password': password, 'databasePort': str(port)}
-                session = work / 'host-session.properties'; session.write_text(''.join(k + '=' + v + '\n' for k, v in props.items())); session.chmod(0o600)
-                (work / 'client.args').write_text('\n'.join(cli.command[1:]) + '\n')
-                result = subprocess.run(command + ['LocalAuthHost', str(work)], capture_output=True, text=True, timeout=180)
-                if result.returncode:
-                    text = ''.join((work / n).read_text(errors='replace')[:65536] for n in ('auth1.out', 'auth1.err') if (work / n).exists())
-                    markers = [m for m in ('No valid realms specified', 'Failed to initialize network', 'Access denied', 'Could not prepare statements', 'Failed to open', 'does not exist', 'not found', 'Updating Auth database', 'up-to-date', 'Halting process', 'ERROR') if m in text]
-                    sql_errors = sorted(set(re.findall(r'ERROR ([0-9]{1,5})', text)))
-                    eligibility = cli.query("SELECT COUNT(*)>0 FROM acore_auth.realmlist; SELECT COUNT(*)>0 FROM acore_auth.realmlist WHERE (flag | 2) <> 3;")
-                    raise RuntimeError('Original auth on restored backup failed; markers=' + ','.join(markers) + '; SQL errors=' + ','.join(sql_errors) + '; realm eligibility booleans=' + eligibility.replace('\n', ',') + '; ' + result.stderr[-1200:])
-                assert result.stdout.splitlines() == ['originalAuthProtocolAndRestartsPassed=true', 'authCleanStops=2', 'databaseHealthChecks=20', 'staleStartupFlagCleared=true', 'generatedDatabaseRoleAndCleanupPassed=true']
-                metadata()
-                assert cli.query('SELECT COUNT(*) FROM acore_auth.account; SELECT COUNT(*) FROM acore_characters.characters;') == counts
-                cli.query('SHUTDOWN;'); assert process.wait(timeout=15) == 0, 'Restored host database did not exit cleanly'
-            finally:
-                if process.poll() is None:
-                    process.terminate()
-                    try: process.wait(timeout=15)
-                    except subprocess.TimeoutExpired: process.kill(); process.wait(timeout=10)
+        for session_index in range(2 if args.service else 1):
+            with (work / ('database-' + str(session_index) + '.log')).open('w') as log:
+                process = subprocess.Popen(server_args, stdout=log, stderr=subprocess.STDOUT, cwd=work)
+                try:
+                    end = time.monotonic() + 45
+                    last_error = ''
+                    while True:
+                        assert process.poll() is None, 'Restored host database exited before readiness'
+                        try:
+                            if cli.query('SELECT 1;') == '1': break
+                        except Exception as error: last_error = str(error)
+                        if time.monotonic() >= end:
+                            text = (work / ('database-' + str(session_index) + '.log')).read_text(errors='replace')
+                            markers = [m for m in ('ready for connections', 'Access denied', 'ERROR', 'syntax', 'init-file', 'Shutdown complete') if m in text]
+                            raise RuntimeError('Restored host database readiness deadline: ' + last_error + '; observed markers=' + ','.join(markers))
+                        time.sleep(0.1)
+                    assert cli.query('SELECT VERSION();') == '12.3.2-MariaDB'
+                    def metadata():
+                        for schema in ('acore_auth', 'acore_characters', 'acore_world'):
+                            with (work / (schema + '.sql')).open('rb') as script:
+                                (work / (schema + '.out')).write_text(cli.run(script=script))
+                        checked = subprocess.run(command + ['LocalAuthBackupHost', 'verify', str(work), str(lock_path)],
+                            capture_output=True, text=True, timeout=30)
+                        assert checked.returncode == 0 and checked.stdout.strip() == 'strictMetadataChecks=24', 'Restored metadata differs'
+                    metadata()
+                    counts = cli.query('SELECT COUNT(*) FROM acore_auth.account; SELECT COUNT(*) FROM acore_characters.characters;')
+                    assert cli.query("SELECT COUNT(*) FROM acore_auth.account WHERE username='FTA0123456789ABC';") == '0'
+                    password = secrets.token_hex(24)
+                    props = {'client': str(args.client), 'auth': str(args.auth), 'libraries': str(args.libraries), 'password': password, 'databasePort': str(port)}
+                    session = work / 'host-session.properties'; session.write_text(''.join(k + '=' + v + '\n' for k, v in props.items())); session.chmod(0o600)
+                    (work / 'client.args').write_text('\n'.join(cli.command[1:]) + '\n')
+                    result = subprocess.run(command + ['LocalAuthHost', str(work)] + (['service'] if args.service else []), capture_output=True, text=True, timeout=180)
+                    if result.returncode:
+                        text = ''.join((work / n).read_text(errors='replace')[:65536] for n in ('auth1.out', 'auth1.err') if (work / n).exists())
+                        markers = [m for m in ('No valid realms specified', 'Failed to initialize network', 'Access denied', 'Could not prepare statements', 'Failed to open', 'does not exist', 'not found', 'Updating Auth database', 'up-to-date', 'Halting process', 'ERROR') if m in text]
+                        sql_errors = sorted(set(re.findall(r'ERROR ([0-9]{1,5})', text)))
+                        eligibility = cli.query("SELECT COUNT(*)>0 FROM acore_auth.realmlist; SELECT COUNT(*)>0 FROM acore_auth.realmlist WHERE (flag | 2) <> 3;")
+                        raise RuntimeError('Original auth on restored backup failed; markers=' + ','.join(markers) + '; SQL errors=' + ','.join(sql_errors) + '; realm eligibility booleans=' + eligibility.replace('\n', ',') + '; ' + result.stderr[-1200:])
+                    if args.service:
+                        lines = dict(line.split('=', 1) for line in result.stdout.splitlines())
+                        assert lines == {'databaseHealthChecks': '3', 'localServiceUserStopPassed': 'true', 'authCleanStops': '1',
+                            'staleStartupFlagCleared': 'true' if session_index == 0 else 'false', 'generatedDatabaseRoleAndCleanupPassed': 'true'}
+                    else:
+                        assert result.stdout.splitlines() == ['originalAuthProtocolAndRestartsPassed=true', 'authCleanStops=2', 'databaseHealthChecks=20', 'staleStartupFlagCleared=true', 'generatedDatabaseRoleAndCleanupPassed=true']
+                    metadata()
+                    assert cli.query('SELECT COUNT(*) FROM acore_auth.account; SELECT COUNT(*) FROM acore_characters.characters;') == counts
+                    cli.query('SHUTDOWN;'); assert process.wait(timeout=15) == 0, 'Restored host database did not exit cleanly'
+                finally:
+                    if process.poll() is None:
+                        process.terminate()
+                        try: process.wait(timeout=15)
+                        except subprocess.TimeoutExpired: process.kill(); process.wait(timeout=10)
+            server_args = [arg for arg in server_args if not arg.startswith('--init-file=')]
     assert sha(args.backup) == args.backup_sha256
     sources = ['android/app/src/main/java/com/russianranger/fta/runtime/ColdRealmBackup.kt',
         'android/app/src/main/java/com/russianranger/fta/runtime/LocalAuthProbe.kt',
+        'android/app/src/main/java/com/russianranger/fta/runtime/LocalServiceProtocol.kt',
         'android/app/src/main/java/com/russianranger/fta/runtime/AuthDiagnosticConfig.kt',
         'android/app/src/main/java/com/russianranger/fta/runtime/LocalRealmAuthState.kt',
         'android/app/src/main/java/com/russianranger/fta/runtime/WorldUpdaterEvidence.kt',
@@ -125,6 +134,12 @@ def main():
         'existingAccountAndCharacterCountsUnchanged': True, 'databaseCleanSqlShutdownExitCode': 0,
         'hostDatabaseTransport': 'private-loopback-with-generated-host-only-role', 'androidSocketCredentialsExecuted': False, 'serverSha256': sha(args.server), 'authserverSha256': sha(args.auth),
         'sourceSha256': {name: sha(ROOT / name) for name in sources}, 'gameLoginQualified': False, 'worldReady': False}
+    if args.service:
+        proof.update(scope='host-user-controlled-local-service-on-restored-thor-backup',
+            productionUserStopProtocolPassed=True, databaseSessions=2, databaseCleanSqlShutdowns=2,
+            strictMetadataChecksBeforeEachSession=24, strictMetadataChecksAfterEachSession=24,
+            databaseHealthChecks=6, authCleanStops=2, reusedSameRestoredDatabase=True, screenOffExecuted=False,
+            androidForegroundServiceExecuted=False, temporaryDatabaseRoleRemovedAfterEachSession=True)
     args.output.parent.mkdir(parents=True, exist_ok=True); args.output.write_text(json.dumps(proof, indent=2) + '\n')
     print(json.dumps(proof, indent=2))
 

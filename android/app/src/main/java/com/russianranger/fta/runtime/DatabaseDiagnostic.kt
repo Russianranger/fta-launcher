@@ -22,7 +22,8 @@ class DatabaseDiagnostic(
     private val recoveryStore: RecoveryStore? = null,
     private val recoveryPhase: RecoveryPhase? = null,
     private val realm: RealmDatabaseSession? = null,
-    private val localAuthObserve: ((String, Boolean) -> Unit)? = null
+    private val localAuthObserve: ((String, Boolean) -> Unit)? = null,
+    private val localService: LocalServiceControl? = null
 ) {
     private val owned = ConcurrentHashMap<Long, String>()
     private lateinit var root: File
@@ -40,13 +41,14 @@ class DatabaseDiagnostic(
     private var invocationJournal: NativeInvocationJournal? = null
     private val evidenceHandles = ConcurrentHashMap<Long, Int>()
     private val needsFullSeed = includeFullSeed || includeWorldUpdater
-    private val deadline = System.nanoTime() + (if (includeWorldUpdater) 2400L else if (includeFullSeed) 1800L else if (includeAuth) 420L else 300L) * 1_000_000_000L
+    private val deadline = System.nanoTime() + (if (localService != null) 2100L else if (includeWorldUpdater) 2400L else if (includeFullSeed) 1800L else if (includeAuth) 420L else 300L) * 1_000_000_000L
 
     fun run(): String {
         require(listOf(includeAuth, includeFullSeed, includeWorldUpdater, includeLifecycle, recoveryStore != null).count { it } <= 1) { "Select one diagnostic scope" }
         require((recoveryStore == null) == (recoveryPhase == null))
         if (realm != null) require(!includeAuth && !includeFullSeed && !includeLifecycle && recoveryStore == null && includeWorldUpdater == realm.preparing)
         require(localAuthObserve == null || (realm != null && !realm.preparing))
+        require(localService == null || localAuthObserve != null)
         runtime = PackagedRuntime.inspect(context)
         if (includeAuth) require("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables)
         if (includeWorldUpdater) require("worldserver" in runtime.manifest.capabilities && "world-server" in runtime.executables &&
@@ -308,12 +310,12 @@ class DatabaseDiagnostic(
             client("GRANT ALL PRIVILEGES ON acore_auth.* TO '$user'@'localhost';", 5000)
             config.writeText(renderedConfig)
             check(config.setReadable(false, false) && config.setWritable(false, false) && config.setReadable(true, true) && config.setWritable(true, true))
-            LocalAuthProtocol.run(object : LocalAuthProtocol.Driver {
+            val driver = object : LocalAuthProtocol.Driver {
                 override fun checkActive() = checkCancelled()
                 override fun start(pass: Int) {
                     check(LocalAuthProbe.closed(port))
-                    setStage("LOCAL_AUTH_START", "Starting original loopback auth listener $pass of 2 with updater checks enabled.")
-                    auth = launch("auth-server", listOf("--config", config.absolutePath), null, "tool-${++step}", 90_000)
+                    setStage("LOCAL_AUTH_START", if (localService != null) "Starting the original local auth listener." else "Starting original loopback auth listener $pass of 2 with updater checks enabled.")
+                    auth = launch("auth-server", listOf("--config", config.absolutePath), null, "tool-${++step}", if (localService == null) 90_000 else null)
                     val end = System.nanoTime() + 45_000_000_000L
                     while (true) {
                         checkCancelled(); check(waitTracked(server, 0) == Int.MIN_VALUE && waitTracked(auth, 0) == Int.MIN_VALUE)
@@ -332,7 +334,22 @@ class DatabaseDiagnostic(
                 }
                 override fun stop(): Int { setStage("LOCAL_AUTH_STOP", "Stopping the auth listener before the retained database."); return stopAuth() }
                 override fun listenerClosed() = LocalAuthProbe.closed(port)
-            }, observe)
+            }
+            if (localService == null) LocalAuthProtocol.run(driver, observe)
+            else LocalServiceProtocol.run(object : LocalServiceProtocol.Driver {
+                override fun checkActive() = checkCancelled()
+                override fun start() = driver.start(1)
+                override fun health() {
+                    setStage("LOCAL_SERVICE_RUNNING", "Local database and auth are running. Stop here or from the notification when finished. This session stops automatically after 30 minutes.")
+                    driver.probe()
+                    check(client("SELECT 1;", 2000).trim() == "1")
+                }
+                override fun interactive() = context.getSystemService(android.os.PowerManager::class.java).isInteractive
+                override fun nowMs() = android.os.SystemClock.elapsedRealtime()
+                override fun pause(ms: Long) = Thread.sleep(ms)
+                override fun stop() = driver.stop()
+                override fun listenerClosed() = driver.listenerClosed()
+            }, localService.stopRequested, observe, localService.progress)
         } finally {
             val stopped = stopAuth()
             if (created && auth == 0L && stopped != Int.MIN_VALUE && !cancelled.get()) {
@@ -1047,7 +1064,7 @@ internal class NativeInvocationJournal(private val file: File, private val attem
         const val MAX_FILE_BYTES = 2 * 1024 * 1024L
         const val MAX_LOG_BYTES = 8 * 1024 * 1024L
         private val roles = setOf("database-server", "database-client", "auth-server", "world-server")
-        private val stages = setOf("LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP", "CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP",
+        private val stages = setOf("LOCAL_SERVICE_RUNNING", "LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP", "CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP",
             "LIFECYCLE_WRITE", "LIFECYCLE_RESTART", "LIFECYCLE_CANCEL", "LIFECYCLE_SCREEN_OFF", "LIFECYCLE_CRASH", "LIFECYCLE_FINISH",
             "RECOVERY_HOLD", "RECOVERY_RESUME", "RECOVERY_VALIDATE", "REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")
         private val outcomes = setOf("running", "exited", "timed_out", "cancelled", "start_failed", "wait_failed", "stopped", "supervisor_failed")

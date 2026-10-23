@@ -17,12 +17,13 @@ public class LocalAuthHost {
         finally { if(handle!=0) NativeProcessBridge.INSTANCE.stop(handle,1000); }
     }
     public static void main(String[] args) throws Exception {
+        boolean service = args.length == 2 && args[1].equals("service");
         Path root = Path.of(args[0]); Properties p = new Properties();
         try (var input = Files.newInputStream(root.resolve("host-session.properties"))) { p.load(input); }
         boolean staleFlagCleared=LocalRealmAuthState.INSTANCE.prepare(sql -> query(root,p,sql));
         int port = LocalAuthProbe.INSTANCE.unusedPort();
         String name = "FTA0123456789ABC";
-        Path temp = Files.createDirectory(root.resolve("auth-temp"));
+        Path temp = Files.createTempDirectory(root,"auth-temp-");
         String user = LocalAuthProbe.INSTANCE.databaseUser(UUID.randomUUID());
         if (user.charAt("fta_local_".length() + 12) != '4') throw new IllegalStateException("Generated role lacks UUID version digit");
         String config = LocalAuthProbe.INSTANCE.config(new java.io.File("/host-socket"), new java.io.File(p.getProperty("client")),
@@ -34,7 +35,7 @@ public class LocalAuthHost {
         query(root,p,"CREATE USER '" + user + "'@'127.0.0.1' IDENTIFIED BY '" + p.getProperty("password") + "';");
         try {
             query(root,p,"GRANT ALL PRIVILEGES ON acore_auth.* TO '" + user + "'@'127.0.0.1';");
-            LocalAuthProtocol.INSTANCE.run(new LocalAuthProtocol.Driver() {
+            LocalAuthProtocol.Driver driver = new LocalAuthProtocol.Driver() {
                 long handle; int pass; int query;
                 public void checkActive() { }
                 public void start(int value) {
@@ -75,15 +76,40 @@ public class LocalAuthHost {
                     int exit = NativeProcessBridge.INSTANCE.stop(handle,10000); handle=0; return exit;
                 }
                 public boolean listenerClosed() { return LocalAuthProbe.INSTANCE.closed(port); }
-            }, (key,value) -> { flags.put(key,value); return kotlin.Unit.INSTANCE; });
-            if (flags.size()!=8 || flags.containsValue(false)) throw new IllegalStateException("Incomplete protocol");
+            };
+            if (service) {
+                var requested = new java.util.concurrent.atomic.AtomicBoolean(false);
+                var stopper = new Thread(() -> { try { Thread.sleep(20_500); requested.set(true); }
+                    catch (InterruptedException e) { Thread.currentThread().interrupt(); } });
+                try {
+                    var result = LocalServiceProtocol.INSTANCE.run(new LocalServiceProtocol.Driver() {
+                        public void checkActive() { driver.checkActive(); }
+                        public void start() { driver.start(1); stopper.start(); }
+                        public void health() {
+                            driver.probe();
+                            if (!query(root,p,"SELECT 1;").equals("1")) throw new IllegalStateException("Database unhealthy");
+                        }
+                        public boolean interactive() { return true; }
+                        public long nowMs() { return System.nanoTime()/1_000_000; }
+                        public void pause(long ms) { try { Thread.sleep(ms); } catch (InterruptedException e) { throw new RuntimeException(e); } }
+                        public int stop() { return driver.stop(); }
+                        public boolean listenerClosed() { return driver.listenerClosed(); }
+                    }, requested::get, (key,value) -> { flags.put(key,value); return kotlin.Unit.INSTANCE; },
+                        progress -> kotlin.Unit.INSTANCE, LocalServiceProtocol.MAX_SESSION_MS);
+                    if (!result.getStopReason().equals("user") || result.getHealthySamples()<3 || result.getScreenOffHealthyMs()!=0)
+                        throw new IllegalStateException("Incomplete local service session");
+                    System.out.println("databaseHealthChecks="+result.getHealthySamples());
+                } finally { stopper.interrupt(); stopper.join(1000); }
+            } else LocalAuthProtocol.INSTANCE.run(driver, (key,value) -> { flags.put(key,value); return kotlin.Unit.INSTANCE; });
+            if (flags.size()!=(service ? 3 : 8) || flags.containsValue(false)) throw new IllegalStateException("Incomplete protocol");
         } finally {
             query(root,p,"DROP USER '" + user + "'@'127.0.0.1';");
             Files.deleteIfExists(conf);
         }
         if (!query(root,p,"SELECT COUNT(*) FROM mysql.user WHERE User='" + user + "';").equals("0")) throw new IllegalStateException("Temporary role remained");
-        System.out.println("originalAuthProtocolAndRestartsPassed=true");
-        System.out.println("authCleanStops=2"); System.out.println("databaseHealthChecks=20");
+        System.out.println(service ? "localServiceUserStopPassed=true" : "originalAuthProtocolAndRestartsPassed=true");
+        System.out.println("authCleanStops="+(service ? 1 : 2));
+        if (!service) System.out.println("databaseHealthChecks=20");
         System.out.println("staleStartupFlagCleared="+staleFlagCleared);
         System.out.println("generatedDatabaseRoleAndCleanupPassed=true");
     }
