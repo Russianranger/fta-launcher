@@ -7,15 +7,45 @@ Earlier history: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
 ## Current increment — retained native world gate
 
-Started from verified remote **eb8715711fc9a074bcc31acba0c5308b6861b954**;
-Foundation CI [40111993680](https://github.com/Russianranger/fta-launcher/actions/runs/40111993680)
-passed all three jobs. This increment adds the code **27**, `0.12.0-native-world`
-guarded session. Implementation commit **734005fc1d1ce9cc3208d19deca3ec7a2e37772a** is followed
-by attempt-matched rehash/process-exit evidence. Its Foundation CI
-[40114441873](https://github.com/Russianranger/fta-launcher/actions/runs/40114441873)
-passed all three jobs (349 Android tests in that implementation; final follow-up adds one). The exact delivery CI and private artifact identity will
-be appended after qualification. Public CI APKs contain only the database provider;
-they cannot update the persistent-key private diagnostic.
+Final implementation: **bbf5fbed3c0919c03387915a5898b14ebba250d5**.
+Foundation CI [40114951582](https://github.com/Russianranger/fta-launcher/actions/runs/40114951582)
+passed all three jobs: tooling/native ownership, Android tests/lint/assembly and
+packaged-byte checks, public APK publication. Local JDK17/Kotlin 2.0.21/SDK35
+compilation and **350 unit tests in 31 classes**, **155 tooling tests**, native
+ownership and original-source/socket checks passed. Local full Gradle dependency
+resolution was unavailable; exact-commit CI performed the prescribed Gradle tasks.
+The first implementation `734005fc1d1ce9cc3208d19deca3ec7a2e37772a` also passed
+[40114441873](https://github.com/Russianranger/fta-launcher/actions/runs/40114441873).
+
+**Latest delivered private APK is still code 26. Code 27 is implemented but its
+private APK has NOT been packaged, signed or delivered.** The execution environment
+became unavailable after final CI passed. A retry returned “No usable execution
+environment is available.” GitHub access remains available, so this recovery
+checkpoint is pushed. No new APK SHA256 or device result is claimed. Do not send
+the public CI development APK as the private update.
+
+### Resume packaging before requesting a Thor test
+
+1. Restore an execution environment and fetch actual remote main. The implementation
+   above is complete; this following documentation commit changes no application code.
+2. Recover the unchanged `FTA-Launcher-0.11.8-dbc-loading.apk` and
+   `FTA-Launcher-Development-Signing.zip` from the owner's private files. Both were
+   recovered during this session; no new key or upload is needed. The code-26 identity,
+   certificate, 17 native hashes and helper-source hashes are in
+   [APK evidence](evidence/android-2026-10-24-private-dbc-loading-apk.json).
+3. Download the exact passing implementation CI assembly (version 27,
+   `0.12.0-native-world`). Source-equivalent later documentation CI is acceptable
+   only after verifying application/native/manifest trees are identical.
+   Preserve its DEX, resources, Android manifest and canonical metadata. Retain
+   code 26's byte-identical private runtime manifest, runtime/notice assets and all
+   17 native libraries only after checking every source/hash identity. Native
+   helpers have unchanged sources; do not rebuild heavyweight server components.
+4. Verify all 148 runtime-manifest members, all 221 provider/notice inputs and
+   unchanged canonical metadata; align at 16 KiB, sign with the original capsule,
+   and measure version, certificate and new APK SHA256. No passwords/private
+   materials enter Git. Save the verified private APK, add its measured public-safe
+   evidence, update this handoff and verify final exact-commit CI before delivery.
+5. Only then ask for the single combined Thor procedure below. No repeat import.
 
 **Physical code 26 import/publication passed.** Report
 `FTA-database-diagnostic-1792860233678.json`, SHA256
