@@ -44,10 +44,11 @@ prior action and chains the original handler with the original siginfo/context.
 Default actions receive the same fatal signal; one-shot semantics remain intact.
 Explicit ignored fatal signals are refused. The capture itself does not unwind,
 allocate, resolve symbols or use stdio/locks. The chained platform handler retains
-its own existing crash-report behavior. SIGTERM/SIGABRT are untouched. It does not open application
-files or issue SQL. An existing alternate stack is retained; otherwise the helper installs one for
-the initializing thread. Other native
-threads use their own normal stacks. This is not a general crash reporter.
+its own existing crash-report behavior. SIGTERM/SIGABRT are untouched. The helper
+does not open application files or issue SQL. An existing alternate stack is
+retained; otherwise the helper installs one for the initializing thread. Other
+native threads retain their existing stack arrangements. This is not a general
+crash reporter.
 
 The parser accepts exactly one complete READY and fault line, only known image IDs,
 offsets bounded to 512 MiB, and an attempt-matched native exit of 128 + signal.

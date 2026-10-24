@@ -33,13 +33,20 @@ Auth exited zero; database exited zero without observed SQL shutdown. Postchecks
 were not reached; false results are unmeasured, not proof of lost realm data.
 Screen-off duration is zero. Native gate, GT fallback and gameplay remain unqualified.
 
-**Code 31, `0.12.4-world-signals`, is being qualified.** Code 30 was signed but
-withdrawn before physical testing: its helper refused Android's preinstalled
-crash handler. The saved code-30 file is named `DO-NOT-INSTALL-superseded-FTA-code30.apk`.
-Its packaging proof remains historical evidence, not a current recommendation.
-The code-30 application commit was `c8e51358452c3452df9fffe058748a6b783b4f63`;
-delivery docs commit `c93240e871301ab0ecc6b919f743e340eb1586e5` passed CI
-[40132553046](https://github.com/Russianranger/fta-launcher/actions/runs/40132553046).
+**Private code 31, `0.12.4-world-signals`, is qualified, signed and saved.**
+Application commit **52e53173e660955009d8a5c6bc3288bb13acc770**; exact CI
+[40132849674](https://github.com/Russianranger/fta-launcher/actions/runs/40132849674)
+passed all three jobs. Only documentation/evidence follow this application commit.
+APK `FTA-Launcher-0.12.4-world-signals.apk`, **42,283,996 bytes**, SHA256
+`b34acb24a20b9e2388a12c2e13136718673c183429e6e2a1da9af40ae20ab517`.
+[APK evidence](evidence/android-2026-10-24-private-world-signals-apk.json).
+Saved private file ID: `libfile_e74c3496085881919ae5ba93097d0b00`.
+All **223** packaged-input checks, persistent-certificate v2 signature and 16 KiB
+alignment passed. This APK has **not run on Thor**. Public CI APKs are not this update.
+
+Code 30 was withdrawn before physical testing: its helper rejected Android's
+preinstalled crash handler. The saved file is marked **DO NOT INSTALL** and its
+historical evidence records the withdrawal. Use code 31 only.
 
 Android 13 linker source installs debuggerd before preload constructors. Code 31
 restores and chains the preinstalled handler with original siginfo/context/mask
@@ -64,12 +71,13 @@ remain unchanged. All 52 modules, C++20 and NPCBots are preserved. Source compan
 v8 remains valid for the unchanged original binaries; the new MIT helper source
 is public here and its license is copied into APK metadata.
 
-Qualification: **174 tooling tests**, original logging pressure fixture and
-expanded fatal-signal host fixture passed. NDK r28c/API33 corrected witness build
-passed ELF/dependency/16 KiB checks. Exact code-31 Android tests/lint/assembly and
-private packaging are pending. Host signal tests are not Thor evidence.
-The planned package retains all 18 code-29 donor native payloads and all 148
-runtime-manifest entries. Local full Gradle was not run.
+Qualification: **174 tooling tests**, **375 Android unit tests in 35 classes**
+(source test inventory, no ignored tests; exact CI test task passed), lint/assembly,
+original logging pressure fixture and expanded fatal-signal host fixture passed.
+NDK r28c/API33 corrected witness passed ELF/dependency/16 KiB checks; its symbols
+are bound eagerly. The private package retains all 18 code-29 donor native payloads
+and all 148 runtime-manifest entries exactly. Host tests are not Thor evidence.
+Local full Gradle was not run.
 `databaseFallbackValidated=false`, world readiness and game login remain false.
 
 ## Next physical gate
