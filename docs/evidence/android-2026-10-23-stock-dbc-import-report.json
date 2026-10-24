@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "evidenceKind": "user-reported-import-failure-and-archive-layout-screenshots",
+  "uploadedApkSha256": "66db6ffd94d6a3e7070e46bba08822d48abdd8c42f136008c7e2a55b054d8434",
+  "uploadedApkBytes": 42127940,
+  "uploadedApkMatchesVerifiedPrivateVersion18": true,
+  "diagnosticJsonAttachedForThisAttempt": false,
+  "actualDataZipInspected": false,
+  "observedTopLevelFolders": [
+    "dbc",
+    "maps",
+    "mmaps",
+    "vmaps"
+  ],
+  "observedAuxiliaryFolder": "dbc/stock_dbc",
+  "screenshotSha256": {
+    "Screenshot_20261023-185759.png": "62917a2fedf5ac218c15b353e1ca695e66a514a304f179505163c0c51bd6ab49",
+    "Screenshot_20261023-185807.png": "e3f564445e6bd67a0516eaef134e65792c61c01c66e6c99e01b9781063bb32e7",
+    "Screenshot_20261023-185816.png": "7fc248dbfc1864edc2ced8349c4ea9e0ac949b14ddd3e469446f7ed86cc1a3d8",
+    "Screenshot_20261023-185822.png": "8f3cdf4f79e292fb38ae2b505a06c4fbbcf10e7c853c582e7e70a936d2616ba0",
+    "Screenshot_20261023-185827.png": "9daba13d2b21c58f23c27b16ee4ce815a2a53846874d3f785330a829ffb71615"
+  },
+  "version18RejectsFilesUnderObservedAuxiliaryFolder": true,
+  "regressionOnUnchangedVersion18ProductionCode": {
+    "tests": 1,
+    "failures": 1,
+    "exception": "IllegalArgumentException",
+    "boundary": "GameDataPolicy.assetPath",
+    "test": "stockDbcBackupIsPreservedWithoutApplyingRuntimeLayoutToUnusedBackup",
+    "logSha256": "fd7a4a63a5841b3eb46f898e46d557acfc49347d05154426513538296f8a92fc"
+  },
+  "actualPhysicalFailureCauseProven": false,
+  "interpretation": "Screenshots identify an unsupported auxiliary directory that reproduces an importer defect when populated with DBC files. They do not expose the original failed operation or all archive entries/headers. The attached APK is the exact private code 18 artifact, not a diagnostic JSON. Code 19 preserves this backup namespace without allowing it to satisfy or replace root DBC requirements and reports bounded archive failure reasons."
+}

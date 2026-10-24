@@ -34,7 +34,8 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
                 if (tiled == 1 && part !in names) problem(part, "missing_startup_vmap_tile")
             }
         }
-        val counts = GROUPS.associateWith { group -> files.count { it.path.startsWith("$group/") } }
+        val counts = GROUPS.associateWith { group -> files.count { it.path.startsWith("$group/") } } +
+            ("stock_dbc" to files.count { it.path.startsWith("dbc/stock_dbc/") })
         if (files.none { it.path.endsWith(".mmap") }) problem("mmaps", "missing_navmesh_parameters")
         if (files.none { it.path.endsWith(".mmtile") }) problem("mmaps", "missing_navmesh_tiles")
         for (entry in files) {
@@ -54,7 +55,9 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
                     val rows = u32(); val fields = u32(); val record = u32(); val strings = u32()
                     if (fields !in 1..1024 || record !in fields..fields * 4 || strings < 1 ||
                         rows > MAX_FILE_BYTES / record || 20 + rows * record + strings != input.length()) return "dbc_layout"
-                    val expected = dbc[path.substringAfterLast('/')]
+                    // The original loader reads dbc/<name> and recognized locale folders only.
+                    // Screenshot-confirmed stock_dbc files are inert backups, never runtime substitutes.
+                    val expected = if (path.startsWith("dbc/stock_dbc/")) null else dbc[path.substringAfterLast('/')]
                     if (expected != null) {
                         if (fields != expected.fields.toLong() || record != expected.recordBytes.toLong()) return "dbc_source_layout"
                         if (expected.sentinel >= 0) {
@@ -116,7 +119,7 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
             val p = value.split('/')
             require(p.first() in GROUPS)
             require(when (p.first()) {
-                "dbc" -> (p.size == 2 || (p.size == 3 && p[1] in setOf("enUS", "enGB", "deDE", "esES", "esMX", "frFR", "itIT", "koKR", "ruRU", "zhCN", "zhTW"))) && p.last().endsWith(".dbc")
+                "dbc" -> (p.size == 2 || (p.size == 3 && p[1] in setOf("stock_dbc", "enUS", "enGB", "deDE", "esES", "esMX", "frFR", "itIT", "koKR", "ruRU", "zhCN", "zhTW"))) && p.last().endsWith(".dbc")
                 "maps" -> p.size == 2 && p[1].matches(Regex("[0-9]{7,8}\\.map"))
                 "mmaps" -> p.size == 2 && p[1].matches(Regex("([0-9]{3,4}\\.mmap|[0-9]{7,8}\\.mmtile)"))
                 else -> p.size == 2 && (p[1] == "GameObjectModels.dtree" || p[1].endsWith(".vmo") ||

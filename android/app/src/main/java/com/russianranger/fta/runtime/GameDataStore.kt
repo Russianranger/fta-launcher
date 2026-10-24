@@ -61,10 +61,17 @@ class GameDataStore(private val root: File, private val policyText: String,
         require(files in 1..GameDataPolicy.MAX_FILES && bytes in 1..GameDataPolicy.MAX_TOTAL_BYTES)
         return GameDataReceipt(name, archive, catalog, files, bytes)
     }
-    private fun report(state: String, archive: String?, result: GameDataPreflight? = null, catalog: String? = null) {
+    private fun report(state: String, archive: String?, result: GameDataPreflight? = null, catalog: String? = null,
+        stage: String? = null, failure: Exception? = null) {
         val values = mutableMapOf<String, Any>("formatVersion" to 1, "state" to state, "policySha256" to policySha,
             "files" to (result?.files ?: 0), "bytes" to (result?.bytes ?: 0), "problemCount" to (result?.problemCount ?: 0))
         archive?.let { values["archiveSha256"] = it }; catalog?.let { values["catalogSha256"] = it }
+        values["stockDbcFiles"] = result?.counts?.get("stock_dbc") ?: 0
+        stage?.let { values["failureStage"] = it }
+        failure?.let {
+            values["failureReason"] = (it as? GameDataImportFailure)?.reason ?: "operation_failed"
+            (it as? GameDataImportFailure)?.asset?.let { path -> values["failureAsset"] = path }
+        }
         GameDataPolicy.GROUPS.forEach { values["count.$it"] = result?.counts?.get(it) ?: 0 }
         result?.problems?.forEachIndexed { i, p -> values["problem.$i.path"] = p.path; values["problem.$i.reason"] = p.reason }
         atomic(File(root, "last-report.properties"), text(values))
@@ -74,26 +81,34 @@ class GameDataStore(private val root: File, private val policyText: String,
         val result = mutableMapOf<String, Any>("available" to false, "worldReady" to false, "gameLoginQualified" to false,
             "nativeSemanticValidationPassed" to false, "policySha256" to policySha)
         runCatching {
+            val parsed = mutableMapOf<String, Any>()
             val p = read(File(root, "last-report.properties"), 32768)
             require(p.getProperty("formatVersion") == "1" && p.getProperty("policySha256") == policySha)
             val state = p.getProperty("state"); require(state in setOf("COPYING", "IMPORTED", "VERIFIED", "REJECTED", "FAILED"))
-            result["available"] = true; result["state"] = state
-            result["preflightPassed"] = state in setOf("IMPORTED", "VERIFIED")
+            parsed["available"] = true; parsed["state"] = state
+            parsed["preflightPassed"] = state in setOf("IMPORTED", "VERIFIED")
             for (key in listOf("files", "bytes", "problemCount") + GameDataPolicy.GROUPS.map { "count.$it" }) {
-                val n = p.getProperty(key).toLong(); require(n in 0..GameDataPolicy.MAX_TOTAL_BYTES); result[key] = n
+                val n = p.getProperty(key).toLong(); require(n in 0..GameDataPolicy.MAX_TOTAL_BYTES); parsed[key] = n
             }
             for (key in listOf("archiveSha256", "catalogSha256")) p.getProperty(key)?.let {
-                require(it.matches(Regex("[a-f0-9]{64}"))); result[key] = it
+                require(it.matches(Regex("[a-f0-9]{64}"))); parsed[key] = it
             }
-            result["problems"] = (0 until 32).mapNotNull { i ->
+            parsed["stockDbcFiles"] = (p.getProperty("stockDbcFiles") ?: "0").toLong().also { require(it in 0..GameDataPolicy.MAX_FILES.toLong()) }
+            p.getProperty("failureStage")?.let { require(it in FAILURE_STAGES); parsed["failureStage"] = it }
+            p.getProperty("failureReason")?.let { require(it in GameDataZip.FAILURE_REASONS); parsed["failureReason"] = it }
+            p.getProperty("failureAsset")?.let {
+                GameDataPolicy.path(it); require(it.substringBefore('/') in GameDataPolicy.GROUPS); parsed["failureAsset"] = it
+            }
+            parsed["problems"] = (0 until 32).mapNotNull { i ->
                 val path = p.getProperty("problem.$i.path") ?: return@mapNotNull null
                 GameDataPolicy.path(path); require(path.substringBefore('/') in GameDataPolicy.GROUPS)
                 val reason = p.getProperty("problem.$i.reason"); require(reason.matches(Regex("[a-z_]{1,48}")))
                 mapOf("asset" to path, "reason" to reason)
             }
             val current = receipt()
-            result["activeCandidateRetained"] = current != null
-            result["activeCatalogMatchesReport"] = current != null && current.catalogSha256 == p.getProperty("catalogSha256")
+            parsed["activeCandidateRetained"] = current != null
+            parsed["activeCatalogMatchesReport"] = current != null && current.catalogSha256 == p.getProperty("catalogSha256")
+            result.putAll(parsed)
         }
         result
     }
@@ -101,7 +116,7 @@ class GameDataStore(private val root: File, private val policyText: String,
         val previous = pointer()
         val generation = "g-${UUID.randomUUID()}"
         val staging = File(root, ".partial-${UUID.randomUUID()}"); val destination = File(root, generation)
-        var published = false; var archiveHash: String? = null
+        var published = false; var archiveHash: String? = null; var stage = "copy"
         try {
             report("COPYING", null)
             root.listFiles()?.filter { it.name.startsWith(".partial-") }?.forEach(::deleteTree)
@@ -111,16 +126,18 @@ class GameDataStore(private val root: File, private val policyText: String,
             FileOutputStream(archive).use { out ->
                 val buffer = ByteArray(256 * 1024)
                 while (true) {
-                    active(); check(root.usableSpace >= 64L * 1024 * 1024)
+                    active(); if (root.usableSpace < 64L * 1024 * 1024) throw GameDataImportFailure("insufficient_space")
                     val n = input.read(buffer); if (n < 0) break; if (n == 0) continue
-                    copied += n; require(copied <= GameDataPolicy.MAX_TOTAL_BYTES)
+                    copied += n; if (copied > GameDataPolicy.MAX_TOTAL_BYTES) throw GameDataImportFailure("archive_limit")
                     out.write(buffer, 0, n); digest.update(buffer, 0, n); progress("copy", copied, 0)
                 }
                 out.fd.sync()
             }
             archiveHash = hex(digest.digest())
+            stage = "archive_index"
             val entries = GameDataZip.inspect(archive); val total = entries.sumOf { it.bytes }
-            check(root.usableSpace >= total + 64L * 1024 * 1024)
+            if (root.usableSpace < total + 64L * 1024 * 1024) throw GameDataImportFailure("insufficient_space")
+            stage = "extract"
             val files = mutableListOf<GameDataFile>(); var extracted = 0L
             ZipFile(archive).use { zip ->
                 entries.forEach { spec ->
@@ -139,15 +156,16 @@ class GameDataStore(private val root: File, private val policyText: String,
                             }
                         }
                     }
-                    require(size == spec.bytes && crc.value == spec.crc)
+                    if (size != spec.bytes || crc.value != spec.crc) throw GameDataImportFailure("asset_integrity", spec.path)
                     check(target.setExecutable(false, false))
                     FileChannel.open(target.toPath(), WRITE, NOFOLLOW_LINKS).use { it.force(true) }
                     files += GameDataFile(spec.path, size, hex(hash.digest()))
                 }
             }
-            active(); progress("preflight", total, total)
+            stage = "preflight"; active(); progress("preflight", total, total)
             val result = policy.inspect(staging, files, active)
             if (!result.passed) { report("REJECTED", archiveHash, result); throw GameDataRejected(result) }
+            stage = "publish"
             check(archive.delete())
             val catalog = files.sortedBy { it.path }.joinToString("\n", postfix = "\n") { "${it.sha256}\t${it.bytes}\t${it.path}" }
             atomic(File(staging, "files.tsv"), catalog)
@@ -167,7 +185,7 @@ class GameDataStore(private val root: File, private val policyText: String,
             root.listFiles()?.filter { generationPattern.matches(it.name) && it.name !in setOf(generation, previous) }?.forEach(::deleteTree)
             GameDataReceipt(generation, archiveHash, catalogHash, files.size, total)
         } catch (failure: Exception) {
-            if (failure !is GameDataRejected) runCatching { report("FAILED", archiveHash) }
+            if (failure !is GameDataRejected) runCatching { report("FAILED", archiveHash, stage = stage, failure = failure) }
             throw failure
         } finally { deleteTree(staging); if (!published) deleteTree(destination) }
     }
@@ -207,9 +225,10 @@ class GameDataStore(private val root: File, private val policyText: String,
             require(result.passed)
             report("VERIFIED", current.archiveSha256, result, current.catalogSha256)
             current
-        } catch (failure: Exception) { runCatching { report("FAILED", current.archiveSha256) }; throw failure }
+        } catch (failure: Exception) { runCatching { report("FAILED", current.archiveSha256, stage = "verify", failure = failure) }; throw failure }
     }
     companion object {
+        private val FAILURE_STAGES = setOf("copy", "archive_index", "extract", "preflight", "publish", "verify")
         private fun hex(bytes: ByteArray) = bytes.joinToString("") { "%02x".format(it.toInt() and 255) }
         private fun sha(file: File, active: () -> Unit): String {
             val digest = MessageDigest.getInstance("SHA-256")

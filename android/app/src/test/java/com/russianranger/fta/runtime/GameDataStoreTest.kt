@@ -81,6 +81,101 @@ class GameDataStoreTest {
         assertFalse(File(root, "store/${receipt.generation}/MyServerData").exists())
         store().verify()
     }
+    @Test fun stockDbcBackupIsPreservedWithoutApplyingRuntimeLayoutToUnusedBackup() {
+        val files = fixture()
+        val backup = ByteBuffer.allocate(25).order(LITTLE_ENDIAN)
+            .put("WDBC".toByteArray()).putInt(1).putInt(1).putInt(4).putInt(1).putInt(123).put(0).array()
+        files["dbc/stock_dbc/Spell.dbc"] = backup
+        val receipt = store().import(ByteArrayInputStream(zip(files)))
+        assertArrayEquals(backup, File(root, "store/${receipt.generation}/dbc/stock_dbc/Spell.dbc").readBytes())
+        assertArrayEquals(files.getValue("dbc/Spell.dbc"), File(root, "store/${receipt.generation}/dbc/Spell.dbc").readBytes())
+        assertEquals(receipt, store().verify())
+        assertEquals(1L, store().export()["stockDbcFiles"])
+    }
+    @Test fun stockBackupCannotSatisfyMissingOrInvalidRuntimeDbc() {
+        for (missing in listOf(true, false)) {
+            val files = fixture()
+            files["dbc/stock_dbc/Spell.dbc"] = files.getValue("dbc/Spell.dbc").copyOf()
+            if (missing) files.remove("dbc/Spell.dbc") else put32(files.getValue("dbc/Spell.dbc"), 20, 1)
+            val failure = assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+            assertTrue(failure.preflight.problems.any { it.path == "dbc/Spell.dbc" &&
+                it.reason == if (missing) "missing_required_dbc" else "dbc_version_sentinel" })
+            assertNull(store().active())
+        }
+    }
+    @Test fun backupDbcsStillRequireSafePathsAndWellFormedDbcBytes() {
+        val files = fixture().apply { put("dbc/stock_dbc/Spell.dbc", byteArrayOf(1, 2, 3)) }
+        val failure = assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+        assertTrue(failure.preflight.problems.any { it.path == "dbc/stock_dbc/Spell.dbc" && it.reason == "truncated_asset" })
+        for (name in listOf("dbc/stock_dbc/evil.sql", "dbc/stock_dbc/run.so", "dbc/other/Spell.dbc", "dbc/stock_dbc/nested/Spell.dbc")) {
+            val bad = fixture().apply { put(name, byteArrayOf(1)) }
+            val rejected = assertThrows(GameDataImportFailure::class.java) { store().import(ByteArrayInputStream(zip(bad))) }
+            assertEquals("unsupported_asset_path", rejected.reason)
+            assertEquals(name, store().export()["failureAsset"])
+        }
+    }
+    @Test fun changedStockBackupFailsFullVerificationAndNeverChangesRuntimeFile() {
+        val files = fixture().apply { put("dbc/stock_dbc/Spell.dbc", getValue("dbc/Spell.dbc").copyOf()) }
+        val receipt = store().import(ByteArrayInputStream(zip(files, "Data/")))
+        val backup = File(root, "store/${receipt.generation}/dbc/stock_dbc/Spell.dbc")
+        backup.appendBytes(byteArrayOf(1))
+        assertThrows(IllegalArgumentException::class.java) { store().verify() }
+        assertEquals("verify", store().export()["failureStage"])
+        assertArrayEquals(files.getValue("dbc/Spell.dbc"), File(root, "store/${receipt.generation}/dbc/Spell.dbc").readBytes())
+        assertEquals(receipt, store().active())
+    }
+    @Test fun localizedDbcsKeepOriginalRuntimeLayoutChecks() {
+        val files = fixture().apply { put("dbc/enUS/Spell.dbc", getValue("dbc/Spell.dbc").copyOf()) }
+        put32(files.getValue("dbc/enUS/Spell.dbc"), 20, 1)
+        val failure = assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+        assertTrue(failure.preflight.problems.any { it.path == "dbc/enUS/Spell.dbc" && it.reason == "dbc_version_sentinel" })
+    }
+    @Test fun unsupportedZipCompressionAndCorruptIndexHaveDistinctBoundedReports() {
+        val bytes = zip(); val c = central(bytes)
+        ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).putShort(c + 10, 12)
+        assertThrows(GameDataImportFailure::class.java) { store().import(ByteArrayInputStream(bytes)) }
+        assertEquals("unsupported_compression", store().export()["failureReason"])
+        assertEquals("archive_index", store().export()["failureStage"])
+        assertThrows(GameDataImportFailure::class.java) { store().import(ByteArrayInputStream(byteArrayOf(1, 2, 3))) }
+        assertEquals("invalid_zip", store().export()["failureReason"])
+        assertEquals("archive_index", store().export()["failureStage"])
+    }
+    @Test fun unsafeArchiveNameIsNeverIncludedInExportedFailure() {
+        val name = "../private-personal-document"
+        val files = fixture().apply { put(name, byteArrayOf(1)) }
+        assertThrows(GameDataImportFailure::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+        val report = store().export()
+        assertEquals("unsafe_archive_path", report["failureReason"])
+        assertFalse(report.containsKey("failureAsset")); assertFalse(report.toString().contains(name))
+    }
+    @Test fun failedReplacementReportsArchiveFailureAndSuccessfulVerifyClearsIt() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        val files = fixture().apply { put("dbc/stock_dbc/notes.txt", byteArrayOf(1)) }
+        assertThrows(GameDataImportFailure::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+        val report = store().export()
+        assertEquals("unsupported_asset_path", report["failureReason"])
+        assertEquals("dbc/stock_dbc/notes.txt", report["failureAsset"])
+        assertEquals(true, report["activeCandidateRetained"]); assertEquals(before, store().active())
+        store().verify()
+        assertFalse(store().export().containsKey("failureReason"))
+        assertEquals(true, store().export()["preflightPassed"])
+    }
+    @Test fun sourceReadFailureReportsCopyStageWithoutExportingPrivateExceptionText() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        val input = object : java.io.InputStream() { override fun read(): Int { throw java.io.IOException("content://private/path?secret=example") } }
+        assertThrows(java.io.IOException::class.java) { store().import(input) }
+        val report = store().export()
+        assertEquals("copy", report["failureStage"]); assertEquals("operation_failed", report["failureReason"])
+        assertFalse(report.toString().contains("content:")); assertFalse(report.toString().contains("secret"))
+        assertEquals(before, store().active())
+    }
+    @Test fun corruptReportDoesNotPartiallyExportSuccessfulQualification() {
+        store().import(ByteArrayInputStream(zip()))
+        File(root, "store/last-report.properties").appendText("failureReason=untrusted_private_text\n")
+        val report = store().export()
+        assertEquals(false, report["available"])
+        assertFalse(report.containsKey("preflightPassed")); assertFalse(report.containsKey("state"))
+    }
     @Test fun missingRequiredDbcRejectsCandidateAndRetainsPreviouslyVerifiedGeneration() {
         val before = store().import(ByteArrayInputStream(zip()))
         val bad = fixture().apply { remove("dbc/Spell.dbc") }

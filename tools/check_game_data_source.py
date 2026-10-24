@@ -47,6 +47,7 @@ def main():
     p.add_argument('--kotlin-classpath', required=True)
     p.add_argument('--java', default='java')
     p.add_argument('--cxx', default='g++')
+    p.add_argument('--with-stock-backup', action='store_true', help='Exercise the screenshot-observed auxiliary DBC folder')
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
     if sha256_file(args.source_zip) != SOURCE_SHA256:
@@ -76,6 +77,9 @@ def main():
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(z.read(info))
         assets = synthetic_assets(policy)
+        if args.with_stock_backup:
+            # Deliberately differs from the active Spell schema: this is not a runtime fallback.
+            assets['dbc/stock_dbc/Spell.dbc'] = struct.pack('<4sIIIII', b'WDBC', 1, 1, 4, 1, 123) + b'\0'
         for name, data in assets.items():
             path = root / 'assets' / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -186,6 +190,13 @@ int main(int argc, char** argv) {
         proof.update(productionJvmImportPassed=True, separateJvmReverifyPassed=True,
                      abruptProcessDeathPreservedActiveCandidate=True, orphanStagingRecovered=True,
                      separateJvmProcesses=5, syntheticAssets=len(assets))
+        if args.with_stock_backup:
+            current = store / (store / 'active').read_text()
+            if (current / 'dbc/stock_dbc/Spell.dbc').read_bytes() != assets['dbc/stock_dbc/Spell.dbc']:
+                raise ValueError('Auxiliary stock DBC bytes were not preserved')
+            if (current / 'dbc/Spell.dbc').read_bytes() != assets['dbc/Spell.dbc']:
+                raise ValueError('Auxiliary stock DBC replaced the active runtime file')
+            proof.update(stockBackupBytesPreserved=True, stockBackupNeverSubstitutedForRuntime=True)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(proof, indent=2) + '\n')
     print('Original-source and production-store host checks passed; no real game data qualified')

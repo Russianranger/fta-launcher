@@ -141,10 +141,10 @@ class RuntimeDiagnosticService : Service() {
                 diagnostic = test
                 val result = test.run()
                 writeStatus(if (includeLifecycle) DatabaseLifecycleProbe.PASSED else if (includeWorldUpdater) WorldUpdaterEvidence.PASSED else if (includeFullSeed) "FULL_SEED_DIAGNOSTIC_PASSED" else if (includeAuth) "AUTH_UPDATER_DIAGNOSTIC_PASSED" else "DATABASE_DIAGNOSTIC_PASSED", result)
-            } catch (_: Exception) {
+            } catch (failure: Exception) {
                 recoveryStore?.state(recoveryPhase!!, if (cancelled.get()) "STOPPED" else "FAILED")
                 writeStatus(if (cancelled.get()) "STOPPED" else "FAILED",
-                    if (includeGameData) "Game-data ${if (cancelled.get()) "import stopped" else "import or verification failed"}. Select a ZIP containing only the extracted dbc, maps, vmaps and mmaps folders. Full client/MPQ ZIPs are not supported here. Previous game data and the database are retained; export the report."
+                    if (includeGameData) GameDataImport.failureSummary(failure, cancelled.get())
                     else if (localService) "Local service failed during $lastStage. The realm and verified backup are retained. Export the diagnostic report before retrying."
                     else if (includeLocalAuth) "Local auth service ${if (cancelled.get()) "stopped" else "failed"} during $lastStage. The realm and verified backup are retained. Normal auth startup may mark realms offline. Export the diagnostic report."
                     else if (cancelled.get()) "Database diagnostic stopped. Existing saves were untouched."

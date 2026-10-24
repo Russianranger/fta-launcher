@@ -145,7 +145,7 @@ class MainActivity : Activity() {
         checklist.addView(gameDataButton)
         gameDataVerifyButton = action("Verify imported game data") { pendingGameDataUri = null; requestDatabaseCheck(includeGameData = true) }
         checklist.addView(gameDataVerifyButton)
-        checklist.addView(label("ZIP the dbc, maps, vmaps and mmaps folders extracted for this server. A single enclosing folder is allowed. Keep enough free space for both ZIP and unpacked files. This does not import a full client or MPQ archives.", 13, muted))
+        checklist.addView(label("Select Data.zip containing the dbc, maps, vmaps and mmaps folders extracted for this server. A single enclosing folder and dbc/stock_dbc backups are supported. Keep enough internal storage for both ZIP and unpacked files. This does not import a full client or MPQ archives.", 13, muted))
 
         val status = panel()
         status.addView(label("Runtime", 21, ink, true))

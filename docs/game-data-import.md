@@ -1,15 +1,38 @@
 # Extracted game-data import and source-derived preflight
 
-Private **0.11.0-game-data**, code **18**, imports an inert ZIP containing extracted
+Private **0.11.1-data-import**, code **19**, imports an inert ZIP containing extracted
 `dbc`, `maps`, `vmaps` and `mmaps` folders, directly or under one enclosing folder.
 It preserves the retained realm, verified backup, Database.zip and native inputs.
 It does not extract a full client/MPQ archive, launch worldserver or create accounts.
 Matching actual game data is not present in the development environment.
 
+## Import correction from the supplied screenshots
+
+The uploaded code 18 APK matches its verified private identity. The screenshots
+show `dbc/stock_dbc` inside the existing `Data.zip`; code 18 rejects files in that
+namespace. A regression reproduces the rejection on unchanged code 18. The user
+provided the APK and screenshots, not the failed attempt's diagnostic JSON or
+actual archive, so additional failures remain possible.
+
+Code 19 preserves direct `.dbc` backup files there with exact hashes and generic
+WDBC bounds checks. They never substitute for `dbc/<required-name>.dbc`, never
+receive or bypass active-file source expectations, and cannot overwrite root
+files. Arbitrary nested folders, executable/SQL files, unsafe paths and malformed
+DBCs still fail. The source-derived policy and all runtime database expectations
+remain byte-identical. The original loader accesses root files and recognized
+locale names; it does not read `stock_dbc` as a runtime fallback.
+
+Retry the **unchanged original Data.zip** with code 19; do not delete the backup
+folder or repackage the files. On failure use **Export diagnostic report** and
+send the resulting **`.json`**, not the APK. `failureStage`, `failureReason` and an
+optional safe `failureAsset` now identify archive failures without exporting raw
+exception text or private source paths. `stockDbcFiles` counts stored backup files.
+See [reported layout and reproduction](evidence/android-2026-10-23-stock-dbc-import-report.json).
+
 ## One combined physical test
 
-1. Install the verified private code 18 APK as an in-place update. Its certificate
-   and all 16 native payloads match code 17. Never uninstall, clear storage or use
+1. Install the verified private code 19 APK as an in-place update. Its certificate
+   and all 16 native payloads match code 18. Never uninstall, clear storage or use
    the differently signed public development/debug APK to replace it.
 2. With a ZIP of matching extracted game data, select **Import extracted game-data
    ZIP**. Allow free space for both the ZIP and unpacked files, plus any retained
@@ -82,12 +105,12 @@ scopes also include this bounded report, allowing the combined service export.
 
 ## Developer checks
 
-255 Android unit tests and 148 tooling tests pass. New adversarial cases cover
+265 Android unit tests and 148 tooling tests pass. New adversarial cases cover
 ZIP64, bad CRCs, path/mode/encryption attacks, incompatible headers, source version
 markers, unsafe size arithmetic, cancellation, directory-sync failures on both
 sides of publication, concurrent stores, changed files and preserved candidates.
 
-`tools/check_game_data_source.py --source-zip ... --kotlin-classpath ... --output ...`
+`tools/check_game_data_source.py --source-zip ... --kotlin-classpath ... --with-stock-backup --output ...`
 compiles the unchanged original DBC loader with C++20, original assertions and an
 abort-on-failure logging sink. It loads all 113 synthetic DBCs, checks seven IDs,
 byte-field offsets, invalid magic and original format/header sizes. Five separate
@@ -95,6 +118,6 @@ JVMs run production import, abrupt replacement death, retained re-verification,
 orphan recovery/new import and final re-verification. No real assets or Android
 SAF/foreground operation are qualified by that host test.
 
-See [host evidence](evidence/host-2026-10-23-game-data-preflight.json),
-[private APK identity](evidence/android-2026-10-23-private-game-data-apk.json) and
+See [host evidence with stock backup](evidence/host-2026-10-23-stock-dbc-import.json),
+[private APK identity](evidence/android-2026-10-23-private-data-import-fix-apk.json) and
 [physical code 17 evidence](evidence/android-2026-10-23-thor-local-service-pass.json).
