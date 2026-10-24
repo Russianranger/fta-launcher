@@ -16,10 +16,12 @@ import tempfile
 import zipfile
 
 from verify_android_apk import verify
+from stage_android_provider import inspect_elf
 
 ROOT = Path(__file__).resolve().parents[1]
 CERTIFICATE = '3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6'
 HELPERS = {'lib/arm64-v8a/libfta_process.so', 'lib/arm64-v8a/libfta_game_io.so'}
+LEGACY = 'lib/arm64-v8a/libfta_openssl_legacy.so'
 METADATA = {'assets/metadata/full-seed-lock.json': 'manifests/full-seed-lock.json',
             'assets/metadata/game-data-policy.properties': 'manifests/game-data-policy.properties'}
 
@@ -64,7 +66,17 @@ def check_helper_sources(root, proof):
             'Cache helper source identity differs')
 
 
-def overlay(assembly, donor, output, stage, root, proof):
+def verify_legacy(module, root=ROOT):
+    pin = json.loads((root / 'manifests/openssl-legacy.json').read_text())
+    require(not module.is_symlink() and module.is_file() and module.stat().st_size == pin['moduleBytes'] and
+            file_sha(module) == pin['moduleSha256'], 'OpenSSL provider identity differs')
+    require(inspect_elf(module, reject_search_paths=True) == pin['elf'], 'OpenSSL provider ELF metadata differs')
+    return pin
+
+
+def overlay(assembly, donor, output, stage, root, proof, module=None):
+    if module is not None:
+        verify_legacy(module, root)
     with zipfile.ZipFile(assembly) as base, zipfile.ZipFile(donor) as old:
         inventory(base); old_names = inventory(old)
         require({n: sha(old.read(n)) for n in old_names if n.startswith('lib/')} == proof['nativePayloadSha256'],
@@ -74,6 +86,12 @@ def overlay(assembly, donor, output, stage, root, proof):
         manifest_bytes = old.read('assets/fta-runtime-manifest.json')
         require(sha(manifest_bytes) == proof['runtimeManifestSha256'], 'Runtime manifest identity differs')
         manifest = json.loads(manifest_bytes)
+        if module is not None:
+            pin = json.loads((root / 'manifests/openssl-legacy.json').read_text())
+            require(any(e.get('logicalName') == 'libcrypto.so.3' and e['sha256'] == pin['retainedCryptoSha256']
+                        for e in manifest['files']), 'Retained crypto dependency differs')
+            if LEGACY in old_names:
+                require(old.read(LEGACY) == module.read_bytes(), 'Existing provider must not be silently replaced')
         for entry in manifest['files']:
             member = ('lib/arm64-v8a/' + entry['path'][7:]) if entry['path'].startswith('native/') else 'assets/runtime/' + entry['path']
             data = old.read(member)
@@ -84,12 +102,17 @@ def overlay(assembly, donor, output, stage, root, proof):
                     final.writestr(entry, base.read(entry))
             for entry in old.infolist():
                 name = entry.filename
-                if retained(name):
+                if retained(name) and not (module is not None and name == LEGACY):
                     data = old.read(entry); final.writestr(entry, data)
                     if name not in HELPERS:
                         relative = name.replace('lib/arm64-v8a/', 'jniLibs/arm64-v8a/', 1) if name.startswith('lib/') else name
                         target = stage / relative
                         target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
+            if module is not None:
+                data = module.read_bytes()
+                final.writestr(LEGACY, data, compress_type=zipfile.ZIP_DEFLATED)
+                target = stage / 'jniLibs/arm64-v8a/libfta_openssl_legacy.so'
+                target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
         # This is a recovery attestation, not a newly compiled provider provenance.
         (stage / 'BUILD_PROVENANCE.json').write_text(json.dumps({
             'noticeProvided': True, 'redistributionNoticePending': False,
@@ -99,10 +122,13 @@ def overlay(assembly, donor, output, stage, root, proof):
         return len(manifest['files'])
 
 
-def compare_output(output, assembly, donor):
+def compare_output(output, assembly, donor, module=None):
     with zipfile.ZipFile(output) as final, zipfile.ZipFile(assembly) as base, zipfile.ZipFile(donor) as old:
         inventory(final)
         expected = {n for n in base.namelist() if not retained(n) and not signature(n)} | {n for n in old.namelist() if retained(n)}
+        if module is not None:
+            expected.add(LEGACY)
+            require(final.read(LEGACY) == module.read_bytes(), 'Final OpenSSL provider changed')
         require(set(final.namelist()) == expected, 'Final APK inventory differs')
         for source, predicate in ((base, lambda n: not retained(n) and not signature(n)), (old, retained)):
             for name in source.namelist():
@@ -126,6 +152,7 @@ def main():
     parser.add_argument('--ci-run-id', type=int, required=True)
     parser.add_argument('--version-code', type=int, required=True)
     parser.add_argument('--version-name', required=True)
+    parser.add_argument('--legacy-provider', type=Path, required=True)
     args = parser.parse_args()
     proof = json.loads(args.donor_evidence.read_text())
     require(not args.output.exists() and not args.evidence.exists(), 'Do not overwrite a delivered artifact')
@@ -144,7 +171,7 @@ def main():
             'Assembly application/version identity differs')
     with tempfile.TemporaryDirectory(prefix='fta-private-update-') as temporary:
         work = Path(temporary); stage = work / 'provider'
-        members = overlay(args.assembly, args.donor, work / 'unsigned.apk', stage, ROOT, proof)
+        members = overlay(args.assembly, args.donor, work / 'unsigned.apk', stage, ROOT, proof, args.legacy_provider)
         subprocess.run([str(zipalign), '-P', '16', '-f', '4', str(work / 'unsigned.apk'), str(work / 'aligned.apk')], check=True)
         with zipfile.ZipFile(args.signing_capsule) as capsule:
             require(capsule.getinfo('signing.json').file_size <= 4096, 'Oversized signing capsule metadata')
@@ -161,9 +188,10 @@ def main():
             '--v4-signing-enabled', 'false', '--out', str(work / 'signed.apk'), str(work / 'aligned.apk')], env=environment, check=True)
         verify_signature(apksigner, work / 'signed.apk')
         subprocess.run([str(zipalign), '-c', '-P', '16', '4', str(work / 'signed.apk')], check=True)
-        compare_output(work / 'signed.apk', args.assembly, args.donor)
+        compare_output(work / 'signed.apk', args.assembly, args.donor, args.legacy_provider)
         result = verify(work / 'signed.apk', stage)
-        require(result['provider_and_notice_files_verified'] == proof['provider_and_notice_files_verified'], 'Provider/notice count differs')
+        added = int(LEGACY not in proof['nativePayloadSha256'])
+        require(result['provider_and_notice_files_verified'] == proof['provider_and_notice_files_verified'] + added, 'Provider/notice count differs')
         for key in ('nativePayloadSha256', 'processSupervisorSourceSha256', 'cacheHelperSourceSha256',
                     'nativeSourceCompanionSha256', 'runtimeManifestSha256', 'gameDataPolicySha256', 'compiledUpdaterLockSha256'):
             result[key] = proof[key]
@@ -172,11 +200,16 @@ def main():
             assemblyCiRunId=args.ci_run_id, originalAssembledApkSha256=args.assembly_sha256,
             donorApkSha256=proof['apk_sha256'], donorVersionCode=proof['appVersionCode'],
             signerCertificateSha256=CERTIFICATE, signatureVerification='passed', apkSignatureScheme='v2',
-            zipAlignment='passed', zipAlignmentPageSizeBytes=16384, allNativePayloadsByteIdenticalToDonor=True,
-            packagedNativePayloadCount=len(proof['nativePayloadSha256']), privateRuntimeManifestEntriesVerified=members,
+            zipAlignment='passed', zipAlignmentPageSizeBytes=16384, allNativePayloadsByteIdenticalToDonor=not bool(added),
+            allDonorNativePayloadsByteIdentical=True,
+            packagedNativePayloadCount=len(proof['nativePayloadSha256']) + added, privateRuntimeManifestEntriesVerified=members,
             allNonPrivateAssemblyEntriesPreserved=True, nativeRecompiledForDelivery=False,
-            finalPackaging='Qualified CI assembly with verified unchanged private native/runtime/notice inputs, aligned and persistently signed',
+            finalPackaging='Qualified CI assembly with unchanged donor inputs and separately pinned OpenSSL provider, aligned and persistently signed',
             physicalVersionExecuted=False, nativeDatabaseFallbackValidated=False, worldReady=False, gameLoginQualified=False)
+        result['nativePayloadSha256'] = dict(proof['nativePayloadSha256'], **{LEGACY: file_sha(args.legacy_provider)})
+        result['opensslLegacyProvider'] = verify_legacy(args.legacy_provider)
+        result['nativeRecompiledForDelivery'] = bool(added)
+        result['nativeWorldRecompiledForDelivery'] = False
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with args.output.open('xb') as out, (work / 'signed.apk').open('rb') as source:
             while data := source.read(1024 * 1024):

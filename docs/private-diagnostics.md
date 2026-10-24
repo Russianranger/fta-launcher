@@ -275,3 +275,21 @@ Host TCP adapters remain distinct from Android socket/ARM64 execution.
 Install in place and follow [one local auth test](local-auth-service.md). Physical
 code 16 is unverified. Keep the current realm, backup and imported dependencies;
 no seed/updater/lifecycle/backup milestone needs repeating.
+
+
+## Original world crypto provider — code 29
+
+Code 28 recovered code 27's same failed attempt. Its stderr hash exactly matches
+the original ARC4 constructor assertion when OpenSSL's legacy provider is missing.
+Private code **29**, `0.12.2-world-crypto`, adds that separately pinned module from
+the exact OpenSSL 3.6.3 source already supplied in companion v8. The original
+17 native payloads, runtime manifest, realm/backup identities and signer remain
+unchanged. No assertion, source module or asset validation is bypassed.
+See [source reproduction and module qualification](world-crypto-provider.md).
+
+Install the qualified private APK in place. Select **Start native world test**
+once, keep the launcher visible until healthy, turn the screen off for three
+minutes, reopen, select **Stop**, then export the report. On failure export
+immediately before retrying. No reimport or separate database/auth test is needed.
+The action's automatic full rehash binds the new asset lease. Native world readiness,
+GT fallback and gameplay remain unqualified until their measured gates pass.

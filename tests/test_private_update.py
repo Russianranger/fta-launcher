@@ -9,7 +9,7 @@ import warnings
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_private_update import CERTIFICATE, METADATA, check_helper_sources, compare_output, inventory, overlay, sha, verify_signature
+from package_private_update import CERTIFICATE, METADATA, LEGACY, check_helper_sources, compare_output, inventory, overlay, sha, verify_signature, verify_legacy
 
 
 class PrivateUpdateTests(unittest.TestCase):
@@ -114,6 +114,59 @@ class PrivateUpdateTests(unittest.TestCase):
                     good + '\nSigner #2 certificate SHA-256 digest: ' + CERTIFICATE):
             with patch('package_private_update.subprocess.check_output', return_value=bad):
                 with self.assertRaises(ValueError): verify_signature(Path('apksigner'), Path('synthetic.apk'))
+
+    def module_fixture(self):
+        module = self.root / 'legacy.so'; module.write_bytes(b'synthetic module')
+        elf = {'needed': ['libc.so', 'libcrypto.so.3', 'libdl.so'], 'sonames': [],
+               'interpreter': None, 'minimumLoadAlignment': 16384}
+        crypto_name = 'lib/arm64-v8a/libcrypto.so'
+        self.old[crypto_name] = b'synthetic crypto'
+        manifest = json.loads(self.old['assets/fta-runtime-manifest.json'])
+        manifest['files'].append({'path': 'native/libcrypto.so', 'size': len(self.old[crypto_name]),
+            'sha256': sha(self.old[crypto_name]), 'logicalName': 'libcrypto.so.3'})
+        self.old['assets/fta-runtime-manifest.json'] = json.dumps(manifest).encode()
+        self.proof['runtimeManifestSha256'] = sha(self.old['assets/fta-runtime-manifest.json'])
+        self.proof['nativePayloadSha256'][crypto_name] = sha(self.old[crypto_name])
+        (self.root / 'manifests/openssl-legacy.json').write_text(json.dumps({
+            'moduleBytes': module.stat().st_size, 'moduleSha256': sha(module.read_bytes()),
+            'retainedCryptoSha256': sha(self.old[crypto_name]), 'elf': elf}))
+        return module, elf
+
+    def test_separate_provider_preserves_entire_retained_manifest_and_donor_members(self):
+        module, elf = self.module_fixture()
+        assembly = self.archive('base.apk', self.base); donor = self.archive('old.apk', self.old)
+        output = self.root / 'final.apk'
+        with patch('package_private_update.inspect_elf', return_value=elf):
+            overlay(assembly, donor, output, self.root / 'stage', self.root, self.proof, module)
+        compare_output(output, assembly, donor, module)
+        with zipfile.ZipFile(output) as z:
+            self.assertEqual(self.old['assets/fta-runtime-manifest.json'], z.read('assets/fta-runtime-manifest.json'))
+            self.assertEqual(module.read_bytes(), z.read(LEGACY))
+            self.assertEqual(len(self.proof['nativePayloadSha256']) + 1, len([n for n in z.namelist() if n.startswith('lib/')]))
+
+    def test_module_missing_changed_linked_or_wrong_elf_is_rejected(self):
+        module, elf = self.module_fixture()
+        with patch('package_private_update.inspect_elf', return_value=elf):
+            verify_legacy(module, self.root)
+            link = self.root / 'linked.so'; link.symlink_to(module)
+            with self.assertRaises(ValueError): verify_legacy(link, self.root)
+            with self.assertRaises(ValueError): verify_legacy(self.root / 'absent.so', self.root)
+            module.write_bytes(b'changed module')
+            with self.assertRaises(ValueError): verify_legacy(module, self.root)
+        module.write_bytes(b'synthetic module')
+        for key, value in (('needed', ['unexpected.so']), ('minimumLoadAlignment', 4096), ('interpreter', '/untrusted')):
+            changed = dict(elf); changed[key] = value
+            with patch('package_private_update.inspect_elf', return_value=changed):
+                with self.assertRaises(ValueError): verify_legacy(module, self.root)
+
+    def test_module_cannot_be_added_to_unmatched_retained_crypto(self):
+        module, elf = self.module_fixture()
+        pin = self.root / 'manifests/openssl-legacy.json'; values = json.loads(pin.read_text())
+        values['retainedCryptoSha256'] = '0' * 64; pin.write_text(json.dumps(values))
+        assembly = self.archive('base.apk', self.base); donor = self.archive('old.apk', self.old)
+        with patch('package_private_update.inspect_elf', return_value=elf):
+            with self.assertRaisesRegex(ValueError, 'Retained crypto'):
+                overlay(assembly, donor, self.root / 'final.apk', self.root / 'stage', self.root, self.proof, module)
 
 
 if __name__ == '__main__':

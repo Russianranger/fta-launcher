@@ -1,0 +1,62 @@
+{
+  "status": "host_original_crypto_passed",
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "originalWorldElfSha256": "97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766",
+  "sourceFilesSha256": {
+    "src/common/Cryptography/ARC4.cpp": "a7c4eb2c8f1142d13ced2b5bcf96796f479808315f2865e341e6e06a5d3d4e1c",
+    "src/common/Cryptography/ARC4.h": "7471e21ca1888bf80f8b9f3901fe8d94bdda7b1c02fcfbd708c3d85ab9397bdb",
+    "src/common/Cryptography/OpenSSLCrypto.cpp": "8c336be7e78d200824677608302cce934ccb068e786a1fb9ee17588cb76929e5",
+    "src/common/Cryptography/OpenSSLCrypto.h": "e7e94426f356794f1e8b44f6c6865e634e3e68c1d5e7ae81e50f092dec31b4d3",
+    "src/common/Debugging/Errors.cpp": "50f490ef080287c286695af9f6e6c49903c28734a37b3ebdb674500d9b29df99",
+    "src/common/Debugging/Errors.h": "b307cbf4784bdaabc9f885361f59f5a5823bbba6ed887376e9d30536934f93ab",
+    "src/common/Utilities/StringFormat.h": "171f8346b0fddfd58460703f9fb568ff98aa54b581f23d725ec63143bd1a7f75",
+    "src/common/Utilities/Duration.h": "b973178cea66928ba0c1c0cd2e27c35b8d8a3380eaf4439b047d868d84251df3",
+    "src/common/Define.h": "b7b3efb5fd8fd9061cf27435112ca3b149bafbfedbe96f0ddd96d82fe57ed9a6",
+    "src/common/CompilerDefs.h": "d15fc32a75011ef0c77395f5f7296528121ce7416a676e3620f0f0ce02846960",
+    "src/common/Cryptography/Authentication/AuthCrypt.h": "61198d26ab50c79dd96d0cf4ad278727dee093845878fe6e144a12481b856d80",
+    "src/server/game/Server/WorldSocket.h": "52ac66127f0798110fb16b8a58aec0e8f8fabcd3a19cb341227abdc602ecad43",
+    "src/server/apps/worldserver/Main.cpp": "782a1100dcbc84c24b924f6394ee3cb7ec33712881089274aaa3f22974edd1a0",
+    "deps/fmt/include/fmt/args.h": "6e0bf8ffbd904e6ef525cdce8e6e00312ce5d14f616cea5d88132606ca0384c4",
+    "deps/fmt/include/fmt/base.h": "73ba80ca15c02d6826a611d1651ca6f1495ec127815e257a5d6552d6f6ad313e",
+    "deps/fmt/include/fmt/chrono.h": "f8e2a69bd97bc5b90c9af7fb87e010775b695d487a77e8d8cbe624e57bd2f9bf",
+    "deps/fmt/include/fmt/color.h": "f88bf0c4833caed3a7f01b6d633c7b259741a26119e84c651ac1e31cfc980b72",
+    "deps/fmt/include/fmt/compile.h": "636c13842acce0b42b378e65fe67a69e5635e8225c9701975e5b326a97be5cb8",
+    "deps/fmt/include/fmt/core.h": "b2b6692145b11c7c2774db106078c97575a47d18e80c7783c68566475325ebb4",
+    "deps/fmt/include/fmt/format-inl.h": "e7baf108b84e89b29915bb35733540f8f4262cd8f4b41c15754eed4d2f185f61",
+    "deps/fmt/include/fmt/format.h": "b4c65350362bf40e76a8e6b450587d912c7081b6eafeafaf3d7bcf53153e17fc",
+    "deps/fmt/include/fmt/os.h": "45d4e84be4e84a128442f04eda06e1305c8e02c61166854a3b8b348194d35da5",
+    "deps/fmt/include/fmt/ostream.h": "742416a6a88286609887fa512c4423820764aafbb723a42a825f3193cb52b4f0",
+    "deps/fmt/include/fmt/printf.h": "afddb422a86125e04a7260bb0f0ae3423ea8d591181ed5d4ef60b7a5d068993a",
+    "deps/fmt/include/fmt/ranges.h": "ccaf61c9b5937e0fa97737fb047121c5fca9db34de516b8edfc1d913583e3c8e",
+    "deps/fmt/include/fmt/std.h": "3f06cdf32774b9e6915e9762411f5f4de8b8ba5660adccbdea514be7f0b23826",
+    "deps/fmt/include/fmt/xchar.h": "f0903d522c64faaee2c374a0b2063ac3e43d0b5006dfd3411f0e5dccd8ff6062"
+  },
+  "sourcePathSha256": "fb2ae89743f2808a4c69069a00aab63aac9982eaef711dc82a472a71c59a16ab",
+  "assertion": {
+    "file": "src/common/Cryptography/ARC4.cpp",
+    "line": 27,
+    "function": "ARC4",
+    "condition": "result == 1"
+  },
+  "missingProvider": {
+    "signal": "SIGSEGV",
+    "shellExitCode": 139,
+    "stderrBytes": 326,
+    "stderrLines": 9,
+    "stderrSha256": "c874def29443f077496d51e01c69be82a8a677f7fa7528880dad71ee4ed8f997",
+    "exactPhysicalStderrHashMatched": true
+  },
+  "presentProvider": {
+    "exitCode": 0,
+    "originalKnownVectorPassed": true,
+    "hostProviderSha256": "57d53358c5c817480d9c3974555cbd9865b6c37136df6d90c780f6807ac47d9d"
+  },
+  "hostOpenSslVersion": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)",
+  "compilerJobs": 1,
+  "originalSourcesModified": false,
+  "androidExecutionQualified": false,
+  "originalSocketConstructsTwoArc4Contexts": true,
+  "nativeDatabaseFallbackValidated": false,
+  "worldReady": false,
+  "gameLoginQualified": false
+}

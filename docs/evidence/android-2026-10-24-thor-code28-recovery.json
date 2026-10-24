@@ -1,0 +1,88 @@
+{
+  "formatVersion": 1,
+  "scope": "physical-code28-read-only-code27-recovery",
+  "reportSha256": "d624410009929d75109c633e552e7ac6246a91805784f816c1a55fa246a731c0",
+  "appVersionCode": 28,
+  "appVersionName": "0.12.1-world-evidence",
+  "apkSha256": "304f07ae9f72118a4208fe0bbb489f3310a866b1af1c02733705c8c8cb29beaf",
+  "sameCode27Attempt": true,
+  "newNativeTestRun": false,
+  "retainedAssetOperation": {
+    "mode": "verify",
+    "state": "FINISHED",
+    "completedUnits": 7625943031,
+    "totalUnits": 7625943031,
+    "unit": "bytes",
+    "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225"
+  },
+  "worldExitCode": 139,
+  "retainedLogsAvailable": true,
+  "logs": {
+    "world": {
+      "available": true,
+      "bytes": 1911191,
+      "sha256": "b2709f2d2b99e3a0fb6c6c9de34944d7acbf8c36935caf22e4cb472504f01d78",
+      "lines": 11018,
+      "levels": {
+        "INFO": 4616,
+        "WARN": 6398,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "matchedLines": 35,
+      "linesAfterLastMatch": 6
+    },
+    "stdout": {
+      "available": true,
+      "bytes": 2945024,
+      "sha256": "e7bb4931645595dfead0534fba865b34643fbce6049db218c3a4673efabe7ff6",
+      "lines": 13481,
+      "levels": {
+        "INFO": 4603,
+        "WARN": 6395,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "matchedLines": 34,
+      "linesAfterLastMatch": 54
+    },
+    "stderr": {
+      "available": true,
+      "bytes": 326,
+      "sha256": "c874def29443f077496d51e01c69be82a8a677f7fa7528880dad71ee4ed8f997",
+      "lines": 9,
+      "levels": {
+        "INFO": 0,
+        "WARN": 0,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "matchedLines": 0,
+      "linesAfterLastMatch": 9
+    }
+  },
+  "lastWorldSourceMessage": {
+    "line": 11012,
+    "level": "INFO",
+    "sourceMessageIds": [
+      "w0001",
+      "w0002",
+      "w0003"
+    ]
+  },
+  "sourceMessageMatchIsCrashCause": false,
+  "independentlyReproducedAssertion": {
+    "file": "src/common/Cryptography/ARC4.cpp",
+    "line": 27,
+    "function": "ARC4",
+    "condition": "result == 1",
+    "originalHostStderrHashExactlyMatched": true
+  },
+  "qualified": false,
+  "databaseFallbackValidated": false,
+  "worldReady": false,
+  "healthySamples": 0,
+  "screenOffHealthyMs": 0,
+  "gameLoginQualified": false,
+  "rawLogTextExported": false
+}

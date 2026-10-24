@@ -34,6 +34,7 @@ class DatabaseDiagnostic(
     private var authHandle = 0L
     private var clientOptions: File? = null
     private var worldInspectorQueue: File? = null
+    private var worldCryptoModules: File? = null
     private var realmLogDirectory: File? = null
     private var realmServerHandle = 0L
     private lateinit var socket: File
@@ -58,6 +59,8 @@ class DatabaseDiagnostic(
         if (includeWorldUpdater || worldSession != null) require("worldserver" in runtime.manifest.capabilities && "world-server" in runtime.executables &&
             runtime.manifest.files.any { it.path == WorldUpdaterMetadata.PATH }) { "The compiled world updater payload is unavailable" }
         require(runtime.manifest.bootstrap != null) { "A pinned bootstrap recipe is required" }
+        if (worldSession != null) worldCryptoModules = OpenSslLegacyProvider.prepare(
+            File(context.filesDir, "runtime/openssl-providers"), runtime.nativeDirectory, runtime.manifest.files)
         if (recoveryPhase == RecoveryPhase.RESUME) return runRecoveryResume(recoveryStore!!)
         if (realm != null && !realm.preparing) return runRealmReopen(realm)
         val parent = if (realm == null) File(context.filesDir, "runtime/database-diagnostics").apply { check(mkdirs() || isDirectory) }
@@ -901,7 +904,9 @@ class DatabaseDiagnostic(
         "PATH=/system/bin", "HOME=${root.absolutePath}", "TMPDIR=${root.absolutePath}",
         "ANDROID_ROOT=/system", "ANDROID_DATA=/data",
         "LD_LIBRARY_PATH=${runtime.libraryDirectory.absolutePath}:${runtime.nativeDirectory.absolutePath}"
-    ), role, if (worldSession != null && role == "world-server") requireNotNull(realmLogDirectory) else root, worldInspectorQueue)
+    ), role, if (worldSession != null && role == "world-server") requireNotNull(realmLogDirectory) else root, worldInspectorQueue).let {
+        if (worldSession != null) OpenSslLegacyProvider.forRole(it, role, worldCryptoModules) else it
+    }
 
     private fun setStage(stage: String, message: String) {
         currentStage = stage

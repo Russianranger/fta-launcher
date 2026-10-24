@@ -1,13 +1,10 @@
 # Preparing the retained native world gate
 
-Code 26's physical import and publication passed; the report did not record a
-standalone full reverify. Code 27 adds **Start native world test**, which performs
-that full rehash and preflight under the asset lease before opening the retained
-realm. Follow the current procedure and evidence in [SHORT-HANDOFF.md](SHORT-HANDOFF.md).
-The physical code-27 rehash passed, but world exited 139 after the original DBC,
-ready and freeze-guard messages. Native runtime remains unqualified. Code 28 adds
-read-only recovery of retained log fingerprints; export the existing attempt before
-another launch. See the handoff for measured evidence and the current procedure.
+Code 28 recovered the code-27 failure: an exact original ARC4 assertion. Code 29
+adds the missing pinned OpenSSL legacy provider while preserving the worldserver,
+all modules and retained identities. See [diagnosis and reproduction](world-crypto-provider.md)
+and the handoff for the current private APK and next physical gate. Native runtime
+remains unqualified.
 
 ## Live original GT loading
 
@@ -130,6 +127,6 @@ Reproduce its exact source provenance using:
 python3 tools/world_log_dictionary.py --source-zip /private/From_The_Ashes_Source.zip
 ```
 
-First update and export the retained code-27 attempt. Only a later diagnosis can
-justify a native change or another runtime run. The original 52 modules, DBC rules,
+That recovery completed on code 28. The exact assertion reproduction now supports
+the separate provider addition and the next code-29 native runtime test. The original 52 modules, DBC rules,
 SQL, native payloads and retained realm are unchanged by this recovery increment.
