@@ -807,3 +807,25 @@ CI `40120557614`: all three jobs passed (358 Android tests, 165 tooling tests).
 Private APK SHA256 `304f07ae9f72118a4208fe0bbb489f3310a866b1af1c02733705c8c8cb29beaf`;
 original signer and all 17 native payloads unchanged. Next step: update in place
 and export the existing attempt, without another world launch or asset import.
+
+
+## 2026-10-24 — original world crypto provider, private code 29
+
+Code 28 recovered the same code-27 native exit without a new launch. Unchanged
+original ARC4/provider/assertion/fmt code reproduced the exact 326-byte stderr
+SHA256 and exit 139 when the legacy provider was absent, then passed the known
+RC4 vector with it present. Original socket construction explains the failure
+before the first challenge. No Auctionator/source-module bypass was made.
+
+Application commit `974ea36bd4a2de5fe2a8d2971cfe62452046b3aa`, CI `40124727905`: all
+three jobs passed; 365 Android tests in 33 classes, lint/assembly and 171 tooling
+tests. Pinned original OpenSSL 3.6.3 / NDK r28c built the 162,336-byte ARM64 legacy
+provider twice with matching bytes. Existing 17 native payloads, all 148 runtime
+manifest entries and retained realm/backup identities remain unchanged.
+
+Private `FTA-Launcher-0.12.2-world-crypto.apk` is 42,275,641 bytes, SHA256
+`93c08fabf51fd5a1e35503b101c953f6ed280d7d5a650cfa5d232cae5e09d62b`, original signer,
+222 package checks and 16 KiB alignment passed. Saved file ID
+`libfile_2521c0049244819185794b368a3bd9f1`. Code 29 awaits the actual controlled
+world/Stop/120-second screen-off gate; native fallback/readiness/login stay false.
+See `world-crypto-provider.md`, the measured APK proof and the current short handoff.

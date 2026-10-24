@@ -73,39 +73,25 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.11.8-dbc-loading** (code **26**)
-adds inert import and re-verification of extracted `dbc/maps/vmaps/mmaps` ZIPs.
-It checks the original source's 113 active DBC layouts, seven version sentinels,
-eight startup map locations and supplied map/vmap/mmap headers, then stores hashes
-in a separate atomic asset generation. It never opens the retained database or
-runs imported code. Full native asset loading and world startup remain separate.
-Physical code 19 identified `dbc/lightskybox.db2` as the next ZIP-index blocker.
-Code 20 preserves unused DB2 companions with exact hashes and reports up to 32
-unsupported paths together. Its physical follow-up stopped without a terminal
-error; code 21 adds durable phase checkpoints and bounded Android exit evidence.
-Code 21's physical report identifies an attempt-matched Android low-memory kill
-during copy. Code 22 binds the visible screen to the worker and syncs output
-every 16 MiB, with memory/priority checkpoints. The source of system memory
-pressure remains unknown. Physical code 22 completes the copy and index walk,
-observing foreground importance and active binding. It rejects one editor ZIP:
-`dbc/WDBX - DBC EDITOR.zip`. Code 23 retains only that exact path as an unopened,
-non-executable, hash-verified companion. Required asset formats and source policy
-remain unchanged. Physical code 23 again records a matched low-memory kill during
-copy despite active binding and a small Java heap. Code 24 requests file-cache
-release after consumed reads and synced writes, recording accepted/rejected
-requests without claiming actual eviction or Thor survival. All 16 existing
-native payloads remain unchanged; one small dedicated cache helper is added.
-Physical code 24 then completes all 22,817-file / 7.63 GB extraction and reaches
-preflight, which rejects 116 assets. Code 25 corrects a source-proven mmap signed
-capacity rejection (`1 << 31`, accepted by original 64-bit Detour) and exports
-numeric headers, file hashes and complete failure counts. DBC policy bytes remain
-unchanged pending actual header evidence. No candidate was published by code 24.
-Physical code 25 clears all 104 mmap rejections and measures twelve DBC layouts.
-Code 26 follows the original unused-file, packed PowerDisplay and SQL-backed GT
-loading behavior, preserving every file byte and the canonical schema definitions.
-Ten GT tables have complete 8,922-row coverage in the verified restored Thor
-backup. Inert import explicitly leaves native database-fallback validation pending.
-See [game-data import](docs/game-data-import.md).
+signing and validation. Private version **0.12.2-world-crypto** (code **29**) is
+the current implementation; see the [short handoff](docs/SHORT-HANDOFF.md) for its
+exact CI, private delivery and physical status. The public development APK is not
+the private diagnostic update.
+
+Physical game-data import and full retained rehash now pass: all 22,817 files /
+7,625,943,031 bytes, unchanged originals. Code 27 reached all 113 native DBC
+stores and the world ready/freeze-guard messages, then exited 139 before its
+challenge. Code 28 recovered the retained logs without another launch. The exact
+stderr hash identifies the original ARC4 constructor assertion; unchanged host
+source reproduces it when OpenSSL's legacy provider is absent. Code 29 adds that
+separately pinned provider from original OpenSSL 3.6.3, preserving all 17 donor
+native payloads, all 52 world modules and the retained realm/backup identities.
+See [diagnosis and reproduction](docs/world-crypto-provider.md) and
+[game-data import](docs/game-data-import.md).
+
+Native GT fallback, persistent world health, clean Stop and at least 120,000 ms
+of healthy screen-off runtime still require the next physical world gate.
+Client import, WarcraftXL and playable login remain later milestones.
 
 Physical code **17 passed user-controlled service Stop and retained restart**:
 all ten checks in both sessions, all 54 native exits zero and all 24 metadata
@@ -114,14 +100,6 @@ short of the unchanged 120,000 ms threshold; finish that measurement with a late
 native gate after the focused game-data report, without repeating restart.
 See [physical evidence](docs/evidence/android-2026-10-23-thor-local-service-pass.json).
 Code **16 passed retained local auth**; its automatic diagnostic also needs no repeat.
-
-Code 26 passes 334 Android tests, lint/assembly, 151 tooling tests, 221 packaged
-input checks and signing/alignment. Its signer and all 17 native payloads match
-code 25. Original loaders pass the reported layouts and all captured SQL rows;
-separate production-store JVMs check import, interrupted replacement, retained
-verification and recovery. Prior large cache/interruption evidence is preserved.
-The next gate is a successful physical import and full reverify; native database
-fallback, complete asset semantics and world startup remain unqualified.
 
 Physical code **14 passed cold backup and two isolated restored reopens**. The
 uploaded ZIP matches the recorded identity and every manifest file hash. Its

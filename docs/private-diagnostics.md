@@ -285,7 +285,8 @@ Private code **29**, `0.12.2-world-crypto`, adds that separately pinned module f
 the exact OpenSSL 3.6.3 source already supplied in companion v8. The original
 17 native payloads, runtime manifest, realm/backup identities and signer remain
 unchanged. No assertion, source module or asset validation is bypassed.
-See [source reproduction and module qualification](world-crypto-provider.md).
+See [source reproduction and module qualification](world-crypto-provider.md) and
+[measured signed APK evidence](evidence/android-2026-10-24-private-world-crypto-apk.json).
 
 Install the qualified private APK in place. Select **Start native world test**
 once, keep the launcher visible until healthy, turn the screen off for three

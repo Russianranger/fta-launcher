@@ -31,34 +31,45 @@ with the provider. Assertion: `src/common/Cryptography/ARC4.cpp:27`, constructor
 before its initial challenge. The last Auctionator log is not the cause.
 [Diagnosis, source proofs and build instructions](world-crypto-provider.md).
 
-Code **29**, `0.12.2-world-crypto`, is implemented; exact-commit Android CI and
-private APK packaging are pending. The new 162,336-byte ARM64 legacy provider is
+**Private code 29, `0.12.2-world-crypto`, is qualified, signed and saved.**
+Application implementation: **974ea36bd4a2de5fe2a8d2971cfe62452046b3aa**; exact CI
+[40124727905](https://github.com/Russianranger/fta-launcher/actions/runs/40124727905)
+passed all three jobs. Only documentation/evidence follow this application commit.
+APK `FTA-Launcher-0.12.2-world-crypto.apk`, **42,275,641 bytes**, SHA256
+`93c08fabf51fd5a1e35503b101c953f6ed280d7d5a650cfa5d232cae5e09d62b`.
+[APK evidence](evidence/android-2026-10-24-private-world-crypto-apk.json).
+Saved private file ID: `libfile_2521c0049244819185794b368a3bd9f1`.
+All **222** packaged-input checks, persistent-certificate v2 signature and 16 KiB
+alignment passed. This APK has **not run on Thor**. Public CI APKs are not this update.
+
+ The new 162,336-byte ARM64 legacy provider is
 built from unchanged pinned OpenSSL 3.6.3 with NDK r28c/API33, one job, 16 KiB
 alignment, and the exact retained libcrypto. Two fresh builds produced SHA256
 `432951dda01dada3ca6cb2bbe522c35b43a17b37a8f796c0257ba3fd8a9a1cec`.
 Existing source companion v8 supplies that exact Apache-2.0 source and notices;
 `tools/build_openssl_legacy.py` supplies the additional reproducible build recipe.
-No worldserver, libcrypto, source module, SQL, configuration or game asset changed.
+No worldserver, libcrypto, source module, SQL, original configuration file or game
+asset changed.
 
 Runtime verifies the separate module and retained crypto identity before opening
 the realm. It creates an install-scoped `legacy.so` symlink to the immutable APK
 library, then scopes `OPENSSL_MODULES` and `OPENSSL_CONF=/dev/null` to the actual
 world session. The original provider load and cipher selection remain unchanged.
 All 17 donor native payloads and all 148 runtime-manifest entries stay byte identical;
-realm/backup provider identities remain valid. Expected package: 18 native files,
+realm/backup provider identities remain valid. Measured package: 18 native files,
 222 provider/notice checks. Only the original persistent signing key is allowed.
 
-Qualification so far: **171 tooling tests**, exact original host assertion/vector
-reproduction and two matching Android module builds. Seven new Android regression
-tests cover install updates, changed/missing/linked/wrong-architecture inputs,
+Qualification: **171 tooling tests**, **365 Android unit tests in 33 classes**,
+Android lint/assembly, exact original host assertion/vector reproduction and two
+matching Android module builds. Seven new Android regression tests cover install updates, changed/missing/linked/wrong-architecture inputs,
 malicious pre-existing links, exact dependency pinning and process-only environment.
-Android tests/lint/assembly will be qualified by exact implementation CI.
+The exact implementation CI performed the prescribed Gradle qualification.
+Local full Gradle was not run.
 `databaseFallbackValidated=false`, world readiness and game login remain false.
 
 ## Next physical gate
 
-After the private code-29 APK is qualified and saved, install it **in place** over
-code 28. Keep all existing realm/database/backup/assets. Select **Start native
+Install the saved private code-29 APK **in place** over code 28. Keep all existing realm/database/backup/assets. Select **Start native
 world test** once and keep the launcher visible until healthy. Turn the screen
 off for **three minutes**, reopen, select **Stop**, then **Export diagnostic
 report**. On failure export immediately before another attempt. No manual import,
