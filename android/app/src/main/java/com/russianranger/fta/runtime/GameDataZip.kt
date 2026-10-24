@@ -16,11 +16,12 @@ object GameDataZip {
     val FAILURE_REASONS = setOf("invalid_zip", "encrypted_zip", "unsupported_compression", "unsafe_archive_path",
         "duplicate_archive_path", "unsupported_file_mode", "unsupported_asset_path", "archive_limit",
         "insufficient_space", "asset_integrity", "operation_failed")
-    fun inspect(file: File): List<GameDataZipEntry> = try { inspectIndex(file) }
+    fun inspect(file: File, active: () -> Unit = {}, progress: (Long, Long) -> Unit = { _, _ -> }): List<GameDataZipEntry> = try { inspectIndex(file, active, progress) }
         catch (failure: GameDataImportFailure) { throw failure }
         catch (_: java.io.IOException) { throw GameDataImportFailure("invalid_zip") }
         catch (_: IllegalArgumentException) { throw GameDataImportFailure("invalid_zip") }
-    private fun inspectIndex(file: File): List<GameDataZipEntry> = RandomAccessFile(file, "r").use { input ->
+    private fun inspectIndex(file: File, active: () -> Unit, progress: (Long, Long) -> Unit): List<GameDataZipEntry> = RandomAccessFile(file, "r").use { input ->
+        active()
         require(input.length() in 22..GameDataPolicy.MAX_TOTAL_BYTES)
         fun read(at: Long, n: Int): ByteArray {
             require(at >= 0 && n >= 0 && at <= input.length() - n)
@@ -51,7 +52,9 @@ object GameDataZip {
         require(size in 46..64L * 1024 * 1024 && offset <= centralEnd && size == centralEnd - offset)
         val names = mutableSetOf<String>(); val ranges = mutableListOf<Pair<Long, Long>>()
         val raw = mutableListOf<GameDataZipEntry>(); var position = offset; var total = 0L
-        repeat(count.toInt()) {
+        progress(0, count)
+        repeat(count.toInt()) { index ->
+            if (index % 128 == 0) { active(); progress(index.toLong(), count) }
             val h = read(position, 46)
             require(u32(h, 0) == 0x02014b50L)
             val flags = u16(h, 8); val method = u16(h, 10); val nameSize = u16(h, 28); val extraSize = u16(h, 30)
@@ -99,6 +102,7 @@ object GameDataZip {
             require(position <= centralEnd)
         }
         require(position == centralEnd)
+        active(); progress(count, count)
         ranges.sortedBy { it.first }.zipWithNext().forEach { (a, b) -> require(a.second <= b.first && a.first < b.first) }
         val payload = raw.filterNot { it.name.endsWith('/') }
         require(payload.isNotEmpty())

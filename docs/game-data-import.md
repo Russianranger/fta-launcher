@@ -1,10 +1,51 @@
 # Extracted game-data import and source-derived preflight
 
-Private **0.11.2-data-companions**, code **20**, imports an inert ZIP containing extracted
+Private **0.11.3-import-checkpoints**, code **21**, imports an inert ZIP containing extracted
 `dbc`, `maps`, `vmaps` and `mmaps` folders, directly or under one enclosing folder.
 It preserves the retained realm, verified backup, Database.zip and native inputs.
 It does not extract a full client/MPQ archive, launch worldserver or create accounts.
 Matching actual game data is not present in the development environment.
+
+## Unfinished code 20 attempt and code 21 checkpoints
+
+The latest report matches private code 20 but ends at `GAME_DATA_COPY`, showing
+1,677 MiB copied. It contains no terminal failure or completed archive hash.
+Because code 20 omitted index progress, copying is only the last recorded phase;
+it cannot establish the actual point or cause of interruption. The report does
+not prove another unsupported file or DBC/schema mismatch.
+See [physical evidence](evidence/android-2026-10-23-unfinished-import.json).
+
+Code 21 reports copy fsync, ZIP entry indexing and publication separately. A
+small atomic operation record survives process death and remains readable while
+the asset-store lease is held. `gameDataOperation` includes:
+
+- Attempt-bound stage, timestamps, copied bytes and completed archive hash.
+- Entry progress during indexing and byte progress during copy/extraction/verify.
+- Observed free storage and Java heap usage/limit, without assuming a failure cause.
+- `RUNNING`, `INTERRUPTED` or `UNKNOWN` for an unfinished operation, according to
+  whether its owning worker is observed active, inactive or cannot be checked.
+- Fixed failure categories and at most four sanitized application class/method/
+  line references. Raw exception messages, paths and stack traces are omitted.
+- Up to three recent exits of this app's runtime process. `attemptMatched=true`
+  requires the recorded owner PID (kept private), exact attempt token and time
+  window. Unmatched historical exits do not establish this attempt's cause.
+
+Android's [ApplicationExitInfo](https://developer.android.com/reference/android/app/ApplicationExitInfo)
+and [process state summary API](https://developer.android.com/reference/android/app/ActivityManager#setProcessStateSummary(byte[]))
+provide the bounded exit observations on API 30+. History may be unavailable or
+empty; memory figures are the OS's last sample, not exact memory at death. No
+trace streams, descriptions, process IDs or user data are exported. These fields
+are observational and never grant readiness. A completed operation record also
+does not replace the strict asset receipt, hashes or final qualification checks.
+
+A production host regression reproduces the missing index phase on code 20.
+Both versions import and fully reverify a 1,888,997,926-byte synthetic ZIP with
+40,141 files under a 64 MiB Java heap, so size alone has not reproduced the Thor
+failure. Code 21's 26-process harness hard-exits during copy, fsync, index,
+extraction, preflight, publication and immediately after publication. It checks
+checkpoint survival, prior/new candidate retention and subsequent full verify.
+Android SAF, OS exit history and actual game bytes still require the device run.
+See [host evidence](evidence/host-2026-10-23-import-checkpoints.json).
 
 ## Import correction from the physical diagnostic
 
@@ -30,7 +71,7 @@ bytes and database expectations stay unchanged. Arbitrary nested folders,
 SQL/executable filenames, unsafe paths, duplicate names and invalid ZIP modes
 still fail before extraction. No files are silently discarded or rewritten.
 
-Retry the **unchanged original Data.zip** with code 20. On failure export the
+Retry the **unchanged original Data.zip** with code 21. On failure export the
 **diagnostic `.json` file** immediately. `failureStage`, `failureReason` and
 `failureAsset` identify the boundary; layout failures now include
 `rejectedAssetCount` and up to 32 `rejectedAssets`, collected across the validated
@@ -42,15 +83,15 @@ Old reports and receipts remain readable with new counts defaulting to zero.
 
 ## One combined physical test
 
-1. Install the verified private code 20 APK as an in-place update. Its certificate
-   and all 16 native payloads match code 19. Never uninstall, clear storage or use
+1. Install the verified private code 21 APK as an in-place update. Its certificate
+   and all 16 native payloads match code 20. Never uninstall, clear storage or use
    the differently signed public development/debug APK to replace it.
 2. With a ZIP of matching extracted game data, select **Import extracted game-data
    ZIP**. Allow free space for both the ZIP and unpacked files, plus any retained
    previous asset candidate. Wait for **Game-data preflight passed**.
 3. Close/reopen the launcher and select **Verify imported game data**. This
    rehashes every file and reruns the preflight. If import/verification fails,
-   export the diagnostic JSON immediately; do not retry unrelated database tests.
+   reopen if necessary and export the diagnostic JSON immediately before another attempt; do not retry unrelated database tests.
 4. After success, select **Start local database + auth**, wait for running status,
    lock the screen for **three minutes**, then wake it. The live measured counter
    must reach **120 seconds**; if short, lock again within the same session.
@@ -116,7 +157,7 @@ scopes also include this bounded report, allowing the combined service export.
 
 ## Developer checks
 
-274 Android unit tests and 148 tooling tests pass. New adversarial cases cover
+290 Android unit tests and 148 tooling tests pass. New adversarial cases cover
 ZIP64, bad CRCs, path/mode/encryption attacks, incompatible headers, source version
 markers, unsafe size arithmetic, cancellation, directory-sync failures on both
 sides of publication, concurrent stores, changed files and preserved candidates.
@@ -131,6 +172,6 @@ opaque DB2 companions. It confirms that their exact bytes survive and root DBCs
 remain intact. No real assets or Android
 SAF/foreground operation are qualified by that host test.
 
-See [host evidence with stock and DB2 companions](evidence/host-2026-10-23-db2-companion-import.json),
-[private APK identity](evidence/android-2026-10-23-private-db2-companion-apk.json) and
+See [host source evidence](evidence/host-2026-10-23-import-checkpoint-source.json),
+[private APK identity](evidence/android-2026-10-23-private-import-checkpoint-apk.json) and
 [physical code 17 evidence](evidence/android-2026-10-23-thor-local-service-pass.json).

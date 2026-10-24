@@ -19,12 +19,12 @@ public final class GameDataHost {
             try (var input = Files.newInputStream(new File(args[3]).toPath())) {
                 // Kotlin's legal method name is a Java keyword; reflection crosses that syntax boundary.
                 store.getClass().getMethod("import", java.io.InputStream.class, kotlin.jvm.functions.Function0.class,
-                    kotlin.jvm.functions.Function3.class).invoke(store, input,
+                    kotlin.jvm.functions.Function3.class, kotlin.jvm.functions.Function2.class).invoke(store, input,
                     (kotlin.jvm.functions.Function0<Unit>) () -> Unit.INSTANCE,
                     (kotlin.jvm.functions.Function3<String, Long, Long, Unit>) (stage, done, total) -> {
                     if (args[0].equals("crash") && stage.equals("extract")) Runtime.getRuntime().halt(73);
                     return Unit.INSTANCE;
-                });
+                }, (kotlin.jvm.functions.Function2<String, String, Unit>) (stage, archiveSha) -> Unit.INSTANCE);
             }
         } else if (args[0].equals("verify")) {
             store.verify(() -> Unit.INSTANCE, (done, total) -> Unit.INSTANCE);

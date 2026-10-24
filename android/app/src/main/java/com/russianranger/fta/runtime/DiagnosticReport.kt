@@ -41,6 +41,8 @@ object DiagnosticReport {
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val currentAttempt = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
             ?.takeIf { NativeInvocationJournal.validAttemptId(it) }
+        if (scope == "game-data" && currentAttempt != null) result.put("gameDataOperation",
+            JSONObject(runCatching { GameDataDiagnostics.export(context, currentAttempt) }.getOrElse { mapOf("available" to false) }))
         val authFile = File(context.filesDir, "runtime/auth-diagnostic.json")
         val auth = if (authFile.isFile && authFile.length() <= 4096) runCatching { JSONObject(authFile.readText()) }.getOrNull() else null
         if (currentAttempt != null && auth != null && auth.optString("attemptId") == currentAttempt &&
@@ -183,7 +185,7 @@ object DiagnosticReport {
         if (scope == "game-data") {
             result.put("gameDataImportQualified", lines.firstOrNull() == GameDataImport.PASSED &&
                 gameData["preflightPassed"] == true && gameData["activeCatalogMatchesReport"] == true)
-                .put("privacy", "Only bounded game-asset paths, format failures, counts and fingerprints are exported; no game bytes, source URI, database rows or credentials.")
+                .put("privacy", "Only bounded asset paths, counts, fingerprints, progress, memory/storage measurements, fixed application frame names and Android exit codes/times are exported; no game bytes, source URI, process IDs, raw traces, exception messages, database rows or credentials.")
             return result.toString(2)
         }
         if (scope == "local-service" && currentAttempt != null) {

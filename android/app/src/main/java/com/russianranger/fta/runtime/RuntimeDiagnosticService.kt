@@ -110,7 +110,7 @@ class RuntimeDiagnosticService : Service() {
                 if (includeGameData) {
                     require(intent?.action != ACTION_IMPORT_GAME_DATA || gameDataUri != null)
                     try {
-                        val result = GameDataImport.run(this, gameDataUri, cancelled, ::writeStatus)
+                        val result = GameDataImport.run(this, gameDataUri, cancelled, attemptId!!, ::writeStatus)
                         writeStatus(GameDataImport.PASSED, result)
                     } catch (failure: GameDataRejected) {
                         writeStatus("GAME_DATA_REJECTED", "Game-data preflight found ${failure.preflight.problemCount} missing or incompatible files. Your previous game data and retained database are preserved. Export the report for the exact format results.")
@@ -151,7 +151,8 @@ class RuntimeDiagnosticService : Service() {
                     else "Native database diagnostic failed during $lastStage. Private native logs are retained; existing saves were untouched.")
             } catch (_: LinkageError) {
                 recoveryStore?.state(recoveryPhase!!, "FAILED")
-                writeStatus("FAILED", "The packaged process supervisor could not be loaded. No existing database was opened.")
+                writeStatus("FAILED", if (includeGameData) "The game-data runtime stopped unexpectedly. Export the diagnostic report; the retained realm is unchanged."
+                    else "The packaged process supervisor could not be loaded. No existing database was opened.")
             } finally {
                 diagnostic?.stopOwned()
                 diagnostic = null

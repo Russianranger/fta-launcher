@@ -307,6 +307,10 @@ class MainActivity : Activity() {
         if (!testing && !requested && ((diagnosticLines.firstOrNull()?.startsWith("LIFECYCLE_") == true || diagnosticLines.firstOrNull()?.startsWith("BACKUP_") == true || diagnosticLines.firstOrNull() in setOf("GAME_DATA_COPY", "GAME_DATA_EXTRACT", "GAME_DATA_VERIFY", "GAME_DATA_PREFLIGHT") || diagnosticLines.firstOrNull() in setOf("LOCAL_SERVICE_RUNNING", "LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP") || diagnosticLines.firstOrNull() == "RUNTIME_RECOVERY_RUNNING" || diagnosticLines.firstOrNull() in setOf("REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")) || diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION"))) {
             diagnosticStatus.text = "The previous test did not finish. No readiness result was recorded."
         }
+        if (!testing && !requested && diagnosticLines.firstOrNull()?.startsWith("GAME_DATA_") == true &&
+            diagnosticLines.firstOrNull() !in setOf("GAME_DATA_PREFLIGHT_PASSED", "GAME_DATA_REJECTED")) {
+            diagnosticStatus.text = "The game-data operation did not finish. Export the diagnostic report before retrying. Your retained database is unchanged."
+        }
         if (testing) diagnosticStatus.text = "Runtime active.\n${diagnosticStatus.text}"
         if (requested && !testing) diagnosticStatus.text = "Starting the isolated database test…"
         sourceButton.isEnabled = !app.busy && !testing && app.store != null

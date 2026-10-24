@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "evidenceKind": "physical-private-code-20-unfinished-game-data-operation",
+  "reportSha256": "1fd59fd64278e005774f340ac137ce6c496922b37a3a826a1c4cdece7e8c5bbf",
+  "appVersionCode": 20,
+  "appVersionName": "0.11.2-data-companions",
+  "apkSha256": "1687ff9615ea668e29abc33ed185738c56bf669253ef6173306b55dec0bc0f09",
+  "matchesVerifiedPrivateApk": true,
+  "createdAtEpochMs": 1792802992997,
+  "lastDiagnostic": {
+    "attemptId": "ae78d54f-488d-4d94-8419-20248155f029",
+    "state": "GAME_DATA_COPY",
+    "updatedAtEpochMs": 1792802987464,
+    "summary": "Copying the game-data ZIP: 1677 MiB. Keep enough free space for the ZIP and unpacked assets."
+  },
+  "gameDataDiagnostic": {
+    "available": true,
+    "worldReady": false,
+    "gameLoginQualified": false,
+    "nativeSemanticValidationPassed": false,
+    "policySha256": "ebba21788b69a5021a7e7d330aa33e699fda18161b43848d16a5c75dc9e6fb4a",
+    "state": "COPYING",
+    "preflightPassed": false,
+    "files": 0,
+    "bytes": 0,
+    "problemCount": 0,
+    "count.dbc": 0,
+    "count.maps": 0,
+    "count.vmaps": 0,
+    "count.mmaps": 0,
+    "stockDbcFiles": 0,
+    "db2CompanionFiles": 0,
+    "rejectedAssetCount": 0,
+    "rejectedAssets": [],
+    "problems": [],
+    "activeCandidateRetained": false,
+    "activeCatalogMatchesReport": false
+  },
+  "actualDataZipInspected": false,
+  "physicalFailureCauseKnown": false,
+  "reportedCopiedMiB": 1677,
+  "version20StageRegression": {
+    "observedStages": [
+      "copy",
+      "extract",
+      "preflight"
+    ],
+    "archiveIndexStageReported": false,
+    "expectedIndexProgressAssertionFailed": true,
+    "logSha256": "7ea6a67eddb86116cfefb76ad0c9efc5a263d4119d7fa4b5919af8b593f7c544"
+  },
+  "baselineStressCheck": {
+    "archiveBytes": 1888997926,
+    "files": 40141,
+    "heapLimitMiB": 64,
+    "productionImportPassed": true,
+    "productionFullReverifyPassed": true,
+    "syntheticDataOnly": true,
+    "logSha256": "460b10142f39a6ad76706a5a4a07bb042e1799008e1fdfe597a5e75975ecd5b1"
+  },
+  "interpretation": "The report records unfinished GAME_DATA_COPY/COPYING progress at 1677 MiB without a terminal error or archive hash. Code 20 does not publish an index phase and its asset report stays COPYING until completion or handled failure, so this snapshot does not prove the actual interruption occurred during copying. No Android exit evidence was recorded. A larger synthetic host archive imports and reverifies under a 64 MiB heap; the Thor failure cause remains unknown."
+}

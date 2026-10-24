@@ -20,6 +20,55 @@ class GameDataStoreTest {
     private val policy = GameDataPolicy.parse(text)
     @After fun cleanup() { root.deleteRecursively() }
     private fun store() = GameDataStore(File(root, "store"), text)
+    @Test fun everyImportBoundaryIsObservedAndIndexHasEntryProgress() {
+        val stages = mutableSetOf<String>(); val boundaries = mutableListOf<Pair<String, String?>>()
+        var indexed = 0L
+        store().import(ByteArrayInputStream(zip()), progress = { stage, done, total ->
+            stages += stage
+            if (stage == "archive_index") { assertTrue(done <= total); indexed = done }
+        }, boundary = { stage, archive -> boundaries += stage to archive })
+        assertEquals(setOf("copy", "copy_sync", "archive_index", "extract", "preflight", "publish"), stages)
+        assertEquals(fixture().size.toLong(), indexed)
+        val hash = store().active()!!.archiveSha256
+        assertEquals(listOf("copy", "copy_sync", "archive_index", "extract", "preflight", "publish"), boundaries.map { it.first })
+        assertTrue(boundaries.drop(2).all { it.second == hash })
+    }
+    @Test fun indexCancellationBeforeExtractionPreservesPreviousCandidateAndFailureStage() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        var indexing = false; var extracted = false
+        assertThrows(IllegalStateException::class.java) {
+            store().import(ByteArrayInputStream(zip()), active = { check(!indexing) },
+                progress = { stage, _, _ -> if (stage == "extract") extracted = true },
+                boundary = { stage, _ -> indexing = stage == "archive_index" })
+        }
+        assertFalse(extracted); assertEquals(before, store().active())
+        assertEquals("archive_index", store().export()["failureStage"])
+        assertEquals(before, store().verify())
+    }
+    @Test fun durableOperationCanBeReadWhileStoreLeaseIsHeld() {
+        val operation = GameDataOperation(File(root, "operation.properties"))
+        val attempt = "12345678-1234-4234-8234-123456789abc"
+        val record = GameDataOperation.Record(attempt, ProcessIdentity(123, 456, 1), "import", 1000, 1001)
+        var readDuringIndex = false
+        store().import(ByteArrayInputStream(zip()), boundary = { stage, hash ->
+            operation.write(record.copy(stage = stage, archive = hash))
+            if (stage == "archive_index") {
+                assertEquals("archive_index", operation.export(attempt, true)["stage"])
+                assertEquals(hash, operation.export(attempt, true)["archiveSha256"])
+                assertThrows(Exception::class.java) { store().export() }
+                readDuringIndex = true
+            }
+        })
+        assertTrue(readDuringIndex)
+    }
+    @Test fun indexChecksCancellationWhileWalkingLargerDirectory() {
+        val files = fixture().apply { repeat(500) { put("vmaps/extra$it.vmo", "VMAP_4.8".toByteArray()) } }
+        var progress = 0L
+        assertThrows(IllegalStateException::class.java) {
+            GameDataZip.inspect(archive(zip(files)), active = { check(progress < 128) }, progress = { done, _ -> progress = done })
+        }
+        assertEquals(128L, progress)
+    }
     @Test fun reportedDb2CompanionIsPreservedWithoutBeingParsedAsRuntimeDbc() {
         val files = fixture().apply { put("dbc/lightskybox.db2", byteArrayOf(0, 1, 2, 3, 4)) }
         val receipt = store().import(ByteArrayInputStream(zip(files)))

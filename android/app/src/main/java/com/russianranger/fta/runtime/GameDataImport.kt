@@ -12,6 +12,7 @@ object GameDataImport {
         context.assets.open(GameDataPolicy.ASSET).bufferedReader().use { it.readText() })
     fun failureSummary(failure: Exception, cancelled: Boolean): String {
         val detail = if (cancelled) "Import stopped at your request."
+        else if (failure is java.util.concurrent.TimeoutException) "The game-data operation reached its one-hour time limit."
         else when ((failure as? GameDataImportFailure)?.reason) {
             "unsupported_compression" -> "This ZIP uses unsupported compression. ZIP Store and Deflate are supported."
             "encrypted_zip" -> "Encrypted ZIPs are not supported."
@@ -25,27 +26,66 @@ object GameDataImport {
         }
         return "$detail Your previous game data and retained database are preserved. Use Export diagnostic report and send the .json file; it records the stage and any supported archive details."
     }
-    fun run(context: Context, uri: Uri?, cancelled: AtomicBoolean, status: (String, String) -> Unit): String {
+    fun run(context: Context, uri: Uri?, cancelled: AtomicBoolean, attempt: String, status: (String, String) -> Unit): String {
         val end = SystemClock.elapsedRealtime() + 3_600_000
-        val checkActive = { check(!cancelled.get() && SystemClock.elapsedRealtime() < end) }
-        val store = store(context)
-        var lastUpdate = 0L
+        val checkActive = {
+            check(!cancelled.get())
+            if (SystemClock.elapsedRealtime() >= end) throw java.util.concurrent.TimeoutException()
+        }
+        val journal = GameDataDiagnostics.store(context)
+        val now = System.currentTimeMillis()
+        var record = GameDataOperation.Record(attempt, ProcessObservation.self(android.os.Process.myPid()),
+            if (uri == null) "verify" else "import", now, now)
+        fun checkpoint() {
+            val vm = Runtime.getRuntime()
+            record = record.copy(updated = System.currentTimeMillis(), freeStorage = context.filesDir.usableSpace.coerceAtLeast(0),
+                heapUsed = (vm.totalMemory() - vm.freeMemory()).coerceIn(0, vm.maxMemory()), heapMax = vm.maxMemory())
+            journal.write(record)
+        }
+        checkpoint()
+        GameDataDiagnostics.markProcess(context, attempt)
+        val boundary: (String, String?) -> Unit = { stage, archive ->
+            record = record.copy(stage = stage, completed = 0, total = 0, archive = archive ?: record.archive)
+            checkpoint()
+        }
+        var lastUpdate = 0L; var lastStage = ""
         val progress: (String, Long, Long) -> Unit = { stage, done, total ->
-            val now = SystemClock.elapsedRealtime()
-            if (now - lastUpdate >= 500 || done == total) {
-                lastUpdate = now
+            val elapsed = SystemClock.elapsedRealtime()
+            if (stage != lastStage || elapsed - lastUpdate >= 500 || done == total) {
+                lastUpdate = elapsed; lastStage = stage
+                record = record.copy(stage = stage, completed = done, total = total,
+                    copied = if (stage in setOf("copy", "copy_sync")) done else record.copied)
+                checkpoint()
                 val sizes = "${done / (1024 * 1024)} MiB" + if (total > 0) " / ${total / (1024 * 1024)} MiB" else ""
                 status("GAME_DATA_${stage.uppercase(java.util.Locale.ROOT)}", when (stage) {
                     "copy" -> "Copying the game-data ZIP: $sizes. Keep enough free space for the ZIP and unpacked assets."
+                    "copy_sync" -> "Finishing the game-data ZIP copy: $sizes."
+                    "archive_index" -> "Checking the ZIP index: $done / $total entries."
                     "extract" -> "Importing game data: $sizes. Your retained database is untouched."
                     "verify" -> "Rechecking every imported game-data hash: $sizes."
+                    "publish" -> "Saving the verified game-data candidate."
                     else -> "Checking the original server's game-data formats and required files."
                 })
             }
         }
-        val receipt = if (uri == null) store.verify(checkActive) { done, total -> progress("verify", done, total) }
-            else context.contentResolver.openInputStream(uri)?.use { store.import(it, checkActive, progress) }
+        try {
+            val store = store(context)
+            if (uri == null) { boundary("verify", null); progress("verify", 0, 0) }
+            val receipt = if (uri == null) store.verify(checkActive) { done, total -> progress("verify", done, total) }
+            else context.contentResolver.openInputStream(uri)?.use { store.import(it, checkActive, progress, boundary) }
                 ?: error("Game-data document could not be opened")
-        return "Game-data preflight passed: ${receipt.files} files, ${receipt.bytes / (1024 * 1024)} MiB. Original required DBCs, startup map files and supplied file headers match. World startup and complete terrain/navigation loading still need native qualification. Export the diagnostic report."
+            record = record.copy(state = "FINISHED", archive = receipt.archiveSha256)
+            checkpoint()
+            return "Game-data preflight passed: ${receipt.files} files, ${receipt.bytes / (1024 * 1024)} MiB. Original required DBCs, startup map files and supplied file headers match. World startup and complete terrain/navigation loading still need native qualification. Export the diagnostic report."
+        } catch (failure: Throwable) {
+            // Best effort for VM errors; the previous checkpoint and OS exit record survive
+            // even when the failing process cannot allocate enough memory to write another.
+            runCatching {
+                record = record.copy(state = if (cancelled.get()) "STOPPED" else "FAILED",
+                    failure = GameDataOperation.failureKind(failure, cancelled.get()), frames = GameDataOperation.safeFrames(failure))
+                checkpoint()
+            }
+            throw failure
+        }
     }
 }

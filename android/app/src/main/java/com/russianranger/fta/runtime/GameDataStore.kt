@@ -126,13 +126,15 @@ class GameDataStore(private val root: File, private val policyText: String,
         }
         result
     }
-    fun import(input: InputStream, active: () -> Unit = {}, progress: (String, Long, Long) -> Unit = { _, _, _ -> }): GameDataReceipt = exclusive {
+    fun import(input: InputStream, active: () -> Unit = {}, progress: (String, Long, Long) -> Unit = { _, _, _ -> },
+        boundary: (String, String?) -> Unit = { _, _ -> }): GameDataReceipt = exclusive {
         val previous = pointer()
         val generation = "g-${UUID.randomUUID()}"
         val staging = File(root, ".partial-${UUID.randomUUID()}"); val destination = File(root, generation)
         var published = false; var archiveHash: String? = null; var stage = "copy"
         try {
             report("COPYING", null)
+            boundary("copy", null); progress("copy", 0, 0)
             root.listFiles()?.filter { it.name.startsWith(".partial-") }?.forEach(::deleteTree)
             check(staging.mkdir())
             val archive = File(staging, ".input.zip")
@@ -145,13 +147,17 @@ class GameDataStore(private val root: File, private val policyText: String,
                     copied += n; if (copied > GameDataPolicy.MAX_TOTAL_BYTES) throw GameDataImportFailure("archive_limit")
                     out.write(buffer, 0, n); digest.update(buffer, 0, n); progress("copy", copied, 0)
                 }
+                stage = "copy_sync"; boundary(stage, null); progress(stage, copied, copied)
                 out.fd.sync()
             }
             archiveHash = hex(digest.digest())
             stage = "archive_index"
-            val entries = GameDataZip.inspect(archive); val total = entries.sumOf { it.bytes }
+            boundary(stage, archiveHash)
+            val entries = GameDataZip.inspect(archive, active) { done, total -> progress(stage, done, total) }
+            val total = entries.sumOf { it.bytes }
             if (root.usableSpace < total + 64L * 1024 * 1024) throw GameDataImportFailure("insufficient_space")
             stage = "extract"
+            boundary(stage, archiveHash); progress(stage, 0, total)
             val files = mutableListOf<GameDataFile>(); var extracted = 0L
             ZipFile(archive).use { zip ->
                 entries.forEach { spec ->
@@ -176,10 +182,11 @@ class GameDataStore(private val root: File, private val policyText: String,
                     files += GameDataFile(spec.path, size, hex(hash.digest()))
                 }
             }
-            stage = "preflight"; active(); progress("preflight", total, total)
+            stage = "preflight"; boundary(stage, archiveHash); active(); progress(stage, total, total)
             val result = policy.inspect(staging, files, active)
             if (!result.passed) { report("REJECTED", archiveHash, result, stage = stage); throw GameDataRejected(result) }
             stage = "publish"
+            boundary(stage, archiveHash); progress(stage, total, total)
             check(archive.delete())
             val catalog = files.sortedBy { it.path }.joinToString("\n", postfix = "\n") { "${it.sha256}\t${it.bytes}\t${it.path}" }
             atomic(File(staging, "files.tsv"), catalog)
@@ -242,7 +249,7 @@ class GameDataStore(private val root: File, private val policyText: String,
         } catch (failure: Exception) { runCatching { report("FAILED", current.archiveSha256, stage = "verify", failure = failure) }; throw failure }
     }
     companion object {
-        private val FAILURE_STAGES = setOf("copy", "archive_index", "extract", "preflight", "publish", "verify")
+        private val FAILURE_STAGES = setOf("copy", "copy_sync", "archive_index", "extract", "preflight", "publish", "verify")
         private fun hex(bytes: ByteArray) = bytes.joinToString("") { "%02x".format(it.toInt() and 255) }
         private fun sha(file: File, active: () -> Unit): String {
             val digest = MessageDigest.getInstance("SHA-256")

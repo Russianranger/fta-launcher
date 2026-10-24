@@ -7,46 +7,61 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.11.2-data-companions**, version code **20**.
-APK SHA256: `1687ff9615ea668e29abc33ed185738c56bf669253ef6173306b55dec0bc0f09`.
+Latest private update: **0.11.3-import-checkpoints**, version code **21**.
+APK SHA256: `0e0cddb18986f18b95076aa8ddf7a71a71d3cd35811377a9e9e907e1e43e91fb`.
 
-**Physical code 19 import failure is now identified:** the supplied JSON matches
-its verified private APK and records `archive_index / unsupported_asset_path`
-for **`dbc/lightskybox.db2`**. No assets were extracted or published. The original
-archive hash is `407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`;
-its bytes are not available here. See [physical failure evidence](evidence/android-2026-10-23-db2-import-failure.json).
+**Physical code 20 did not finish; its cause is not yet known.** The new JSON
+matches the verified private APK and records `GAME_DATA_COPY / COPYING` at
+**1,677 MiB**, with no terminal error, archive hash or active asset candidate.
+Code 20 leaves the UI at copying during ZIP indexing, and its asset report stays
+COPYING until success or a handled failure. Thus the last recorded stage does
+not establish where the process actually stopped. No new unsupported asset or
+schema mismatch is proven. See [physical evidence](evidence/android-2026-10-23-unfinished-import.json).
 
-A regression reproduces that exact path rejection on unchanged code 19. The
-pinned server explicitly loads 113 `.dbc` names and contains no DB2 loader.
-Code 20 preserves `.db2` companions as opaque, non-executable, CRC/length-checked
-and SHA256-catalogued files in the already supported DBC folders. It does not
-invent a DB2 schema, interpret these files or let them replace any required DBC.
-Root and locale DBC layout/sentinel checks, stock DBC bounds, all source policy
-bytes, SQL expectations and native payloads remain unchanged.
+An unchanged-code-20 regression confirms that its progress omits indexing.
+A **1,888,997,926-byte / 40,141-file** synthetic archive imports and fully
+reverifies on both code 20 and code 21 with a **64 MiB JVM heap**. This does not
+reproduce or explain the Android failure, and no actual game archive is present.
 
-Unsupported asset paths are now collected across the validated ZIP index:
-`rejectedAssetCount` is the total and `rejectedAssets` contains up to 32 safe
-relative paths. Unsafe ZIP structure still stops before extraction. Reports add
-`db2CompanionFiles`; `stockDbcFiles` counts only `.dbc` backups. Preflight rejection
-also identifies its stage. Existing code 18/19 receipts/reports remain readable.
+Code 21 adds atomic operation checkpoints readable independently of the asset
+lease: copy, copy fsync, ZIP indexing (including entry counts), extraction,
+preflight, publication and verification. It records copied bytes, completed
+archive SHA256, free storage, heap measurements and bounded application frame
+names on failure. Android exit history includes only fixed reason codes,
+timestamps/status and sampled memory; an exit is tied to an attempt only when
+its recorded owner PID, attempt token and time window match. Unmatched older exits
+are explicitly uncorrelated. No raw trace, exception message, process ID, source
+URI or game/database data is exported. Live, interrupted and unknown worker
+observations remain distinct; none can qualify game data.
 
-The private build passes **274 Android tests** (25 classes), lint/assembly,
+The private build passes **290 Android tests** (26 classes), lint/assembly,
 **148 tooling tests**, all **221** runtime/notice inputs, signing and alignment.
-Its signer and all **16 native payloads** match code 19. The unchanged original
-C++ loader and five separate JVM import/crash/recovery/verification processes
-pass with both stock DBC backups and opaque DB2 companions.
-See [host evidence](evidence/host-2026-10-23-db2-companion-import.json) and
-[APK proof](evidence/android-2026-10-23-private-db2-companion-apk.json).
+Its signer and all **16 native payloads** match code 20. **26 separate JVMs**
+exercise hard exits at every import boundary, preserved prior/new candidates,
+orphan recovery and the large-archive import/reverify. Original C++ loader and
+five additional source/store JVM checks also pass. See [checkpoint host evidence](evidence/host-2026-10-23-import-checkpoints.json),
+[source checks](evidence/host-2026-10-23-import-checkpoint-source.json) and
+[APK proof](evidence/android-2026-10-23-private-import-checkpoint-apk.json).
 
-**Next focused physical step:** install private code 20 in place and import the
-same unchanged `Data.zip`, then reopen and **Verify imported game data**. Export
-the diagnostic JSON immediately if either fails. If both pass, the remaining
-screen-off measurement can be completed in the same test: start local database +
-auth, lock for three minutes, confirm the counter reaches 120 seconds, Stop and
-export one JSON. Do not repackage the archive, uninstall, clear storage, reimport
-Database.zip or repeat passed updater/restart/backup milestones. Physical code
-20, the actual archive's later format checks and native world startup remain
-unverified. World startup stays disabled until actual asset evidence is reviewed.
+**Next focused physical step:** update to private code 21 in place and import the
+same unchanged `Data.zip`. Let the displayed phases complete; after success,
+reopen and **Verify imported game data**. If both pass, complete the remaining
+screen-off measurement with one local database/auth session: lock for three
+minutes, confirm the counter reaches 120 seconds, Stop and export one JSON. If
+anything stops or fails, reopen if necessary and export immediately before
+starting another test. The export now carries `gameDataOperation` independently
+of `gameDataDiagnostic`. Do not uninstall, clear storage, repackage Data.zip,
+reimport Database.zip or repeat passed database milestones. Physical code 21,
+Android exit-history behavior and actual asset/native world loading remain
+unverified. All original SQL, source policy and strict validation stay unchanged.
+
+Physical code 19 previously identified `dbc/lightskybox.db2` as a ZIP-index
+rejection. Code 20 preserves these unused companions without interpreting a DB2
+schema or substituting them for the 113 required DBCs. Its 274 Android tests and
+host source checks passed. The code 20 report does not establish whether the
+actual archive reached or passed that corrected boundary.
+See [code 19 failure](evidence/android-2026-10-23-db2-import-failure.json) and
+[code 20 APK proof](evidence/android-2026-10-23-private-db2-companion-apk.json).
 
 Code 19 previously fixed the screenshot-observed `dbc/stock_dbc` folder rejection
 and introduced failure-stage reporting. Its 265 Android tests and original-loader
@@ -91,8 +106,8 @@ See [host checks](evidence/host-2026-10-23-game-data-preflight.json),
 [private APK](evidence/android-2026-10-23-private-game-data-apk.json) and
 [import details](game-data-import.md).
 
-**Combined physical gate after the code 20 companion fix:**
-update in place with private code 20; import the ZIP, close/reopen the launcher
+**Combined physical gate with code 21 checkpoints:**
+update in place with private code 21; import the ZIP, close/reopen the launcher
 and select **Verify imported game data**. If either fails, export immediately.
 After success, start one local database/auth session, lock for **three minutes**,
 wake and confirm the live counter reached 120 seconds, then Stop cleanly and
@@ -100,7 +115,7 @@ export one JSON. The combined export includes historical game-data verification
 and current service evidence. No second restart is needed. Keep the retained
 realm, verified backup, Database.zip and native dependencies. Do not import a
 full client/MPQ ZIP or repeat updater/backup/recovery tests. World startup remains
-disabled until real asset evidence is inspected. Physical code 18/19 import failed; code 20 physical execution is unverified.
+disabled until real asset evidence is inspected. Physical code 18/19 import failed and code 20 did not finish; code 21 is unverified.
 
 Previous private update: **0.10.0-local-service**, version code **17**.
 APK SHA256: `864615af00847d0e648f3583fce353389b8be6db44093cbe1b671227d1685d94`.

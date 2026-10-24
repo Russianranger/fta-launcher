@@ -73,7 +73,7 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.11.2-data-companions** (code **20**)
+signing and validation. Latest private version **0.11.3-import-checkpoints** (code **21**)
 adds inert import and re-verification of extracted `dbc/maps/vmaps/mmaps` ZIPs.
 It checks the original source's 113 active DBC layouts, seven version sentinels,
 eight startup map locations and supplied map/vmap/mmap headers, then stores hashes
@@ -81,7 +81,9 @@ in a separate atomic asset generation. It never opens the retained database or
 runs imported code. Full native asset loading and world startup remain separate.
 Physical code 19 identified `dbc/lightskybox.db2` as the next ZIP-index blocker.
 Code 20 preserves unused DB2 companions with exact hashes and reports up to 32
-unsupported paths together. Required DBC checks and source policy are unchanged.
+unsupported paths together. Its physical follow-up stopped without a terminal
+error; code 21 adds durable phase checkpoints and bounded Android exit evidence.
+The cause remains unknown. Required DBC checks and source policy are unchanged.
 See [game-data import](docs/game-data-import.md).
 
 Physical code **17 passed user-controlled service Stop and retained restart**:
@@ -92,12 +94,13 @@ larger game-data test, without repeating the passed restart milestone.
 See [physical evidence](docs/evidence/android-2026-10-23-thor-local-service-pass.json).
 Code **16 passed retained local auth**; its automatic diagnostic also needs no repeat.
 
-Code 20 passes 274 Android tests, lint/assembly, 148 tooling tests, 221 packaged
+Code 21 passes 290 Android tests, lint/assembly, 148 tooling tests, 221 packaged
 input checks and signing/alignment. Its signer and all 16 native payloads match
-code 19. Independent original-C++ loader checks and five separate production-store
+code 20. Independent original-C++ loader checks and five separate production-store
 JVM sessions cover synthetic imports, abrupt death, retained candidate verification
 and orphan recovery. Those checks include stock DBC backups and opaque DB2 companions. Actual game
-assets and Android code 20 execution remain unverified.
+assets and Android code 21 execution remain unverified. Twenty-six further JVMs
+verify interruption checkpoints and a 1.8 GiB / 40,141-file import under a 64 MiB heap.
 
 Physical code **14 passed cold backup and two isolated restored reopens**. The
 uploaded ZIP matches the recorded identity and every manifest file hash. Its
@@ -182,7 +185,7 @@ tables. Validation uses the measured archive inventory.
 | Cold realm backup and isolated restore | Physical code 14 passed; uploaded ZIP independently verified; earlier JSON lacks SAF readback receipt |
 | Retained local auth listener/restart | Passed on physical Thor code 16: all 15 flags, 39 successful native records and clean shutdown |
 | User-controlled retained database/auth foreground sessions | Physical code 17 Stop/restart passed; 112,127 /120,000 ms screen-off health recorded |
-| Extracted game-data import and format preflight | Code 20 fixes the JSON-proven DB2 companion rejection; real-archive retry pending |
+| Extracted game-data import and format preflight | Code 21 adds durable checkpoints after an unexplained code 20 interruption; real-archive retry pending |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
