@@ -9,7 +9,7 @@ Earlier history: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
 Starting remote HEAD **cef17c93226087964b835cfcab65da13e445b806**; exact CI
 [40125171817](https://github.com/Russianranger/fta-launcher/actions/runs/40125171817)
-passed all three jobs. Latest delivered private APK is code **29**,
+passed all three jobs. The starting private APK was code **29**,
 `0.12.2-world-crypto`, SHA256
 `93c08fabf51fd5a1e35503b101c953f6ed280d7d5a650cfa5d232cae5e09d62b`.
 Application commit **974ea36bd4a2de5fe2a8d2971cfe62452046b3aa**;
@@ -33,7 +33,17 @@ Auth exited zero; database exited zero without observed SQL shutdown. Postchecks
 were not reached; false results are unmeasured, not proof of lost realm data.
 Screen-off duration is zero. Native gate, GT fallback and gameplay remain unqualified.
 
-**Code 30, `0.12.3-world-shutdown`, is being qualified; no APK delivery yet.**
+**Private code 30, `0.12.3-world-shutdown`, is qualified, signed and saved.**
+Application commit **c8e51358452c3452df9fffe058748a6b783b4f63**; exact CI
+[40132133219](https://github.com/Russianranger/fta-launcher/actions/runs/40132133219)
+passed all three jobs. Only documentation/evidence follow this application commit.
+APK `FTA-Launcher-0.12.3-world-shutdown.apk`, **42,283,996 bytes**, SHA256
+`37295978f21fca4819f948e606b71ba605dab249cb63689f8e16e1643ad66efe`.
+[APK evidence](evidence/android-2026-10-24-private-world-shutdown-apk.json).
+Saved private file ID: `libfile_2068edc56dac819180d1eabde38de722`.
+All **223** packaged-input checks, persistent-certificate v2 signature and 16 KiB
+alignment passed. This APK has **not run on Thor**. Public CI APKs are not this update.
+
 It uses original logger thresholds to retain all WARN/ERROR/FATAL messages plus
 required lifecycle INFO, with ERROR/FATAL console output. The 8 MiB limit remains.
 A bounded live scanner records complete lifecycle lines before checking other
@@ -50,13 +60,15 @@ remain unchanged. All 52 modules, C++20 and NPCBots are preserved. Source compan
 v8 remains valid for the unchanged original binaries; the new MIT helper source
 is public here and its license is copied into APK metadata.
 
-Local qualification: **174 tooling tests**, original logging pressure fixture and
-real fatal-signal host fixture passed. NDK r28c/API33 witness build passed exact
-ELF/dependency/16 KiB checks. Android tests/lint/assembly, private packaging/signing
-and exact implementation CI are pending. Host signal tests are not Thor evidence.
+Qualification: **174 tooling tests**, **375 Android unit tests in 35 classes**
+(source test inventory, no ignored tests; exact CI test task passed), lint/assembly,
+original logging pressure fixture and real fatal-signal host fixture passed.
+NDK r28c/API33 witness build passed ELF/dependency/16 KiB checks. The private package
+retains all 18 donor native payloads and all 148 runtime-manifest entries exactly.
+Host signal tests are not Thor evidence. Local full Gradle was not run.
 `databaseFallbackValidated=false`, world readiness and game login remain false.
 
-## Next physical gate — after code 30 is delivered
+## Next physical gate
 
 Install the private code-30 APK **in place** over code 29. Keep all existing
 realm/database/backup/assets. Select **Start native world test** once and keep the

@@ -1,6 +1,12 @@
 # Private native diagnostic builds
 
-## Current private diagnostic checkpoint — code 30 in qualification
+## Current private delivery — code 30
+
+`FTA-Launcher-0.12.3-world-shutdown.apk` is signed with the persistent certificate.
+SHA256: `37295978f21fca4819f948e606b71ba605dab249cb63689f8e16e1643ad66efe`.
+It passed 174 tooling tests, Android tests/lint/assembly, 223 packaged-input checks,
+v2 signing and 16 KiB alignment. [Measured APK evidence](evidence/android-2026-10-24-private-world-shutdown-apk.json).
+Physical code 30 remains pending.
 
 Code 29's private APK passed its original world challenge and two healthy samples
 on Thor. Its test ended at the stdout limit, followed by an unresolved cleanup

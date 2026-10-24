@@ -41,8 +41,8 @@ At process initialization it records executable ELF load ranges, then installs
 SIGSEGV/SIGBUS handlers only when the existing disposition is default. The handler
 performs one bounded write with signal/code and image-relative PC/LR, and re-delivers
 the same fatal signal. It does not intercept SIGTERM/SIGABRT, unwind, allocate,
-resolve symbols or use stdio/locks in the handler. It has no access to application
-files or SQL. The alternate stack belongs to the initializing thread; other native
+resolve symbols or use stdio/locks in the handler. It does not open application
+files or issue SQL. The alternate stack belongs to the initializing thread; other native
 threads use their own normal stacks. This is not a general crash reporter.
 
 The parser accepts exactly one complete READY and fault line, only known image IDs,

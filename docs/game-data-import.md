@@ -1,5 +1,11 @@
 # Extracted game-data import and source-derived preflight
 
+**Current status:** physical code 26 passed import/preflight/publication, and
+physical code 29 passed the full retained rehash of all 22,817 unchanged files.
+Do not repeat import or standalone verification for the next world test. Its
+automatic rehash binds a new asset lease. Follow the [current handoff](SHORT-HANDOFF.md);
+the version-specific procedures below document earlier checkpoints.
+
 Private **0.11.8-dbc-loading**, code **26**, imports an inert ZIP containing extracted
 `dbc`, `maps`, `vmaps` and `mmaps` folders, directly or under one enclosing folder.
 It preserves the retained realm, verified backup, Database.zip and native inputs.
@@ -386,8 +392,8 @@ See [host source evidence](evidence/host-2026-10-23-import-checkpoint-source.jso
 ## Physical code 26 and the retained world gate
 
 The code-26 report passes import, preflight and publication of all 22,817 files
-with zero problems. It records no standalone reverify. Code 27 performs the full
-retained rehash under the same lease held through its native world session. No
+with zero problems. It records no standalone reverify. Physical codes 27 and 29
+passed the full retained rehash under the lease held through their native sessions. No
 repeat import is needed. See [current handoff](SHORT-HANDOFF.md) and
 [physical evidence](evidence/android-2026-10-24-thor-code26-import-pass.json).
 Native fallback, world runtime and gameplay remain unqualified until their gates.
