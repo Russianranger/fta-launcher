@@ -14,7 +14,7 @@ object WorldServiceRuntime {
     private val fields = LocalServiceRuntime.fields + WorldSessionEvidence.fields
     private fun file(context: Context) = File(context.filesDir, "runtime/world-session.json")
     fun run(context: Context, cancelled: AtomicBoolean, stop: AtomicBoolean,
-        status: (String, String) -> Unit, track: (DatabaseDiagnostic?) -> Unit): String {
+        status: (String, String) -> Unit, activityBound: () -> Boolean, track: (DatabaseDiagnostic?) -> Unit): String {
         val attempt = File(context.filesDir, "runtime/diagnostic-attempt.id").readText().trim()
         require(NativeInvocationJournal.validAttemptId(attempt))
         val identity = RealmStorageDiagnostic.identity(context)
@@ -30,44 +30,68 @@ object WorldServiceRuntime {
         save()
         val verifyEnd = SystemClock.elapsedRealtime() + 3_600_000
         var lastUpdate = 0L
-        GameDataImport.store(context, GameDataCache()).withVerified({
-            check(!cancelled.get() && !stop.get())
-            check(SystemClock.elapsedRealtime() < verifyEnd) { "Asset verification deadline exceeded" }
-        }, { done, total ->
-            val now = SystemClock.elapsedRealtime()
-            if (now - lastUpdate >= 1000 || done == total) {
-                lastUpdate = now
-                status("WORLD_ASSET_VERIFY", "Verifying retained game data: ${done / 1048576} / ${total / 1048576} MiB. Keep the launcher visible until the world session starts.")
+        val cache = GameDataCache()
+        val operationStore = GameDataDiagnostics.store(context)
+        val started = System.currentTimeMillis()
+        var operation = GameDataOperation.Record(attempt, ProcessObservation.self(android.os.Process.myPid()),
+            "verify", started, started, stage = "verify")
+        fun checkpoint() {
+            val vm = Runtime.getRuntime()
+            operation = operation.copy(updated = System.currentTimeMillis(), freeStorage = context.filesDir.usableSpace.coerceAtLeast(0),
+                heapUsed = (vm.totalMemory() - vm.freeMemory()).coerceIn(0, vm.maxMemory()), heapMax = vm.maxMemory(),
+                memory = GameDataDiagnostics.memory(context, activityBound()), cache = cache.stats())
+            operationStore.write(operation)
+        }
+        checkpoint(); GameDataDiagnostics.markProcess(context, attempt)
+        try {
+            GameDataImport.store(context, cache).withVerified({
+                check(!cancelled.get() && !stop.get())
+                check(SystemClock.elapsedRealtime() < verifyEnd) { "Asset verification deadline exceeded" }
+            }, { done, total ->
+                val now = SystemClock.elapsedRealtime()
+                if (now - lastUpdate >= 1000 || done == total) {
+                    lastUpdate = now
+                    operation = operation.copy(completed = done, total = total); checkpoint()
+                    status("WORLD_ASSET_VERIFY", "Verifying retained game data: ${done / 1048576} / ${total / 1048576} MiB. Keep the launcher visible until the world session starts.")
+                }
+            }) { assets, directory ->
+                // This first native gate is bound to the unchanged, physically published code-26 candidate.
+                require(assets.archiveSha256 == "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225" &&
+                    assets.catalogSha256 == "0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff" &&
+                    assets.files == 22817 && assets.bytes == 7625943031L)
+                receipt.put("archiveSha256", assets.archiveSha256).put("catalogSha256", assets.catalogSha256)
+                    .put("assetGeneration", assets.generation).put("assetFiles", assets.files).put("assetBytes", assets.bytes)
+                observed("assetsRehashed", true)
+                // The rehash sub-operation is complete even if later native startup fails.
+                operation = operation.copy(state = "FINISHED", completed = assets.bytes, total = assets.bytes, archive = assets.archiveSha256)
+                checkpoint()
+                store.exclusive {
+                    val realm = store.active() ?: error("Prepare the persistent realm first")
+                    receipt.put("realmId", realm.id); save()
+                    receipt.put("backupSha256", LocalAuthDiagnostic.verifiedBackup(context, cancelled, identity, store))
+                    observed("verifiedBackupAvailable", true)
+                    val session = RealmDatabaseSession(store, realm, attempt, false, 1)
+                    val control = LocalServiceControl(stop::get) { progress ->
+                        receipt.put("healthySamples", progress.healthySamples).put("elapsedMs", progress.elapsedMs)
+                            .put("screenOffHealthyMs", progress.screenOffHealthyMs).put("stopReason", progress.stopReason); save()
+                        if (progress.stopReason == "running") status("WORLD_SERVICE_RUNNING",
+                            "World, auth and database health checks are passing. Screen-off health: ${progress.screenOffHealthyMs / 1000} / 120 seconds. Lock the screen for at least three minutes, then reopen and use Stop. Session limit: 30 minutes.")
+                    }
+                    val test = DatabaseDiagnostic(context, cancelled, status, realm = session, localAuthObserve = ::observed,
+                        localService = control, worldSession = WorldSessionControl(directory, ::observed))
+                    try { track(test); test.run() } finally { test.stopOwned(); track(null) }
+                    check(store.active() == realm); observed("activeRealmRetained", true)
+                    if (receipt.optString("stopReason") != "before_start") {
+                        check(LocalAuthDiagnostic.nativeEvidence(File(session.visitDirectory(), "native-invocations.properties"), attempt, true, true)["qualified"] == true)
+                        check(fields.all { receipt.opt(it) == true })
+                        receipt.put("completed", true); save()
+                    }
+                }
             }
-        }) { assets, directory ->
-            // This first native gate is bound to the unchanged, physically published code-26 candidate.
-            require(assets.archiveSha256 == "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225" &&
-                assets.catalogSha256 == "0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff" &&
-                assets.files == 22817 && assets.bytes == 7625943031L)
-            receipt.put("archiveSha256", assets.archiveSha256).put("catalogSha256", assets.catalogSha256)
-                .put("assetGeneration", assets.generation).put("assetFiles", assets.files).put("assetBytes", assets.bytes)
-            observed("assetsRehashed", true)
-            store.exclusive {
-                val realm = store.active() ?: error("Prepare the persistent realm first")
-                receipt.put("realmId", realm.id); save()
-                receipt.put("backupSha256", LocalAuthDiagnostic.verifiedBackup(context, cancelled, identity, store))
-                observed("verifiedBackupAvailable", true)
-                val session = RealmDatabaseSession(store, realm, attempt, false, 1)
-                val control = LocalServiceControl(stop::get) { progress ->
-                    receipt.put("healthySamples", progress.healthySamples).put("elapsedMs", progress.elapsedMs)
-                        .put("screenOffHealthyMs", progress.screenOffHealthyMs).put("stopReason", progress.stopReason); save()
-                    if (progress.stopReason == "running") status("WORLD_SERVICE_RUNNING",
-                        "World, auth and database health checks are passing. Screen-off health: ${progress.screenOffHealthyMs / 1000} / 120 seconds. Lock the screen for at least three minutes, then reopen and use Stop. Session limit: 30 minutes.")
-                }
-                val test = DatabaseDiagnostic(context, cancelled, status, realm = session, localAuthObserve = ::observed,
-                    localService = control, worldSession = WorldSessionControl(directory, ::observed))
-                try { track(test); test.run() } finally { test.stopOwned(); track(null) }
-                check(store.active() == realm); observed("activeRealmRetained", true)
-                if (receipt.optString("stopReason") != "before_start") {
-                    check(LocalAuthDiagnostic.nativeEvidence(File(session.visitDirectory(), "native-invocations.properties"), attempt, true, true)["qualified"] == true)
-                    check(fields.all { receipt.opt(it) == true })
-                    receipt.put("completed", true); save()
-                }
+        } finally {
+            if (operation.state == "RUNNING") {
+                operation = operation.copy(state = if (cancelled.get() || stop.get()) "STOPPED" else "FAILED")
+                runCatching { checkpoint() }
             }
         }
         return "World session stopped; the retained realm and assets are preserved. Export the diagnostic report. " +

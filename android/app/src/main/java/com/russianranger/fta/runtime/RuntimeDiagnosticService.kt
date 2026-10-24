@@ -131,7 +131,7 @@ class RuntimeDiagnosticService : Service() {
                     return@execute
                 }
                 if (worldService) {
-                    val result = WorldServiceRuntime.run(this, cancelled, gracefulStop, ::writeStatus) { diagnostic = it }
+                    val result = WorldServiceRuntime.run(this, cancelled, gracefulStop, ::writeStatus, { activityBound }) { diagnostic = it }
                     writeStatus(WorldServiceRuntime.STOPPED, result)
                     return@execute
                 }

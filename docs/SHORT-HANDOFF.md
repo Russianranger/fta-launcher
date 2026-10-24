@@ -10,7 +10,10 @@ Earlier history: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 Started from verified remote **eb8715711fc9a074bcc31acba0c5308b6861b954**;
 Foundation CI [40111993680](https://github.com/Russianranger/fta-launcher/actions/runs/40111993680)
 passed all three jobs. This increment adds the code **27**, `0.12.0-native-world`
-guarded session. Its exact delivery commit, CI and private artifact identity will
+guarded session. Implementation commit **734005fc1d1ce9cc3208d19deca3ec7a2e37772a** is followed
+by attempt-matched rehash/process-exit evidence. Its Foundation CI
+[40114441873](https://github.com/Russianranger/fta-launcher/actions/runs/40114441873)
+passed all three jobs (349 Android tests in that implementation; final follow-up adds one). The exact delivery CI and private artifact identity will
 be appended after qualification. Public CI APKs contain only the database provider;
 they cannot update the persistent-key private diagnostic.
 
@@ -24,7 +27,9 @@ they cannot update the persistent-key private diagnostic.
 The report records **import**, not a separate full reverify. No repeat import.
 
 Code 27 performs the missing full rehash/preflight automatically, holding the asset
-lease until all children stop. It requires the exact physically published archive,
+lease until all children stop. The verification sub-operation has its own durable
+progress/memory/cache record and process token, so a later native worker exit can
+be matched to the same attempt without invalidating a completed rehash. It requires the exact physically published archive,
 catalog, counts, retained realm and verified backup. It reopens the realm (no seed
 replay), checks all 24 original metadata expectations and all ten GT ID ranges,
 stages unchanged original SQL and 49 module configs in a fresh visit, then starts

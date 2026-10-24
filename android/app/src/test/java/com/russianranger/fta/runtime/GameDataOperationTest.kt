@@ -83,6 +83,17 @@ class GameDataOperationTest {
             assertEquals(state, store.export(attempt, false)["state"])
         }
     }
+    @Test fun completedRehashCanIdentifyLaterWorldWorkerDeathWithoutQualifyingWorld() {
+        val verified = record().copy(mode = "verify", stage = "verify", state = "FINISHED",
+            completed = 7625943031, total = 7625943031, copied = 0, archive = "a".repeat(64))
+        store.write(verified)
+        val sample = GameDataExitEvidence.Sample(owner.pid, 3000, 3, 0, 1, 2, GameDataOperation.token(attempt))
+        assertEquals(true, GameDataExitEvidence.export(sample, store.read(attempt), 4000)["attemptMatched"])
+        assertEquals(false, GameDataExitEvidence.export(sample.copy(token = "old"), store.read(attempt), 4000)["attemptMatched"])
+        val report = store.export(attempt, false)
+        assertEquals("FINISHED", report["state"]); assertEquals("verify", report["mode"])
+        assertFalse(report.containsKey("worldReady"))
+    }
     @Test fun anotherAttemptCannotReusePriorProgressOrFailure() {
         store.write(record())
         assertEquals(mapOf("available" to false), store.export("87654321-1234-4234-8234-123456789abc", false))
