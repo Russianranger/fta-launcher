@@ -14,8 +14,10 @@ packaged-byte checks, public APK publication. Local JDK17/Kotlin 2.0.21/SDK35
 compilation and **350 unit tests in 31 classes**, **155 tooling tests**, native
 ownership and original-source/socket checks passed. Local full Gradle dependency
 resolution was unavailable; exact-commit CI performed the prescribed Gradle tasks.
-The first implementation `734005fc1d1ce9cc3208d19deca3ec7a2e37772a` also passed
-[40114441873](https://github.com/Russianranger/fta-launcher/actions/runs/40114441873).
+Private delivery/packaging implementation: **d1434778882ed99a139a004f5844059c0cefcc99**.
+Its exact Foundation CI [40117216908](https://github.com/Russianranger/fta-launcher/actions/runs/40117216908)
+passed all three jobs, including the expanded **163-test tooling suite** and
+Android tests/lint/assembly. A documentation-only confirmation follows this commit.
 
 **Private code 27, `0.12.0-native-world`, is now packaged, verified and saved.**
 APK: `FTA-Launcher-0.12.0-native-world.apk` (42,209,937 bytes).
@@ -25,9 +27,7 @@ Certificate: `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 The private APK is saved in the owner's private files under the exact filename
 above. Public CI APKs contain only the database provider and cannot update it.
 
-The workspace interruption was recovered from remote `a5bbf37e8af830a6577d93f0eb5e6e17d424c77a`,
-whose [CI 40115491478](https://github.com/Russianranger/fta-launcher/actions/runs/40115491478)
-passed. The final assembly came from the already-passing implementation CI above;
+The final assembly came from the already-passing application implementation CI;
 Android/native/manifest sources remain identical. No completed native build was
 repeated. All **17** private native payloads are byte-identical to code 26, all
 **148** runtime-manifest members match, all **221** provider/notice checks pass,
