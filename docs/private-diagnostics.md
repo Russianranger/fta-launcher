@@ -1,5 +1,24 @@
 # Private native diagnostic builds
 
+## Current private delivery — code 27
+
+`FTA-Launcher-0.12.0-native-world.apk` is the current private update. It reuses the
+persistent development certificate and all 17 verified native payloads from code
+26. SHA256: `08eef256f0006176e8937e607113a169a6da083d9461ea1a3aa145b2e939a8b8`.
+See [measured evidence](evidence/android-2026-10-24-private-world-session-apk.json)
+and the [single retained-world Thor procedure](SHORT-HANDOFF.md).
+It is not physically qualified. The historical milestones below remain evidence
+for earlier gates, not instructions to repeat old tests.
+
+For recovery packaging, `python3 tools/package_private_update.py --help` documents
+the inputs. It uses the exact passing CI assembly and verified unchanged donor
+native/runtime/notice bytes, requires unchanged application/native/manifest source
+and helper source identities, and signs only with the persistent private capsule.
+Passwords stay in child-process environment variables. It rejects an existing
+output path, stale metadata, a version downgrade, wrong certificate or altered
+application payload. The original native source companion remains unchanged.
+
+
 Public CI snapshots package the database provider. A source-matching authserver
 can additionally be staged for a private diagnostic APK without putting user
 archives, seed SQL or compiled game-server files into Git. The recipient already

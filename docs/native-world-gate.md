@@ -86,8 +86,9 @@ not proof of completed module initialization, world health or gameplay.
 2. Reopen the retained database; validate strict metadata and GT coverage before
    starting original auth then world. Never bootstrap/replay the seed. Use the
    verified candidate as `DataDir`, existing private source/update paths, safe
-   generated credentials, schema-only grants and loopback listeners. The current
-   updater-only world config is not a production configuration.
+   generated credentials, schema-only grants and loopback listeners. The retained
+   session config disables schema auto-setup and selects a private loopback port;
+   original updater policy and module defaults remain intact.
 3. Supervise the original owned ARM64 world process, record attempt-bound native
    loader/startup evidence and use `LocalWorldProbe` alongside SQL/auth health.
    Do not infer native GT success from the inert file receipt or this host test.

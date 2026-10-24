@@ -17,35 +17,34 @@ resolution was unavailable; exact-commit CI performed the prescribed Gradle task
 The first implementation `734005fc1d1ce9cc3208d19deca3ec7a2e37772a` also passed
 [40114441873](https://github.com/Russianranger/fta-launcher/actions/runs/40114441873).
 
-**Latest delivered private APK is still code 26. Code 27 is implemented but its
-private APK has NOT been packaged, signed or delivered.** The execution environment
-became unavailable after final CI passed. A retry returned “No usable execution
-environment is available.” GitHub access remains available, so this recovery
-checkpoint is pushed. No new APK SHA256 or device result is claimed. Do not send
-the public CI development APK as the private update.
+**Private code 27, `0.12.0-native-world`, is now packaged, verified and saved.**
+APK: `FTA-Launcher-0.12.0-native-world.apk` (42,209,937 bytes).
+SHA256: `08eef256f0006176e8937e607113a169a6da083d9461ea1a3aa145b2e939a8b8`.
+Certificate: `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
+[Measured APK evidence](evidence/android-2026-10-24-private-world-session-apk.json).
+The private APK is saved in the owner's private files under the exact filename
+above. Public CI APKs contain only the database provider and cannot update it.
 
-### Resume packaging before requesting a Thor test
+The workspace interruption was recovered from remote `a5bbf37e8af830a6577d93f0eb5e6e17d424c77a`,
+whose [CI 40115491478](https://github.com/Russianranger/fta-launcher/actions/runs/40115491478)
+passed. The final assembly came from the already-passing implementation CI above;
+Android/native/manifest sources remain identical. No completed native build was
+repeated. All **17** private native payloads are byte-identical to code 26, all
+**148** runtime-manifest members match, all **221** provider/notice checks pass,
+and persistent v2 signing plus **16 KiB** alignment pass. Original DEX/resources/
+Android manifest/canonical metadata are unchanged from that tested CI assembly.
 
-1. Restore an execution environment and fetch actual remote main. The implementation
-   above is complete; this following documentation commit changes no application code.
-2. Recover the unchanged `FTA-Launcher-0.11.8-dbc-loading.apk` and
-   `FTA-Launcher-Development-Signing.zip` from the owner's private files. Both were
-   recovered during this session; no new key or upload is needed. The code-26 identity,
-   certificate, 17 native hashes and helper-source hashes are in
-   [APK evidence](evidence/android-2026-10-24-private-dbc-loading-apk.json).
-3. Download the exact passing implementation CI assembly (version 27,
-   `0.12.0-native-world`). Source-equivalent later documentation CI is acceptable
-   only after verifying application/native/manifest trees are identical.
-   Preserve its DEX, resources, Android manifest and canonical metadata. Retain
-   code 26's byte-identical private runtime manifest, runtime/notice assets and all
-   17 native libraries only after checking every source/hash identity. Native
-   helpers have unchanged sources; do not rebuild heavyweight server components.
-4. Verify all 148 runtime-manifest members, all 221 provider/notice inputs and
-   unchanged canonical metadata; align at 16 KiB, sign with the original capsule,
-   and measure version, certificate and new APK SHA256. No passwords/private
-   materials enter Git. Save the verified private APK, add its measured public-safe
-   evidence, update this handoff and verify final exact-commit CI before delivery.
-5. Only then ask for the single combined Thor procedure below. No repeat import.
+`tools/package_private_update.py` now makes recovery reproducible. It checks donor
+APK/signature, exact qualified assembly hash and source equivalence, helper source
+hashes, runtime/metadata/native inventories, final application bytes, version
+increase and the persistent certificate. Synthetic regressions reject tampering,
+unsafe/duplicate members, altered metadata, stale helper sources and wrong signers.
+**163 tooling tests pass**; the application still has **350 passing unit tests**.
+Only packaging tooling, tests and evidence/documentation change after the final
+application implementation. Fetch actual HEAD and inspect its final CI on resume.
+
+**Code 27 has not run on Thor. Native fallback/world readiness remain unqualified.**
+The next required action is the combined physical test below; no repeat import.
 
 **Physical code 26 import/publication passed.** Report
 `FTA-database-diagnostic-1792860233678.json`, SHA256
@@ -80,7 +79,7 @@ Client import, WarcraftXL and playable login remain later work.
 
 ## Next Thor procedure
 
-After the private code-27 artifact is signed, verified and delivered: install it
+Install the saved private code-27 APK
 **in place**, open **Start native world test**, keep the launcher visible during
 rehash/startup. Once world/auth/database health passes, lock the screen for at least
 three minutes; reopen, select **Stop local service / test**, then **Export diagnostic
