@@ -35,6 +35,7 @@ class DatabaseDiagnostic(
     private var clientOptions: File? = null
     private var worldInspectorQueue: File? = null
     private var worldCryptoModules: File? = null
+    private var worldFaultLibrary: File? = null
     private var realmLogDirectory: File? = null
     private var realmServerHandle = 0L
     private lateinit var socket: File
@@ -61,6 +62,7 @@ class DatabaseDiagnostic(
         require(runtime.manifest.bootstrap != null) { "A pinned bootstrap recipe is required" }
         if (worldSession != null) worldCryptoModules = OpenSslLegacyProvider.prepare(
             File(context.filesDir, "runtime/openssl-providers"), runtime.nativeDirectory, runtime.manifest.files)
+        if (worldSession != null) worldFaultLibrary = WorldFaultCapture.prepare(runtime.nativeDirectory)
         if (recoveryPhase == RecoveryPhase.RESUME) return runRecoveryResume(recoveryStore!!)
         if (realm != null && !realm.preparing) return runRealmReopen(realm)
         val parent = if (realm == null) File(context.filesDir, "runtime/database-diagnostics").apply { check(mkdirs() || isDirectory) }
@@ -409,14 +411,24 @@ class DatabaseDiagnostic(
             control.directory, temp, log, user, password, port, retained = true)
         var label = ""
         var exit: Int? = null
+        var observedMarkers = emptySet<String>()
         fun scan() {
+            // Record complete lifecycle evidence before another stream's retained prefix fills.
+            if (log.isFile) {
+                val result = WorldSessionEvidence.scan(log)
+                observedMarkers = result.markers
+                result.markers.forEach { control.observe(it, true) }
+                if (result.limitReached) {
+                    control.observe("worldLogLimitExceeded", true)
+                    error("World log limit exceeded")
+                }
+            }
             for (file in listOf(log, logFile(label, "out"), logFile(label, "err"))) {
                 if (file.length() >= WorldSessionEvidence.MAX_LOG_BYTES) {
                     control.observe("worldLogLimitExceeded", true)
                     error("World log limit exceeded")
                 }
             }
-            if (log.isFile) WorldSessionEvidence.markers(log.readText()).forEach { control.observe(it, true) }
         }
         fun stopWorld(): Int {
             if (worldHandle == 0L) return exit ?: 0
@@ -444,9 +456,10 @@ class DatabaseDiagnostic(
                         checkCancelled(); check(!localService.stopRequested())
                         scan()
                         check(waitTracked(worldHandle, 0) == Int.MIN_VALUE && waitTracked(server, 0) == Int.MIN_VALUE)
-                        val markers = if (log.isFile) WorldSessionEvidence.markers(log.readText()) else emptySet()
-                        if (markers.containsAll(listOf("dbcStoresLoaded", "nativeReadyMarker", "freezeGuardStarted")) &&
-                            runCatching { LocalWorldProbe.exchange(port) }.isSuccess) break
+                        if (observedMarkers.containsAll(listOf("dbcStoresLoaded", "nativeReadyMarker", "freezeGuardStarted"))) {
+                            check(WorldFaultCapture.ready(logFile(label, "err"))) { "Native fault witness did not initialize" }
+                            if (runCatching { LocalWorldProbe.exchange(port) }.isSuccess) break
+                        }
                         check(System.nanoTime() < end) { "World startup deadline exceeded" }; Thread.sleep(500)
                     }
                     control.observe("worldChallenge", true)
@@ -905,7 +918,8 @@ class DatabaseDiagnostic(
         "ANDROID_ROOT=/system", "ANDROID_DATA=/data",
         "LD_LIBRARY_PATH=${runtime.libraryDirectory.absolutePath}:${runtime.nativeDirectory.absolutePath}"
     ), role, if (worldSession != null && role == "world-server") requireNotNull(realmLogDirectory) else root, worldInspectorQueue).let {
-        if (worldSession != null) OpenSslLegacyProvider.forRole(it, role, worldCryptoModules) else it
+        if (worldSession != null) WorldFaultCapture.forRole(
+            OpenSslLegacyProvider.forRole(it, role, worldCryptoModules), role, worldFaultLibrary) else it
     }
 
     private fun setStage(stage: String, message: String) {

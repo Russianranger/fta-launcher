@@ -13,6 +13,15 @@ test imports all 563 tables and one trigger into its own disposable database,
 then verifies the original catalog and receipt fingerprints. These tests do not
 install a persistent realm or open player saves.
 
+## Current measured checkpoint
+
+Physical private code 29 reaches the original world challenge and early health.
+The combined runtime gate remains incomplete: log volume ended the attempt and
+world cleanup crashed. Code 30 adds bounded logging and executable-offset crash
+evidence while preserving the original worldserver and retained data. See the
+[current handoff](docs/SHORT-HANDOFF.md) for the qualified private APK and next
+Thor gate. Public CI APKs are development previews, not private native updates.
+
 ## Current implementation
 
 - Android setup app: private storage imports through Android's file picker,

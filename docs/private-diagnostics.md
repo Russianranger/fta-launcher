@@ -1,24 +1,20 @@
 # Private native diagnostic builds
 
-## Current private delivery — code 28
+## Current private diagnostic checkpoint — code 30 in qualification
 
-`FTA-Launcher-0.12.1-world-evidence.apk` is the current private update.
-SHA256: `304f07ae9f72118a4208fe0bbb489f3310a866b1af1c02733705c8c8cb29beaf`.
-It reuses the persistent development certificate and all 17 unchanged native
-payloads from code 27. [Measured evidence](evidence/android-2026-10-24-private-world-evidence-apk.json).
-All 358 Android unit tests, 165 tooling tests, lint/assembly, 221 private packaged
-inputs, v2 signature and 16 KiB alignment passed. Physical retained-log recovery
-is pending. Install in place and **Export diagnostic report before another world
-launch**; this update can inspect the existing code-27 failure without reopening
-the database or rehashing assets.
+Code 29's private APK passed its original world challenge and two healthy samples
+on Thor. Its test ended at the stdout limit, followed by an unresolved cleanup
+SIGSEGV. Code 30 (`0.12.3-world-shutdown`) reduces routine INFO output using the
+original logger and adds a separately pinned fatal-signal witness. The original
+18 native files and all realm/backup identities remain unchanged; one small MIT
+helper is added. No validation limit or source module is removed.
 
-Code 27's physical full rehash passed, and its original world reached all 113 DBC
-stores plus ready/freeze markers, then exited 139 before listener health. The
-failure's native instruction and cause are unknown. Code 28 adds bounded,
-source-derived log fingerprints and preserves primary failure stages across
-cleanup. It does not change native behavior or claim world readiness. Follow the
-[current handoff](SHORT-HANDOFF.md); historical milestones below are not requests
-to repeat passed tests.
+See the [current handoff](SHORT-HANDOFF.md) for the exact delivery state and
+[shutdown diagnostic](world-shutdown-diagnostic.md) for measured evidence and scope.
+The next test is one **Start native world test**, three minutes screen-off after
+healthy status, then Stop/export. Export immediately on failure. Install only the
+correctly signed private update in place; no import or separate database/auth test
+is needed. Historical milestones below are not instructions to repeat passed work.
 
 For recovery packaging, `python3 tools/package_private_update.py --help` documents
 the inputs. It uses the exact passing CI assembly and verified unchanged donor
@@ -26,7 +22,9 @@ native/runtime/notice bytes, requires unchanged application/native/manifest sour
 and helper source identities, and signs only with the persistent private capsule.
 Passwords stay in child-process environment variables. It rejects an existing
 output path, stale metadata, a version downgrade, wrong certificate or altered
-application payload. The original native source companion remains unchanged.
+application payload. The original native source companion remains unchanged. Supply the pinned legacy
+provider and fault witness explicitly; the new helper source is public MIT code
+and `assets/metadata/launcher-LICENSE.txt` must match the repository license.
 
 
 Public CI snapshots package the database provider. A source-matching authserver

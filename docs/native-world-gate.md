@@ -1,10 +1,11 @@
 # Preparing the retained native world gate
 
-Code 28 recovered the code-27 failure: an exact original ARC4 assertion. Code 29
-adds the missing pinned OpenSSL legacy provider while preserving the worldserver,
-all modules and retained identities. See [diagnosis and reproduction](world-crypto-provider.md)
-and the handoff for the current private APK and next physical gate. Native runtime
-remains unqualified.
+Physical code 29 passed the original world challenge and two combined healthy
+samples. Its stdout limit then ended the test, and world cleanup exited 139 after
+its Halting message. Code 30 adds original logger thresholds and a bounded,
+process-only fault witness while retaining the original world ELF. See
+[shutdown evidence and design](world-shutdown-diagnostic.md) and the current
+handoff for the next private update. Native runtime remains unqualified.
 
 ## Live original GT loading
 

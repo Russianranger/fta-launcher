@@ -44,7 +44,7 @@ internal object WorldLogEvidence {
         }
         return output.toByteArray()
     }
-    internal fun scan(file: File, dictionary: Dictionary): Map<String, Any> = runCatching {
+    internal fun scan(file: File, dictionary: Dictionary, exitCode: Int? = null): Map<String, Any> = runCatching {
         val before = Files.readAttributes(file.toPath(), BasicFileAttributes::class.java, NOFOLLOW_LINKS)
         require(before.isRegularFile && before.size() <= WorldSessionEvidence.MAX_LOG_BYTES)
         var bytes = 0L; var lines = 0; var longLines = 0; var matches = 0; var lastMatch = 0
@@ -53,10 +53,13 @@ internal object WorldLogEvidence {
         val digest = MessageDigest.getInstance("SHA-256")
         val levels = linkedMapOf("INFO" to 0, "WARN" to 0, "ERROR" to 0, "FATAL" to 0)
         val tail = ArrayDeque<Map<String, Any>>()
-        fun accept() {
+        val witness = WorldFaultCapture.Evidence()
+        fun accept(complete: Boolean = true) {
             lines++
             if (oversized) longLines++ else {
-                val parsed = header.matchEntire(String(line, 0, used, Charsets.UTF_8).removeSuffix("\r"))
+                val text = String(line, 0, used, Charsets.UTF_8).removeSuffix("\r")
+                if (complete) witness.accept(text)
+                val parsed = header.matchEntire(text)
                 if (parsed != null) {
                     val level = parsed.groupValues[1]; levels[level] = levels.getValue(level) + 1
                     val payload = parsed.groupValues[2].toByteArray(Charsets.UTF_8)
@@ -87,13 +90,14 @@ internal object WorldLogEvidence {
                 }
             }
         }
-        if (unterminated) accept()
+        if (unterminated) accept(complete = false)
         val after = Files.readAttributes(file.toPath(), BasicFileAttributes::class.java, NOFOLLOW_LINKS)
         require(after.isRegularFile && bytes == before.size() && bytes == after.size() &&
             before.fileKey() == after.fileKey() && before.lastModifiedTime() == after.lastModifiedTime())
         mapOf("available" to true, "bytes" to bytes, "sha256" to hex(digest.digest()), "lines" to lines,
             "oversizedLinesSkipped" to longLines, "levels" to levels, "matchedLines" to matches,
-            "linesAfterLastMatch" to (lines - lastMatch), "lastSourceMessages" to tail.toList())
+            "linesAfterLastMatch" to (lines - lastMatch), "lastSourceMessages" to tail.toList(),
+            "faultWitness" to witness.export(exitCode))
     }.getOrElse { mapOf("available" to false) }
 
     fun export(visit: File, attempt: String, terminal: Boolean, dictionary: Dictionary): Map<String, Any> = runCatching {
@@ -111,6 +115,6 @@ internal object WorldLogEvidence {
             "sourceMessageMatchIsCrashCause" to false, "sourceMessageMatchIsHookCompletion" to false,
             "logs" to mapOf("world" to scan(File(visit, "world-session.log"), dictionary),
                 "stdout" to scan(File(visit, "${world.log}.out"), dictionary),
-                "stderr" to scan(File(visit, "${world.log}.err"), dictionary)))
+                "stderr" to scan(File(visit, "${world.log}.err"), dictionary, world.exitCode)))
     }.getOrElse { mapOf("available" to false) }
 }

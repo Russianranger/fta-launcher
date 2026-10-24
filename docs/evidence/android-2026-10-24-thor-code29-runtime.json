@@ -1,0 +1,152 @@
+{
+  "formatVersion": 1,
+  "scope": "physical-code29-native-health-and-cleanup-failure",
+  "reportSha256": "3dbbecb62c63e72867f79b5ceedbdee05443cb0ba8ac7b7446671c77d6055497",
+  "appVersionCode": 29,
+  "appVersionName": "0.12.2-world-crypto",
+  "apkSha256": "93c08fabf51fd5a1e35503b101c953f6ed280d7d5a650cfa5d232cae5e09d62b",
+  "checks": {
+    "verifiedBackupAvailable": true,
+    "metadataBeforePassed": true,
+    "offlineRealmStatePrepared": true,
+    "protocolReady": true,
+    "authCleanStop": true,
+    "listenerClosed": false,
+    "temporaryRoleRemoved": true,
+    "metadataAfterPassed": false,
+    "databaseCleanShutdown": false,
+    "activeRealmRetained": false,
+    "assetsRehashed": true,
+    "gtCoverageBefore": true,
+    "dbcStoresLoaded": true,
+    "nativeReadyMarker": true,
+    "freezeGuardStarted": true,
+    "worldChallenge": true,
+    "worldHalted": false,
+    "worldCleanStop": false,
+    "worldListenerClosed": true,
+    "gtCoverageAfter": false
+  },
+  "failureMarkers": {
+    "missingStartingMaps": false,
+    "dbcMissingOrIncompatible": false,
+    "incorrectDataDirectory": false,
+    "worldLoopFrozen": false,
+    "worldLogLimitExceeded": true
+  },
+  "healthySamples": 2,
+  "elapsedMs": 10312,
+  "screenOffHealthyMs": 0,
+  "assetFiles": 22817,
+  "assetBytes": 7625943031,
+  "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+  "catalogSha256": "0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff",
+  "nativeInvocations": [
+    {
+      "id": 1,
+      "role": "database-server",
+      "stage": "REALM_REOPEN",
+      "outcome": "exited",
+      "exitCode": 0,
+      "terminationExitCode": 0,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 57799,
+      "databaseReadyObserved": true,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    },
+    {
+      "id": 14,
+      "role": "auth-server",
+      "stage": "LOCAL_AUTH_START",
+      "outcome": "exited",
+      "exitCode": 0,
+      "terminationExitCode": 0,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 53609,
+      "databaseReadyObserved": false,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    },
+    {
+      "id": 15,
+      "role": "world-server",
+      "stage": "WORLD_SESSION_START",
+      "outcome": "exited",
+      "exitCode": 139,
+      "terminationExitCode": 139,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 53331,
+      "databaseReadyObserved": false,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    }
+  ],
+  "logs": {
+    "world": {
+      "available": true,
+      "bytes": 7636712,
+      "sha256": "70c67f5d104c0f0a065d5eb37a1f6f1b7674ae7fb6b18cb69ca3fdef8772d7d3",
+      "lines": 49069,
+      "oversizedLinesSkipped": 0,
+      "levels": {
+        "INFO": 42651,
+        "WARN": 6414,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "matchedLines": 55,
+      "linesAfterLastMatch": 10
+    },
+    "stdout": {
+      "available": true,
+      "bytes": 8388608,
+      "sha256": "5c488d60ba33527cd028502e92555a3aef99b053db66d099060ca0265ff9e0d7",
+      "lines": 49628,
+      "oversizedLinesSkipped": 0,
+      "levels": {
+        "INFO": 40716,
+        "WARN": 6414,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "matchedLines": 54,
+      "linesAfterLastMatch": 36080
+    },
+    "stderr": {
+      "available": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lines": 0,
+      "oversizedLinesSkipped": 0,
+      "levels": {
+        "INFO": 0,
+        "WARN": 0,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "matchedLines": 0,
+      "linesAfterLastMatch": 0
+    }
+  },
+  "lastWorldSourceMessage": {
+    "line": 49059,
+    "level": "INFO",
+    "sourceMessageIds": [
+      "w0132"
+    ]
+  },
+  "retainedHaltingMessageObserved": true,
+  "haltingObservationDoesNotProveCleanExit": true,
+  "rc4ConstructorFailureResolved": true,
+  "cleanupFaultInstructionKnown": false,
+  "worldReady": false,
+  "databaseFallbackValidated": false,
+  "gameLoginQualified": false
+}

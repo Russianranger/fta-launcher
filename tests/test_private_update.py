@@ -9,7 +9,7 @@ import warnings
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_private_update import CERTIFICATE, METADATA, LEGACY, check_helper_sources, compare_output, inventory, overlay, sha, verify_signature, verify_legacy
+from package_private_update import CERTIFICATE, METADATA, LEGACY, FAULT, check_helper_sources, compare_output, inventory, overlay, sha, verify_signature, verify_legacy, verify_fault
 
 
 class PrivateUpdateTests(unittest.TestCase):
@@ -167,6 +167,25 @@ class PrivateUpdateTests(unittest.TestCase):
         with patch('package_private_update.inspect_elf', return_value=elf):
             with self.assertRaisesRegex(ValueError, 'Retained crypto'):
                 overlay(assembly, donor, self.root / 'final.apk', self.root / 'stage', self.root, self.proof, module)
+
+    def test_fault_addition_preserves_existing_legacy_and_entire_donor(self):
+        module, elf = self.module_fixture()
+        self.old[LEGACY] = module.read_bytes(); self.proof['nativePayloadSha256'][LEGACY] = sha(module.read_bytes())
+        fault = self.root / 'fault.so'; fault.write_bytes(b'synthetic fault')
+        source = self.root / 'native/world-fault/world_fault.c'; source.parent.mkdir(parents=True); source.write_bytes(b'synthetic source')
+        (self.root / 'manifests/world-fault.json').write_text(json.dumps({'moduleBytes': fault.stat().st_size,
+            'moduleSha256': sha(fault.read_bytes()), 'sourceSha256': sha(source.read_bytes()), 'elf': elf}))
+        (self.root / 'LICENSE').write_bytes(b'synthetic notice')
+        self.base['assets/metadata/launcher-LICENSE.txt'] = b'synthetic notice'
+        assembly = self.archive('base.apk', self.base); donor = self.archive('old.apk', self.old); output = self.root / 'final.apk'
+        with patch('package_private_update.inspect_elf', return_value=elf):
+            overlay(assembly, donor, output, self.root / 'stage', self.root, self.proof, module, fault)
+            compare_output(output, assembly, donor, module, fault)
+            source.write_bytes(b'changed')
+            with self.assertRaises(ValueError): verify_fault(fault, self.root)
+        with zipfile.ZipFile(output) as archive:
+            self.assertEqual(fault.read_bytes(), archive.read(FAULT))
+            self.assertEqual(self.old['assets/fta-runtime-manifest.json'], archive.read('assets/fta-runtime-manifest.json'))
 
 
 if __name__ == '__main__':

@@ -93,4 +93,17 @@ class WorldLogEvidenceTest {
         }
         assertSame(failure, nested); assertFalse(failure.message!!.contains("private details"))
     }
+    @Test fun faultWitnessRequiresCompleteStderrAndAttemptMatchedFatalExit() = fixture { visit, attempt, journal ->
+        end(journal)
+        val text = WorldFaultCapture.READY + "\nFTA_FAULT_V1 signal=11 code=1 pc=1:0000000000123456 lr=0:0000000000000000"
+        val stderr = File(visit, "tool-1.err").apply { writeText(text + "\n") }
+        fun witness(result: Map<String, Any>) = result["faultWitness"] as Map<*, *>
+        val exported = WorldLogEvidence.export(visit, attempt, true, dictionary())
+        val logs = exported["logs"] as Map<*, *>
+        val record = logs["stderr"] as Map<*, *>
+        assertEquals(true, (record["faultWitness"] as Map<*, *>)["available"])
+        assertEquals(false, witness(WorldLogEvidence.scan(stderr, dictionary(), 0))["available"])
+        stderr.writeText(text)
+        assertEquals(false, witness(WorldLogEvidence.scan(stderr, dictionary(), 139))["available"])
+    }
 }

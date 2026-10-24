@@ -1,0 +1,19 @@
+{
+  "moduleBytes": 13664,
+  "moduleSha256": "a84a48b5db87bb7f874200a33b864c2ab1f42b330f19b91bf728661bcf9382a7",
+  "sourceSha256": "41c0f2f30a66319c864f3e70e627915dd5244b663f1027477707c64288fc0ba1",
+  "elf": {
+    "needed": [
+      "libc.so",
+      "libdl.so"
+    ],
+    "sonames": [
+      "libfta_world_fault.so"
+    ],
+    "interpreter": null,
+    "minimumLoadAlignment": 16384
+  },
+  "ndkVersion": "28.2.13676358",
+  "androidApi": 33,
+  "compilerSha256": "6156dd4e5e466333197a00b8d20bca72c292186643b749dcaaa3aa9164afb1de"
+}

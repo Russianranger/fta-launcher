@@ -54,9 +54,10 @@ internal object WorldUpdaterConfig {
             Network.UseSocketActivation = 0
             Metric.Enable = 0
             Log.Async.Enable = 0
-            Appender.Console = 1,4,6
+            Appender.Console = 1,${if (retained) 2 else 4},6
             Appender.Gate = 2,4,6,"${log.absolutePath}",w
-            Logger.root = 4,Console Gate
+            Logger.root = ${if (retained) 3 else 4},Console Gate
+            ${if (retained) "Logger.server.loading = 4,Gate\n            Logger.server.worldserver = 4,Gate" else ""}
         """.trimIndent() + "\n"
     }
 }

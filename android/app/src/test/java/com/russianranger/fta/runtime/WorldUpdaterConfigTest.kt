@@ -13,6 +13,10 @@ class WorldUpdaterConfigTest {
         assertTrue(config.contains("Updates.AutoSetup = 0"))
         assertTrue(config.contains("MaxCoreStuckTime = 60"))
         assertTrue(config.contains("DataDir = \"/assets\""))
+        assertTrue(config.contains("Appender.Console = 1,2,6"))
+        assertTrue(config.contains("Logger.root = 3,Console Gate"))
+        assertTrue(config.contains("Logger.server.loading = 4,Gate"))
+        assertTrue(config.contains("Logger.server.worldserver = 4,Gate"))
         for (port in listOf(0, 1023, 65536)) assertThrows(Exception::class.java) {
             WorldUpdaterConfig.render(File("/s"), File("/c"), File("/o"), File("/d"), File("/t"), File("/l"), role, "a".repeat(48), port, true)
         }
@@ -26,6 +30,8 @@ class WorldUpdaterConfigTest {
         assertTrue(config.contains("Updates.EnableDatabases = 7")); assertTrue(config.contains("Updates.Redundancy = 1"))
         assertTrue(config.contains("Updates.AllowRehash = 1")); assertTrue(config.contains("Updates.CleanDeadRefMaxCount = 3"))
         assertTrue(config.contains("Log.Async.Enable = 0")); assertTrue(config.contains("Appender.Gate = 2,4,6"))
+        assertTrue(config.contains("Appender.Console = 1,4,6")); assertTrue(config.contains("Logger.root = 4,Console Gate"))
+        assertFalse(config.contains("Logger.server.loading"))
         assertTrue(config.contains("Cluster.Enabled = 0")); assertTrue(config.contains("Ra.Enable = 0")); assertTrue(config.contains("SOAP.Enabled = 0"))
         assertTrue(config.contains("BindIP = \"127.0.0.1\"")); assertFalse(config.contains("dry-run", true))
         assertEquals(3, config.lines().count { it.contains("DatabaseInfo = \".;/private/run/db.sock;") })
