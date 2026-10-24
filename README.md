@@ -73,7 +73,7 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.11.4-import-memory** (code **22**)
+signing and validation. Latest private version **0.11.5-editor-companion** (code **23**)
 adds inert import and re-verification of extracted `dbc/maps/vmaps/mmaps` ZIPs.
 It checks the original source's 113 active DBC layouts, seven version sentinels,
 eight startup map locations and supplied map/vmap/mmap headers, then stores hashes
@@ -86,8 +86,11 @@ error; code 21 adds durable phase checkpoints and bounded Android exit evidence.
 Code 21's physical report identifies an attempt-matched Android low-memory kill
 during copy. Code 22 binds the visible screen to the worker and syncs output
 every 16 MiB, with memory/priority checkpoints. The source of system memory
-pressure remains unknown; the mitigation needs Thor validation. Required DBC
-checks and source policy are unchanged.
+pressure remains unknown. Physical code 22 completes the copy and index walk,
+observing foreground importance and active binding. It rejects one editor ZIP:
+`dbc/WDBX - DBC EDITOR.zip`. Code 23 retains only that exact path as an unopened,
+non-executable, hash-verified companion. Required asset formats and source policy
+remain unchanged.
 See [game-data import](docs/game-data-import.md).
 
 Physical code **17 passed user-controlled service Stop and retained restart**:
@@ -98,14 +101,14 @@ native gate after the focused game-data report, without repeating restart.
 See [physical evidence](docs/evidence/android-2026-10-23-thor-local-service-pass.json).
 Code **16 passed retained local auth**; its automatic diagnostic also needs no repeat.
 
-Code 22 passes 303 Android tests, lint/assembly, 148 tooling tests, 221 packaged
+Code 23 passes 310 Android tests, lint/assembly, 148 tooling tests, 221 packaged
 input checks and signing/alignment. Its signer and all 16 native payloads match
-code 21. Independent original-C++ loader checks and five production-store JVM
-sessions cover stock DBC backups, opaque DB2 companions and retained candidates.
-Twenty-six further JVMs check interruption safety and a 3,231,655,994-byte /
-40,146-file import and full reverify under a 64 MiB heap. Six additional JVMs
-verify forced death at the reported copy byte count and explicit recovery. Actual game assets and
-Android code 22 execution remain unverified.
+code 22. The exact-path regression fails before the correction and passes after.
+Original-C++ loader checks and five production-store JVMs verify stock DBCs,
+DB2 companions and the unopened editor archive, including interruption recovery.
+Code 22's earlier 3.23 GB/64 MiB and copy-point hard-exit evidence is retained;
+those probes were not repeated for this narrow change. Actual game asset
+preflight and Android code 23 execution remain unverified.
 
 Physical code **14 passed cold backup and two isolated restored reopens**. The
 uploaded ZIP matches the recorded identity and every manifest file hash. Its

@@ -33,6 +33,7 @@ public final class GameDataHost {
         if (!Boolean.TRUE.equals(report.get("preflightPassed")) || !Boolean.TRUE.equals(report.get("activeCatalogMatchesReport"))
                 || !Boolean.FALSE.equals(report.get("worldReady"))) throw new AssertionError(report);
         if (args.length > 4 && !Long.valueOf(args[4]).equals(report.get("db2CompanionFiles"))) throw new AssertionError(report);
+        if (args.length > 5 && !Long.valueOf(args[5]).equals(report.get("editorCompanionFiles"))) throw new AssertionError(report);
         System.out.println("Production game-data store " + args[0] + " passed");
     }
 }

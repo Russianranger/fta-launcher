@@ -20,6 +20,70 @@ class GameDataStoreTest {
     private val policy = GameDataPolicy.parse(text)
     @After fun cleanup() { root.deleteRecursively() }
     private fun store() = GameDataStore(File(root, "store"), text)
+    private val editorPath = "dbc/WDBX - DBC EDITOR.zip"
+    @Test fun reportedEditorArchiveIsPreservedOpaqueNonExecutableAndNeverExpanded() {
+        val nested = zip(linkedMapOf("../outside.exe" to byteArrayOf(1, 2), "Spell.dbc" to byteArrayOf(3, 4)))
+        val files = fixture().apply { put(editorPath, nested) }
+        val receipt = store().import(ByteArrayInputStream(zip(files, "Data/")))
+        val saved = File(root, "store/${receipt.generation}/$editorPath")
+        assertArrayEquals(nested, saved.readBytes()); assertFalse(saved.canExecute())
+        assertFalse(File(root, "store/${receipt.generation}/outside.exe").exists())
+        assertEquals(files.size, receipt.files); assertEquals(receipt, store().verify())
+        assertEquals(1L, store().export()["editorCompanionFiles"])
+        assertEquals(false, store().export()["worldReady"])
+    }
+    @Test fun editorArchiveCannotSupplyMissingRequiredRuntimeFiles() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        for (missing in listOf("dbc/Spell.dbc", "maps/0002828.map")) {
+            val files = fixture(); val nested = zip(linkedMapOf(missing to files.remove(missing)!!))
+            files[editorPath] = nested
+            val failure = assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+            assertTrue(failure.preflight.problems.any { it.path == missing && it.reason.startsWith("missing_") })
+            assertEquals(before, store().active())
+        }
+        assertEquals(before, store().verify())
+    }
+    @Test fun onlyTheReportedEditorPathIsAdmittedAndOtherArchivesStayRejected() {
+        for (name in listOf("dbc/editor.zip", "dbc/WDBX.zip", "dbc/Spell.dbc.zip", "dbc/enUS/WDBX - DBC EDITOR.zip",
+            "dbc/stock_dbc/WDBX - DBC EDITOR.zip", "maps/WDBX - DBC EDITOR.zip", "$editorPath/Spell.dbc")) {
+            val failure = assertThrows(GameDataImportFailure::class.java) {
+                store().import(ByteArrayInputStream(zip(fixture().apply { put(name, byteArrayOf(1)) })))
+            }
+            assertEquals("unsupported_asset_path", failure.reason); assertNull(store().active())
+        }
+    }
+    @Test fun editorArchiveCrcFailurePreservesPriorCandidate() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        val bytes = zip(fixture().apply { put(editorPath, byteArrayOf(1, 2, 3)) })
+        var at = central(bytes)
+        while (String(bytes, at + 46, shortAt(bytes, at + 28), Charsets.US_ASCII) != editorPath)
+            at += 46 + shortAt(bytes, at + 28) + shortAt(bytes, at + 30) + shortAt(bytes, at + 32)
+        put32(bytes, at + 16, intAt(bytes, at + 16) xor 1)
+        val failure = assertThrows(GameDataImportFailure::class.java) { store().import(ByteArrayInputStream(bytes)) }
+        assertEquals("asset_integrity", failure.reason); assertEquals(editorPath, failure.asset)
+        assertEquals(before, store().active()); assertEquals(before, store().verify())
+    }
+    @Test fun editorArchiveMutationFailsFullReverification() {
+        val receipt = store().import(ByteArrayInputStream(zip(fixture().apply { put(editorPath, byteArrayOf(1, 2, 3)) })))
+        File(root, "store/${receipt.generation}/$editorPath").writeBytes(byteArrayOf(1, 2, 4))
+        assertThrows(IllegalArgumentException::class.java) { store().verify() }
+        assertEquals(false, store().export()["preflightPassed"])
+    }
+    @Test fun editorReportCountDefaultsForOlderReportsAndRejectsImpossibleCounts() {
+        store().import(ByteArrayInputStream(zip()))
+        val file = File(root, "store/last-report.properties")
+        file.writeText(file.readLines().filterNot { it.startsWith("editorCompanionFiles=") }.joinToString("\n", postfix = "\n"))
+        assertEquals(0L, store().export()["editorCompanionFiles"])
+        file.appendText("editorCompanionFiles=2\n")
+        assertEquals(false, store().export()["available"])
+    }
+    @Test fun sourcePolicyCannotPromoteEditorArchiveToRequiredRuntimeDbc() {
+        val key = "dbc.${policy.dbc.keys.first()}="
+        assertTrue(text.contains(key))
+        assertThrows(IllegalArgumentException::class.java) {
+            GameDataPolicy.parse(text.replace(key, "dbc.WDBX\\ -\\ DBC\\ EDITOR.zip="))
+        }
+    }
     @Test fun everyImportBoundaryIsObservedAndIndexHasEntryProgress() {
         val stages = mutableSetOf<String>(); val boundaries = mutableListOf<Pair<String, String?>>()
         var indexed = 0L

@@ -1,0 +1,124 @@
+{
+  "formatVersion": 1,
+  "scope": "physical-thor-editor-companion-index-rejection",
+  "reportSha256": "54f440cfeec511c0bef6d70089c95b2d189cab0b45e49e20f2bcf252c2cc1d95",
+  "appVersionCode": 22,
+  "appVersionName": "0.11.4-import-memory",
+  "apkSha256": "cbb8d0f95a5254e4a9049a0f786ffbc930da3879213ab0fed5ae2921686b2692",
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "gameDataOperation": {
+    "available": true,
+    "attemptId": "e47a3372-e705-4776-9ad9-2c455f592fa2",
+    "mode": "import",
+    "state": "FAILED",
+    "lastRecordedState": "FAILED",
+    "stage": "archive_index",
+    "startedAtEpochMs": 1792805668372,
+    "updatedAtEpochMs": 1792805687407,
+    "completedUnits": 22822,
+    "totalUnits": 22822,
+    "unit": "entries",
+    "copiedBytes": 2869892425,
+    "freeStorageBytes": 251965083648,
+    "heapUsedBytes": 35419992,
+    "heapMaxBytes": 268435456,
+    "workerObservation": "inactive",
+    "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+    "failureKind": "invalid_argument",
+    "applicationFrames": [
+      "runtime.GameDataZip.inspectIndex:125",
+      "runtime.GameDataZip.inspect:19",
+      "runtime.GameDataStore.import$lambda$55:158",
+      "runtime.GameDataStore.$r8$lambda$DGL4SvZgDuVlmrTcfwqMuhM9TPo:0"
+    ],
+    "systemMemoryObservationAvailable": true,
+    "systemMemoryObservation": {
+      "availableBytes": 10106351616,
+      "totalBytes": 15996096512,
+      "lowMemoryThresholdBytes": 226492416,
+      "lowMemory": false,
+      "workerImportance": 100,
+      "activityBound": true
+    },
+    "exitHistorySupported": true,
+    "exitHistoryAvailable": true,
+    "recentRuntimeExits": [
+      {
+        "timestampEpochMs": 1792804536874,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 22915,
+        "lastSampledRssKiB": 101076,
+        "attemptMatched": false
+      },
+      {
+        "timestampEpochMs": 1792802987595,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 0,
+        "lastSampledRssKiB": 0,
+        "attemptMatched": false
+      },
+      {
+        "timestampEpochMs": 1792802945515,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 22658,
+        "lastSampledRssKiB": 100244,
+        "attemptMatched": false
+      }
+    ]
+  },
+  "gameDataDiagnostic": {
+    "available": true,
+    "worldReady": false,
+    "gameLoginQualified": false,
+    "nativeSemanticValidationPassed": false,
+    "policySha256": "ebba21788b69a5021a7e7d330aa33e699fda18161b43848d16a5c75dc9e6fb4a",
+    "state": "FAILED",
+    "preflightPassed": false,
+    "files": 0,
+    "bytes": 0,
+    "problemCount": 0,
+    "count.dbc": 0,
+    "count.maps": 0,
+    "count.vmaps": 0,
+    "count.mmaps": 0,
+    "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+    "stockDbcFiles": 0,
+    "db2CompanionFiles": 0,
+    "failureStage": "archive_index",
+    "failureReason": "unsupported_asset_path",
+    "failureAsset": "dbc/WDBX - DBC EDITOR.zip",
+    "rejectedAssetCount": 1,
+    "rejectedAssets": [
+      "dbc/WDBX - DBC EDITOR.zip"
+    ],
+    "problems": [],
+    "activeCandidateRetained": false,
+    "activeCatalogMatchesReport": false
+  },
+  "privateApkIdentityVerified": true,
+  "completeArchiveCopyObserved": true,
+  "completeCentralIndexWalkObserved": true,
+  "archiveLayoutAccepted": false,
+  "activityBindingObserved": true,
+  "workerForegroundImportanceObserved": true,
+  "newAttemptMatchedLowMemoryExitObserved": false,
+  "actualAssetPreflightPassed": false,
+  "worldReady": false,
+  "interpretation": "The same unchanged archive was fully copied (2869892425 bytes), and all 22822 central entries were walked. The worker records activityBound=true, importance=100 and lowMemory=false. Exactly one unsupported path is reported: dbc/WDBX - DBC EDITOR.zip. No extraction or format preflight is qualified. Older low-memory exits are explicitly unmatched. This successful copy does not guarantee survival under all memory pressure."
+}

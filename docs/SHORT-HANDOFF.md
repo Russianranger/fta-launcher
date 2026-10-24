@@ -7,8 +7,60 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.11.4-import-memory**, version code **22**.
-APK SHA256: `cbb8d0f95a5254e4a9049a0f786ffbc930da3879213ab0fed5ae2921686b2692`.
+Latest private update: **0.11.5-editor-companion**, version code **23**.
+APK SHA256: `b21a094876eed406bd38b6bb5623a282a4a88b98ad9d262f67ecfcdb71808120`.
+
+**Physical code 22 completed the ZIP copy and central-index walk.** The report
+matches the verified private APK and the unchanged archive SHA256
+`407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`.
+It copied **2,869,892,425 bytes** and walked **22,822 entries**, with observed
+activity binding, worker importance 100 and `lowMemory=false`. All older Android
+low-memory exits are unmatched. This run passed the previous copy interruption;
+it does not establish immunity to all future memory pressure or extraction success.
+
+Exactly one layout rejection remains: **`dbc/WDBX - DBC EDITOR.zip`**. No asset
+candidate was published and format preflight did not start. See
+[physical evidence](evidence/android-2026-10-23-thor-editor-companion-rejection.json).
+
+Code 23 accepts only that exact editor-companion path, including beneath the
+already-supported outer wrapper. It retains the file opaque, non-executable,
+CRC/size checked and SHA256 catalogued/reverified. It never opens it as a nested
+archive. Its contents cannot supply missing runtime files. Unrelated ZIP names,
+locations, unsafe paths, modes and file-size limits still fail as before. The
+new `editorCompanionFiles` count is separate from required runtime DBCs and
+bounded to 0..1; older reports default to zero.
+
+The pinned original loader opens explicit `.dbc` filenames and recognized locale
+variants. Its 113 required names, format/version rules and policy-manifest bytes
+are unchanged, as are original SQL, database expectations and native payloads.
+A regression with the exact rejected path fails on unchanged code 22 and passes
+with the correction. Seven added tests cover opaque preservation/no extraction,
+non-executable mode, missing runtime files, other ZIP rejection, CRC corruption,
+later hash mutation, report compatibility and policy-name validation.
+
+Private code 23 passes **310 Android tests** (28 classes), lint/assembly,
+**148 tooling tests**, all **221** packaged runtime/notice inputs, v2 signing and
+16 KiB alignment. The signer and all **16 native payloads** match code 22.
+Original C++ loader checks and **five separate JVMs** pass with stock DBCs, DB2
+companions and the nested editor ZIP, including interrupted replacement, retained
+candidate reverify and orphan recovery. See
+[host evidence](evidence/host-2026-10-23-editor-companion.json) and
+[APK proof](evidence/android-2026-10-23-private-editor-companion-apk.json).
+The 3.23 GB/64 MiB and copy-byte interruption probes belong to code 22; they were
+not repeated for this narrow companion-path change. No actual game bytes are
+available here, and no native world loading is qualified.
+
+**Next focused physical step:** update to private code 23 in place, keep the
+launcher visible, and import the same unchanged `Data.zip`. After success,
+reopen and **Verify imported game data** with the launcher visible. Export the
+JSON after verification, or immediately on any failure/interruption, before
+another attempt or diagnostic. Preserve Database.zip, native dependencies,
+retained realm and backup. Do not uninstall, clear storage, repackage the ZIP or
+repeat passed database milestones. Physical code 23, asset-format preflight and
+native world loading remain unverified. The remaining 120-second screen-off
+measurement can join a later native gate after asset evidence is inspected.
+
+## Previous memory investigation
 
 **Physical code 21 identifies an Android low-memory kill.** The JSON matches
 private code 21 exactly. Its atomic checkpoint is `copy`, **2,281,177,088 bytes**,
@@ -41,7 +93,7 @@ and flag, worker importance and whether the activity binding was observed. An
 unavailable sample stays explicitly unavailable. They never grant readiness.
 Code 21's attempt-bound exit evidence and durable interruption reporting remain.
 
-The private build passes **303 Android tests** (28 classes), lint/assembly,
+The code 22 private build passed **303 Android tests** (28 classes), lint/assembly,
 **148 tooling tests**, all **221** runtime/notice inputs, signing and alignment.
 Its signer and all **16 native payloads** match code 21. Host tests stream more
 than 3 GiB through the writeback controller, checking the exact 16 MiB bound,
@@ -56,20 +108,11 @@ See [host evidence](evidence/host-2026-10-23-import-memory.json),
 [copy-point recovery](evidence/host-2026-10-23-import-memory-copy-exit.json),
 [source checks](evidence/host-2026-10-23-import-memory-source.json) and
 [APK proof](evidence/android-2026-10-23-private-import-memory-apk.json).
-Host results do not qualify Android binding priority or the Thor mitigation.
-
-**Next focused physical step:** update to private code 22 in place. Keep the
-launcher visible while importing the same unchanged `Data.zip`; after success,
-reopen and **Verify imported game data** with the launcher visible. Export the
-JSON immediately after verification, or immediately on any failure/interruption,
-before another attempt or diagnostic. This retains the game-data operation and
-memory observations in the scoped export. Do not uninstall, clear storage,
-repackage Data.zip, reimport Database.zip or repeat passed database milestones.
-Physical code 22 and real asset/native world loading remain unverified. The
-remaining 120-second local-service screen-off measurement can join a later
-native gate after real asset evidence is inspected. Code 21's exit-history path
-now has physical evidence. The earlier code 20 report itself remains uncorrelated
-with the older exit records; do not retroactively attribute its exact cause.
+Those host results alone did not qualify Android priority. The later physical
+code 22 report above observes the binding and foreground importance through a
+complete copy and index walk. Code 21's attempt-bound exit-history path also has
+physical evidence. The earlier code 20 report remains uncorrelated with the
+older exit records; do not retroactively attribute its exact cause.
 
 Physical code 19 previously identified `dbc/lightskybox.db2` as a ZIP-index
 rejection. Code 20 preserves these unused companions without interpreting a DB2
@@ -122,11 +165,12 @@ See [host checks](evidence/host-2026-10-23-game-data-preflight.json),
 [private APK](evidence/android-2026-10-23-private-game-data-apk.json) and
 [import details](game-data-import.md).
 
-**Current physical gate:** use private code 22 for the focused import/reopen/
+**Current physical gate:** use private code 23 for the focused import/reopen/
 verify/export sequence above. Keep the retained realm, verified backup,
 Database.zip and native dependencies. World startup remains disabled until real
 asset evidence is inspected. Codes 18/19 failed import validation, code 20 did
-not finish, and code 21 records a low-memory kill. Code 22 remains unverified.
+not finish, code 21 records a low-memory kill, and code 22 reaches the editor ZIP rejection.
+Code 23 remains unverified.
 
 Previous private update: **0.10.0-local-service**, version code **17**.
 APK SHA256: `864615af00847d0e648f3583fce353389b8be6db44093cbe1b671227d1685d94`.

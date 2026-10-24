@@ -6,6 +6,7 @@ The original source is used privately from its pinned archive, never vendored.
 """
 import argparse
 import hashlib
+import io
 import json
 from pathlib import Path
 import re
@@ -49,6 +50,7 @@ def main():
     p.add_argument('--cxx', default='g++')
     p.add_argument('--with-stock-backup', action='store_true', help='Exercise the screenshot-observed auxiliary DBC folder')
     p.add_argument('--with-db2-companions', action='store_true', help='Preserve opaque DB2 companions without qualifying them as runtime DBCs')
+    p.add_argument('--with-editor-companion', action='store_true', help='Preserve the report-identified editor ZIP without expanding it')
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
     if sha256_file(args.source_zip) != SOURCE_SHA256:
@@ -95,6 +97,15 @@ def main():
         companions = {'dbc/lightskybox.db2': b'opaque synthetic companion',
                       'dbc/Spell.db2': b'not a runtime DBC', 'dbc/stock_dbc/lightskybox.db2': bytes(range(16))} if args.with_db2_companions else {}
         assets.update(companions)
+        editor_path = 'dbc/WDBX - DBC EDITOR.zip'
+        editor = None
+        if args.with_editor_companion:
+            nested = io.BytesIO()
+            with zipfile.ZipFile(nested, 'w') as z:
+                z.writestr('../outside.exe', b'synthetic; must never be extracted')
+                z.writestr('Spell.dbc', b'not a runtime replacement')
+            editor = nested.getvalue()
+            assets[editor_path] = editor
         for name, data in assets.items():
             path = root / 'assets' / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -191,7 +202,7 @@ int main(int argc, char** argv) {
         store = root / 'store'
         command = [args.java, '-cp', str(classes) + ':' + args.kotlin_classpath, 'GameDataHost']
         def run(mode, code=0):
-            result = subprocess.run(command + [mode, str(store), str(REPO / 'manifests/game-data-policy.properties'), str(archive), str(len(companions))])
+            result = subprocess.run(command + [mode, str(store), str(REPO / 'manifests/game-data-policy.properties'), str(archive), str(len(companions)), str(int(editor is not None))])
             if result.returncode != code:
                 raise ValueError(f'Host {mode} exited {result.returncode}, expected {code}')
         run('import')
@@ -222,6 +233,16 @@ int main(int argc, char** argv) {
                 raise ValueError('DB2 companion replaced a required runtime DBC')
             proof.update(db2CompanionBytesPreserved=True, db2CompanionCount=len(companions),
                          db2CompanionsNeverSubstitutedForRuntime=True, db2FormatsInterpreted=False)
+        if editor is not None:
+            current = store / (store / 'active').read_text()
+            saved = current / editor_path
+            if saved.read_bytes() != editor or saved.stat().st_mode & 0o111:
+                raise ValueError('Editor archive bytes or non-executable mode were not preserved')
+            if (current / 'dbc/Spell.dbc').read_bytes() != assets['dbc/Spell.dbc'] or list(root.rglob('outside.exe')):
+                raise ValueError('Nested editor archive contents escaped or replaced runtime files')
+            proof.update(editorArchiveBytesPreserved=True, editorArchiveNonExecutable=True,
+                         editorArchiveNeverExpanded=True, editorArchiveNeverSubstitutedForRuntime=True,
+                         originalRequiredDbcNamesUnchanged=True)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(proof, indent=2) + '\n')
     print('Original-source and production-store host checks passed; no real game data qualified')

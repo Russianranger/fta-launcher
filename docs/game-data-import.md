@@ -1,10 +1,37 @@
 # Extracted game-data import and source-derived preflight
 
-Private **0.11.4-import-memory**, code **22**, imports an inert ZIP containing extracted
+Private **0.11.5-editor-companion**, code **23**, imports an inert ZIP containing extracted
 `dbc`, `maps`, `vmaps` and `mmaps` folders, directly or under one enclosing folder.
 It preserves the retained realm, verified backup, Database.zip and native inputs.
 It does not extract a full client/MPQ archive, launch worldserver or create accounts.
 Matching actual game data is not present in the development environment.
+
+## Physical editor-archive rejection and code 23 correction
+
+The verified private code 22 report fully copies the unchanged 2,869,892,425-byte
+archive and walks all 22,822 central-directory entries. The worker records
+activity binding, importance 100 and no low-memory flag; no exit matches this
+attempt. The prior copy interruption did not recur in this run. Index acceptance
+fails on exactly one path: **`dbc/WDBX - DBC EDITOR.zip`**. Extraction and asset
+format preflight have not yet run. See
+[device evidence](evidence/android-2026-10-23-thor-editor-companion-rejection.json).
+
+The pinned original DBC loader names `.dbc` files explicitly. Code 23 retains
+only the exact reported editor path as an opaque companion, without executing
+it or opening its contents as another ZIP. Outer ZIP size/CRC, path/mode checks,
+non-executable permissions, catalog SHA256 and full later rehash all apply.
+Other ZIP filenames/locations remain rejected. The editor cannot replace any
+required DBC, map, vmap or mmap file. `editorCompanionFiles` (0..1) is a subset
+of the `dbc` folder count, never an additional runtime requirement.
+
+A regression fails on unchanged code 22 and passes after this correction.
+Adversarial synthetic nested names are preserved inside the unopened ZIP; no
+nested files are extracted. Additional tests cover missing runtime assets,
+unrelated ZIP rejection, CRC failure, hash mutation, old report compatibility
+and invalid attempts to promote the editor into the source policy. The unchanged
+original C++ loader and five production-store JVMs pass with all companion kinds.
+See [host checks](evidence/host-2026-10-23-editor-companion.json). Original SQL,
+strict database expectations and source-derived format policy remain unchanged.
 
 ## Physical low-memory exit and code 22 mitigation
 
@@ -49,8 +76,8 @@ checkpoint and recovery through the next explicit import. See
 [copy-point evidence](evidence/host-2026-10-23-import-memory-copy-exit.json). Unit regressions cover the exact 16 MiB
 writeback bound across more than 3 GiB, byte slices, failed sync, cancellation,
 visible/hidden/terminal binding lifetimes and memory record validation.
-See [host checks](evidence/host-2026-10-23-import-memory.json). Android binding
-behavior, SAF and actual assets still require the focused physical run.
+See [host checks](evidence/host-2026-10-23-import-memory.json). The later code 22 report observes Android binding and a complete SAF copy.
+Actual asset extraction, preflight and native loading still require the focused run.
 
 ## Earlier code 20 attempt and code 21 checkpoints
 
@@ -117,7 +144,7 @@ bytes and database expectations stay unchanged. Arbitrary nested folders,
 SQL/executable filenames, unsafe paths, duplicate names and invalid ZIP modes
 still fail before extraction. No files are silently discarded or rewritten.
 
-Retry the **unchanged original Data.zip** with code 22. On failure export the
+Retry the **unchanged original Data.zip** with code 23. On failure export the
 **diagnostic `.json` file** immediately. `failureStage`, `failureReason` and
 `failureAsset` identify the boundary; layout failures now include
 `rejectedAssetCount` and up to 32 `rejectedAssets`, collected across the validated
@@ -129,8 +156,8 @@ Old reports and receipts remain readable with new counts defaulting to zero.
 
 ## One focused physical test
 
-1. Install private code 22 as an in-place update. Its signer and all 16 native
-   payloads match code 21. Keep the retained realm, Database.zip and dependencies.
+1. Install private code 23 as an in-place update. Its signer and all 16 native
+   payloads match code 22. Keep the retained realm, Database.zip and dependencies.
    Never uninstall, clear storage or substitute the public debug APK.
 2. Keep the launcher visible and select **Import extracted game-data ZIP** with
    the same unchanged `Data.zip`. Wait for **Game-data preflight passed**.

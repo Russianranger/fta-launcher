@@ -69,6 +69,7 @@ class GameDataStore(private val root: File, private val policyText: String,
         archive?.let { values["archiveSha256"] = it }; catalog?.let { values["catalogSha256"] = it }
         values["stockDbcFiles"] = result?.counts?.get("stock_dbc") ?: 0
         values["db2CompanionFiles"] = result?.counts?.get("db2_companions") ?: 0
+        values["editorCompanionFiles"] = result?.counts?.get("editor_companions") ?: 0
         stage?.let { values["failureStage"] = it }
         failure?.let {
             values["failureReason"] = (it as? GameDataImportFailure)?.reason ?: "operation_failed"
@@ -101,6 +102,7 @@ class GameDataStore(private val root: File, private val policyText: String,
             }
             parsed["stockDbcFiles"] = (p.getProperty("stockDbcFiles") ?: "0").toLong().also { require(it in 0..GameDataPolicy.MAX_FILES.toLong()) }
             parsed["db2CompanionFiles"] = (p.getProperty("db2CompanionFiles") ?: "0").toLong().also { require(it in 0..GameDataPolicy.MAX_FILES.toLong()) }
+            parsed["editorCompanionFiles"] = (p.getProperty("editorCompanionFiles") ?: "0").toLong().also { require(it in 0..1) }
             p.getProperty("failureStage")?.let { require(it in FAILURE_STAGES); parsed["failureStage"] = it }
             p.getProperty("failureReason")?.let { require(it in GameDataZip.FAILURE_REASONS); parsed["failureReason"] = it }
             p.getProperty("failureAsset")?.let {
