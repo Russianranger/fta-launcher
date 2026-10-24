@@ -50,7 +50,7 @@ object LocalAuthDiagnostic {
         require(ColdRealmBackup.sha256(archive) { check(!cancelled.get()) } == backup.getString("archiveSha256"))
         return backup.getString("archiveSha256")
     }
-    internal fun nativeEvidence(file: File, attempt: String, service: Boolean = false): Map<String, Any> {
+    internal fun nativeEvidence(file: File, attempt: String, service: Boolean = false, world: Boolean = false): Map<String, Any> {
         val (records, dropped) = NativeInvocationJournal.read(file, attempt) ?: return mapOf("available" to false, "qualified" to false)
         val complete = records.isNotEmpty() && dropped == 0 && records.all {
             it.outcome == "exited" && it.exitCode == 0 && !it.timedOut && !it.cancelled && it.validationFailure == null &&
@@ -58,7 +58,11 @@ object LocalAuthDiagnostic {
         }
         val db = records.filter { it.role == "database-server" }
         val auth = records.filter { it.role == "auth-server" }
-        val qualified = complete && db.size == 1 && db.single().let { it.readyObserved && it.sqlShutdownRequested && it.cleanShutdownObserved } &&
+        val worlds = records.filter { it.role == "world-server" }
+        val worldQualified = if (world) worlds.size == 1 && worlds.single().let {
+            it.stage == "WORLD_SESSION_START" && it.terminationExitCode == 0
+        } else worlds.isEmpty()
+        val qualified = worldQualified && complete && db.size == 1 && db.single().let { it.readyObserved && it.sqlShutdownRequested && it.cleanShutdownObserved } &&
             auth.size == (if (service) 1 else 2) && auth.all { it.stage == "LOCAL_AUTH_START" && it.terminationExitCode == 0 } &&
             records.count { it.stage == "REALM_METADATA" && it.role == "database-client" } == 6 &&
             records.count { it.stage == "REALM_VERIFY" && it.role == "database-client" } == 2

@@ -7,6 +7,7 @@ accounts, login session, Android process or actual game data is executed here.
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 import socket
 import subprocess
@@ -24,6 +25,8 @@ FILES = (
     'src/server/game/Server/WorldSocket.h',
     'src/server/game/Server/Protocol/Opcodes.h',
     'src/server/game/Server/Protocol/ServerPktHeader.h',
+    'src/server/apps/worldserver/Main.cpp',
+    'src/server/game/DataStores/DBCStores.cpp',
 )
 
 
@@ -41,6 +44,24 @@ def main():
         with zipfile.ZipFile(args.source_zip) as archive:
             sources = {name: archive.read(SOURCE_ROOT + '/' + name) for name in FILES}
         world = sources[FILES[0]].decode()
+        main_source = sources[FILES[4]].decode()
+        dbc_source = sources[FILES[5]].decode()
+        if len(re.findall(r'^\s*LOAD_DBC\(', dbc_source, re.M)) != 113:
+            raise ValueError('Original required store count differs')
+        for phrase in ('>> Initialized {} Data Stores in {} ms', 'storage.LoadFromDB(dbTable, storage.GetFormat())',
+                       'bad_dbc_files.empty()'):
+            if phrase not in dbc_source:
+                raise ValueError('Original DBC completion/fallback boundary differs')
+        for phrase in ('sConfigMgr->GetOption<int32>("MaxCoreStuckTime", 60)',
+                       'Starting up anti-freeze thread ({} seconds max stuck time)...',
+                       'World::m_worldLoopCounter', 'freezeDetector->_maxCoreStuckTimeInMs',
+                       'Halting process...', 'sScriptMgr->OnShutdown();'):
+            if phrase not in main_source:
+                raise ValueError('Original world lifecycle evidence differs')
+        if not (main_source.index('(worldserver-daemon) ready...') < main_source.index('sScriptMgr->OnStartup();') <
+                main_source.index('    WorldUpdateLoop();') < main_source.index('sScriptMgr->OnShutdown();') <
+                main_source.index('Halting process...')):
+            raise ValueError('Original startup and shutdown ordering differs')
         body = world.split('void WorldSocket::HandleSendAuthSession()', 1)[1].split('\n}', 1)[0]
         for phrase in ('WorldPacket packet(SMSG_AUTH_CHALLENGE, 40);', 'packet << uint32(1);',
                        'packet.append(_authSeed);', 'packet.append(Acore::Crypto::GetRandomBytes<32>());'):
@@ -109,6 +130,9 @@ def main():
         'originalServerHeaderCompiledUnchanged': True, 'syntheticPacketBytes': 44,
         'fragmentedLoopbackChallengePassed': True, 'truncatedChallengeRejected': True,
         'slowFragmentsHitTotalDeadline': True, 'clientBytesSent': 0,
+        'originalRequiredDbcStores': 113, 'originalFallbackAndCompletionBoundaryChecked': True,
+        'readyMarkerPrecedesModuleStartup': True, 'haltMarkerFollowsModuleShutdown': True,
+        'originalFreezeGuardObservesWorldLoopCounter': True,
         'androidExecuted': False, 'originalWorldserverExecuted': False,
         'worldReady': False, 'gameLoginQualified': False,
     }

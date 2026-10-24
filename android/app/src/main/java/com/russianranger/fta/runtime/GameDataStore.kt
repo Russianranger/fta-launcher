@@ -293,6 +293,15 @@ class GameDataStore @JvmOverloads constructor(private val root: File, private va
     }
     /** Full rehash and format preflight after a later app/process restart. */
     fun verify(active: () -> Unit = {}, progress: (Long, Long) -> Unit = { _, _ -> }): GameDataReceipt = exclusive {
+        verifyLocked(active, progress)
+    }
+    /** Hold the same cross-process lease from full rehash until the consumer stops. */
+    fun <T> withVerified(active: () -> Unit, progress: (Long, Long) -> Unit,
+        consume: (GameDataReceipt, File) -> T): T = exclusive {
+        val verified = verifyLocked(active, progress)
+        consume(verified, File(root, verified.generation))
+    }
+    private fun verifyLocked(active: () -> Unit, progress: (Long, Long) -> Unit): GameDataReceipt {
         val current = receipt() ?: error("No imported game data")
         val directory = File(root, current.generation)
         try {
@@ -326,7 +335,7 @@ class GameDataStore @JvmOverloads constructor(private val root: File, private va
             val result = policy.inspect(directory, files, active, cache)
             require(result.passed)
             report("VERIFIED", current.archiveSha256, result, current.catalogSha256)
-            current
+            return current
         } catch (failure: Exception) { runCatching { report("FAILED", current.archiveSha256, stage = "verify", failure = failure) }; throw failure }
     }
     companion object {

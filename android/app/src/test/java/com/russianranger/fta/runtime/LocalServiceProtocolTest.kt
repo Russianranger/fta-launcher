@@ -118,6 +118,13 @@ class LocalServiceProtocolTest {
             assertEquals(true, LocalAuthDiagnostic.nativeEvidence(file, attempt, true)["qualified"])
             assertEquals(3, LocalAuthDiagnostic.nativeEvidence(file, attempt, true)["healthySamples"])
             assertEquals(false, LocalAuthDiagnostic.nativeEvidence(file, attempt)["qualified"])
+            assertEquals(false, LocalAuthDiagnostic.nativeEvidence(file, attempt, true, true)["qualified"])
+            val world = journal.begin("tool-${++i}", "world-server", "WORLD_SESSION_START", 600000)
+            journal.finish(world, "exited", 0, 1, 0); journal.terminated(world, 0)
+            assertEquals(true, LocalAuthDiagnostic.nativeEvidence(file, attempt, true, true)["qualified"])
+            assertEquals(false, LocalAuthDiagnostic.nativeEvidence(file, attempt, true)["qualified"])
+            journal.terminated(world, 137)
+            assertEquals(false, LocalAuthDiagnostic.nativeEvidence(file, attempt, true, true)["qualified"])
             journal.terminated(auth, 137)
             assertEquals(false, LocalAuthDiagnostic.nativeEvidence(file, attempt, true)["qualified"])
         } finally { root.deleteRecursively() }

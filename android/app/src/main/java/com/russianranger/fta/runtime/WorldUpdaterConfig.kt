@@ -11,11 +11,12 @@ import java.io.File
  */
 internal object WorldUpdaterConfig {
     fun render(socket: File, client: File, sourceDirectory: File, dataDirectory: File,
-        tempDirectory: File, log: File, user: String, password: String): String {
+        tempDirectory: File, log: File, user: String, password: String, port: Int = 8085, retained: Boolean = false): String {
         listOf(socket, client, sourceDirectory, dataDirectory, tempDirectory, log).forEach {
             require(it.isAbsolute && it.path.none { char -> char in "\";\r\n\u0000" }) { "Unsafe private world configuration path" }
         }
-        require(user.matches(Regex("[a-z_]{1,32}")) && password.matches(Regex("[a-f0-9]{48}")))
+        require(user.matches(Regex("[a-z_][a-z0-9_]{0,31}")) && password.matches(Regex("[a-f0-9]{48}")))
+        require(port in 1024..65535)
         return """
             [worldserver]
             LoginDatabaseInfo = ".;${socket.absolutePath};$user;$password;acore_auth"
@@ -37,14 +38,15 @@ internal object WorldUpdaterConfig {
             MySQLExecutable = "${client.absolutePath}"
             TempDir = "${tempDirectory.absolutePath}"
             Updates.EnableDatabases = 7
-            Updates.AutoSetup = 1
+            Updates.AutoSetup = ${if (retained) 0 else 1}
             Updates.Redundancy = 1
             Updates.ArchivedRedundancy = 0
             Updates.AllowRehash = 1
             Updates.CleanDeadRefMaxCount = 3
             Updates.ExceptionShutdownDelay = 0
             BindIP = "127.0.0.1"
-            WorldServerPort = 8085
+            WorldServerPort = $port
+            MaxCoreStuckTime = 60
             Console.Enable = 0
             Ra.Enable = 0
             SOAP.Enabled = 0

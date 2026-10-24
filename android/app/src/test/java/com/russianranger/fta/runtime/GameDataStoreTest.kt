@@ -20,6 +20,28 @@ class GameDataStoreTest {
     private val policy = GameDataPolicy.parse(text)
     @After fun cleanup() { root.deleteRecursively() }
     private fun store() = GameDataStore(File(root, "store"), text)
+    @Test fun verifiedConsumerHoldsLeaseAndNeverRunsAfterTampering() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        store().withVerified({}, { _, _ -> }) { receipt, directory ->
+            assertEquals(before, receipt)
+            assertEquals(File(root, "store/${before.generation}"), directory)
+            assertThrows(Exception::class.java) { store().verify() }
+            assertThrows(Exception::class.java) { store().import(ByteArrayInputStream(zip())) }
+        }
+        assertEquals(before, store().verify())
+        val candidate = File(root, "store/${before.generation}/dbc/Spell.dbc")
+        val bytes = candidate.readBytes(); bytes[bytes.lastIndex] = (bytes.last() + 1).toByte(); candidate.writeBytes(bytes)
+        var consumed = false
+        assertThrows(Exception::class.java) { store().withVerified({}, { _, _ -> }) { _, _ -> consumed = true } }
+        assertFalse(consumed)
+    }
+    @Test fun consumerFailureAndCancellationReleaseLeaseWithoutReplacingAssets() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        assertThrows(Exception::class.java) { store().withVerified({}, { _, _ -> }) { _, _ -> error("consumer") } }
+        assertEquals(before, store().verify())
+        assertThrows(Exception::class.java) { store().withVerified({ error("cancel") }, { _, _ -> }) { _, _ -> fail("ran") } }
+        assertEquals(before, store().verify())
+    }
     private fun reportedDbcLayouts(): MutableMap<String, ByteArray> = fixture().apply {
         val gt = mapOf("gtBarberShopCostBase.dbc" to 100, "gtChanceToMeleeCrit.dbc" to 1100,
             "gtChanceToMeleeCritBase.dbc" to 11, "gtChanceToSpellCrit.dbc" to 1100,

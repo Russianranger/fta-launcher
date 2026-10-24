@@ -58,6 +58,7 @@ class MainActivity : Activity() {
     private lateinit var recoveryDiagnosticButton: Button
     private lateinit var realmStorageButton: Button
     private lateinit var localServiceButton: Button
+    private lateinit var worldServiceButton: Button
     private lateinit var localAuthButton: Button
     private lateinit var realmBackupButton: Button
     private lateinit var exportBackupButton: Button
@@ -69,6 +70,7 @@ class MainActivity : Activity() {
     private var pendingRecoveryCheck = false
     private var pendingRealmStorage = false
     private var pendingLocalService = false
+    private var pendingWorldService = false
     private var pendingLocalAuth = false
     private var pendingRealmBackup = false
     private var pendingLifecycleCheck = false
@@ -100,6 +102,7 @@ class MainActivity : Activity() {
         pendingGameDataUri = savedInstanceState?.getString("pendingGameDataUri")?.let(android.net.Uri::parse)
         pendingRecoveryCheck = savedInstanceState?.getBoolean("pendingRecoveryCheck") ?: false
         pendingRealmStorage = savedInstanceState?.getBoolean("pendingRealmStorage") ?: false
+        pendingWorldService = savedInstanceState?.getBoolean("pendingWorldService") ?: false
         pendingLocalService = savedInstanceState?.getBoolean("pendingLocalService") ?: false
         pendingLocalAuth = savedInstanceState?.getBoolean("pendingLocalAuth") ?: false
         pendingRealmBackup = savedInstanceState?.getBoolean("pendingRealmBackup") ?: false
@@ -172,6 +175,9 @@ class MainActivity : Activity() {
         status.addView(label("Creates the realm database once, then checks two restarts. Later runs reuse it without importing the seed. Keep 3 GiB free for first preparation; existing realm data is retained. World startup still awaits matching game data.", 13, muted))
         localServiceButton = action("Start local database + auth") { requestDatabaseCheck(includeLocalService = true) }
         status.addView(localServiceButton)
+        worldServiceButton = action("Start native world test") { requestDatabaseCheck(includeWorldService = true) }
+        status.addView(worldServiceButton)
+        status.addView(label("Verifies retained game files, then starts the original world with your retained realm. Keep this screen open until health checks begin. Lock the screen for three minutes, reopen, Stop and export the report.", 13, muted))
         status.addView(label("Keeps your retained database and local auth running until Stop, with a 30-minute session limit. Use the notification to stop cleanly. Game login and world startup await matching game data.", 13, muted))
         localAuthButton = action("Test local auth service") { requestDatabaseCheck(includeLocalAuth = true) }
         status.addView(localAuthButton)
@@ -307,6 +313,7 @@ class MainActivity : Activity() {
         realmBackupButton.isEnabled = worldUpdaterPackaged && File(filesDir, "persistent-realm/active.properties").exists() && !app.busy && !testing && !requested
         localAuthButton.isEnabled = realmBackupButton.isEnabled && database && File(filesDir, "realm-backups/latest.json").isFile
         localServiceButton.isEnabled = localAuthButton.isEnabled
+        worldServiceButton.isEnabled = localAuthButton.isEnabled && File(filesDir, "game-data/active").isFile
         exportBackupButton.isEnabled = File(filesDir, "realm-backups/latest.json").isFile && !app.busy && !testing && !requested
         gameDataButton.isEnabled = !app.busy && !testing && !requested
         gameDataVerifyButton.isEnabled = gameDataButton.isEnabled && File(filesDir, "game-data/active").isFile
@@ -365,6 +372,7 @@ class MainActivity : Activity() {
         outState.putBoolean("pendingRecoveryCheck", pendingRecoveryCheck)
         outState.putBoolean("pendingRealmStorage", pendingRealmStorage)
         outState.putBoolean("pendingLocalService", pendingLocalService)
+        outState.putBoolean("pendingWorldService", pendingWorldService)
         outState.putBoolean("pendingLocalAuth", pendingLocalAuth)
         outState.putBoolean("pendingRealmBackup", pendingRealmBackup)
         outState.putBoolean("pendingLifecycleCheck", pendingLifecycleCheck)
@@ -374,7 +382,8 @@ class MainActivity : Activity() {
         super.onSaveInstanceState(outState)
     }
 
-    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false, includeGameData: Boolean = false) {
+    private fun requestDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false, includeGameData: Boolean = false, includeWorldService: Boolean = false) {
+        pendingWorldService = includeWorldService
         pendingGameData = includeGameData
         pendingLocalService = includeLocalService
         pendingLocalAuth = includeLocalAuth
@@ -389,20 +398,21 @@ class MainActivity : Activity() {
             !getPreferences(MODE_PRIVATE).getBoolean("notificationAsked", false)) {
             getPreferences(MODE_PRIVATE).edit().putBoolean("notificationAsked", true).apply()
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 201)
-        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth, pendingLocalService, pendingGameData)
+        } else startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth, pendingLocalService, pendingGameData, pendingWorldService)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Notification permission is optional for an explicitly requested foreground service.
-        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth, pendingLocalService, pendingGameData)
+        if (requestCode == 201) startDatabaseCheck(pendingAuthCheck, pendingFullSeedCheck, pendingWorldUpdaterCheck, pendingLifecycleCheck, pendingRecoveryCheck, pendingRealmStorage, pendingRealmBackup, pendingLocalAuth, pendingLocalService, pendingGameData, pendingWorldService)
     }
 
-    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false, includeGameData: Boolean = false) {
+    private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false, includeGameData: Boolean = false, includeWorldService: Boolean = false) {
         try {
             if (includeGameData) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java)
                 .setAction(if (pendingGameDataUri == null) RuntimeDiagnosticService.ACTION_VERIFY_GAME_DATA else RuntimeDiagnosticService.ACTION_IMPORT_GAME_DATA)
                 .setData(pendingGameDataUri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+            else if (includeWorldService) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_WORLD_SERVICE))
             else if (includeLocalService) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_LOCAL_SERVICE))
             else if (includeLocalAuth) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_LOCAL_AUTH))
             else if (includeBackup) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_REALM_BACKUP))

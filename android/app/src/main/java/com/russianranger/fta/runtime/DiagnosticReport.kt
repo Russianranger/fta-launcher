@@ -36,8 +36,8 @@ object DiagnosticReport {
         val scope = if (scopeFile.isFile && scopeFile.length() < 32) scopeFile.readText() else "database"
         val gameData = runCatching { GameDataImport.store(context).export() }.getOrElse { mapOf("available" to false, "worldReady" to false) }
         result.put("gameDataDiagnostic", JSONObject(gameData))
-        result.put("requestedDiagnostic", if (scope in setOf("game-data", "auth-updater", "full-seed", "compiled-updater", "database-lifecycle", "runtime-recovery", "realm-storage", "realm-backup", "local-auth", "local-service")) scope else "database")
-        result.put("scope", when (scope) { "game-data" -> "inert-game-data-preflight"; "local-service" -> "retained-realm-local-service"; "local-auth" -> "retained-realm-local-auth"; "realm-backup" -> "persistent-realm-backup"; "realm-storage" -> "persistent-realm-storage"; "runtime-recovery" -> "disposable-runtime-recovery-diagnostic"; "database-lifecycle" -> "disposable-native-database-lifecycle-diagnostic"; "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; "compiled-updater" -> "disposable-native-compiled-updater-diagnostic"; else -> "disposable-native-database-diagnostic" })
+        result.put("requestedDiagnostic", if (scope in setOf("game-data", "auth-updater", "full-seed", "compiled-updater", "database-lifecycle", "runtime-recovery", "realm-storage", "realm-backup", "local-auth", "local-service", "world-service")) scope else "database")
+        result.put("scope", when (scope) { "world-service" -> "retained-native-world-session"; "game-data" -> "inert-game-data-preflight"; "local-service" -> "retained-realm-local-service"; "local-auth" -> "retained-realm-local-auth"; "realm-backup" -> "persistent-realm-backup"; "realm-storage" -> "persistent-realm-storage"; "runtime-recovery" -> "disposable-runtime-recovery-diagnostic"; "database-lifecycle" -> "disposable-native-database-lifecycle-diagnostic"; "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; "compiled-updater" -> "disposable-native-compiled-updater-diagnostic"; else -> "disposable-native-database-diagnostic" })
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val currentAttempt = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
             ?.takeIf { NativeInvocationJournal.validAttemptId(it) }
@@ -186,6 +186,13 @@ object DiagnosticReport {
             result.put("gameDataImportQualified", lines.firstOrNull() == GameDataImport.PASSED &&
                 gameData["preflightPassed"] == true && gameData["activeCatalogMatchesReport"] == true)
                 .put("privacy", "Only bounded asset paths, numeric file headers, counts, fingerprints, progress, memory/storage measurements, fixed application frame names and Android exit codes/times are exported; no asset records or strings, source URI, process IDs, raw traces, exception messages, database rows or credentials.")
+            return result.toString(2)
+        }
+        if (scope == "world-service" && currentAttempt != null) {
+            val proof = WorldServiceRuntime.export(context, currentAttempt, lines.firstOrNull())
+            result.put("worldServiceDiagnostic", JSONObject(proof)).put("nativeWorldRuntimeQualified", proof["qualified"] == true)
+                .put("worldserverQualified", proof["qualified"] == true)
+                .put("privacy", "Only fixed checks, hashes, counts, durations and native exit evidence are exported. No rows, credentials, private paths, packets or native log text.")
             return result.toString(2)
         }
         if (scope == "local-service" && currentAttempt != null) {

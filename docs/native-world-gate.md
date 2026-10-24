@@ -1,9 +1,10 @@
 # Preparing the retained native world gate
 
-The delivered private APK is still code **26**, `0.11.8-dbc-loading`.
-Its physical import/reopen/full-reverify report is required before enabling a
-world-start action. These additions prepare and qualify independent host pieces;
-they do not claim Android native fallback, world readiness or game login.
+Code 26's physical import and publication passed; the report did not record a
+standalone full reverify. Code 27 adds **Start native world test**, which performs
+that full rehash and preflight under the asset lease before opening the retained
+realm. Follow the current procedure and evidence in [SHORT-HANDOFF.md](SHORT-HANDOFF.md).
+The native world session is implemented but remains physically unqualified.
 
 ## Live original GT loading
 
@@ -74,10 +75,10 @@ python3 tools/check_world_probe_source.py --source-zip /private/From_The_Ashes_S
   --output /private/world-probe.json
 ```
 
-No launcher action invokes this helper yet. A challenge is a listener observation,
+The guarded native world action invokes this helper. A challenge is a listener observation,
 not proof of completed module initialization, world health or gameplay.
 
-## Next integration after physical code 26 passes
+## Implemented code-27 integration; physical validation pending
 
 1. Bind a full asset rehash/preflight to the exact candidate generation and
    retained realm under their ownership leases; require the verified cold backup.

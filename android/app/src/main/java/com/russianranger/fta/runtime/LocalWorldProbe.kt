@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 
 /** Pinned original build-12340 server challenge, before authentication/encryption.
  * Receives only: no account, auth-session packet, login or gameplay evidence.
- * Not connected to a launcher action until the retained-world gate is enabled.
+ * Used by the guarded retained-world session after asset verification.
  */
 object LocalWorldProbe {
     private const val PACKET_BYTES = 44

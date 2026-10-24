@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "scope": "physical-code26-import-publication",
+  "reportSha256": "73483405b8e70faf14c1e5910eff8c2bcc1852fb8698d1b04d4802830bd424cb",
+  "appVersionCode": 26,
+  "appVersionName": "0.11.8-dbc-loading",
+  "apkSha256": "2a276e781698c3a9501f15d25693fd57085e7965151ad13ff5f991e3f037ecba",
+  "gameDataImportQualified": true,
+  "gameData": {
+    "state": "IMPORTED",
+    "preflightPassed": true,
+    "files": 22817,
+    "bytes": 7625943031,
+    "problemCount": 0,
+    "rejectedAssetCount": 0,
+    "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+    "catalogSha256": "0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff",
+    "count.dbc": 248,
+    "count.maps": 5889,
+    "count.vmaps": 10620,
+    "count.mmaps": 6060,
+    "mmapHighBitCapacityFiles": 104,
+    "activeCandidateRetained": true,
+    "activeCatalogMatchesReport": true,
+    "databaseFallbackRequired": true,
+    "databaseFallbackValidated": false
+  },
+  "operation": {
+    "mode": "import",
+    "state": "FINISHED",
+    "stage": "publish",
+    "completedUnits": 7625943031,
+    "totalUnits": 7625943031,
+    "copiedBytes": 2869892425
+  },
+  "standaloneFullReverificationRecorded": false,
+  "nativeWorldExecuted": false,
+  "worldReady": false,
+  "gameLoginQualified": false,
+  "nextGate": "Code 27 must fully rehash the exact retained candidate under its lease before any native world launch. No repeat import."
+}

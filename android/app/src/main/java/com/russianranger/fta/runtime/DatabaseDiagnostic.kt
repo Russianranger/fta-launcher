@@ -23,12 +23,15 @@ class DatabaseDiagnostic(
     private val recoveryPhase: RecoveryPhase? = null,
     private val realm: RealmDatabaseSession? = null,
     private val localAuthObserve: ((String, Boolean) -> Unit)? = null,
-    private val localService: LocalServiceControl? = null
+    private val localService: LocalServiceControl? = null,
+    private val worldSession: WorldSessionControl? = null
 ) {
     private val owned = ConcurrentHashMap<Long, String>()
     private lateinit var root: File
     private lateinit var runtime: PackagedRuntime
     private var server = 0L
+    private var worldHandle = 0L
+    private var authHandle = 0L
     private var clientOptions: File? = null
     private var worldInspectorQueue: File? = null
     private var realmLogDirectory: File? = null
@@ -41,7 +44,7 @@ class DatabaseDiagnostic(
     private var invocationJournal: NativeInvocationJournal? = null
     private val evidenceHandles = ConcurrentHashMap<Long, Int>()
     private val needsFullSeed = includeFullSeed || includeWorldUpdater
-    private val deadline = System.nanoTime() + (if (localService != null) 2100L else if (includeWorldUpdater) 2400L else if (includeFullSeed) 1800L else if (includeAuth) 420L else 300L) * 1_000_000_000L
+    private val deadline = System.nanoTime() + (if (worldSession != null) 2700L else if (localService != null) 2100L else if (includeWorldUpdater) 2400L else if (includeFullSeed) 1800L else if (includeAuth) 420L else 300L) * 1_000_000_000L
 
     fun run(): String {
         require(listOf(includeAuth, includeFullSeed, includeWorldUpdater, includeLifecycle, recoveryStore != null).count { it } <= 1) { "Select one diagnostic scope" }
@@ -49,9 +52,10 @@ class DatabaseDiagnostic(
         if (realm != null) require(!includeAuth && !includeFullSeed && !includeLifecycle && recoveryStore == null && includeWorldUpdater == realm.preparing)
         require(localAuthObserve == null || (realm != null && !realm.preparing))
         require(localService == null || localAuthObserve != null)
+        require(worldSession == null || (localService != null && realm != null && !realm.preparing))
         runtime = PackagedRuntime.inspect(context)
         if (includeAuth) require("authserver" in runtime.manifest.capabilities && "auth-server" in runtime.executables)
-        if (includeWorldUpdater) require("worldserver" in runtime.manifest.capabilities && "world-server" in runtime.executables &&
+        if (includeWorldUpdater || worldSession != null) require("worldserver" in runtime.manifest.capabilities && "world-server" in runtime.executables &&
             runtime.manifest.files.any { it.path == WorldUpdaterMetadata.PATH }) { "The compiled world updater payload is unavailable" }
         require(runtime.manifest.bootstrap != null) { "A pinned bootstrap recipe is required" }
         if (recoveryPhase == RecoveryPhase.RESUME) return runRecoveryResume(recoveryStore!!)
@@ -247,6 +251,11 @@ class DatabaseDiagnostic(
             lock.schemas.forEach { schema ->
                 check(WorldUpdaterEvidence.parseValidation(client(WorldUpdaterEvidence.schemaSql(schema, lock.includeDirectories), 30_000), schema).values.all { it })
             }
+            if (worldSession != null) {
+                setStage("WORLD_GT_CHECK", "Checking exact original GT table coverage.")
+                WorldSessionEvidence.requireCoverage(client(WorldSessionEvidence.gtSql(), 30_000))
+                worldSession.observe("gtCoverageBefore", true)
+            }
             if (localAuthObserve != null) {
                 localAuthObserve.invoke("metadataBeforePassed", true)
                 runLocalAuthListener(localAuthObserve)
@@ -256,6 +265,11 @@ class DatabaseDiagnostic(
                 }
                 setStage("REALM_VERIFY", "Rechecking the retained realm identity after auth restarts.")
                 RealmStorageCanary.verify(session.generation.id) { client(it, 10_000) }
+                if (worldSession != null) {
+                    setStage("WORLD_GT_CHECK", "Checking exact original GT table coverage.")
+                    WorldSessionEvidence.requireCoverage(client(WorldSessionEvidence.gtSql(), 30_000))
+                    worldSession.observe("gtCoverageAfter", true)
+                }
                 localAuthObserve.invoke("metadataAfterPassed", true)
             }
             setStage("STOPPING", "Stopping the retained realm database with SQL SHUTDOWN.")
@@ -267,8 +281,11 @@ class DatabaseDiagnostic(
             localAuthObserve?.invoke("databaseCleanShutdown", true)
             return "Persistent realm identity, all 24 metadata checks and clean shutdown passed."
         } finally {
-            if (server != 0L && !cancelled.get()) runCatching { client("SHUTDOWN;", 3_000); waitTracked(server, 3_000) }
-            stopOwned(); socket.delete()
+            if (worldHandle != 0L || authHandle != 0L) stopOwned()
+            if (server != 0L && !cancelled.get() && worldHandle == 0L && authHandle == 0L)
+                runCatching { client("SHUTDOWN;", 3_000); waitTracked(server, 3_000) }
+            stopOwned()
+            if (server == 0L) socket.delete()
             // The retained credentials and datadir are never deleted on ordinary stop/failure.
         }
     }
@@ -298,16 +315,17 @@ class DatabaseDiagnostic(
         fun stopAuth(): Int {
             if (auth == 0L) return 0
             val handle = auth
-            val exit = NativeProcessBridge.stop(handle, 10_000)
-            finishEvidence(handle, if (exit == Int.MIN_VALUE) "timed_out" else "exited", exit.takeUnless { it == Int.MIN_VALUE })
-            evidenceHandles[handle]?.let { invocationJournal?.terminated(it, exit.takeUnless { value -> value == Int.MIN_VALUE }) }
-            if (exit != Int.MIN_VALUE) { owned.remove(handle); evidenceHandles.remove(handle); auth = 0 }
+            val exit = stopGracefully(handle, 10_000)
+            if (exit != Int.MIN_VALUE) { owned.remove(handle); evidenceHandles.remove(handle); auth = 0; authHandle = 0 }
             return exit
         }
         try {
             client("CREATE USER '$user'@'localhost' IDENTIFIED BY '$password';", 5000)
             created = true
             client("GRANT ALL PRIVILEGES ON acore_auth.* TO '$user'@'localhost';", 5000)
+            if (worldSession != null) client(listOf("acore_world", "acore_characters").joinToString(" ") {
+                "GRANT ALL PRIVILEGES ON `$it`.* TO '$user'@'localhost';"
+            }, 5000)
             config.writeText(renderedConfig)
             check(config.setReadable(false, false) && config.setWritable(false, false) && config.setReadable(true, true) && config.setWritable(true, true))
             val driver = object : LocalAuthProtocol.Driver {
@@ -316,6 +334,7 @@ class DatabaseDiagnostic(
                     check(LocalAuthProbe.closed(port))
                     setStage("LOCAL_AUTH_START", if (localService != null) "Starting the original local auth listener." else "Starting original loopback auth listener $pass of 2 with updater checks enabled.")
                     auth = launch("auth-server", listOf("--config", config.absolutePath), null, "tool-${++step}", if (localService == null) 90_000 else null)
+                    authHandle = auth
                     val end = System.nanoTime() + 45_000_000_000L
                     while (true) {
                         checkCancelled(); check(waitTracked(server, 0) == Int.MIN_VALUE && waitTracked(auth, 0) == Int.MIN_VALUE)
@@ -336,26 +355,115 @@ class DatabaseDiagnostic(
                 override fun listenerClosed() = LocalAuthProbe.closed(port)
             }
             if (localService == null) LocalAuthProtocol.run(driver, observe)
-            else LocalServiceProtocol.run(object : LocalServiceProtocol.Driver {
-                override fun checkActive() = checkCancelled()
-                override fun start() = driver.start(1)
-                override fun health() {
-                    setStage("LOCAL_SERVICE_RUNNING", "Local database and auth are running. Stop here or from the notification when finished. This session stops automatically after 30 minutes.")
-                    driver.probe()
-                    check(client("SELECT 1;", 2000).trim() == "1")
+            else {
+                val serviceDriver = object : LocalServiceProtocol.Driver {
+                    override fun checkActive() = checkCancelled()
+                    override fun start() = driver.start(1)
+                    override fun health() {
+                        setStage("LOCAL_SERVICE_RUNNING", "Local database and auth are running. Stop here or from the notification when finished. This session stops automatically after 30 minutes.")
+                        driver.probe()
+                        check(client("SELECT 1;", 2000).trim() == "1")
+                    }
+                    override fun interactive() = context.getSystemService(android.os.PowerManager::class.java).isInteractive
+                    override fun nowMs() = android.os.SystemClock.elapsedRealtime()
+                    override fun pause(ms: Long) = Thread.sleep(ms)
+                    override fun stop() = driver.stop()
+                    override fun listenerClosed() = driver.listenerClosed()
                 }
-                override fun interactive() = context.getSystemService(android.os.PowerManager::class.java).isInteractive
-                override fun nowMs() = android.os.SystemClock.elapsedRealtime()
-                override fun pause(ms: Long) = Thread.sleep(ms)
-                override fun stop() = driver.stop()
-                override fun listenerClosed() = driver.listenerClosed()
-            }, localService.stopRequested, observe, localService.progress)
+                if (worldSession == null) LocalServiceProtocol.run(serviceDriver, localService.stopRequested, observe, localService.progress)
+                else runWorldSession(serviceDriver, source, user, password, port, worldSession)
+            }
         } finally {
-            val stopped = stopAuth()
+            val stopped = if (worldHandle == 0L) stopAuth() else Int.MIN_VALUE
             if (created && auth == 0L && stopped != Int.MIN_VALUE && !cancelled.get()) {
                 client("DROP USER '$user'@'localhost';", 5000)
                 observe("temporaryRoleRemoved", true)
             }
+            config.delete(); File(temp, "mysql_ac.conf").delete()
+        }
+    }
+
+    private fun runWorldSession(auth: LocalServiceProtocol.Driver, source: File, user: String,
+        password: String, authPort: Int, control: WorldSessionControl) {
+        val visit = requireNotNull(realmLogDirectory)
+        val moduleConfigs = runtime.manifest.files.filter { it.path.startsWith("data/world-config/modules/") }
+        check(moduleConfigs.size == 49 && moduleConfigs.all {
+            it.path.removePrefix("data/world-config/modules/").matches(Regex("[A-Za-z0-9_.+-]{1,120}\\.conf"))
+        })
+        val configs = File(visit, "configs/modules").apply { check(mkdirs()) }
+        moduleConfigs.forEach { entry ->
+            val original = File(root, "payload/${entry.path}")
+            RuntimeManifest.verifyFile(original, entry)
+            original.copyTo(File(configs, entry.path.substringAfterLast('/')))
+        }
+        worldInspectorQueue = WorldUpdaterEnvironment.createQueue(visit)
+        val temp = File(visit, "world-temp").apply { check(mkdir()) }
+        val config = File(visit, "worldserver.conf")
+        val log = File(visit, "world-session.log")
+        var port = LocalAuthProbe.unusedPort()
+        while (port == authPort) port = LocalAuthProbe.unusedPort()
+        val rendered = WorldUpdaterConfig.render(socket, runtime.executables.getValue("database-client"), source,
+            control.directory, temp, log, user, password, port, retained = true)
+        var label = ""
+        var exit: Int? = null
+        fun scan() {
+            for (file in listOf(log, logFile(label, "out"), logFile(label, "err"))) {
+                if (file.length() >= WorldSessionEvidence.MAX_LOG_BYTES) {
+                    control.observe("worldLogLimitExceeded", true)
+                    error("World log limit exceeded")
+                }
+            }
+            if (log.isFile) WorldSessionEvidence.markers(log.readText()).forEach { control.observe(it, true) }
+        }
+        fun stopWorld(): Int {
+            if (worldHandle == 0L) return exit ?: 0
+            val handle = worldHandle
+            val result = stopGracefully(handle, 30_000)
+            if (result != Int.MIN_VALUE) {
+                owned.remove(handle); evidenceHandles.remove(handle); worldHandle = 0; exit = result
+            }
+            runCatching { scan() }
+            return result
+        }
+        try {
+            config.writeText(rendered)
+            check(config.setReadable(false, false) && config.setWritable(false, false) && config.setReadable(true, true) && config.setWritable(true, true))
+            val world = object : WorldServiceProtocol.World {
+                override fun start() {
+                    checkCancelled(); check(!localService!!.stopRequested())
+                    check(LocalAuthProbe.closed(port))
+                    setStage("WORLD_SESSION_START", "Starting the original worldserver with verified retained assets. Keep the launcher visible until health checks begin.")
+                    label = "tool-${++step}"
+                    worldHandle = launch("world-server", listOf("--config", config.absolutePath), null, label)
+                    check(ProcessObservation.live(NativeProcessBridge.processId(worldHandle)).parentPid == android.os.Process.myPid())
+                    val end = System.nanoTime() + 600_000_000_000L
+                    while (true) {
+                        checkCancelled(); check(!localService.stopRequested())
+                        scan()
+                        check(waitTracked(worldHandle, 0) == Int.MIN_VALUE && waitTracked(server, 0) == Int.MIN_VALUE)
+                        val markers = if (log.isFile) WorldSessionEvidence.markers(log.readText()) else emptySet()
+                        if (markers.containsAll(listOf("dbcStoresLoaded", "nativeReadyMarker", "freezeGuardStarted")) &&
+                            runCatching { LocalWorldProbe.exchange(port) }.isSuccess) break
+                        check(System.nanoTime() < end) { "World startup deadline exceeded" }; Thread.sleep(500)
+                    }
+                    control.observe("worldChallenge", true)
+                }
+                override fun health() {
+                    checkCancelled(); scan()
+                    check(waitTracked(worldHandle, 0) == Int.MIN_VALUE)
+                    LocalWorldProbe.exchange(port)
+                    check(waitTracked(worldHandle, 0) == Int.MIN_VALUE)
+                }
+                override fun stop(): Int {
+                    setStage("WORLD_SESSION_STOP", "Stopping world before auth and the retained database.")
+                    return stopWorld()
+                }
+                override fun closed() = LocalAuthProbe.closed(port)
+            }
+            LocalServiceProtocol.run(WorldServiceProtocol.combine(auth, world, control.observe),
+                localService!!.stopRequested, requireNotNull(localAuthObserve), localService.progress)
+        } finally {
+            stopWorld()
             config.delete(); File(temp, "mysql_ac.conf").delete()
         }
     }
@@ -793,7 +901,7 @@ class DatabaseDiagnostic(
         "PATH=/system/bin", "HOME=${root.absolutePath}", "TMPDIR=${root.absolutePath}",
         "ANDROID_ROOT=/system", "ANDROID_DATA=/data",
         "LD_LIBRARY_PATH=${runtime.libraryDirectory.absolutePath}:${runtime.nativeDirectory.absolutePath}"
-    ), role, root, worldInspectorQueue)
+    ), role, if (worldSession != null && role == "world-server") requireNotNull(realmLogDirectory) else root, worldInspectorQueue)
 
     private fun setStage(stage: String, message: String) {
         currentStage = stage
@@ -824,19 +932,30 @@ class DatabaseDiagnostic(
         }
     }
 
+    private fun stopGracefully(handle: Long, graceMs: Long): Int = NativeEvidenceCleanup.stop(
+        recordBefore = {}, nativeStop = { NativeProcessBridge.stop(handle, graceMs) },
+        recordAfter = { exit ->
+            finishEvidence(handle, if (exit == Int.MIN_VALUE) "timed_out" else "exited", exit.takeUnless { it == Int.MIN_VALUE })
+            evidenceHandles[handle]?.let { invocationJournal?.terminated(it, exit.takeUnless { value -> value == Int.MIN_VALUE }) }
+        })
+
     private fun stopTracked(handle: Long, graceMs: Long, outcome: String) {
+        var ended = false
         try {
             NativeEvidenceCleanup.stop(
                 recordBefore = { finishEvidence(handle, outcome, null) },
-                nativeStop = { NativeProcessBridge.stop(handle, graceMs) },
+                nativeStop = { NativeProcessBridge.stop(handle, graceMs).also { ended = it != Int.MIN_VALUE } },
                 recordAfter = { exit ->
                     evidenceHandles[handle]?.let { invocationJournal?.terminated(it, exit.takeIf { value -> value != Int.MIN_VALUE }) }
                     if (handle == realmServerHandle && exit != Int.MIN_VALUE) { realm!!.stopped(); realmServerHandle = 0L }
                 }
             )
         } finally {
-            owned.remove(handle)
-            evidenceHandles.remove(handle)
+            if (ended) {
+                owned.remove(handle); evidenceHandles.remove(handle)
+                if (handle == worldHandle) worldHandle = 0
+                if (handle == authHandle) authHandle = 0
+            }
         }
     }
 
@@ -848,7 +967,7 @@ class DatabaseDiagnostic(
         if (realm != null && role == "database-server") realm.launching()
         val handle = try {
             NativeProcessBridge.start(executable.absolutePath, args.toTypedArray(), environment(role),
-                root.absolutePath, stdin?.absolutePath, logFile(label, "out").absolutePath, logFile(label, "err").absolutePath)
+                (if (worldSession != null && role == "world-server") requireNotNull(realmLogDirectory) else root).absolutePath, stdin?.absolutePath, logFile(label, "out").absolutePath, logFile(label, "err").absolutePath)
         } catch (failure: Exception) {
             evidence?.let { invocationJournal?.finish(it, "start_failed", null, logBytes(label, "out"), logBytes(label, "err")) }
             throw failure
@@ -916,11 +1035,13 @@ class DatabaseDiagnostic(
 
     fun stopOwned() {
         val serverHandle = server
-        val order = owned.keys.filter { it != serverHandle } + owned.keys.filter { it == serverHandle }
-        order.forEach { handle ->
+        val order = owned.keys.sortedBy { when (it) { worldHandle -> 0; authHandle -> 1; serverHandle -> 3; else -> 2 } }
+        for (handle in order) {
+            if (worldHandle != 0L && handle != worldHandle) break
+            if (authHandle != 0L && handle == serverHandle) break
             runCatching { stopTracked(handle, 2_000, if (cancelled.get()) "cancelled" else "stopped") }
         }
-        server = 0
+        if (!owned.containsKey(server)) server = 0
     }
 }
 
@@ -1064,7 +1185,7 @@ internal class NativeInvocationJournal(private val file: File, private val attem
         const val MAX_FILE_BYTES = 2 * 1024 * 1024L
         const val MAX_LOG_BYTES = 8 * 1024 * 1024L
         private val roles = setOf("database-server", "database-client", "auth-server", "world-server")
-        private val stages = setOf("LOCAL_SERVICE_RUNNING", "LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP", "CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP",
+        private val stages = setOf("WORLD_GT_CHECK", "WORLD_SESSION_START", "WORLD_SESSION_STOP", "LOCAL_SERVICE_RUNNING", "LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP", "CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION", "WORLD_INPUT", "WORLD_STAGING", "WORLD_METADATA_BEFORE", "WORLD_UPDATER", "WORLD_METADATA_AFTER", "WORLD_VALIDATION", "STOPPING", "CLEANUP",
             "LIFECYCLE_WRITE", "LIFECYCLE_RESTART", "LIFECYCLE_CANCEL", "LIFECYCLE_SCREEN_OFF", "LIFECYCLE_CRASH", "LIFECYCLE_FINISH",
             "RECOVERY_HOLD", "RECOVERY_RESUME", "RECOVERY_VALIDATE", "REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")
         private val outcomes = setOf("running", "exited", "timed_out", "cancelled", "start_failed", "wait_failed", "stopped", "supervisor_failed")

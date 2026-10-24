@@ -382,3 +382,12 @@ SAF/foreground operation are qualified by that host test.
 See [host source evidence](evidence/host-2026-10-23-import-checkpoint-source.json),
 [private APK identity](evidence/android-2026-10-23-private-import-checkpoint-apk.json) and
 [physical code 17 evidence](evidence/android-2026-10-23-thor-local-service-pass.json).
+
+## Physical code 26 and the retained world gate
+
+The code-26 report passes import, preflight and publication of all 22,817 files
+with zero problems. It records no standalone reverify. Code 27 performs the full
+retained rehash under the same lease held through its native world session. No
+repeat import is needed. See [current handoff](SHORT-HANDOFF.md) and
+[physical evidence](evidence/android-2026-10-24-thor-code26-import-pass.json).
+Native fallback, world runtime and gameplay remain unqualified until their gates.

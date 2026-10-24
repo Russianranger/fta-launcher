@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class GameDataBindingTest {
+    @Test fun worldVerificationAndStartupUseVisiblePriorityButScreenOffHealthDoesNot() {
+        var binds = 0; var unbinds = 0
+        val binding = GameDataBinding({ binds++; true }, { unbinds++ })
+        binding.update(true, true, "world-service", "WORLD_ASSET_VERIFY")
+        binding.update(false, true, "world-service", "WORLD_ASSET_VERIFY")
+        binding.update(true, true, "world-service", "WORLD_SESSION_START")
+        binding.update(true, true, "world-service", "WORLD_SERVICE_RUNNING")
+        assertEquals(2, binds); assertEquals(2, unbinds)
+    }
     @Test fun visibleImportBindsOnceAndCompletionReleasesWithoutRestartingAnything() {
         var binds = 0; var unbinds = 0
         val binding = GameDataBinding({ binds++; true }, { unbinds++ })

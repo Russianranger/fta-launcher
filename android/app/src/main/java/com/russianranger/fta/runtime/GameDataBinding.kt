@@ -4,8 +4,9 @@ package com.russianranger.fta.runtime
 class GameDataBinding(private val bind: () -> Boolean, private val unbind: () -> Unit) {
     private var registered = false
     fun update(visible: Boolean, running: Boolean, scope: String?, stage: String?) {
-        val needed = visible && running && scope == "game-data" &&
-            (stage == "CHECKING" || stage in RUNNING_STAGES)
+        val needed = visible && running && ((scope == "game-data" &&
+            (stage == "CHECKING" || stage in RUNNING_STAGES)) ||
+            (scope == "world-service" && stage in setOf("CHECKING", "WORLD_ASSET_VERIFY", "WORLD_SESSION_START")))
         if (!needed) release()
         else if (!registered) {
             // Android requires unbind even when bindService returns false.

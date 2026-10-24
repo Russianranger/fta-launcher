@@ -24,6 +24,7 @@ class RuntimeDiagnosticService : Service() {
     private val cancelled = AtomicBoolean(false)
     private val gracefulStop = AtomicBoolean(false)
     private var localService = false
+    private var worldService = false
     @Volatile private var diagnostic: DatabaseDiagnostic? = null
     private var started = false
     private var attemptId: String? = null
@@ -36,12 +37,12 @@ class RuntimeDiagnosticService : Service() {
     private val priorityBinder = Binder()
 
     override fun onBind(intent: Intent?): IBinder? {
-        if (!gameData || intent?.action != ACTION_BIND_GAME_DATA) return null
+        if ((!gameData && !worldService) || intent?.action != ACTION_BIND_GAME_DATA) return null
         activityBound = true
         return priorityBinder // No commands, file access or automatic work through this binder.
     }
     override fun onUnbind(intent: Intent?): Boolean { activityBound = false; return true }
-    override fun onRebind(intent: Intent?) { activityBound = gameData && intent?.action == ACTION_BIND_GAME_DATA }
+    override fun onRebind(intent: Intent?) { activityBound = (gameData || worldService) && intent?.action == ACTION_BIND_GAME_DATA }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_RECOVERY_KILL) {
@@ -62,10 +63,11 @@ class RuntimeDiagnosticService : Service() {
             if (!started) stopSelf()
             return START_NOT_STICKY
         }
-        if (intent?.action !in setOf(ACTION_CHECK, ACTION_CHECK_AUTH, ACTION_CHECK_FULL_SEED, ACTION_CHECK_WORLD_UPDATER, ACTION_CHECK_LIFECYCLE, ACTION_RECOVERY_WORKER, ACTION_REALM_STORAGE, ACTION_REALM_BACKUP, ACTION_LOCAL_AUTH, ACTION_LOCAL_SERVICE, ACTION_IMPORT_GAME_DATA, ACTION_VERIFY_GAME_DATA)) { stopSelf(); return START_NOT_STICKY }
+        if (intent?.action !in setOf(ACTION_CHECK, ACTION_CHECK_AUTH, ACTION_CHECK_FULL_SEED, ACTION_CHECK_WORLD_UPDATER, ACTION_CHECK_LIFECYCLE, ACTION_RECOVERY_WORKER, ACTION_REALM_STORAGE, ACTION_REALM_BACKUP, ACTION_LOCAL_AUTH, ACTION_LOCAL_SERVICE, ACTION_WORLD_SERVICE, ACTION_IMPORT_GAME_DATA, ACTION_VERIFY_GAME_DATA)) { stopSelf(); return START_NOT_STICKY }
         if (started) return START_NOT_STICKY
         started = true
-        localService = intent?.action == ACTION_LOCAL_SERVICE
+        worldService = intent?.action == ACTION_WORLD_SERVICE
+        localService = worldService || intent?.action == ACTION_LOCAL_SERVICE
         val includeGameData = intent?.action in setOf(ACTION_IMPORT_GAME_DATA, ACTION_VERIFY_GAME_DATA)
         gameData = includeGameData
         val gameDataUri = if (intent?.action == ACTION_IMPORT_GAME_DATA) intent.data else null
@@ -94,7 +96,7 @@ class RuntimeDiagnosticService : Service() {
             writeAtomicText(File(scope, "diagnostic-attempt.id"), attemptId!!)
         }
         writeStatus("CHECKING", "Preparing a fresh native diagnostic attempt.")
-        if (recoveryStore == null) File(scope, "diagnostic-scope.txt").writeText(if (includeGameData) "game-data" else if (localService) "local-service" else if (includeLocalAuth) "local-auth" else if (includeBackup) "realm-backup" else if (includeRealm) "realm-storage" else if (includeLifecycle) "database-lifecycle" else if (includeWorldUpdater) "compiled-updater" else if (includeFullSeed) "full-seed" else if (includeAuth) "auth-updater" else "database")
+        if (recoveryStore == null) File(scope, "diagnostic-scope.txt").writeText(if (includeGameData) "game-data" else if (worldService) "world-service" else if (localService) "local-service" else if (includeLocalAuth) "local-auth" else if (includeBackup) "realm-backup" else if (includeRealm) "realm-storage" else if (includeLifecycle) "database-lifecycle" else if (includeWorldUpdater) "compiled-updater" else if (includeFullSeed) "full-seed" else if (includeAuth) "auth-updater" else "database")
         if (includeLifecycle) AtomicFile(File(scope, "database-lifecycle.json")).delete()
         if (includeAuth) AtomicFile(File(scope, "auth-diagnostic.json")).delete()
         if (includeFullSeed || includeWorldUpdater) AtomicFile(File(scope, "full-seed-diagnostic.json")).delete()
@@ -105,8 +107,8 @@ class RuntimeDiagnosticService : Service() {
         val stop = stopPendingIntent(this)
         val notification = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_ashes)
-            .setContentTitle(if (includeGameData) "From the Ashes game-data import" else if (localService) "From the Ashes local service" else if (includeLocalAuth) "From the Ashes local auth service" else if (includeBackup) "From the Ashes realm backup" else if (includeRealm) "From the Ashes persistent realm storage" else if (includeLifecycle) "From the Ashes database lifecycle test" else if (includeWorldUpdater) "From the Ashes compiled updater test" else if (includeFullSeed) "From the Ashes full seed test" else if (includeAuth) "From the Ashes auth updater test" else "From the Ashes database test")
-            .setContentText(if (includeGameData) "Checking game assets. Stop cancels this import safely." else if (localService) "Database and local auth session. Use Stop to shut down cleanly." else if (includeLocalAuth) "Checking the retained database and local auth listener." else if (includeBackup) "Backing up and verifying an isolated restore." else if (includeRealm) "Preparing or checking retained realm storage." else "Testing a fresh private database. Existing saves are untouched.")
+            .setContentTitle(if (worldService) "From the Ashes native world session" else if (includeGameData) "From the Ashes game-data import" else if (localService) "From the Ashes local service" else if (includeLocalAuth) "From the Ashes local auth service" else if (includeBackup) "From the Ashes realm backup" else if (includeRealm) "From the Ashes persistent realm storage" else if (includeLifecycle) "From the Ashes database lifecycle test" else if (includeWorldUpdater) "From the Ashes compiled updater test" else if (includeFullSeed) "From the Ashes full seed test" else if (includeAuth) "From the Ashes auth updater test" else "From the Ashes database test")
+            .setContentText(if (worldService) "Verifying retained assets and running the native world. Use Stop for clean shutdown." else if (includeGameData) "Checking game assets. Stop cancels this import safely." else if (localService) "Database and local auth session. Use Stop to shut down cleanly." else if (includeLocalAuth) "Checking the retained database and local auth listener." else if (includeBackup) "Backing up and verifying an isolated restore." else if (includeRealm) "Preparing or checking retained realm storage." else "Testing a fresh private database. Existing saves are untouched.")
             .setContentIntent(content)
             .setOngoing(true)
             .addAction(Notification.Action.Builder(null, "Stop", stop).build())
@@ -114,7 +116,7 @@ class RuntimeDiagnosticService : Service() {
         if (Build.VERSION.SDK_INT >= 34) startForeground(NOTIFICATION, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         else startForeground(NOTIFICATION, notification)
         wakeLock = getSystemService(PowerManager::class.java)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "fta:databaseDiagnostic").apply { acquire(if (includeGameData) 3_660_000L else if (localService) 2_160_000L else if (includeBackup) 1_980_000L else if (includeRealm) 3_180_000L else if (includeWorldUpdater) 2_580_000L else if (includeFullSeed) 1_980_000L else if (includeAuth) 480_000L else 360_000L) }
+            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "fta:databaseDiagnostic").apply { acquire(if (worldService) 6_360_000L else if (includeGameData) 3_660_000L else if (localService) 2_160_000L else if (includeBackup) 1_980_000L else if (includeRealm) 3_180_000L else if (includeWorldUpdater) 2_580_000L else if (includeFullSeed) 1_980_000L else if (includeAuth) 480_000L else 360_000L) }
         worker.execute {
             try {
                 writeStatus("CHECKING", "Verifying immutable packaged provider files.")
@@ -126,6 +128,11 @@ class RuntimeDiagnosticService : Service() {
                     } catch (failure: GameDataRejected) {
                         writeStatus("GAME_DATA_REJECTED", "Game-data preflight found ${failure.preflight.problemCount} missing or incompatible files. Your previous game data and retained database are preserved. Export the report for the exact format results.")
                     }
+                    return@execute
+                }
+                if (worldService) {
+                    val result = WorldServiceRuntime.run(this, cancelled, gracefulStop, ::writeStatus) { diagnostic = it }
+                    writeStatus(WorldServiceRuntime.STOPPED, result)
                     return@execute
                 }
                 if (localService) {
@@ -156,6 +163,7 @@ class RuntimeDiagnosticService : Service() {
                 recoveryStore?.state(recoveryPhase!!, if (cancelled.get()) "STOPPED" else "FAILED")
                 writeStatus(if (cancelled.get()) "STOPPED" else "FAILED",
                     if (includeGameData) GameDataImport.failureSummary(failure, cancelled.get())
+                    else if (worldService) "World session stopped during $lastStage. The realm, assets and verified backup are retained. Export the report before retrying."
                     else if (localService) "Local service failed during $lastStage. The realm and verified backup are retained. Export the diagnostic report before retrying."
                     else if (includeLocalAuth) "Local auth service ${if (cancelled.get()) "stopped" else "failed"} during $lastStage. The realm and verified backup are retained. Normal auth startup may mark realms offline. Export the diagnostic report."
                     else if (cancelled.get()) "Database diagnostic stopped. Existing saves were untouched."
@@ -227,6 +235,7 @@ class RuntimeDiagnosticService : Service() {
         const val ACTION_IMPORT_GAME_DATA = "com.russianranger.fta.IMPORT_GAME_DATA"
         const val ACTION_BIND_GAME_DATA = "com.russianranger.fta.BIND_GAME_DATA_PRIORITY"
         const val ACTION_VERIFY_GAME_DATA = "com.russianranger.fta.VERIFY_GAME_DATA"
+        const val ACTION_WORLD_SERVICE = "com.russianranger.fta.START_WORLD_SERVICE"
         const val ACTION_LOCAL_SERVICE = "com.russianranger.fta.START_LOCAL_SERVICE"
         const val ACTION_LOCAL_AUTH = "com.russianranger.fta.CHECK_LOCAL_AUTH"
         const val ACTION_REALM_BACKUP = "com.russianranger.fta.VERIFY_REALM_BACKUP"

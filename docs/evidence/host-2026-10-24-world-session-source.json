@@ -1,0 +1,29 @@
+{
+  "formatVersion": 1,
+  "scope": "source-derived-receive-only-world-challenge-host-probe",
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "sourceSha256": {
+    "src/server/game/Server/WorldSocket.cpp": "f7e49b9ef8b1bddf82e5a6043a022669f8244e8beb2dcd487219a1fbec105ed1",
+    "src/server/game/Server/WorldSocket.h": "52ac66127f0798110fb16b8a58aec0e8f8fabcd3a19cb341227abdc602ecad43",
+    "src/server/game/Server/Protocol/Opcodes.h": "9109ea4d2abd098883acd1e6b552104adf8965544478439811c75426315aa447",
+    "src/server/game/Server/Protocol/ServerPktHeader.h": "ac309024ea6a969a9e03bab2724fe5221b45f607f033ca294a83a0639ca836b5",
+    "src/server/apps/worldserver/Main.cpp": "782a1100dcbc84c24b924f6394ee3cb7ec33712881089274aaa3f22974edd1a0",
+    "src/server/game/DataStores/DBCStores.cpp": "6627af84f765ccb5b847211b1493dbc6d84513fa9518497d1e04df3dfc7fe0f6"
+  },
+  "productionProbeSha256": "597a664d2d684e1ec72032211053c05b1e29613663a33ec5f197e649438604dd",
+  "originalServerHeaderCompiledUnchanged": true,
+  "syntheticPacketBytes": 44,
+  "fragmentedLoopbackChallengePassed": true,
+  "truncatedChallengeRejected": true,
+  "slowFragmentsHitTotalDeadline": true,
+  "clientBytesSent": 0,
+  "originalRequiredDbcStores": 113,
+  "originalFallbackAndCompletionBoundaryChecked": true,
+  "readyMarkerPrecedesModuleStartup": true,
+  "haltMarkerFollowsModuleShutdown": true,
+  "originalFreezeGuardObservesWorldLoopCounter": true,
+  "androidExecuted": false,
+  "originalWorldserverExecuted": false,
+  "worldReady": false,
+  "gameLoginQualified": false
+}
