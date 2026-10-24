@@ -7,8 +7,8 @@ Earlier history: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
 ## Physical code 31 and current repair
 
-Recovered remote HEAD **5d4339f1bd91e6f5c290bcf90352d7bfb4ba3067**; exact CI
-[40133212573](https://github.com/Russianranger/fta-launcher/actions/runs/40133212573)
+Source-repair commit **8f3947a529cb7945d48c948566d9ab44a18c2b03**; exact CI
+[40142945314](https://github.com/Russianranger/fta-launcher/actions/runs/40142945314)
 passed all three jobs. Latest private APK is code **31**, `0.12.4-world-signals`,
 SHA256 `b34acb24a20b9e2388a12c2e13136718673c183429e6e2a1da9af40ae20ab517`.
 Application commit `52e53173e660955009d8a5c6bc3288bb13acc770`;
@@ -47,6 +47,18 @@ C++20, NPCBots, SQL and source defaults remain. Tree:
 177 tooling tests and private original-code host probes pass. Full native rebuild,
 private update packaging, Android CI and physical repair validation remain pending.
 The Boost dependency driver also corrects B2's failing `--version` probe to `-v`.
+
+Additive-build verification and corresponding-source packaging tools are prepared:
+`verify_world_session.py`, `create_world_session_source.py`. They enforce exact
+baseline/v14 identities, the one-file source delta, complete actual module/link
+proof and unchanged source archives/notices. These tools do not qualify an
+unfinished build or an Android session. Source/profile and companion corruption
+regressions pass. The full native rebuild continues; dependency/header recovery
+and auth prerequisite passed. Two compiler jobs were enabled only after a
+conservative memory check showed about 5 GiB available; no concurrent native build.
+Code-32 Android selection/packaging integration is still local work in progress.
+The new world must be additive: preserve the original updater/world and every
+baseline manifest byte. No private code-32 APK is yet qualified.
 
 ## Next independent actions
 
