@@ -10,8 +10,13 @@ Read `AGENTS.md`, this file, `game-data-import.md`, `private-diagnostics.md` and
 
 Recovery began from actual remote `1c9e51db48fd6a8eed3e083b10956f74a3333651`.
 Its Foundation CI [40101255095](https://github.com/Russianranger/fta-launcher/actions/runs/40101255095)
-passed. This increment adds live host DBC qualification and a receive-only world
-challenge probe. Exact-commit CI is pending publication; verify it before delivery.
+passed. Implementation commit **`e34233df1c22852f11d55cc92e45734eb1a5c705`** adds live
+host DBC qualification and a receive-only world challenge probe. Its complete
+Foundation CI [40111643640](https://github.com/Russianranger/fta-launcher/actions/runs/40111643640)
+passed all three jobs: tooling/native ownership, Android tests/lint/assembly and
+packaged-byte checks, and the public development snapshot. A documentation-only
+confirmation follows that implementation commit; fetch actual remote HEAD and
+inspect its CI when resuming. Neither public snapshot is the private test APK.
 
 **Latest private APK remains code 26, `0.11.8-dbc-loading`.** Recovered unchanged:
 measured SHA256, valid v2 signature, persistent certificate, version, 16 KiB
@@ -81,9 +86,11 @@ pass; the pinned original `ServerPktHeader` compiles unchanged.
 [Source/socket evidence](evidence/host-2026-10-24-world-challenge.json).
 No original worldserver or Android process was started by these checks.
 
-155 tooling tests pass locally. Local Gradle could not resolve its Android plugin
-through this runtime's Java network path. Full Android tests/lint/assembly require
-exact-commit CI verification. The five new pure Kotlin tests passed locally.
+155 tooling tests pass locally and in CI. Full Android unit tests, lint, assembly,
+packaged-native checks and host JNI checks passed in CI for the exact implementation
+commit above. The five new pure Kotlin tests and original-header/socket fixture
+also passed locally. Local Gradle plugin resolution was unavailable through this
+runtime's Java network path; no local full Gradle pass is claimed.
 
 ## Preserved physical milestones
 
