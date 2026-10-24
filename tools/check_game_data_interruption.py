@@ -21,8 +21,11 @@ def main():
     p.add_argument('--kotlin-classpath', required=True)
     p.add_argument('--java', default='java')
     p.add_argument('--stress-zip', type=Path)
+    p.add_argument('--copy-exit-bytes', type=int, help='Run only a mid-copy hard-exit/recovery probe at this byte count; requires --stress-zip')
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
+    if args.copy_exit_bytes is not None and (not args.stress_zip or args.copy_exit_bytes <= 0 or args.copy_exit_bytes % (256 * 1024)):
+        p.error('--copy-exit-bytes requires --stress-zip and a positive 256 KiB-aligned offset')
     policy = REPO / 'manifests/game-data-policy.properties'
     with tempfile.TemporaryDirectory(prefix='fta-import-interruptions-') as temporary:
         root = Path(temporary)
@@ -46,6 +49,30 @@ def main():
         store = root / 'store'
         run('GameDataHost', 'import', store, archive, 0)
         original = (store / 'active').read_bytes()
+        if args.copy_exit_bytes is not None:
+            if args.stress_zip.stat().st_size <= args.copy_exit_bytes:
+                raise ValueError('The synthetic source must exceed the requested interruption point')
+            run('GameDataCheckpointHost', 'halt-copy-bytes', store, args.stress_zip, args.copy_exit_bytes, 73)
+            run('GameDataCheckpointHost', 'inspect-copy-bytes', store, archive, args.copy_exit_bytes)
+            if (store / 'active').read_bytes() != original:
+                raise ValueError('Mid-copy process death replaced the retained candidate')
+            run('GameDataHost', 'verify', store, archive, 0)
+            if not any(path.name.startswith('.partial-') for path in store.iterdir()):
+                raise ValueError('Mid-copy probe did not leave interrupted staging to recover')
+            run('GameDataHost', 'import', store, archive, 0)
+            run('GameDataHost', 'verify', store, archive, 0)
+            if any(path.name.startswith('.partial-') for path in store.iterdir()):
+                raise ValueError('Next explicit import did not recover interrupted staging')
+            proof = {'formatVersion': 1, 'scope': 'production-game-data-mid-copy-exit-host',
+                     'heapLimitMiB': 64, 'separateJvmProcesses': 6, 'interruptedCopyBytes': args.copy_exit_bytes,
+                     'sourceArchiveBytes': args.stress_zip.stat().st_size, 'priorCandidatePreservedAndReverified': True,
+                     'exactCopyCheckpointSurvivedProcessDeath': True, 'nextExplicitImportRecoveredOrphan': True,
+                     'replacementFullyReverified': True, 'androidLowMemoryKillSimulated': False,
+                     'actualGameAssetsTested': False, 'worldReady': False}
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps(proof, indent=2) + '\n')
+            print('Mid-copy hard exit, retained candidate and explicit recovery passed')
+            return
         stages = ['copy', 'copy_sync', 'archive_index', 'extract', 'preflight', 'publish']
         for stage in stages:
             run('GameDataCheckpointHost', 'halt-' + stage, store, archive, '', 73)

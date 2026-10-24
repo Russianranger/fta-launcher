@@ -1,0 +1,100 @@
+{
+  "formatVersion": 1,
+  "scope": "physical-thor-game-data-low-memory-exit",
+  "reportSha256": "95a8b7a32abe543d523848010791d81e3ad901f1cbfdae6a218b34e6b95ffc8d",
+  "appVersionCode": 21,
+  "appVersionName": "0.11.3-import-checkpoints",
+  "apkSha256": "0e0cddb18986f18b95076aa8ddf7a71a71d3cd35811377a9e9e907e1e43e91fb",
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "gameDataOperation": {
+    "available": true,
+    "attemptId": "4de15693-0c4d-45e5-9f56-372ae5d705ad",
+    "mode": "import",
+    "state": "INTERRUPTED",
+    "lastRecordedState": "RUNNING",
+    "stage": "copy",
+    "startedAtEpochMs": 1792804518445,
+    "updatedAtEpochMs": 1792804536572,
+    "completedUnits": 2281177088,
+    "totalUnits": 0,
+    "unit": "bytes",
+    "copiedBytes": 2281177088,
+    "freeStorageBytes": 249779990528,
+    "heapUsedBytes": 4066672,
+    "heapMaxBytes": 268435456,
+    "workerObservation": "inactive",
+    "exitHistorySupported": true,
+    "exitHistoryAvailable": true,
+    "recentRuntimeExits": [
+      {
+        "timestampEpochMs": 1792804536874,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 22915,
+        "lastSampledRssKiB": 101076,
+        "attemptMatched": true
+      },
+      {
+        "timestampEpochMs": 1792802987595,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 0,
+        "lastSampledRssKiB": 0,
+        "attemptMatched": false
+      },
+      {
+        "timestampEpochMs": 1792802945515,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 22658,
+        "lastSampledRssKiB": 100244,
+        "attemptMatched": false
+      }
+    ]
+  },
+  "gameDataDiagnostic": {
+    "available": true,
+    "worldReady": false,
+    "gameLoginQualified": false,
+    "nativeSemanticValidationPassed": false,
+    "policySha256": "ebba21788b69a5021a7e7d330aa33e699fda18161b43848d16a5c75dc9e6fb4a",
+    "state": "COPYING",
+    "preflightPassed": false,
+    "files": 0,
+    "bytes": 0,
+    "problemCount": 0,
+    "count.dbc": 0,
+    "count.maps": 0,
+    "count.vmaps": 0,
+    "count.mmaps": 0,
+    "stockDbcFiles": 0,
+    "db2CompanionFiles": 0,
+    "rejectedAssetCount": 0,
+    "rejectedAssets": [],
+    "problems": [],
+    "activeCandidateRetained": false,
+    "activeCatalogMatchesReport": false
+  },
+  "privateApkIdentityVerified": true,
+  "attemptBoundAndroidLowMemoryExitObserved": true,
+  "javaOutOfMemoryErrorObserved": false,
+  "memoryPressureSourceKnown": false,
+  "olderExitAttemptsCorrelated": false,
+  "archiveIndexObserved": false,
+  "actualGameAssetsQualified": false,
+  "worldReady": false,
+  "interpretation": "The last durable checkpoint is copy at 2281177088 bytes. Android records an attempt-matched REASON_LOW_MEMORY exit 302 ms later. Java heap and OS PSS/RSS are sampled, not precise at-death measurements. Free storage is ample at the checkpoint. No completed archive hash, asset-format rejection or active candidate is reported. The producer of device memory pressure is unknown."
+}

@@ -4,6 +4,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.nio.channels.FileChannel
+import java.nio.channels.Channels
 import java.nio.file.Files
 import java.nio.file.LinkOption.NOFOLLOW_LINKS
 import java.nio.file.StandardCopyOption.*
@@ -140,15 +141,16 @@ class GameDataStore(private val root: File, private val policyText: String,
             val archive = File(staging, ".input.zip")
             val digest = MessageDigest.getInstance("SHA-256"); var copied = 0L
             FileOutputStream(archive).use { out ->
+                val writer = GameDataWriteback(out) { active(); out.fd.sync(); active() }
                 val buffer = ByteArray(256 * 1024)
                 while (true) {
                     active(); if (root.usableSpace < 64L * 1024 * 1024) throw GameDataImportFailure("insufficient_space")
                     val n = input.read(buffer); if (n < 0) break; if (n == 0) continue
                     copied += n; if (copied > GameDataPolicy.MAX_TOTAL_BYTES) throw GameDataImportFailure("archive_limit")
-                    out.write(buffer, 0, n); digest.update(buffer, 0, n); progress("copy", copied, 0)
+                    writer.write(buffer, 0, n); digest.update(buffer, 0, n); progress("copy", copied, 0)
                 }
                 stage = "copy_sync"; boundary(stage, null); progress(stage, copied, copied)
-                out.fd.sync()
+                writer.finish()
             }
             archiveHash = hex(digest.digest())
             stage = "archive_index"
@@ -166,7 +168,8 @@ class GameDataStore(private val root: File, private val policyText: String,
                     val target = File(staging, spec.path); check(target.parentFile!!.mkdirs() || target.parentFile!!.isDirectory)
                     val hash = MessageDigest.getInstance("SHA-256"); val crc = CRC32(); var size = 0L
                     zip.getInputStream(entry).use { source ->
-                        Files.newOutputStream(target.toPath(), CREATE_NEW, WRITE, NOFOLLOW_LINKS).use { output ->
+                        FileChannel.open(target.toPath(), CREATE_NEW, WRITE, NOFOLLOW_LINKS).use { channel ->
+                            val output = GameDataWriteback(Channels.newOutputStream(channel)) { active(); channel.force(true); active() }
                             val buffer = ByteArray(256 * 1024)
                             while (true) {
                                 active(); val n = source.read(buffer); if (n < 0) break; if (n == 0) continue
@@ -174,6 +177,7 @@ class GameDataStore(private val root: File, private val policyText: String,
                                 output.write(buffer, 0, n); hash.update(buffer, 0, n); crc.update(buffer, 0, n)
                                 progress("extract", extracted, total)
                             }
+                            output.finish()
                         }
                     }
                     if (size != spec.bytes || crc.value != spec.crc) throw GameDataImportFailure("asset_integrity", spec.path)

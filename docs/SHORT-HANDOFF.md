@@ -7,53 +7,69 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.11.3-import-checkpoints**, version code **21**.
-APK SHA256: `0e0cddb18986f18b95076aa8ddf7a71a71d3cd35811377a9e9e907e1e43e91fb`.
+Latest private update: **0.11.4-import-memory**, version code **22**.
+APK SHA256: `cbb8d0f95a5254e4a9049a0f786ffbc930da3879213ab0fed5ae2921686b2692`.
 
-**Physical code 20 did not finish; its cause is not yet known.** The new JSON
-matches the verified private APK and records `GAME_DATA_COPY / COPYING` at
-**1,677 MiB**, with no terminal error, archive hash or active asset candidate.
-Code 20 leaves the UI at copying during ZIP indexing, and its asset report stays
-COPYING until success or a handled failure. Thus the last recorded stage does
-not establish where the process actually stopped. No new unsupported asset or
-schema mismatch is proven. See [physical evidence](evidence/android-2026-10-23-unfinished-import.json).
+**Physical code 21 identifies an Android low-memory kill.** The JSON matches
+private code 21 exactly. Its atomic checkpoint is `copy`, **2,281,177,088 bytes**,
+with 4,066,672 bytes of Java heap used and 249,779,990,528 bytes of free storage.
+Android reports `REASON_LOW_MEMORY` (3) **302 ms later**, matched to this attempt
+by owner, token and time. The worker is inactive; no archive hash or candidate
+was published. Older exits are explicitly unmatched. This establishes the OS
+exit reason, not a Java heap exception, bad asset or database/schema failure.
+The source of device-wide memory pressure is still unknown. OS RSS/PSS and heap
+values are samples, not exact memory at death.
+See [physical evidence](evidence/android-2026-10-23-thor-import-low-memory.json).
 
-An unchanged-code-20 regression confirms that its progress omits indexing.
-A **1,888,997,926-byte / 40,141-file** synthetic archive imports and fully
-reverifies on both code 20 and code 21 with a **64 MiB JVM heap**. This does not
-reproduce or explain the Android failure, and no actual game archive is present.
+Code 22 connects the visible launcher activity to its already-started game-data
+worker using Android's `BIND_IMPORTANT | BIND_ADJUST_WITH_ACTIVITY`. It releases
+that connection when hidden, finished, failed or disconnected. There is no
+`BIND_AUTO_CREATE`, automatic restart or new work through the binder. The
+existing foreground notification, Stop, timeout and wake lock remain. Other
+native diagnostics and local service do not acquire this binding.
 
-Code 21 adds atomic operation checkpoints readable independently of the asset
-lease: copy, copy fsync, ZIP indexing (including entry counts), extraction,
-preflight, publication and verification. It records copied bytes, completed
-archive SHA256, free storage, heap measurements and bounded application frame
-names on failure. Android exit history includes only fixed reason codes,
-timestamps/status and sampled memory; an exit is tied to an attempt only when
-its recorded owner PID, attempt token and time window match. Unmatched older exits
-are explicitly uncorrelated. No raw trace, exception message, process ID, source
-URI or game/database data is exported. Live, interrupted and unknown worker
-observations remain distinct; none can qualify game data.
+Archive copying and extracted-file writes now sync at most every **16 MiB**,
+using the existing 256 KiB stream buffer, plus final sync. Previously the archive
+could accumulate writes until EOF; individual extracted files synced at EOF.
+This bounds unsynchronized output from this writer; it does not establish that
+dirty file cache caused the Thor kill, bound all kernel cache, or guarantee
+survival under system memory pressure. Hashes, CRC, NOFOLLOW, atomic generations,
+original source policy, native payloads and strict database checks are unchanged.
 
-The private build passes **290 Android tests** (26 classes), lint/assembly,
+Checkpoints now also sample Android available/total memory, low-memory threshold
+and flag, worker importance and whether the activity binding was observed. An
+unavailable sample stays explicitly unavailable. They never grant readiness.
+Code 21's attempt-bound exit evidence and durable interruption reporting remain.
+
+The private build passes **303 Android tests** (28 classes), lint/assembly,
 **148 tooling tests**, all **221** runtime/notice inputs, signing and alignment.
-Its signer and all **16 native payloads** match code 20. **26 separate JVMs**
-exercise hard exits at every import boundary, preserved prior/new candidates,
-orphan recovery and the large-archive import/reverify. Original C++ loader and
-five additional source/store JVM checks also pass. See [checkpoint host evidence](evidence/host-2026-10-23-import-checkpoints.json),
-[source checks](evidence/host-2026-10-23-import-checkpoint-source.json) and
-[APK proof](evidence/android-2026-10-23-private-import-checkpoint-apk.json).
+Its signer and all **16 native payloads** match code 21. Host tests stream more
+than 3 GiB through the writeback controller, checking the exact 16 MiB bound,
+byte preservation and sync/cancellation failures. **26 separate JVMs** check
+hard exits at import boundaries, retained candidates, orphan recovery, and a
+**3,231,655,994-byte / 40,146-file** import/full reverify with a **64 MiB heap**.
+Six further JVMs hard-exit at the reported **2,281,177,088-byte** copy point,
+check the exact surviving checkpoint and retained candidate, and verify recovery
+through the next explicit import. Original C++ loader and five source/store JVM
+checks also pass.
+See [host evidence](evidence/host-2026-10-23-import-memory.json),
+[copy-point recovery](evidence/host-2026-10-23-import-memory-copy-exit.json),
+[source checks](evidence/host-2026-10-23-import-memory-source.json) and
+[APK proof](evidence/android-2026-10-23-private-import-memory-apk.json).
+Host results do not qualify Android binding priority or the Thor mitigation.
 
-**Next focused physical step:** update to private code 21 in place and import the
-same unchanged `Data.zip`. Let the displayed phases complete; after success,
-reopen and **Verify imported game data**. If both pass, complete the remaining
-screen-off measurement with one local database/auth session: lock for three
-minutes, confirm the counter reaches 120 seconds, Stop and export one JSON. If
-anything stops or fails, reopen if necessary and export immediately before
-starting another test. The export now carries `gameDataOperation` independently
-of `gameDataDiagnostic`. Do not uninstall, clear storage, repackage Data.zip,
-reimport Database.zip or repeat passed database milestones. Physical code 21,
-Android exit-history behavior and actual asset/native world loading remain
-unverified. All original SQL, source policy and strict validation stay unchanged.
+**Next focused physical step:** update to private code 22 in place. Keep the
+launcher visible while importing the same unchanged `Data.zip`; after success,
+reopen and **Verify imported game data** with the launcher visible. Export the
+JSON immediately after verification, or immediately on any failure/interruption,
+before another attempt or diagnostic. This retains the game-data operation and
+memory observations in the scoped export. Do not uninstall, clear storage,
+repackage Data.zip, reimport Database.zip or repeat passed database milestones.
+Physical code 22 and real asset/native world loading remain unverified. The
+remaining 120-second local-service screen-off measurement can join a later
+native gate after real asset evidence is inspected. Code 21's exit-history path
+now has physical evidence. The earlier code 20 report itself remains uncorrelated
+with the older exit records; do not retroactively attribute its exact cause.
 
 Physical code 19 previously identified `dbc/lightskybox.db2` as a ZIP-index
 rejection. Code 20 preserves these unused companions without interpreting a DB2
@@ -106,16 +122,11 @@ See [host checks](evidence/host-2026-10-23-game-data-preflight.json),
 [private APK](evidence/android-2026-10-23-private-game-data-apk.json) and
 [import details](game-data-import.md).
 
-**Combined physical gate with code 21 checkpoints:**
-update in place with private code 21; import the ZIP, close/reopen the launcher
-and select **Verify imported game data**. If either fails, export immediately.
-After success, start one local database/auth session, lock for **three minutes**,
-wake and confirm the live counter reached 120 seconds, then Stop cleanly and
-export one JSON. The combined export includes historical game-data verification
-and current service evidence. No second restart is needed. Keep the retained
-realm, verified backup, Database.zip and native dependencies. Do not import a
-full client/MPQ ZIP or repeat updater/backup/recovery tests. World startup remains
-disabled until real asset evidence is inspected. Physical code 18/19 import failed and code 20 did not finish; code 21 is unverified.
+**Current physical gate:** use private code 22 for the focused import/reopen/
+verify/export sequence above. Keep the retained realm, verified backup,
+Database.zip and native dependencies. World startup remains disabled until real
+asset evidence is inspected. Codes 18/19 failed import validation, code 20 did
+not finish, and code 21 records a low-memory kill. Code 22 remains unverified.
 
 Previous private update: **0.10.0-local-service**, version code **17**.
 APK SHA256: `864615af00847d0e648f3583fce353389b8be6db44093cbe1b671227d1685d94`.

@@ -1,0 +1,25 @@
+{
+  "formatVersion": 1,
+  "scope": "production-game-data-checkpoints-host",
+  "heapLimitMiB": 64,
+  "interruptedStagesVerified": [
+    "copy",
+    "copy_sync",
+    "archive_index",
+    "extract",
+    "preflight",
+    "publish"
+  ],
+  "prepublicationExitsPreservedPriorCandidate": true,
+  "postpublicationExitPreservedNewCandidate": true,
+  "durableCheckpointsReadableAfterProcessDeath": true,
+  "orphanStagingRecovered": true,
+  "separateJvmProcesses": 26,
+  "androidExitHistoryQualified": false,
+  "actualGameAssetsTested": false,
+  "worldReady": false,
+  "stressArchiveBytes": 3231655994,
+  "stressAssetCount": 40146,
+  "stressImportPassed": true,
+  "stressFullReverifyPassed": true
+}

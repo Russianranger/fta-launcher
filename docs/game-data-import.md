@@ -1,14 +1,60 @@
 # Extracted game-data import and source-derived preflight
 
-Private **0.11.3-import-checkpoints**, code **21**, imports an inert ZIP containing extracted
+Private **0.11.4-import-memory**, code **22**, imports an inert ZIP containing extracted
 `dbc`, `maps`, `vmaps` and `mmaps` folders, directly or under one enclosing folder.
 It preserves the retained realm, verified backup, Database.zip and native inputs.
 It does not extract a full client/MPQ archive, launch worldserver or create accounts.
 Matching actual game data is not present in the development environment.
 
-## Unfinished code 20 attempt and code 21 checkpoints
+## Physical low-memory exit and code 22 mitigation
 
-The latest report matches private code 20 but ends at `GAME_DATA_COPY`, showing
+Private code 21 records an **attempt-matched Android low-memory kill** 302 ms
+after the last copy checkpoint at 2,281,177,088 bytes. The checkpoint has about
+4 MiB Java heap used and 233 GiB storage free. It does not record a Java OOM,
+asset rejection, completed ZIP hash or published candidate. The source of
+system memory pressure remains unknown. Do not correlate the older unmatched
+exit entries to earlier attempts merely by timestamp proximity.
+See [device evidence](evidence/android-2026-10-23-thor-import-low-memory.json).
+
+Code 22 binds the visible activity to the already-started import/verify worker
+with [`BIND_IMPORTANT` and `BIND_ADJUST_WITH_ACTIVITY`](https://developer.android.com/reference/android/content/Context#BIND_IMPORTANT).
+This communicates the active screen's importance to Android. The binding is
+released when hidden, terminal, disconnected or unavailable; it never uses
+`BIND_AUTO_CREATE`, starts a worker or restarts an interrupted import. The
+existing foreground service and Stop lifecycle remain. No other diagnostic or
+local database/auth session receives this binding.
+
+Archive and extracted-file output synchronize every 16 MiB and at completion.
+The 256 KiB streaming buffer and exact bytes/hashes remain unchanged. This
+bounds this writer's pending unsynchronized output, not the entire kernel cache;
+file-cache pressure is a mitigation hypothesis, not the measured cause of death.
+Sync errors/cancellation fail the attempt and preserve the previous candidate.
+The source archive, SQL, asset rules and strict metadata expectations are unchanged.
+
+`systemMemoryObservation` adds available/total memory, Android's low-memory
+threshold/flag, the worker's importance and observed activity binding to each
+operation checkpoint. Failed sampling is explicitly unavailable, never filled
+with zeros or reused from a previous sample. See Android's
+[MemoryInfo](https://developer.android.com/reference/android/app/ActivityManager.MemoryInfo)
+and [getMyMemoryState](https://developer.android.com/reference/android/app/ActivityManager#getMyMemoryState(android.app.ActivityManager.RunningAppProcessInfo)).
+These are last-checkpoint observations, not guarantees of protection or exact
+measurements at termination. Existing bounded exit history remains independent.
+
+The host runs a 3,231,655,994-byte, 40,146-file synthetic archive under a 64 MiB
+heap through production import and full reverify, beyond the reported Thor copy
+point. It also checks six pre-publication hard exits, post-publication exit,
+retained candidates and orphan cleanup. Six additional JVMs hard-exit at the
+reported 2,281,177,088-byte copy point and check the retained candidate, exact
+checkpoint and recovery through the next explicit import. See
+[copy-point evidence](evidence/host-2026-10-23-import-memory-copy-exit.json). Unit regressions cover the exact 16 MiB
+writeback bound across more than 3 GiB, byte slices, failed sync, cancellation,
+visible/hidden/terminal binding lifetimes and memory record validation.
+See [host checks](evidence/host-2026-10-23-import-memory.json). Android binding
+behavior, SAF and actual assets still require the focused physical run.
+
+## Earlier code 20 attempt and code 21 checkpoints
+
+The earlier report matches private code 20 but ends at `GAME_DATA_COPY`, showing
 1,677 MiB copied. It contains no terminal failure or completed archive hash.
 Because code 20 omitted index progress, copying is only the last recorded phase;
 it cannot establish the actual point or cause of interruption. The report does
@@ -44,7 +90,7 @@ Both versions import and fully reverify a 1,888,997,926-byte synthetic ZIP with
 failure. Code 21's 26-process harness hard-exits during copy, fsync, index,
 extraction, preflight, publication and immediately after publication. It checks
 checkpoint survival, prior/new candidate retention and subsequent full verify.
-Android SAF, OS exit history and actual game bytes still require the device run.
+Android SAF and actual game bytes still require the device run. Code 21's later report physically exercises the attempt-matched exit-history path.
 See [host evidence](evidence/host-2026-10-23-import-checkpoints.json).
 
 ## Import correction from the physical diagnostic
@@ -71,7 +117,7 @@ bytes and database expectations stay unchanged. Arbitrary nested folders,
 SQL/executable filenames, unsafe paths, duplicate names and invalid ZIP modes
 still fail before extraction. No files are silently discarded or rewritten.
 
-Retry the **unchanged original Data.zip** with code 21. On failure export the
+Retry the **unchanged original Data.zip** with code 22. On failure export the
 **diagnostic `.json` file** immediately. `failureStage`, `failureReason` and
 `failureAsset` identify the boundary; layout failures now include
 `rejectedAssetCount` and up to 32 `rejectedAssets`, collected across the validated
@@ -81,29 +127,25 @@ opaque DB2s, and `stockDbcFiles` counts only auxiliary `.dbc` backups. These are
 subsets of the overall `count.dbc` folder count, not extra runtime requirements.
 Old reports and receipts remain readable with new counts defaulting to zero.
 
-## One combined physical test
+## One focused physical test
 
-1. Install the verified private code 21 APK as an in-place update. Its certificate
-   and all 16 native payloads match code 20. Never uninstall, clear storage or use
-   the differently signed public development/debug APK to replace it.
-2. With a ZIP of matching extracted game data, select **Import extracted game-data
-   ZIP**. Allow free space for both the ZIP and unpacked files, plus any retained
-   previous asset candidate. Wait for **Game-data preflight passed**.
-3. Close/reopen the launcher and select **Verify imported game data**. This
-   rehashes every file and reruns the preflight. If import/verification fails,
-   reopen if necessary and export the diagnostic JSON immediately before another attempt; do not retry unrelated database tests.
-4. After success, select **Start local database + auth**, wait for running status,
-   lock the screen for **three minutes**, then wake it. The live measured counter
-   must reach **120 seconds**; if short, lock again within the same session.
-   Use **Stop** and wait for clean completion. Export one diagnostic JSON.
+1. Install private code 22 as an in-place update. Its signer and all 16 native
+   payloads match code 21. Keep the retained realm, Database.zip and dependencies.
+   Never uninstall, clear storage or substitute the public debug APK.
+2. Keep the launcher visible and select **Import extracted game-data ZIP** with
+   the same unchanged `Data.zip`. Wait for **Game-data preflight passed**.
+3. Close/reopen the launcher, select **Verify imported game data**, and keep it
+   visible until completion. Then **Export diagnostic report** and send the JSON.
+   If either operation fails or stops, reopen if necessary and export immediately
+   before another attempt or diagnostic.
 
-The combined export should contain `gameDataDiagnostic.state=VERIFIED`,
-`preflightPassed=true`, `activeCatalogMatchesReport=true`, and current service
-qualification with `screenOffLocalServiceQualified=true`. This completes the
-7,873 ms shortfall from code 17 without repeating its passed restart milestone.
-If no extracted-data ZIP exists yet, identify whether the available input is an
-original extracted server bundle or a full matching client; do not substitute
-unverified generic assets. Keep game bytes private and out of repository issues.
+Expected asset evidence is `gameDataDiagnostic.state=VERIFIED`,
+`preflightPassed=true`, `activeCatalogMatchesReport=true` and a matching
+`gameDataOperation` completion. Memory/priority observations are diagnostic;
+no particular sample grants asset or world readiness. Preserve this game-data
+scope for export. The remaining 120-second screen-off service measurement can
+join a later native gate; do not repeat database/updater/backup/restart tests.
+The importer never silently edits or drops game files. Keep actual assets private.
 
 ## What the preflight proves
 

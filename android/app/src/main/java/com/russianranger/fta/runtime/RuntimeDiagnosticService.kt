@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.os.Binder
 import android.os.PowerManager
 import android.util.AtomicFile
 import com.russianranger.fta.MainActivity
@@ -30,8 +31,17 @@ class RuntimeDiagnosticService : Service() {
     @Volatile private var lastStage = "CHECKING"
     private var recoveryStore: RecoveryStore? = null
     private var recoveryPhase: RecoveryPhase? = null
+    private var gameData = false
+    @Volatile private var activityBound = false
+    private val priorityBinder = Binder()
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    override fun onBind(intent: Intent?): IBinder? {
+        if (!gameData || intent?.action != ACTION_BIND_GAME_DATA) return null
+        activityBound = true
+        return priorityBinder // No commands, file access or automatic work through this binder.
+    }
+    override fun onUnbind(intent: Intent?): Boolean { activityBound = false; return true }
+    override fun onRebind(intent: Intent?) { activityBound = gameData && intent?.action == ACTION_BIND_GAME_DATA }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_RECOVERY_KILL) {
@@ -57,6 +67,7 @@ class RuntimeDiagnosticService : Service() {
         started = true
         localService = intent?.action == ACTION_LOCAL_SERVICE
         val includeGameData = intent?.action in setOf(ACTION_IMPORT_GAME_DATA, ACTION_VERIFY_GAME_DATA)
+        gameData = includeGameData
         val gameDataUri = if (intent?.action == ACTION_IMPORT_GAME_DATA) intent.data else null
         val includeAuth = intent?.action == ACTION_CHECK_AUTH
         val includeFullSeed = intent?.action == ACTION_CHECK_FULL_SEED
@@ -110,7 +121,7 @@ class RuntimeDiagnosticService : Service() {
                 if (includeGameData) {
                     require(intent?.action != ACTION_IMPORT_GAME_DATA || gameDataUri != null)
                     try {
-                        val result = GameDataImport.run(this, gameDataUri, cancelled, attemptId!!, ::writeStatus)
+                        val result = GameDataImport.run(this, gameDataUri, cancelled, attemptId!!, { activityBound }, ::writeStatus)
                         writeStatus(GameDataImport.PASSED, result)
                     } catch (failure: GameDataRejected) {
                         writeStatus("GAME_DATA_REJECTED", "Game-data preflight found ${failure.preflight.problemCount} missing or incompatible files. Your previous game data and retained database are preserved. Export the report for the exact format results.")
@@ -214,6 +225,7 @@ class RuntimeDiagnosticService : Service() {
         const val ACTION_CHECK_LIFECYCLE = "com.russianranger.fta.CHECK_NATIVE_DATABASE_LIFECYCLE"
         const val ACTION_REALM_STORAGE = "com.russianranger.fta.PREPARE_REALM_STORAGE"
         const val ACTION_IMPORT_GAME_DATA = "com.russianranger.fta.IMPORT_GAME_DATA"
+        const val ACTION_BIND_GAME_DATA = "com.russianranger.fta.BIND_GAME_DATA_PRIORITY"
         const val ACTION_VERIFY_GAME_DATA = "com.russianranger.fta.VERIFY_GAME_DATA"
         const val ACTION_LOCAL_SERVICE = "com.russianranger.fta.START_LOCAL_SERVICE"
         const val ACTION_LOCAL_AUTH = "com.russianranger.fta.CHECK_LOCAL_AUTH"

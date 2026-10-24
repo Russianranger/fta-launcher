@@ -10,11 +10,15 @@ import java.util.Properties
 
 /** Small atomic progress record, readable while the separate asset-store lease is held. */
 class GameDataOperation(private val file: File) {
+    data class Memory(val available: Long, val total: Long, val threshold: Long, val low: Boolean,
+        val importance: Int, val activityBound: Boolean) {
+        init { require(total > 0 && available in 0..total && threshold in 0..total && importance in 0..1000) }
+    }
     data class Record(val attempt: String, val owner: ProcessIdentity, val mode: String,
         val started: Long, val updated: Long, val state: String = "RUNNING", val stage: String = "open",
         val completed: Long = 0, val total: Long = 0, val copied: Long = 0, val archive: String? = null,
         val freeStorage: Long = 0, val heapUsed: Long = 0, val heapMax: Long = 0,
-        val failure: String? = null, val frames: List<String> = emptyList())
+        val failure: String? = null, val frames: List<String> = emptyList(), val memory: Memory? = null)
 
     fun write(record: Record) {
         validate(record)
@@ -28,6 +32,11 @@ class GameDataOperation(private val file: File) {
             "freeStorage" to record.freeStorage.toString(), "heapUsed" to record.heapUsed.toString(), "heapMax" to record.heapMax.toString())
         record.archive?.let { values["archive"] = it }; record.failure?.let { values["failure"] = it }
         record.frames.forEachIndexed { i, frame -> values["frame.$i"] = frame }
+        record.memory?.let { m ->
+            values["memory.available"] = m.available.toString(); values["memory.total"] = m.total.toString()
+            values["memory.threshold"] = m.threshold.toString(); values["memory.low"] = m.low.toString()
+            values["memory.importance"] = m.importance.toString(); values["memory.activityBound"] = m.activityBound.toString()
+        }
         val temporary = File(file.parentFile, ".${file.name}.new")
         try {
             FileOutputStream(temporary).use { out -> out.write(values.entries.joinToString("\n", postfix = "\n") { "${it.key}=${it.value}" }.toByteArray()); out.fd.sync() }
@@ -44,7 +53,10 @@ class GameDataOperation(private val file: File) {
             p.getProperty("mode"), number("started"), number("updated"), p.getProperty("state"), p.getProperty("stage"),
             number("completed"), number("total"), number("copied"), p.getProperty("archive"),
             number("freeStorage"), number("heapUsed"), number("heapMax"), p.getProperty("failure"),
-            (0 until 4).mapNotNull { p.getProperty("frame.$it") }).also(::validate)
+            (0 until 4).mapNotNull { p.getProperty("frame.$it") },
+            if (p.stringPropertyNames().any { it.startsWith("memory.") }) Memory(number("memory.available"), number("memory.total"),
+                number("memory.threshold"), p.getProperty("memory.low").toBooleanStrict(), p.getProperty("memory.importance").toInt(),
+                p.getProperty("memory.activityBound").toBooleanStrict()) else null).also(::validate)
     }.getOrNull()
 
     fun export(attempt: String, workerObserved: Boolean?): Map<String, Any> {
@@ -63,6 +75,10 @@ class GameDataOperation(private val file: File) {
             record.archive?.let { put("archiveSha256", it) }
             record.failure?.let { put("failureKind", it) }
             if (record.frames.isNotEmpty()) put("applicationFrames", record.frames)
+            put("systemMemoryObservationAvailable", record.memory != null)
+            record.memory?.let { m -> put("systemMemoryObservation", mapOf("availableBytes" to m.available, "totalBytes" to m.total,
+                "lowMemoryThresholdBytes" to m.threshold, "lowMemory" to m.low, "workerImportance" to m.importance,
+                "activityBound" to m.activityBound)) }
         }
     }
 

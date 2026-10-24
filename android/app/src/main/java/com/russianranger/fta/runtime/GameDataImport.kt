@@ -26,7 +26,8 @@ object GameDataImport {
         }
         return "$detail Your previous game data and retained database are preserved. Use Export diagnostic report and send the .json file; it records the stage and any supported archive details."
     }
-    fun run(context: Context, uri: Uri?, cancelled: AtomicBoolean, attempt: String, status: (String, String) -> Unit): String {
+    fun run(context: Context, uri: Uri?, cancelled: AtomicBoolean, attempt: String, activityBound: () -> Boolean,
+        status: (String, String) -> Unit): String {
         val end = SystemClock.elapsedRealtime() + 3_600_000
         val checkActive = {
             check(!cancelled.get())
@@ -39,7 +40,8 @@ object GameDataImport {
         fun checkpoint() {
             val vm = Runtime.getRuntime()
             record = record.copy(updated = System.currentTimeMillis(), freeStorage = context.filesDir.usableSpace.coerceAtLeast(0),
-                heapUsed = (vm.totalMemory() - vm.freeMemory()).coerceIn(0, vm.maxMemory()), heapMax = vm.maxMemory())
+                heapUsed = (vm.totalMemory() - vm.freeMemory()).coerceIn(0, vm.maxMemory()), heapMax = vm.maxMemory(),
+                memory = GameDataDiagnostics.memory(context, activityBound()))
             journal.write(record)
         }
         checkpoint()

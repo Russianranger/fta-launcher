@@ -13,6 +13,10 @@ import com.russianranger.fta.runtime.RuntimeDiagnosticService
 import com.russianranger.fta.runtime.RuntimeRecoveryService
 import java.io.File
 import android.content.Intent
+import android.content.ComponentName
+import android.content.ServiceConnection
+import android.os.IBinder
+import com.russianranger.fta.runtime.GameDataBinding
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -75,6 +79,17 @@ class MainActivity : Activity() {
     private lateinit var exportReportButton: Button
     private val refresh = Handler(Looper.getMainLooper())
     private var requestedAt = 0L
+    private var activityVisible = false
+    private val gameDataConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) = Unit
+        override fun onServiceDisconnected(name: ComponentName?) { gameDataBinding.release() }
+        override fun onBindingDied(name: ComponentName?) { gameDataBinding.release() }
+        override fun onNullBinding(name: ComponentName?) { gameDataBinding.release() }
+    }
+    private val gameDataBinding: GameDataBinding by lazy { GameDataBinding(
+        { bindService(Intent(this, RuntimeDiagnosticService::class.java).setAction(RuntimeDiagnosticService.ACTION_BIND_GAME_DATA),
+            gameDataConnection, BIND_IMPORTANT or BIND_ADJUST_WITH_ACTIVITY) },
+        { unbindService(gameDataConnection) }) }
     private val refresher = object : Runnable {
         override fun run() { update(); refresh.postDelayed(this, 1000) }
     }
@@ -243,11 +258,14 @@ class MainActivity : Activity() {
 
     override fun onStart() {
         super.onStart()
+        activityVisible = true
         app.observer = { update() }
         refresh.post(refresher)
     }
 
     override fun onStop() {
+        activityVisible = false
+        gameDataBinding.release()
         app.observer = null
         refresh.removeCallbacks(refresher)
         super.onStop()
@@ -302,6 +320,9 @@ class MainActivity : Activity() {
         val diagnostic = File(filesDir, "runtime/diagnostic-status.txt")
         val diagnosticLines = if (diagnostic.isFile && diagnostic.length() <= 8192)
             runCatching { diagnostic.readLines() }.getOrDefault(emptyList()) else emptyList()
+        val diagnosticScope = File(filesDir, "runtime/diagnostic-scope.txt")
+        val scope = if (diagnosticScope.isFile && diagnosticScope.length() <= 64) runCatching { diagnosticScope.readText() }.getOrNull() else null
+        gameDataBinding.update(activityVisible, gameDataWorkerRunning(), scope, diagnosticLines.firstOrNull())
         diagnosticStatus.text = if (diagnosticLines.size >= 3) diagnosticLines.drop(2).joinToString("\n")
             else "No native database test has completed on this device."
         if (!testing && !requested && ((diagnosticLines.firstOrNull()?.startsWith("LIFECYCLE_") == true || diagnosticLines.firstOrNull()?.startsWith("BACKUP_") == true || diagnosticLines.firstOrNull() in setOf("GAME_DATA_COPY", "GAME_DATA_EXTRACT", "GAME_DATA_VERIFY", "GAME_DATA_PREFLIGHT") || diagnosticLines.firstOrNull() in setOf("LOCAL_SERVICE_RUNNING", "LOCAL_AUTH_SETUP", "LOCAL_AUTH_START", "LOCAL_AUTH_HOLD", "LOCAL_AUTH_STOP") || diagnosticLines.firstOrNull() == "RUNTIME_RECOVERY_RUNNING" || diagnosticLines.firstOrNull() in setOf("REALM_PREPARING", "REALM_REOPEN", "REALM_VERIFY", "REALM_METADATA")) || diagnosticLines.firstOrNull() in setOf("CHECKING", "STAGING", "BOOTSTRAPPING", "STARTING", "STOPPING", "AUTH_INPUT", "AUTH_IMPORT", "AUTH_VERSION", "AUTH_UPDATER", "SEED_INPUT", "SEED_STAGING", "SEED_IMPORT", "SEED_VALIDATION"))) {
@@ -333,6 +354,10 @@ class MainActivity : Activity() {
     @Suppress("DEPRECATION")
     private fun runtimeRecoveryRunning(): Boolean = getSystemService(ActivityManager::class.java)
         .getRunningServices(20).any { it.service.className == RuntimeRecoveryService::class.java.name }
+
+    @Suppress("DEPRECATION")
+    private fun gameDataWorkerRunning(): Boolean = getSystemService(ActivityManager::class.java)
+        .getRunningServices(20).any { it.service.className == RuntimeDiagnosticService::class.java.name && it.started && it.pid > 0 }
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("pendingGameData", pendingGameData)

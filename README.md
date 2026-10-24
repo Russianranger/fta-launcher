@@ -73,7 +73,7 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.11.3-import-checkpoints** (code **21**)
+signing and validation. Latest private version **0.11.4-import-memory** (code **22**)
 adds inert import and re-verification of extracted `dbc/maps/vmaps/mmaps` ZIPs.
 It checks the original source's 113 active DBC layouts, seven version sentinels,
 eight startup map locations and supplied map/vmap/mmap headers, then stores hashes
@@ -83,24 +83,29 @@ Physical code 19 identified `dbc/lightskybox.db2` as the next ZIP-index blocker.
 Code 20 preserves unused DB2 companions with exact hashes and reports up to 32
 unsupported paths together. Its physical follow-up stopped without a terminal
 error; code 21 adds durable phase checkpoints and bounded Android exit evidence.
-The cause remains unknown. Required DBC checks and source policy are unchanged.
+Code 21's physical report identifies an attempt-matched Android low-memory kill
+during copy. Code 22 binds the visible screen to the worker and syncs output
+every 16 MiB, with memory/priority checkpoints. The source of system memory
+pressure remains unknown; the mitigation needs Thor validation. Required DBC
+checks and source policy are unchanged.
 See [game-data import](docs/game-data-import.md).
 
 Physical code **17 passed user-controlled service Stop and retained restart**:
 all ten checks in both sessions, all 54 native exits zero and all 24 metadata
 checks before/after both clean shutdowns. Screen-off health reached **112,127 ms**,
-short of the unchanged 120,000 ms threshold; finish that measurement with the
-larger game-data test, without repeating the passed restart milestone.
+short of the unchanged 120,000 ms threshold; finish that measurement with a later
+native gate after the focused game-data report, without repeating restart.
 See [physical evidence](docs/evidence/android-2026-10-23-thor-local-service-pass.json).
 Code **16 passed retained local auth**; its automatic diagnostic also needs no repeat.
 
-Code 21 passes 290 Android tests, lint/assembly, 148 tooling tests, 221 packaged
+Code 22 passes 303 Android tests, lint/assembly, 148 tooling tests, 221 packaged
 input checks and signing/alignment. Its signer and all 16 native payloads match
-code 20. Independent original-C++ loader checks and five separate production-store
-JVM sessions cover synthetic imports, abrupt death, retained candidate verification
-and orphan recovery. Those checks include stock DBC backups and opaque DB2 companions. Actual game
-assets and Android code 21 execution remain unverified. Twenty-six further JVMs
-verify interruption checkpoints and a 1.8 GiB / 40,141-file import under a 64 MiB heap.
+code 21. Independent original-C++ loader checks and five production-store JVM
+sessions cover stock DBC backups, opaque DB2 companions and retained candidates.
+Twenty-six further JVMs check interruption safety and a 3,231,655,994-byte /
+40,146-file import and full reverify under a 64 MiB heap. Six additional JVMs
+verify forced death at the reported copy byte count and explicit recovery. Actual game assets and
+Android code 22 execution remain unverified.
 
 Physical code **14 passed cold backup and two isolated restored reopens**. The
 uploaded ZIP matches the recorded identity and every manifest file hash. Its

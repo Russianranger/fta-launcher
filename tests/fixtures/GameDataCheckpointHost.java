@@ -11,10 +11,12 @@ public final class GameDataCheckpointHost {
     public static void main(String[] args) throws Exception {
         String mode = args[0]; File root = new File(args[1]);
         GameDataOperation journal = new GameDataOperation(new File(root, "operation.properties"));
-        if (mode.equals("inspect")) {
+        if (mode.equals("inspect") || mode.equals("inspect-copy-bytes")) {
             var evidence = journal.export(ATTEMPT, false);
-            if (!"INTERRUPTED".equals(evidence.get("state")) || !args[4].equals(evidence.get("stage"))) throw new AssertionError(evidence);
-            if (!Set.of("copy", "copy_sync").contains(args[4]) && !evidence.containsKey("archiveSha256")) throw new AssertionError(evidence);
+            String expectedStage = mode.equals("inspect") ? args[4] : "copy";
+            if (!"INTERRUPTED".equals(evidence.get("state")) || !expectedStage.equals(evidence.get("stage"))) throw new AssertionError(evidence);
+            if (!Set.of("copy", "copy_sync").contains(expectedStage) && !evidence.containsKey("archiveSha256")) throw new AssertionError(evidence);
+            if (mode.equals("inspect-copy-bytes") && !Long.valueOf(args[4]).equals(evidence.get("copiedBytes"))) throw new AssertionError(evidence);
             System.out.println("Interrupted checkpoint " + args[4] + " preserved"); return;
         }
         // Some hosted test environments expose /proc through a different PID namespace.
@@ -33,13 +35,20 @@ public final class GameDataCheckpointHost {
                 (kotlin.jvm.functions.Function0<Unit>) () -> Unit.INSTANCE,
                 (kotlin.jvm.functions.Function3<String, Long, Long, Unit>) (stage, done, total) -> {
                     if (stage.equals("copy")) copied[0] = done;
+                    if (mode.equals("halt-copy-bytes") && stage.equals("copy") && done >= Long.parseLong(args[4])) {
+                        var vm = Runtime.getRuntime();
+                        journal.write(new GameDataOperation.Record(ATTEMPT, owner, "import", started, System.currentTimeMillis(),
+                            "RUNNING", "copy", done, 0, done, null, root.getUsableSpace(),
+                            vm.totalMemory() - vm.freeMemory(), vm.maxMemory(), null, List.of(), null));
+                        Runtime.getRuntime().halt(73);
+                    }
                     return Unit.INSTANCE;
                 }, (kotlin.jvm.functions.Function2<String, String, Unit>) (stage, archive) -> {
                     hash[0] = archive;
                     var vm = Runtime.getRuntime();
                     journal.write(new GameDataOperation.Record(ATTEMPT, owner, "import", started, System.currentTimeMillis(),
                         "RUNNING", stage, 0, 0, copied[0], archive, root.getUsableSpace(),
-                        vm.totalMemory() - vm.freeMemory(), vm.maxMemory(), null, List.of()));
+                        vm.totalMemory() - vm.freeMemory(), vm.maxMemory(), null, List.of(), null));
                     if (mode.equals("halt-" + stage)) Runtime.getRuntime().halt(73);
                     return Unit.INSTANCE;
                 });

@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "scope": "production-game-data-mid-copy-exit-host",
+  "heapLimitMiB": 64,
+  "separateJvmProcesses": 6,
+  "interruptedCopyBytes": 2281177088,
+  "sourceArchiveBytes": 3231655994,
+  "priorCandidatePreservedAndReverified": true,
+  "exactCopyCheckpointSurvivedProcessDeath": true,
+  "nextExplicitImportRecoveredOrphan": true,
+  "replacementFullyReverified": true,
+  "androidLowMemoryKillSimulated": false,
+  "actualGameAssetsTested": false,
+  "worldReady": false
+}

@@ -7,6 +7,14 @@ import java.io.File
 
 /** Android-only observations; no trace streams, exception messages or process identifiers are exported. */
 object GameDataDiagnostics {
+    fun memory(context: Context, activityBound: Boolean): GameDataOperation.Memory? = runCatching {
+        val memory = ActivityManager.MemoryInfo()
+        context.getSystemService(ActivityManager::class.java).getMemoryInfo(memory)
+        val process = ActivityManager.RunningAppProcessInfo()
+        ActivityManager.getMyMemoryState(process)
+        GameDataOperation.Memory(memory.availMem, memory.totalMem, memory.threshold, memory.lowMemory,
+            process.importance, activityBound)
+    }.getOrNull()
     fun store(context: Context) = GameDataOperation(File(context.filesDir, "runtime/game-data-operation.properties"))
     fun markProcess(context: Context, attempt: String) {
         if (Build.VERSION.SDK_INT >= 30) runCatching {

@@ -16,6 +16,33 @@ class GameDataOperationTest {
         stage = "copy", completed = 1758461952, copied = 1758461952, heapUsed = 8_000_000, heapMax = 64_000_000)
     @After fun cleanup() { root.deleteRecursively() }
 
+    @Test fun memoryAndPriorityObservationSurvivesDeathWithoutGrantingReadiness() {
+        val memory = GameDataOperation.Memory(200, 1000, 250, true, 100, true)
+        store.write(record().copy(memory = memory))
+        assertEquals(memory, store.read(attempt)!!.memory)
+        val report = store.export(attempt, false)
+        assertEquals(true, report["systemMemoryObservationAvailable"])
+        val sample = report["systemMemoryObservation"] as Map<*, *>
+        assertEquals(100, sample["workerImportance"]); assertEquals(true, sample["activityBound"])
+        assertEquals(200L, sample["availableBytes"]); assertEquals(true, sample["lowMemory"])
+        assertEquals("INTERRUPTED", report["state"]); assertFalse(report.containsKey("preflightPassed"))
+    }
+    @Test fun olderOrUnavailableMemoryIsExplicitAndNeverReplacedWithZeros() {
+        store.write(record())
+        val report = store.export(attempt, false)
+        assertEquals(false, report["systemMemoryObservationAvailable"])
+        assertFalse(report.containsKey("systemMemoryObservation"))
+        assertNull(store.read(attempt)!!.memory)
+    }
+    @Test fun partialInvalidOrCorruptMemoryObservationRejectsTheRecord() {
+        store.write(record().copy(memory = GameDataOperation.Memory(200, 1000, 250, true, 100, false)))
+        val valid = file.readText()
+        for (bad in listOf(valid.replace("memory.available=200", "memory.available=1001"),
+            valid.replace("memory.low=true", "memory.low=unknown"), valid.replace("memory.importance=100\n", ""))) {
+            file.writeText(bad); assertEquals(mapOf("available" to false), store.export(attempt, false))
+        }
+    }
+
     @Test fun runningInterruptedAndUnknownObservationsRemainDistinct() {
         store.write(record())
         assertEquals("RUNNING", store.export(attempt, true)["state"])
