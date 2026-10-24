@@ -65,7 +65,7 @@ class GameDataStore @JvmOverloads constructor(private val root: File, private va
     }
     private fun report(state: String, archive: String?, result: GameDataPreflight? = null, catalog: String? = null,
         stage: String? = null, failure: Exception? = null) {
-        val values = mutableMapOf<String, Any>("formatVersion" to 1, "state" to state, "policySha256" to policySha,
+        val values = mutableMapOf<String, Any>("formatVersion" to 2, "state" to state, "policySha256" to policySha,
             "files" to (result?.files ?: 0), "bytes" to (result?.bytes ?: 0), "problemCount" to (result?.problemCount ?: 0))
         archive?.let { values["archiveSha256"] = it }; catalog?.let { values["catalogSha256"] = it }
         values["stockDbcFiles"] = result?.counts?.get("stock_dbc") ?: 0
@@ -81,7 +81,14 @@ class GameDataStore @JvmOverloads constructor(private val root: File, private va
             }
         }
         GameDataPolicy.GROUPS.forEach { values["count.$it"] = result?.counts?.get(it) ?: 0 }
-        result?.problems?.forEachIndexed { i, p -> values["problem.$i.path"] = p.path; values["problem.$i.reason"] = p.reason }
+        values["mmapHighBitCapacityFiles"] = result?.mmapHighBitCapacityFiles ?: 0
+        result?.reasonCounts?.forEach { (reason, count) -> values["reasonCount.$reason"] = count }
+        result?.problems?.forEachIndexed { i, p ->
+            values["problem.$i.path"] = p.path; values["problem.$i.reason"] = p.reason
+            p.sha256?.let { values["problem.$i.sha256"] = it }
+            p.observed.forEach { (key, value) -> values["problem.$i.observed.$key"] = value }
+            p.expected.forEach { (key, value) -> values["problem.$i.expected.$key"] = value }
+        }
         atomic(File(root, "last-report.properties"), text(values))
     }
     /** Stored receipt is historical import evidence; it never asserts present payload integrity or world readiness. */
@@ -90,8 +97,9 @@ class GameDataStore @JvmOverloads constructor(private val root: File, private va
             "nativeSemanticValidationPassed" to false, "policySha256" to policySha)
         runCatching {
             val parsed = mutableMapOf<String, Any>()
-            val p = read(File(root, "last-report.properties"), 32768)
-            require(p.getProperty("formatVersion") == "1" && p.getProperty("policySha256") == policySha)
+            val p = read(File(root, "last-report.properties"), 65536)
+            val detailed = p.getProperty("formatVersion") == "2"
+            require(p.getProperty("formatVersion") in setOf("1", "2") && p.getProperty("policySha256") == policySha)
             val state = p.getProperty("state"); require(state in setOf("COPYING", "IMPORTED", "VERIFIED", "REJECTED", "FAILED"))
             parsed["available"] = true; parsed["state"] = state
             parsed["preflightPassed"] = state in setOf("IMPORTED", "VERIFIED")
@@ -117,12 +125,39 @@ class GameDataStore @JvmOverloads constructor(private val root: File, private va
                 GameDataPolicy.path(path); require(path.substringBefore('/') in GameDataPolicy.GROUPS)
                 path
             }
-            parsed["problems"] = (0 until 32).mapNotNull { i ->
+            parsed["headerDiagnosticsAvailable"] = detailed
+            val reasonCounts = p.stringPropertyNames().filter { it.startsWith("reasonCount.") }.associate { key ->
+                val reason = key.removePrefix("reasonCount."); require(reason.matches(Regex("[a-z_]{1,48}")))
+                reason to p.getProperty(key).toInt().also { require(it in 1..100_256) }
+            }
+            if (detailed) {
+                require(reasonCounts.size <= 64 && reasonCounts.values.sum().toLong() == parsed["problemCount"])
+                parsed["problemCountsByReason"] = reasonCounts
+                parsed["mmapHighBitCapacityFiles"] = p.getProperty("mmapHighBitCapacityFiles").toInt().also {
+                    require(it in 0..GameDataPolicy.MAX_FILES && it.toLong() <= parsed["count.mmaps"] as Long)
+                }
+            }
+            val problems = (0 until 32).mapNotNull { i ->
                 val path = p.getProperty("problem.$i.path") ?: return@mapNotNull null
                 GameDataPolicy.path(path); require(path.substringBefore('/') in GameDataPolicy.GROUPS)
                 val reason = p.getProperty("problem.$i.reason"); require(reason.matches(Regex("[a-z_]{1,48}")))
-                mapOf("asset" to path, "reason" to reason)
+                val detail = mutableMapOf<String, Any>("asset" to path, "reason" to reason)
+                if (detailed) {
+                    require(reason in reasonCounts)
+                    p.getProperty("problem.$i.sha256")?.let { require(it.matches(Regex("[a-f0-9]{64}"))); detail["sha256"] = it }
+                    val observed = GameDataHeaders.parse(p, "problem.$i.observed.", false)
+                    val expected = GameDataHeaders.parse(p, "problem.$i.expected.", true)
+                    require(observed.isEmpty() || ("fileBytes" in observed && "sha256" in detail))
+                    if (observed.isNotEmpty()) detail["observedHeader"] = observed
+                    if (expected.isNotEmpty()) detail["sourceExpected"] = expected
+                }
+                detail
             }
+            if (detailed) {
+                require(problems.size.toLong() == minOf(32L, parsed["problemCount"] as Long))
+                problems.groupingBy { it["reason"] }.eachCount().forEach { (reason, count) -> require(count <= reasonCounts.getValue(reason as String)) }
+            }
+            parsed["problems"] = problems
             val current = receipt()
             parsed["activeCandidateRetained"] = current != null
             parsed["activeCatalogMatchesReport"] = current != null && current.catalogSha256 == p.getProperty("catalogSha256")

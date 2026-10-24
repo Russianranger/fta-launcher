@@ -7,7 +7,70 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.11.6-import-cache**, version code **24**.
+Latest private update: **0.11.7-asset-headers**, version code **25**.
+APK SHA256: `4f3f224abaae30837ded42fbccfbefcf52f07df68a5a07fa8a7a76400555bdb5`.
+
+**Physical code 24 completed extraction and reached asset-format preflight.**
+The private APK identity and unchanged Data.zip SHA256 match. All **22,817 files**
+(**7,625,943,031 bytes**) passed extraction size/CRC/SHA256 checks. The worker
+terminated normally with a validation rejection; no historical kill matches this
+attempt. All 46,596 cache-advice calls were accepted, which does not measure actual
+eviction or guarantee future survival. The report records **116 preflight problems**,
+but only the first 32 reasons: CharHairTextures layout, ten GT DBC source layouts,
+PowerDisplay source layout and twenty mmap parameter-value failures. No measured
+headers or complete reason counts were exported. Do not assume all remaining 84
+are mmap failures. No candidate was published; the retained realm is untouched.
+See [physical evidence](evidence/android-2026-10-23-thor-asset-preflight-rejection.json).
+
+Code 25 corrects a **reproduced source-generator compatibility defect**. Original
+`MapBuilder.cpp` uses `1 << DT_POLY_BITS`, with `DT_POLY_BITS=31`; the stored signed
+`maxPolys` has bits `0x80000000`. Unchanged original 64-bit Detour successfully
+initializes and reloads those 28-byte parameters. Code 24 incorrectly rejects the
+negative signed interpretation. Code 25 accepts that exact representation as well
+as the previously accepted positive capacities. Zero, other negative capacities,
+invalid tile counts/dimensions/origins and wrong lengths remain rejected. Bytes
+are never rewritten. This source proof does not yet identify Thor's actual value.
+
+The JSON now adds complete `problemCountsByReason`, `mmapHighBitCapacityFiles`,
+and, for up to 32 failed assets, SHA256 plus bounded `observedHeader` numeric words
+and `sourceExpected` DBC fields/record size/sentinel. No asset records or strings
+are exported. Header reads precede cache release. The count of high-bit mmap
+headers is an observation, not validation success. Legacy reports stay readable
+with `headerDiagnosticsAvailable=false`; malformed new diagnostics fail closed.
+All DBC expectations and policy-manifest bytes are unchanged. In particular,
+the actual CharHairTextures/GT/PowerDisplay header values remain unknown.
+
+Code 25 passes **327 Android tests**, lint/assembly, **148 tooling tests**, all
+221 packaged runtime/notice checks, v2 signing and 16 KiB alignment. The signer
+and all **17 native payloads** match code 24, including the cache helper.
+The regression fails on unchanged code 24 and passes after the correction.
+Original Detour capacity generation/reload passes C++20 with UBSan; original
+113-DBC loading, seven sentinels and five production-store JVMs pass with the
+generated mmap, companions, cache advice, interrupted replacement and retained
+reverification. See [host evidence](evidence/host-2026-10-23-asset-headers.json) and
+[APK proof](evidence/android-2026-10-23-private-asset-headers-apk.json).
+The large cache/interruption tests below are code 24 evidence, not rerun claims.
+
+**Next focused physical gate:** update in place to private code 25, keep the
+launcher visible, import the same unchanged `Data.zip` once, then **Export
+diagnostic report** immediately after the result. If import succeeds, first
+reopen and **Verify imported game data**, then export. A DBC rejection is still
+expected to be possible; its measured headers are the needed evidence. Do not
+uninstall, clear storage, edit/repackage assets, rerun database milestones or
+start another diagnostic before exporting. Keep Database.zip, dependencies,
+retained realm and backup. World startup remains disabled; the remaining
+120-second native screen-off gate stays deferred until assets are resolved.
+
+Use actual headers to distinguish empty/unused files, source-layout differences,
+and format errors. Original `LoadDBC` also invokes `LoadFromDB` for named SQL
+tables; that is not permission to waive DBC requirements. Any proposed fallback
+needs independent original-loader and retained-database coverage evidence before
+changing policy. Do not alter original SQL, strict database metadata or source
+provenance to make this preflight pass.
+
+## Previous code 24 cache mitigation
+
+Previous private update: **0.11.6-import-cache**, version code **24**.
 APK SHA256: `d1095b39b68e98747a157982e0dc2f815db8eaf23f76dc682e786ea0cef9fead`.
 
 **Physical code 23 again records an attempt-matched Android low-memory kill.**
@@ -63,14 +126,14 @@ behavior does not qualify Android SAF/FUSE or lmkd. See
 [source checks](evidence/host-2026-10-23-cache-source.json), and
 [APK proof](evidence/android-2026-10-23-private-import-cache-apk.json).
 
-**Next focused physical gate:** update to private code 24 in place. Keep the
+**Original code 24 physical gate (now completed through preflight):** update to private code 24 in place. Keep the
 launcher visible and import the same unchanged `Data.zip`; after success reopen,
 **Verify imported game data**, then **Export diagnostic report**. On any failure
 or process termination, reopen and export immediately before another attempt or
 diagnostic. Preserve imported dependencies, Database.zip, retained realm and
 backup. No uninstall, clearing storage, ZIP repackaging or repeated database
-milestones. Physical code 24, real asset preflight and native world loading remain
-unverified. The remaining 120-second screen-off measurement stays deferred to a
+milestones. The later code 24 report above completes extraction and records
+preflight rejections; native world loading remains unverified. The remaining 120-second screen-off measurement stays deferred to a
 later native gate after the asset report.
 
 ## Previous code 23 companion correction
@@ -224,12 +287,12 @@ See [host checks](evidence/host-2026-10-23-game-data-preflight.json),
 [private APK](evidence/android-2026-10-23-private-game-data-apk.json) and
 [import details](game-data-import.md).
 
-**Current physical gate:** use private code 24 for the focused import/reopen/
-verify/export sequence above. Keep the retained realm, verified backup,
+**Current physical gate:** use private code 25 for the focused import/export
+sequence at the top. Keep the retained realm, verified backup,
 Database.zip and native dependencies. World startup remains disabled until real
 asset evidence is inspected. Codes 18/19 failed import validation, code 20 did
 not finish, code 21 records a low-memory kill, and code 22 reaches the editor ZIP rejection.
-Code 23 was killed during copying; code 24 remains physically unverified.
+Code 23 was killed during copying; code 24 completed extraction and rejected 116 asset headers.
 
 Previous private update: **0.10.0-local-service**, version code **17**.
 APK SHA256: `864615af00847d0e648f3583fce353389b8be6db44093cbe1b671227d1685d94`.
@@ -603,42 +666,21 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 
 ## Next concrete work
 
-1. Preserve the passing physical version 5 auth evidence. Still qualify explicit
-   cancellation, background and process-death cleanup on Thor; the normal passing
-   dry run does not establish those behaviors.
-2. Preserve the passing physical version 7 full-seed evidence and exact APK.
-   Later updater diagnostics must first repeat its fresh import and original
-   three-schema/receipt baseline checks before applying runtime SQL. Keep the
-   early ASCII probe, bounded current-attempt evidence and observed SQL shutdown.
-3. Preserve the complete v13 native build, actual private stage and version 8 APK
-   evidence. Compiler-led patches preserve C++20/all 52 modules, signed 64-bit
-   timestamp values and atomic shared-settings semantics. Link-time debug
-   stripping keeps the unchanged final ELF within Android runtime size bounds;
-   symbols remain available. See `docs/native-build.md` and `docs/world-runtime.md`.
-4. Preserve physical versions 8/9 and the exact host time-zone reproduction.
-   Version 10 supplies the all-24-check Thor result and exact full snapshot match.
-   The compiled updater gate is qualified; expected metadata remains unchanged.
-   If a later change requires rerunning this mode, it first repeats the
-   passing full-seed gate, then runs original **normal** world startup through
-   the missing-map boundary. **Do not use world `--dry-run` for this gate**:
-   failed SQL can write receipts before a final error-counter check that missing
-   DBCs prevent reaching. Follow `docs/world-updater-gate.md`.
-5. With that gate passed, qualify abnormal lifecycle/cancellation/process-death
-   cleanup and matching DBC/maps/vmaps/mmaps before persistent services or realm
-   gameplay. No game assets were supplied. Later work includes controlled
-   database → auth → world startup, account provisioning and restart-safe storage.
-
-The diagnostic uses ordinary process priority, the original World Inspector
-queue-directory environment override with a fresh empty private queue, and
-bounded SQL-safe error exports. All 49 original module configurations are kept.
-The actual Database.zip regression ran among all 136 clean Gradle JVM tests.
-All 24 production Kotlin SQL/parser checks and 783 extracted-source host
-statement preparations passed previously; final SQL bytes remain identical.
-The latter only prepared/deallocated queries, without executing their bodies or
-Bionic connection pools. The final ELF contains all 763 registration variants
-(753 distinct SQL strings) and the original branch query. Final bindings reuse
-those host measurements without claiming a SQL rerun. Only the physical report
-can qualify this compiled updater on Android.
+1. Inspect one private code 25 import/export report for complete rejection counts,
+   high-bit mmap observations and actual DBC headers. Compare numeric values and
+   file hashes against pinned source before choosing the next change.
+2. Preserve the physical code 10 all-24-check updater and exact snapshot match;
+   codes 11/12 lifecycle and recovery; code 13 retained realm; code 14 backup;
+   code 16 local auth; and code 17 user Stop/restart. These milestones need no
+   repeat for the unchanged native payloads. Never replay a fresh seed over saves.
+3. Qualify any necessary DBC correction or original SQL-backed fallback with the
+   actual measurements, original loaders and retained database coverage. Keep
+   source SQL, strict metadata and all 52 modules intact. Preflight alone cannot
+   qualify full navigation/terrain semantics or world startup.
+4. After assets are accepted, proceed to supervised retained database → auth →
+   world startup and native asset loading. Bundle the still-open 120-second
+   screen-off measurement with that substantial native gate. Account provisioning,
+   world entry, gameplay/module correctness and thermal tests remain later work.
 
 Static startup review also found an original gameplay-cache issue to investigate
 before realm qualification: `modules/Attriboost/src/Attriboost.cpp:284` reads

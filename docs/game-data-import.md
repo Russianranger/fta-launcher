@@ -1,10 +1,59 @@
 # Extracted game-data import and source-derived preflight
 
-Private **0.11.6-import-cache**, code **24**, imports an inert ZIP containing extracted
+Private **0.11.7-asset-headers**, code **25**, imports an inert ZIP containing extracted
 `dbc`, `maps`, `vmaps` and `mmaps` folders, directly or under one enclosing folder.
 It preserves the retained realm, verified backup, Database.zip and native inputs.
 It does not extract a full client/MPQ archive, launch worldserver or create accounts.
 Matching actual game data is not present in the development environment.
+
+## Completed physical extraction and code 25 header diagnosis
+
+Physical code 24 extracted **22,817 files / 7,625,943,031 bytes** from the unchanged
+Data.zip and reached preflight. No process kill matches this attempt. Validation
+rejected 116 assets; only 32 reasons were exported. The first twelve are DBCs
+(CharHairTextures, ten GT tables and PowerDisplay), followed by twenty mmap files.
+The report does not contain their numeric headers or the remaining 84 reasons.
+See [physical evidence](evidence/android-2026-10-23-thor-asset-preflight-rejection.json).
+
+Pinned `src/tools/mmaps_generator/MapBuilder.cpp` computes `maxPolys = 1 << 31`.
+The original `DT_POLYREF64` build uses 64-bit references and accepts the resulting
+`0x80000000` capacity word in its 28-byte parameter header. Code 25 corrects the
+launcher's signed-positive-only check for this exact representation. Other
+negative values, zero, invalid origins/dimensions/tile count and wrong lengths
+still fail. The original Detour generation-expression/reload probe runs with
+C++20 and UBSan, and its generated file passes production import and later full
+rehash without rewriting bytes. This does not yet establish Thor's exact header
+values or qualify navigation tile semantics.
+
+Every new preflight report contains `problemCountsByReason` for all failures,
+not just the first 32. Failed-file details include its already-measured SHA256,
+`observedHeader` and (where required by source) `sourceExpected`. DBC header
+fields are `fileBytes`, `magic`, `rows`, `fields`, `recordBytes`, `stringBytes`.
+Mmap values are the seven raw unsigned little-endian 32-bit words, with names
+ending in `Bits`; float bit patterns stay integers even for invalid NaNs. The
+separate `mmapHighBitCapacityFiles` counts observed `maxPolysBits=2147483648`,
+including files that fail another condition. Truncated headers contain only
+complete words. There are no record/string dumps. The stored report is bounded
+to 64 KiB, retains at most 32 asset details and validates numeric ranges/hash
+syntax/count consistency before exporting anything. Old format-1 reports are
+readable with `headerDiagnosticsAvailable=false`.
+
+All **DBC policy bytes and required names remain unchanged**. Once the actual
+report arrives, compare measured `fields`/`recordBytes` to `sourceExpected` and
+check `20 + rows * recordBytes + stringBytes == fileBytes`. Keep file hashes as
+evidence. A mismatch is a diagnosis, not permission to rewrite the file or policy.
+Original `LoadDBC` calls `LoadFromDB` for named SQL tables, even when file loading
+fails; relying on that requires independent original-loader/database-coverage
+qualification, not guessed schemas. An unused empty DBC likewise needs its actual
+header and source-use evidence before a narrowly justified policy change.
+
+Install the private signed code 25 in place and import the same Data.zip once
+with the launcher visible. **Export diagnostic report** immediately afterward.
+If import succeeds, reopen and **Verify imported game data** before exporting.
+Preserve Database.zip, native dependencies, realm and backup. Do not repeat the
+passed database/auth milestones. No world-startup claim follows from preflight.
+See [host proof](evidence/host-2026-10-23-asset-headers.json) and
+[private APK proof](evidence/android-2026-10-23-private-asset-headers-apk.json).
 
 ## Repeated physical low-memory exit and code 24 cache handling
 
@@ -48,7 +97,9 @@ and full reverify with 64 MiB heap, boundary deaths, and the exact latest copy-b
 interruption pass with advice enabled. Native host measurements show 64 MiB of
 clean cache becoming nonresident, with bytes/position unchanged. See the current
 [handoff](SHORT-HANDOFF.md) for exact evidence and private APK identity. Android
-cache eviction, survival, actual asset formats and world loading remain unqualified.
+cache eviction and general survival remain unqualified. The later code 24 run
+above completes extraction and exposes actual header rejections; world loading
+remains unqualified.
 
 ## Physical editor-archive rejection and code 23 correction
 

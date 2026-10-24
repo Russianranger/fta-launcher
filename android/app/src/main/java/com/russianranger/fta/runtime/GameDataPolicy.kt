@@ -8,9 +8,11 @@ import java.nio.ByteOrder.LITTLE_ENDIAN
 import java.util.Properties
 
 data class DbcShape(val fields: Int, val recordBytes: Int, val indexOffset: Int, val sentinel: Long)
-data class GameDataProblem(val path: String, val reason: String)
+data class GameDataProblem(val path: String, val reason: String, val sha256: String? = null,
+    val observed: Map<String, Long> = emptyMap(), val expected: Map<String, Long> = emptyMap())
 data class GameDataPreflight(val files: Int, val bytes: Long, val counts: Map<String, Int>,
-    val problems: List<GameDataProblem>, val problemCount: Int) {
+    val problems: List<GameDataProblem>, val problemCount: Int,
+    val reasonCounts: Map<String, Int> = emptyMap(), val mmapHighBitCapacityFiles: Int = 0) {
     val passed get() = problemCount == 0
 }
 
@@ -20,8 +22,17 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
     fun inspect(directory: File, files: List<GameDataFile>, active: () -> Unit = {}, cache: GameDataCache? = null): GameDataPreflight {
         val names = files.map { it.path }.toSet()
         val problems = mutableListOf<GameDataProblem>(); var problemCount = 0
+        val reasonCounts = sortedMapOf<String, Int>(); var highBitCapacityFiles = 0
         val missingTrees = mutableSetOf<String>()
-        fun problem(path: String, reason: String) { problemCount++; if (problems.size < 32) problems += GameDataProblem(path, reason) }
+        fun problem(path: String, reason: String, entry: GameDataFile? = null, header: Map<String, Long> = emptyMap()) {
+            problemCount++; reasonCounts[reason] = (reasonCounts[reason] ?: 0) + 1
+            if (problems.size < 32) {
+                val expected = if (path.startsWith("dbc/stock_dbc/")) null else dbc[path.substringAfterLast('/')]
+                val shape = expected?.let { mapOf("fields" to it.fields.toLong(), "recordBytes" to it.recordBytes.toLong()) +
+                    (if (it.sentinel >= 0) mapOf("requiredSentinel" to it.sentinel) else emptyMap()) } ?: emptyMap()
+                problems += GameDataProblem(path, reason, entry?.sha256, header, shape)
+            }
+        }
         dbc.keys.sorted().filter { "dbc/$it" !in names }.forEach { problem("dbc/$it", "missing_required_dbc") }
         for (tile in startupTiles) {
             val map = tile.take(3)
@@ -44,10 +55,13 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
             active()
             val file = File(directory, entry.path)
             val failure = inspectFile(file, entry.path, active)
+            val header = if (entry.path.endsWith(".mmap") || (failure != null && problems.size < 32))
+                GameDataHeaders.read(file, entry.path) else emptyMap()
+            if (entry.path.endsWith(".mmap") && header["maxPolysBits"] == 0x80000000L) highBitCapacityFiles++
+            if (failure != null) problem(entry.path, failure, entry, header)
             cache?.release(file, 0, entry.bytes)
-            if (failure != null) problem(entry.path, failure)
         }
-        return GameDataPreflight(files.size, files.sumOf { it.bytes }, counts, problems, problemCount)
+        return GameDataPreflight(files.size, files.sumOf { it.bytes }, counts, problems, problemCount, reasonCounts, highBitCapacityFiles)
     }
     internal fun inspectFile(file: File, path: String, active: () -> Unit = {}): String? = try {
         RandomAccessFile(file, "r").use { input ->
@@ -98,7 +112,10 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
                     val values = ByteBuffer.wrap(bytes(28)).order(LITTLE_ENDIAN)
                     repeat(3) { if (!values.float.isFinite()) return "mmap_parameter_values" }
                     repeat(2) { val size = values.float; if (!size.isFinite() || size <= 0) return "mmap_parameter_values" }
-                    if (values.int <= 0 || values.int <= 0) return "mmap_parameter_values"
+                    val maxTiles = values.int; val maxPolys = values.int
+                    // Pinned MapBuilder uses 1 << DT_POLY_BITS (31). Its DT_POLYREF64
+                    // loader accepts the resulting 0x80000000 representation unchanged.
+                    if (maxTiles <= 0 || (maxPolys <= 0 && maxPolys != Int.MIN_VALUE)) return "mmap_parameter_values"
                 }
                 path.endsWith(".mmtile") -> {
                     if (u32() != 0x4d4d4150L || u32() != detourVersion || u32() != mmapVersion) return "mmap_tile_version"

@@ -1,0 +1,270 @@
+{
+  "formatVersion": 1,
+  "scope": "physical-thor-complete-extraction-asset-preflight-rejection",
+  "reportSha256": "cb2b46c05db92d2abf57178916026093694ed139328e099431eb37b412e236cc",
+  "appVersionCode": 24,
+  "appVersionName": "0.11.6-import-cache",
+  "apkSha256": "d1095b39b68e98747a157982e0dc2f815db8eaf23f76dc682e786ea0cef9fead",
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "gameDataDiagnostic": {
+    "available": true,
+    "worldReady": false,
+    "gameLoginQualified": false,
+    "nativeSemanticValidationPassed": false,
+    "policySha256": "ebba21788b69a5021a7e7d330aa33e699fda18161b43848d16a5c75dc9e6fb4a",
+    "state": "REJECTED",
+    "preflightPassed": false,
+    "files": 22817,
+    "bytes": 7625943031,
+    "problemCount": 116,
+    "count.dbc": 248,
+    "count.maps": 5889,
+    "count.vmaps": 10620,
+    "count.mmaps": 6060,
+    "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+    "stockDbcFiles": 0,
+    "db2CompanionFiles": 1,
+    "editorCompanionFiles": 1,
+    "failureStage": "preflight",
+    "rejectedAssetCount": 0,
+    "rejectedAssets": [],
+    "problems": [
+      {
+        "asset": "dbc/CharHairTextures.dbc",
+        "reason": "dbc_layout"
+      },
+      {
+        "asset": "dbc/gtBarberShopCostBase.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "dbc/gtChanceToMeleeCrit.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "dbc/gtChanceToMeleeCritBase.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "dbc/gtChanceToSpellCrit.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "dbc/gtChanceToSpellCritBase.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "dbc/gtCombatRatings.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "dbc/gtNPCManaCostScaler.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "dbc/gtOCTRegenHP.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "dbc/gtRegenHPPerSpt.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "dbc/gtRegenMPPerSpt.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "dbc/PowerDisplay.dbc",
+        "reason": "dbc_source_layout"
+      },
+      {
+        "asset": "mmaps/000.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/001.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/030.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/033.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/034.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/035.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/036.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/037.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/043.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/044.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/047.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/048.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/070.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/090.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/109.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/129.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/169.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/189.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/209.mmap",
+        "reason": "mmap_parameter_values"
+      },
+      {
+        "asset": "mmaps/229.mmap",
+        "reason": "mmap_parameter_values"
+      }
+    ],
+    "activeCandidateRetained": false,
+    "activeCatalogMatchesReport": false
+  },
+  "gameDataOperation": {
+    "available": true,
+    "attemptId": "f3e11390-f66f-46af-a6cc-93747ab3f4cb",
+    "mode": "import",
+    "state": "FAILED",
+    "lastRecordedState": "FAILED",
+    "stage": "preflight",
+    "startedAtEpochMs": 1792808861514,
+    "updatedAtEpochMs": 1792808977743,
+    "completedUnits": 7625943031,
+    "totalUnits": 7625943031,
+    "unit": "bytes",
+    "copiedBytes": 2869892425,
+    "freeStorageBytes": 213008596992,
+    "heapUsedBytes": 22574864,
+    "heapMaxBytes": 268435456,
+    "workerObservation": "inactive",
+    "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+    "failureKind": "io",
+    "applicationFrames": [
+      "runtime.GameDataStore.import$lambda$56:208",
+      "runtime.GameDataStore.$r8$lambda$5H1NA6CCxFkKggzBo2AifKbVYX0:0",
+      "runtime.GameDataStore$$ExternalSyntheticLambda14.invoke:0",
+      "runtime.GameDataStore.exclusive:33"
+    ],
+    "fileCacheAdviceAvailable": true,
+    "fileCacheAdvice": {
+      "requests": 46596,
+      "accepted": 46596,
+      "rejected": 0,
+      "requestedBytes": 1760146480462,
+      "sourceDescriptorAvailable": true,
+      "intervalBytes": 16777216,
+      "actualEvictionMeasured": false
+    },
+    "systemMemoryObservationAvailable": true,
+    "systemMemoryObservation": {
+      "availableBytes": 10878820352,
+      "totalBytes": 15996096512,
+      "lowMemoryThresholdBytes": 226492416,
+      "lowMemory": false,
+      "workerImportance": 100,
+      "activityBound": true
+    },
+    "exitHistorySupported": true,
+    "exitHistoryAvailable": true,
+    "recentRuntimeExits": [
+      {
+        "timestampEpochMs": 1792807187616,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 23539,
+        "lastSampledRssKiB": 100092,
+        "attemptMatched": false
+      },
+      {
+        "timestampEpochMs": 1792807146665,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 0,
+        "lastSampledRssKiB": 0,
+        "attemptMatched": false
+      },
+      {
+        "timestampEpochMs": 1792805705658,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 0,
+        "lastSampledRssKiB": 0,
+        "attemptMatched": false
+      }
+    ]
+  },
+  "verifiedPrivateApkMatched": true,
+  "archiveCopyAndIndexCompleted": true,
+  "allExtractedFilesPassedSizeCrcAndSha256": true,
+  "assetPreflightReached": true,
+  "matchedProcessKillObserved": false,
+  "actualAndroidCacheEvictionMeasured": false,
+  "allCacheAdviceSyscallsAccepted": true,
+  "cachePressureCauseProven": false,
+  "gameDataImportQualified": false,
+  "worldReady": false,
+  "gameLoginQualified": false,
+  "originalSqlOrDatabaseExpectationsChanged": false,
+  "conclusions": [
+    "All 22,817 files (7,625,943,031 bytes) extracted before header validation rejected the candidate.",
+    "116 preflight problems; only the first 32 paths/reasons are present. No complete reason histogram or measured file headers exist in this report.",
+    "First 32: CharHairTextures generic DBC layout; ten GT DBC source-layout differences; PowerDisplay source-layout difference; twenty mmap parameter-value rejections.",
+    "The exact mmap values are unknown. An independently reproduced source-generator high-bit capacity explains a real checker defect, not yet the exact number of Thor rejections.",
+    "No candidate published. Existing realm and previously qualified database/auth/service milestones are unaffected.",
+    "The run survived copy/extraction. Accepted cache advice does not measure eviction or establish immunity to future process kills."
+  ]
+}

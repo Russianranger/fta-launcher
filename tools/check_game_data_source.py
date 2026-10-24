@@ -52,6 +52,7 @@ def main():
     p.add_argument('--with-stock-backup', action='store_true', help='Exercise the screenshot-observed auxiliary DBC folder')
     p.add_argument('--with-db2-companions', action='store_true', help='Preserve opaque DB2 companions without qualifying them as runtime DBCs')
     p.add_argument('--with-editor-companion', action='store_true', help='Preserve the report-identified editor ZIP without expanding it')
+    p.add_argument('--with-source-mmap-capacity', action='store_true', help='Generate parameters with the pinned generator expression and load them using unchanged original Detour')
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
     if sha256_file(args.source_zip) != SOURCE_SHA256:
@@ -81,6 +82,8 @@ def main():
                     raise ValueError('Incomplete original server source inspection')
                 proof.update(serverCommonAndModuleSourceFilesScanned=scanned, noDb2LoaderReferencesInPinnedServerSources=True)
             prefixes = ('src/common/', 'deps/fmt/include/', 'deps/g3dlite/include/', 'deps/recastnavigation/Detour/Include/')
+            if args.with_source_mmap_capacity:
+                prefixes += ('deps/recastnavigation/Detour/Source/', 'src/tools/mmaps_generator/MapBuilder.cpp')
             for info in z.infolist():
                 name = info.filename.removeprefix(SOURCE_ROOT + '/')
                 if info.is_dir() or name == info.filename or not (name.startswith(prefixes) or name in FILES):
@@ -111,6 +114,34 @@ def main():
             path = root / 'assets' / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
+        if args.with_source_mmap_capacity:
+            generator = root / 'source/src/tools/mmaps_generator/MapBuilder.cpp'
+            code = cpp_text(generator.read_bytes())
+            for expression in ('int polyBits = DT_POLY_BITS;', 'int maxPolysPerTile = 1 << polyBits;',
+                               'navMeshParams.maxPolys = maxPolysPerTile;',
+                               'candidate->init(&navMeshParams)', 'sizeof(navMeshParams)'):
+                if expression not in code:
+                    raise ValueError('Pinned generator expression changed; review source before using this fixture')
+            detour = root / 'source/deps/recastnavigation/Detour'
+            fixture = REPO / 'tests/fixtures/mmap_capacity_host.cpp'
+            command = [args.cxx, '-std=c++20', '-O1', '-fsanitize=undefined', '-fno-sanitize-recover=all',
+                       '-I' + str(detour / 'Include'), str(fixture)]
+            command += [str(path) for path in sorted((detour / 'Source').glob('*.cpp'))]
+            command += ['-o', str(root / 'mmap-capacity-check')]
+            subprocess.run(command, check=True)
+            parameters = root / 'assets/mmaps/000.mmap'
+            subprocess.run([str(root / 'mmap-capacity-check'), str(parameters)], check=True)
+            data = parameters.read_bytes()
+            if len(data) != 28 or struct.unpack_from('<I', data, 24)[0] != 0x80000000:
+                raise ValueError('Original generator capacity representation did not reproduce')
+            assets['mmaps/000.mmap'] = data
+            sources = [generator] + sorted(detour.rglob('*.cpp')) + sorted(detour.rglob('*.h'))
+            proof.update(originalDetourUnmodified=True, originalDetour64BitPolyRef=True,
+                         originalGeneratorCapacityExpressionReproduced=True, originalDetourParameterReloadPassed=True,
+                         sourceMmapMaxPolysBits='0x80000000', sourceMmapParameterBytes=len(data),
+                         sourceMmapParametersSha256=sha256_file(parameters), undefinedBehaviorSanitizerPassed=True,
+                         mmapCapacityFixtureSha256=sha256_file(fixture),
+                         mmapOriginalSourceSha256={str(path.relative_to(root / 'source')): sha256_file(path) for path in sources})
         # Different widths are exercised with nonzero field values, not only header equality.
         outfit = root / 'assets/dbc/CharStartOutfit.dbc'
         data = bytearray(outfit.read_bytes())

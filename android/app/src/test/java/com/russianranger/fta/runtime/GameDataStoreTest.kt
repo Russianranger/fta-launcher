@@ -299,6 +299,115 @@ class GameDataStoreTest {
     private fun central(bytes: ByteArray): Int = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getInt(bytes.size - 22 + 16)
     private fun intAt(bytes: ByteArray, at: Int) = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getInt(at)
     private fun shortAt(bytes: ByteArray, at: Int) = ByteBuffer.wrap(bytes).order(LITTLE_ENDIAN).getShort(at).toInt() and 65535
+    @Test fun originalGeneratorHighBitMmapCapacityImportsAndReverifies() {
+        val files = fixture(); put32(files.getValue("mmaps/000.mmap"), 24, Int.MIN_VALUE)
+        val receipt = store().import(ByteArrayInputStream(zip(files)))
+        assertEquals(receipt, store().verify())
+        assertArrayEquals(files.getValue("mmaps/000.mmap"), File(root, "store/${receipt.generation}/mmaps/000.mmap").readBytes())
+        assertEquals(1, store().export()["mmapHighBitCapacityFiles"])
+        assertEquals(false, store().export()["nativeSemanticValidationPassed"])
+    }
+    @Test fun mmapHighBitExceptionDoesNotAdmitOtherInvalidParameters() {
+        val baseline = fixture().getValue("mmaps/000.mmap")
+        val file = File(root, "parameters")
+        val invalid = listOf(24 to 0, 24 to -1, 24 to Int.MIN_VALUE + 1, 20 to 0,
+            20 to Int.MIN_VALUE, 0 to Float.NaN.toRawBits(), 12 to 0, 16 to Float.POSITIVE_INFINITY.toRawBits())
+        for ((offset, value) in invalid) {
+            val bytes = baseline.copyOf(); put32(bytes, 24, Int.MIN_VALUE); put32(bytes, offset, value)
+            file.writeBytes(bytes)
+            assertEquals("offset=$offset value=$value", "mmap_parameter_values", policy.inspectFile(file, "mmaps/000.mmap"))
+        }
+        for (size in listOf(27, 29)) {
+            file.writeBytes(baseline.copyOf(size))
+            assertEquals("mmap_parameter_layout", policy.inspectFile(file, "mmaps/000.mmap"))
+        }
+    }
+    @Test fun rejectedDbcExportsMeasuredHeaderHashAndUnchangedSourceShape() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        val path = "dbc/gtBarberShopCostBase.dbc"
+        val changed = ByteBuffer.allocate(29).order(LITTLE_ENDIAN).put("WDBC".toByteArray())
+            .putInt(1).putInt(1).putInt(4).putInt(5).putInt(123).put("hide\u0000".toByteArray()).array()
+        val files = fixture().apply { put(path, changed) }
+        val failure = assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+        assertEquals("dbc_source_layout", failure.preflight.problems.single().reason)
+        val report = store().export()
+        val problem = (report["problems"] as List<*>).single() as Map<*, *>
+        assertEquals(path, problem["asset"])
+        assertEquals(mapOf("fileBytes" to 29L, "magic" to 0x43424457L, "rows" to 1L, "fields" to 1L,
+            "recordBytes" to 4L, "stringBytes" to 5L), problem["observedHeader"])
+        assertEquals(mapOf("fields" to 2L, "recordBytes" to 8L), problem["sourceExpected"])
+        assertEquals(java.security.MessageDigest.getInstance("SHA-256").digest(changed).joinToString("") { "%02x".format(it) }, problem["sha256"])
+        assertFalse(report.toString().contains("hide")); assertFalse(report.toString().contains(root.absolutePath))
+        assertEquals(before, store().active()); assertEquals(false, report["preflightPassed"])
+    }
+    @Test fun completeReasonCountsSurviveDetailLimitAndHeaderCollectionPrecedesCacheRelease() {
+        val files = fixture()
+        for (i in 0 until 40) files["dbc/Extra$i.dbc"] = ByteBuffer.allocate(24).order(LITTLE_ENDIAN)
+            .put("WDBC".toByteArray()).putInt(1).putInt(1).putInt(4).putInt(0).putInt(123).array()
+        put32(files.getValue("mmaps/000.mmap"), 24, -1)
+        var preflight = false
+        val cache = GameDataCache { file, _, _ ->
+            // Simulates cache contents becoming unavailable after their last read.
+            if (preflight && file.name.startsWith("Extra")) file.writeBytes(byteArrayOf())
+            0
+        }
+        val target = GameDataStore(File(root, "store"), text, cache = cache)
+        assertThrows(GameDataRejected::class.java) {
+            target.import(ByteArrayInputStream(zip(files)), boundary = { stage, _ -> preflight = stage == "preflight" })
+        }
+        val report = target.export()
+        assertEquals(41L, report["problemCount"])
+        assertEquals(mapOf("dbc_layout" to 40, "mmap_parameter_values" to 1), report["problemCountsByReason"])
+        val problems = report["problems"] as List<*>
+        assertEquals(32, problems.size)
+        val headers = problems.map { it as Map<*, *> }.filter { (it["asset"] as String).startsWith("dbc/Extra") }
+            .map { it["observedHeader"] as Map<*, *> }
+        assertTrue(headers.size >= 31)
+        assertTrue(headers.all { it["fileBytes"] == 24L && it["stringBytes"] == 0L })
+        assertTrue(File(root, "store/last-report.properties").length() < 65536)
+    }
+    @Test fun rejectedMmapExportsUnsignedHeaderBitsWithoutInterpretingNanAsJsonNumber() {
+        val files = fixture(); val bytes = files.getValue("mmaps/000.mmap")
+        put32(bytes, 0, Float.NaN.toRawBits()); put32(bytes, 24, Int.MIN_VALUE)
+        assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+        val report = store().export()
+        val problem = (report["problems"] as List<*>).single() as Map<*, *>
+        val header = problem["observedHeader"] as Map<*, *>
+        assertEquals(0x80000000L, header["maxPolysBits"])
+        assertEquals(Integer.toUnsignedLong(Float.NaN.toRawBits()), header["originXBits"])
+        assertEquals(1, report["mmapHighBitCapacityFiles"])
+        assertEquals(false, report["preflightPassed"])
+    }
+    @Test fun truncatedHeaderExportsOnlyCompleteNumericWords() {
+        val files = fixture().apply { put("dbc/Extra.dbc", "WDBCx".toByteArray()) }
+        assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+        val problem = ((store().export()["problems"] as List<*>).single() as Map<*, *>)
+        assertEquals("truncated_asset", problem["reason"])
+        assertEquals(mapOf("fileBytes" to 5L, "magic" to 0x43424457L), problem["observedHeader"])
+    }
+    @Test fun legacyHeaderlessReportsRemainReadableWithoutInventingMeasurements() {
+        store().import(ByteArrayInputStream(zip()))
+        val file = File(root, "store/last-report.properties")
+        file.writeText(file.readLines().filterNot { it.startsWith("mmapHighBitCapacityFiles=") || it.startsWith("reasonCount.") }
+            .joinToString("\n", postfix = "\n").replace("formatVersion=2", "formatVersion=1"))
+        val report = store().export()
+        assertEquals(true, report["preflightPassed"]); assertEquals(false, report["headerDiagnosticsAvailable"])
+        assertFalse(report.containsKey("mmapHighBitCapacityFiles")); assertFalse(report.containsKey("problemCountsByReason"))
+    }
+    @Test fun corruptHeaderDiagnosticsFailClosedWithoutPartialSuccessFields() {
+        val files = fixture().apply { put("dbc/Extra.dbc", "WDBCx".toByteArray()) }
+        assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+        val file = File(root, "store/last-report.properties"); val original = file.readText()
+        for (bad in listOf("reasonCount.truncated_asset=2\n", "problem.0.observed.magic=4294967296\n",
+            "problem.0.observed.fileBytes=-1\n", "problem.0.observed.secret=1\n", "problem.0.sha256=bad\n",
+            "mmapHighBitCapacityFiles=100001\n", "problem.0.expected.fields=-1\n")) {
+            file.writeText(original + bad)
+            val report = store().export()
+            assertEquals(false, report["available"]); assertFalse(report.containsKey("preflightPassed"))
+        }
+        file.writeText(original.lines().filterNot { it.startsWith("problem.0.path=") }.joinToString("\n"))
+        assertEquals(false, store().export()["available"])
+    }
     @Test fun originalPolicyHasAllSourceSchemasSentinelsAndSwappedVmapTileCoordinates() {
         assertEquals(113, policy.dbc.size); assertEquals(7, policy.dbc.values.count { it.sentinel >= 0 })
         assertEquals(9L, policy.mapVersion); assertEquals(20L, policy.mmapVersion)

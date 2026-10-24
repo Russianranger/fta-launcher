@@ -185,7 +185,7 @@ object DiagnosticReport {
         if (scope == "game-data") {
             result.put("gameDataImportQualified", lines.firstOrNull() == GameDataImport.PASSED &&
                 gameData["preflightPassed"] == true && gameData["activeCatalogMatchesReport"] == true)
-                .put("privacy", "Only bounded asset paths, counts, fingerprints, progress, memory/storage measurements, fixed application frame names and Android exit codes/times are exported; no game bytes, source URI, process IDs, raw traces, exception messages, database rows or credentials.")
+                .put("privacy", "Only bounded asset paths, numeric file headers, counts, fingerprints, progress, memory/storage measurements, fixed application frame names and Android exit codes/times are exported; no asset records or strings, source URI, process IDs, raw traces, exception messages, database rows or credentials.")
             return result.toString(2)
         }
         if (scope == "local-service" && currentAttempt != null) {
