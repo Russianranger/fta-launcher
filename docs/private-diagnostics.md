@@ -7,7 +7,9 @@ persistent development certificate and all 17 verified native payloads from code
 26. SHA256: `08eef256f0006176e8937e607113a169a6da083d9461ea1a3aa145b2e939a8b8`.
 See [measured evidence](evidence/android-2026-10-24-private-world-session-apk.json)
 and the [single retained-world Thor procedure](SHORT-HANDOFF.md).
-It is not physically qualified. The historical milestones below remain evidence
+It reached the physical world gate but exited 139 before health qualification.
+Code 28 is being qualified to export more evidence from that retained attempt
+without another world launch. The historical milestones below remain evidence
 for earlier gates, not instructions to repeat old tests.
 
 For recovery packaging, `python3 tools/package_private_update.py --help` documents

@@ -130,6 +130,8 @@ object WorldServiceRuntime {
                 val realm = store.inspectGeneration(r.getString("realmId"))
                 val native = LocalAuthDiagnostic.nativeEvidence(File(realm.directory, "visits/$attempt-1/native-invocations.properties"), attempt, true, true)
                 result["nativeEvidence"] = native
+                result["retainedWorldLogs"] = WorldLogEvidence.export(File(realm.directory, "visits/$attempt-1"), attempt,
+                    state in setOf("FAILED", "STOPPED", STOPPED), WorldLogEvidence.dictionary(context.assets.open(WorldLogEvidence.DICTIONARY)))
                 val completed = state == STOPPED && r.opt("completed") == true && fields.all { r.opt(it) == true } &&
                     WorldSessionEvidence.diagnosticFields.none { r.opt(it) == true } &&
                     assetsMatch && store.active() == realm && native["qualified"] == true && native["healthySamples"] == samples && samples > 0 &&

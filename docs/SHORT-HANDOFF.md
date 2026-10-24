@@ -5,89 +5,63 @@ pushes. Target AYN Thor, Android 13, ARM64. Read `AGENTS.md`, this file,
 `game-data-import.md`, `private-diagnostics.md`, `native-world-gate.md`.
 Earlier history: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current increment — retained native world gate
+## Current increment — recover the physical world-startup failure
 
-Final implementation: **bbf5fbed3c0919c03387915a5898b14ebba250d5**.
-Foundation CI [40114951582](https://github.com/Russianranger/fta-launcher/actions/runs/40114951582)
-passed all three jobs: tooling/native ownership, Android tests/lint/assembly and
-packaged-byte checks, public APK publication. Local JDK17/Kotlin 2.0.21/SDK35
-compilation and **350 unit tests in 31 classes**, **155 tooling tests**, native
-ownership and original-source/socket checks passed. Local full Gradle dependency
-resolution was unavailable; exact-commit CI performed the prescribed Gradle tasks.
-Private delivery/packaging implementation: **d1434778882ed99a139a004f5844059c0cefcc99**.
-Its exact Foundation CI [40117216908](https://github.com/Russianranger/fta-launcher/actions/runs/40117216908)
-passed all three jobs, including the expanded **163-test tooling suite** and
-Android tests/lint/assembly. A documentation-only confirmation follows this commit.
+Starting remote HEAD: **925fd632459f623862cf62a4b9b4d75d005b6cf4**;
+its exact CI [40117691753](https://github.com/Russianranger/fta-launcher/actions/runs/40117691753)
+passed all three jobs. Private code 27 was delivered with SHA256
+`08eef256f0006176e8937e607113a169a6da083d9461ea1a3aa145b2e939a8b8`.
 
-**Private code 27, `0.12.0-native-world`, is now packaged, verified and saved.**
-APK: `FTA-Launcher-0.12.0-native-world.apk` (42,209,937 bytes).
-SHA256: `08eef256f0006176e8937e607113a169a6da083d9461ea1a3aa145b2e939a8b8`.
-Certificate: `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
-[Measured APK evidence](evidence/android-2026-10-24-private-world-session-apk.json).
-The private APK is saved in the owner's private files under the exact filename
-above. Public CI APKs contain only the database provider and cannot update it.
+**Physical code 27 passed the full retained asset rehash but world startup failed.**
+Report `FTA-database-diagnostic-1792865377817.json`, SHA256
+`0b4a376c3185e133192bb7d73a77097443fbc66b00675ff0fc33f2c4a995800f`.
+[Redacted evidence](evidence/android-2026-10-24-thor-code27-world-exit.json).
+The exact 22,817 files / 7,625,943,031 bytes reverified, zero problems; retained
+archive/catalog still match. All 24 metadata prechecks and ten GT coverage queries
+passed. The actual world reached all 113 DBC stores, its ready message and the
+60-second freeze guard, then exited **139 after 27,590 ms**. No world challenge,
+healthy runtime sample or screen-off interval passed. The native auth process
+exited zero and the temporary role was removed. Metadata/GT postchecks and a
+qualified clean database shutdown were not recorded. A false postcheck means
+unmeasured, not proof of damaged data. Do not replay a seed or restore the realm.
 
-The final assembly came from the already-passing application implementation CI;
-Android/native/manifest sources remain identical. No completed native build was
-repeated. All **17** private native payloads are byte-identical to code 26, all
-**148** runtime-manifest members match, all **221** provider/notice checks pass,
-and persistent v2 signing plus **16 KiB** alignment pass. Original DEX/resources/
-Android manifest/canonical metadata are unchanged from that tested CI assembly.
+`databaseFallbackValidated=false`, world readiness and game login remain false.
+The original ready message precedes module OnStartup hooks; the failure's exact
+native instruction and cause are unknown. Do not attribute it to a particular
+module or alter game data based on this report alone.
 
-`tools/package_private_update.py` now makes recovery reproducible. It checks donor
-APK/signature, exact qualified assembly hash and source equivalence, helper source
-hashes, runtime/metadata/native inventories, final application bytes, version
-increase and the persistent certificate. Synthetic regressions reject tampering,
-unsafe/duplicate members, altered metadata, stale helper sources and wrong signers.
-**163 tooling tests pass**; the application still has **350 passing unit tests**.
-Only packaging tooling, tests and evidence/documentation change after the final
-application implementation. Fetch actual HEAD and inspect its final CI on resume.
+**Code 28 (`0.12.1-world-evidence`) is being qualified for read-only recovery.**
+It preserves the original world failure phase across cleanup and reports successful
+auth cleanup separately from failed world cleanup. World reports now include the
+existing attempt-bound asset verification/process-exit evidence. Export additionally
+reads only the same finished attempt's retained world/stdout/stderr logs, with
+8 MiB file, 4 KiB line and 64-event limits. It exports source-message identifiers,
+line/level counts and file hashes, never native log text or dynamic values.
+Stale attempts, running journals, multiple world records, links, oversized or
+changing files fail closed. Missing evidence never establishes readiness.
 
-**Code 27 has not run on Thor. Native fallback/world readiness remain unqualified.**
-The next required action is the combined physical test below; no repeat import.
+The source dictionary fingerprints only the first 16 literal ASCII bytes of 160
+original messages in startup modules and selected core/database files. The original
+archive identity and all selected source hashes are verified. Shared prefixes are
+explicit candidate sets; a match is neither hook completion nor a proven cause.
+[Source index](evidence/world-log-dictionary.json).
+No native payload, module, source rule, configuration or SQL was changed.
+The original source companion v8 and persistent signer remain required.
 
-**Physical code 26 import/publication passed.** Report
-`FTA-database-diagnostic-1792860233678.json`, SHA256
-`73483405b8e70faf14c1e5910eff8c2bcc1852fb8698d1b04d4802830bd424cb`:
-22,817 files / 7,625,943,031 bytes; zero problems/rejections; active catalog matches;
-104 high-bit mmap files handled; expected DBC routes retained. Exact code-26 APK
-`2a276e781698c3a9501f15d25693fd57085e7965151ad13ff5f991e3f037ecba`.
-[Redacted physical evidence](evidence/android-2026-10-24-thor-code26-import-pass.json).
-The report records **import**, not a separate full reverify. No repeat import.
-
-Code 27 performs the missing full rehash/preflight automatically, holding the asset
-lease until all children stop. The verification sub-operation has its own durable
-progress/memory/cache record and process token, so a later native worker exit can
-be matched to the same attempt without invalidating a completed rehash. It requires the exact physically published archive,
-catalog, counts, retained realm and verified backup. It reopens the realm (no seed
-replay), checks all 24 original metadata expectations and all ten GT ID ranges,
-stages unchanged original SQL and 49 module configs in a fresh visit, then starts
-owned auth and world processes. The original world ELF, all 52 modules, NPCBots,
-C++20, source schemas, source companion v8 and 17 native payloads remain unchanged.
-Generated world config uses schema-only grants, a private socket, loopback random
-ports, `Updates.AutoSetup=0`, original updater policy and original 60-second freeze
-guard. No console, RA, SOAP or cluster listener is enabled.
-
-Qualification requires all 113 original DBC stores, original ready/freeze markers,
-receive-only world challenge, SQL/auth/world health, **120,000 ms** screen off,
-world halt marker after module shutdown, zero world/auth exits, closed listeners,
-SQL SHUTDOWN, strict metadata/GT postchecks and retained identities. Stop order is
-world → auth → SQL. Merely compiling or seeing a ready marker never qualifies.
-`databaseFallbackValidated` remains false in inert asset receipts; only a completed
-attempt-bound native session can establish it. **No native world pass is claimed.**
-Client import, WarcraftXL and playable login remain later work.
+Local qualification: **165 tooling tests** and exact private-source dictionary
+reproduction passed. Android tests/lint/assembly and private packaging are pending
+exact-commit CI. Do not deliver an unqualified public CI APK as the private update.
 
 ## Next Thor procedure
 
-Install the saved private code-27 APK
-**in place**, open **Start native world test**, keep the launcher visible during
-rehash/startup. Once world/auth/database health passes, lock the screen for at least
-three minutes; reopen, select **Stop local service / test**, then **Export diagnostic
-report**. If any stage fails, export immediately before retrying. Do not uninstall,
-clear storage, reimport Data.zip, restore over the realm, or repeat passed database,
-auth, backup or lifecycle tests.
+After code 28's verified private APK is delivered, install it **in place**, reopen
+and select **Export diagnostic report** immediately. **Do not start another world
+test first**: the update can inspect code 27's existing failed attempt. Send the
+new JSON. No reimport, rehash, database/auth test, uninstall or storage clearing.
+After the failure is diagnosed, the next runtime gate still requires controlled
+world startup/Stop and at least 120,000 ms healthy screen-off observation.
 
-Expected Data.zip: `407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`.
+Expected archive: `407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`.
 Expected catalog: `0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff`.
 Persistent certificate: `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Recover `FTA-Launcher-Development-Signing.zip`; never regenerate or publish it.

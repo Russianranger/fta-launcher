@@ -38,7 +38,8 @@ class WorldServiceProtocolTest {
     @Test fun startupAndHealthFailuresStillStopWorldBeforeAuth() {
         for (startup in listOf(false, true)) {
             val f = Fixture(); f.failStart = startup; f.failHealth = !startup
-            assertThrows(Exception::class.java) { f.run() }
+            val failure = assertThrows(WorldSessionFailure::class.java) { f.run() }
+            assertEquals(if (startup) "WORLD_SESSION_START" else "LOCAL_SERVICE_RUNNING", failure.stage)
             assertEquals(listOf("world.stop", "auth.stop"), f.calls.takeLast(2))
             assertFalse(f.checks["protocolReady"] == true)
         }
@@ -48,6 +49,7 @@ class WorldServiceProtocolTest {
             val f = Fixture(); f.worldExit = if (nonzero) 137 else 0; f.worldClosed = nonzero
             assertThrows(Exception::class.java) { f.run(1) }
             assertTrue(f.calls.contains("auth.stop"))
+            assertEquals(true, f.checks["authCleanStop"])
             assertFalse(f.checks["worldCleanStop"] == true && f.checks["worldListenerClosed"] == true)
         }
     }

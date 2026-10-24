@@ -1,0 +1,1070 @@
+{
+  "formatVersion": 1,
+  "prefixBytes": 16,
+  "startupModules": [
+    "mod-ale",
+    "mod-auctionator",
+    "mod-aura-timers",
+    "mod-boost-60-outland",
+    "mod-craftspeed",
+    "mod-dbm-fta-bridge",
+    "mod-dynamic-loot-browser",
+    "mod-goblin-glider",
+    "mod-pocket-pals",
+    "mod-questie-bridge",
+    "mod-reagent-bank-account",
+    "mod-starter-food-water",
+    "mod-timewalking",
+    "mod-transmog",
+    "mod-warcraftxl-gameobject-editor",
+    "mod-warcraftxl-ui-tracker",
+    "mod-world-inspector-runtime"
+  ],
+  "sourceSha256": {
+    "modules/mod-ale/src/ALE_SC.cpp": "bbbde21d580845c5aeedc5b82bcb30cb1ac45fcc0d8a05e03485ba9f1f40d896",
+    "modules/mod-ale/src/ALE_loader.cpp": "6e41b0e581036e0cf28bd5cf9444cddc5e3f6b32229d5f277776a3e1cc9dad48",
+    "modules/mod-ale/src/LuaEngine/ALECompat.cpp": "a916e2c0ad6425be4c52fedf8e919eefe876b443c8d51e5074958a82a0fd1668",
+    "modules/mod-ale/src/LuaEngine/ALEConfig.cpp": "865748a0640d351d806b74a6642d08b274b40a23bf19d7f8c25487bc102690f5",
+    "modules/mod-ale/src/LuaEngine/ALEDBCRegistry.cpp": "4858990d9924ee980a6d7ddab01ef915a39b08afb931a3f3a7df3a6275122038",
+    "modules/mod-ale/src/LuaEngine/ALEEventMgr.cpp": "6618f3c93a13582fe0f7f7a4a1ad19f9723f7f893cd5b75473a3cc8795c027f9",
+    "modules/mod-ale/src/LuaEngine/ALEFileWatcher.cpp": "efe9db1c88eec97264274d349a0a92775b8558eaa6a3ecac43af0522f7ff13ac",
+    "modules/mod-ale/src/LuaEngine/ALEInstanceAI.cpp": "3fd487eec7a129ac72f4855a7f95e3265d0bb6916091463cbb854e0e83eac764",
+    "modules/mod-ale/src/LuaEngine/ALEUtility.cpp": "056cfa288110c8ea5818bacc30f002b69006137ac99f3b1d60fcc78822f316d5",
+    "modules/mod-ale/src/LuaEngine/HttpManager.cpp": "8ff3de9d4806042434ea85d99688394cfec71be94e15f0b97b1cc4ad214774fe",
+    "modules/mod-ale/src/LuaEngine/LuaEngine.cpp": "118a80c9ea5309af6a99de3ea076e1609ac281ccaba2411493e672a3ca5c3005",
+    "modules/mod-ale/src/LuaEngine/LuaFunctions.cpp": "d7a26fe7d45f971cdbfc3322b9e3f16401f1f7b7de0b4a870ec7ef160f2206e6",
+    "modules/mod-ale/src/LuaEngine/hooks/AllCreatureHooks.cpp": "944c27f9a3f6541f1e3a47bf4ba4782acb7f86ead8dcb6ab39d421e08df9e4fd",
+    "modules/mod-ale/src/LuaEngine/hooks/BattleGroundHooks.cpp": "a4861e058357fcea428f51f2cffc0557f3b2d74a9c7da90e26096b8ad4d368cd",
+    "modules/mod-ale/src/LuaEngine/hooks/CreatureHooks.cpp": "79fbed3c8b47a60b841031f5d02ce20c2282db71094f91a452f85e38347dfc3e",
+    "modules/mod-ale/src/LuaEngine/hooks/GameObjectHooks.cpp": "cb8430f6bf9ac638f421512b38345d82a9689a47ef490ef6e55abbec03d13157",
+    "modules/mod-ale/src/LuaEngine/hooks/GossipHooks.cpp": "706fa3c3be912cc9a664aa1f6eb50970e11046e26c163942b034a9a63c435cf1",
+    "modules/mod-ale/src/LuaEngine/hooks/GroupHooks.cpp": "f14f59592b9122f485959d0da0febad16bc633f3a314484fd2cc8d7ff0b0b7e1",
+    "modules/mod-ale/src/LuaEngine/hooks/GuildHooks.cpp": "73eb39e99270f8bc9d12f04bd9374e539daae109e6b72b6f02b0642359bd434c",
+    "modules/mod-ale/src/LuaEngine/hooks/InstanceHooks.cpp": "99738eaaa88fb5971ed31cbf41e421e3555e92a9324aef907b4f85475bf94a82",
+    "modules/mod-ale/src/LuaEngine/hooks/ItemHooks.cpp": "2028b7ff4128c9f7928df5105856aee373b3795020ea082771c07248938d0360",
+    "modules/mod-ale/src/LuaEngine/hooks/PacketHooks.cpp": "efdd7bff2d8b43e63250dafb47f3ef4701cf8c8c0b3f946130da785d272ed3ef",
+    "modules/mod-ale/src/LuaEngine/hooks/PlayerHooks.cpp": "f1c3cf0dfa6118c443bb05ad559773cd80b41e3addd4d71787818b6be73c5641",
+    "modules/mod-ale/src/LuaEngine/hooks/ServerHooks.cpp": "e980a1b5f256f1908f0ace160f3a823af9925f5cbd56aa554388e108d92fa541",
+    "modules/mod-ale/src/LuaEngine/hooks/SpellHooks.cpp": "6de5c139c82b2cde57f0b26ac88e9fc89e2f7a3c6b783cc06da995aa7dcff0a9",
+    "modules/mod-ale/src/LuaEngine/hooks/TicketHooks.cpp": "e9950744bfb80558b017610f17e24572ad2d84d277542600c70fa2e174ffb1e2",
+    "modules/mod-ale/src/LuaEngine/hooks/VehicleHooks.cpp": "290a407c05b422f2d73880e52714ae53be892b62cd139e865d4154db59a9ad35",
+    "modules/mod-ale/src/LuaEngine/lmarshal.cpp": "ac2be316e0780bd4746b37dfe6725ba6837a9b9c5a4ef50b03c25969c9caf525",
+    "modules/mod-auctionator/src/Auctionator.cpp": "8547b85b6f39274ca2e0f3ff4204bc52d6358baf80041f3f6ef343db63fa8762",
+    "modules/mod-auctionator/src/AuctionatorBidder.cpp": "8251c48745bcf8097fa695bf73bd78f0eae3e321702e4f18a486f0218cabc51e",
+    "modules/mod-auctionator/src/AuctionatorCommands.cpp": "fb8e74fef57d90929f229b9884bbdf4553b610cd25e57e02369b211d2f329cd3",
+    "modules/mod-auctionator/src/AuctionatorEvents.cpp": "931e6103918bb222fdd36265ab51c98a107d020477923a39312cf21a674a6d54",
+    "modules/mod-auctionator/src/AuctionatorScript.cpp": "e1444014fd440276433e74250ef92200aa49c7b29d94b572f5a5628b2cd09909",
+    "modules/mod-auctionator/src/AuctionatorSeller.cpp": "ee9ee648303b49025a21729565e237cd9db5f0e3213c6e716bb9a66209d2d966",
+    "modules/mod-auctionator/src/Auctionator_loader.cpp": "53cc18745ec3b9579a1d9f7d1b0ce98f36a33b1fa94cbc1454159dd69225d710",
+    "modules/mod-aura-timers/src/AuraTimers.cpp": "cb0d74b6f701732cc89cad42bca4bf583fe25b86760b5ab22fbc7194750dd63a",
+    "modules/mod-aura-timers/src/mod_aura_timers_loader.cpp": "5d1e36a85a397b74dadd8d61924d936fb0b87e9f0f98b026cbca9bd33a28fbde",
+    "modules/mod-boost-60-outland/src/Boost60Outland.cpp": "af944fd23dd61a6e4a11e16f6fc7b85bc13bc657c8e647469fa129b00b1e79e2",
+    "modules/mod-boost-60-outland/src/Boost60OutlandLoader.cpp": "985c054eb76ccf077fae27e1f12a132a9a5bcce024b4d0ff0f7ad264758eaea4",
+    "modules/mod-craftspeed/src/mod_craftspeed.cpp": "7ebee8853d07743c0616b13b3ff21ff24bc4603392d98c9ff8f145e88700959f",
+    "modules/mod-craftspeed/src/mod_craftspeed_loader.cpp": "d02afb92542f5002233fcec95a7b0f1e9189a8f791d41896f06c6f78f04356ab",
+    "modules/mod-dbm-fta-bridge/src/DBMFTABotCallouts.cpp": "bb275516f8a51f24655224a24a5b5239adc87b5eda40ccbcf86444ffb58a2bf2",
+    "modules/mod-dbm-fta-bridge/src/DBMFTABridge.cpp": "3769aa70ed440772681dddec94554617c8218cec342a447989916fe02944cdc1",
+    "modules/mod-dbm-fta-bridge/src/DBMFTABridge_loader.cpp": "056752891dc4cf7417aff43a9ba9e22fcc5dbf7c95b2e6cff5f30abb1eeead26",
+    "modules/mod-dynamic-loot-browser/src/DynamicLootBrowser.cpp": "d896934eb5a3f7c71d96ba24bc6460e0b976c9590ac8a366fbc17c0c13d1a5de",
+    "modules/mod-dynamic-loot-browser/src/DynamicLootBrowserLoader.cpp": "ef4b336e06b5fe8d426363a3d87e8af07de43bb6b2b64e9415cf0922318d728e",
+    "modules/mod-goblin-glider/src/GoblinGlider.cpp": "15690dac7dcfa1c31494423deea2dbe9fbfbd760b2df05b05cbee7e20ad8083a",
+    "modules/mod-goblin-glider/src/GoblinGliderLoader.cpp": "7cad9dc1b862fd19f69c6525cc9be28879edb22c41bf20f155eff200a87e777d",
+    "modules/mod-goblin-glider/tests/GlideEnvelopeTests.cpp": "73d5e617cb7bf934799566538c66bad50524a52f361a18e923edd72917ccd38d",
+    "modules/mod-pocket-pals/src/PocketPals.cpp": "ce6be990156adad62f45b91404c4d3afec2384249526a23e6431985cdb720418",
+    "modules/mod-pocket-pals/src/mod_pocket_pals_loader.cpp": "de08309b44e651ea4d9db5762d9c6308faef5c62ffae73a6a62acfac1adb1ed2",
+    "modules/mod-questie-bridge/src/QuestieBridge.cpp": "49fd10970347cc8f95d3525e125091684170527be594eba0bbe8a4fa29d56e5d",
+    "modules/mod-questie-bridge/src/QuestieBridgeLoader.cpp": "4ab576c5ed2c02f54f310a3a3bb2f80c80aa120fc331afdf25b95f7bdaa30cb8",
+    "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp": "d1ba51ec8a9899148f6f5a9bb380e6975ff108d7f58ce92036e0c29c5eec7a76",
+    "modules/mod-reagent-bank-account/src/ReagentBankAccount_loader.cpp": "9bde94d99edba39f550ef5d0ccdbd13ff8bff3927b1580627ec75bb4873e1b13",
+    "modules/mod-starter-food-water/src/mod_starter_food_water.cpp": "af9db863ccffc682e9350b9f36a9cbb92329cda5bd3645d4c2abb8c1ae39dcfe",
+    "modules/mod-starter-food-water/src/mod_starter_food_water_loader.cpp": "52462917fffc7ec06236b86b6bc347f75d2c6b6d693467999b1e3b0026644659",
+    "modules/mod-timewalking/src/TimewalkingMgr.cpp": "6959a40682762537cafdc8d37bb86c84388d964c0b148c64b82401a88b66fb1c",
+    "modules/mod-timewalking/src/TimewalkingScripts.cpp": "631d90de40a9d77d7589f9085989ea9c3434dd26057499e4f46acec10216c2b4",
+    "modules/mod-timewalking/src/mod_timewalking_loader.cpp": "45a3c19eb2e2e53e79b956b8798ad1f1f218ce752792245c028c3eb4db7a9552",
+    "modules/mod-transmog/src/TransmogAccountSets.cpp": "88542b28c019d271869ce1c474b5dd1376df22d9cf4bb6f5101b0ff9aa3198a4",
+    "modules/mod-transmog/src/TransmogEyeHalo.cpp": "253eb5978ec194f6f7501ede2c643fbe4da57e4f0a2262610e51e5be96e2f6e7",
+    "modules/mod-transmog/src/Transmogrification.cpp": "ddb6db103caf205c07afbb866d3e9b800af026e6d9b3c22d9a73c51b4de7e041",
+    "modules/mod-transmog/src/cs_transmog.cpp": "ab12bb6c4ee4c1d2507e31c81f8fbfa47e8506966e4d192d60a4e32ebf1c4532",
+    "modules/mod-transmog/src/transmog_addon_bridge.cpp": "0f2aaeedda509db46b975250894b33c8e4b8a541b9185ca507c0b9b53ee98a2e",
+    "modules/mod-transmog/src/transmog_loader.cpp": "80a5588bec088475cf95bf8b201e3de6a62571da7cd065c3e9200de39bc17c24",
+    "modules/mod-transmog/src/transmog_scripts.cpp": "8330a6b779b87e0b6b8c4f77a3c8d8440176417c1896a17b79b9472dc6a6e3b1",
+    "modules/mod-transmog/src/transmog_underwear.cpp": "e5536fa023bbe7b706ca81d8d0d826b6e622ab5fc8c4e38d2098daacbdffa813",
+    "modules/mod-warcraftxl-gameobject-editor/client-native/wxl-gameobject-editor/src/GameObjectEditor.cpp": "8d56d801d194bbf582a37b2382bc66ee6612d578a274f9a78f163a275e543a38",
+    "modules/mod-warcraftxl-gameobject-editor/client-native/wxl-gameobject-editor/src/GameObjectPreview.cpp": "ed8f09d420f1b4fdc81721acd05f7672c8e65cc3f664ab1bbfcc889ea5b353d9",
+    "modules/mod-warcraftxl-gameobject-editor/src/WarcraftXLGameObjectEditor.cpp": "ce48c379c7a61d03889d57dfa0a2e62b3e4455fd051391202924ebdc1c0c2343",
+    "modules/mod-warcraftxl-gameobject-editor/src/WarcraftXLGameObjectEditorLoader.cpp": "18c075022205803d40494097bfac8dfabdb6c7f900e7614fb15da069f001e5de",
+    "modules/mod-warcraftxl-ui-tracker/src/WarcraftXLUITracker.cpp": "ff5db6f318168e8ee9b5bcd1996db7ba57e56cd5c7b8711202452ab2858f598b",
+    "modules/mod-warcraftxl-ui-tracker/src/WarcraftXLUITrackerLoader.cpp": "9d937cb6195f17b40bc080897f41cbae1da6cabd3c6a13c96bb142db5e0e4309",
+    "modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp": "dd31bb4522aff0c33fbd50c3b49697584187f3c41a7e751064e9e218424eb0cd",
+    "modules/mod-world-inspector-runtime/src/WorldInspectorRuntimeLoader.cpp": "803dccfbf82aa298c5c0bee240ba1baa491a9f7b9d4cf91d8c8cf1914f155e6a",
+    "src/server/apps/worldserver/Main.cpp": "782a1100dcbc84c24b924f6394ee3cb7ec33712881089274aaa3f22974edd1a0",
+    "src/server/database/Database/MySQLConnection.cpp": "811446bd01b3b2709e98be6f909f3fca4ab8ceeddb6252a505dfbf3f92465e5a"
+  },
+  "events": [
+    {
+      "id": "w0000",
+      "source": "modules/mod-ale/src/ALE_SC.cpp",
+      "line": 1130,
+      "prefixSha256": "d7def4c03c9539220c154a4d10faf0929a2454361729880f0b48f8da5833c27d"
+    },
+    {
+      "id": "w0001",
+      "source": "modules/mod-auctionator/src/AuctionatorScript.cpp",
+      "line": 24,
+      "prefixSha256": "715e7eab616bbb44e6d51ebc7528070ddbca588aea2cded0752a62e05494900d"
+    },
+    {
+      "id": "w0002",
+      "source": "modules/mod-auctionator/src/AuctionatorScript.cpp",
+      "line": 27,
+      "prefixSha256": "715e7eab616bbb44e6d51ebc7528070ddbca588aea2cded0752a62e05494900d"
+    },
+    {
+      "id": "w0003",
+      "source": "modules/mod-auctionator/src/AuctionatorScript.cpp",
+      "line": 30,
+      "prefixSha256": "715e7eab616bbb44e6d51ebc7528070ddbca588aea2cded0752a62e05494900d"
+    },
+    {
+      "id": "w0004",
+      "source": "modules/mod-aura-timers/src/AuraTimers.cpp",
+      "line": 317,
+      "prefixSha256": "815032744809887e593d6606d0456603fb8a6db2e35563a6f44a985cc2cc8da3"
+    },
+    {
+      "id": "w0005",
+      "source": "modules/mod-aura-timers/src/AuraTimers.cpp",
+      "line": 320,
+      "prefixSha256": "c68ed1457c47b13f2b7a1c47cd316b7e610e32b1abee00e842ac9812132fff6a"
+    },
+    {
+      "id": "w0006",
+      "source": "modules/mod-aura-timers/src/AuraTimers.cpp",
+      "line": 394,
+      "prefixSha256": "75eca4f64f25b9214b707909c77d15cd30e9921966c3dfda2d6392d22400bf10"
+    },
+    {
+      "id": "w0007",
+      "source": "modules/mod-aura-timers/src/AuraTimers.cpp",
+      "line": 400,
+      "prefixSha256": "875d14a0a4ec0b0241b4452408e027c01540e80c65895602226fba75907a1bb5"
+    },
+    {
+      "id": "w0008",
+      "source": "modules/mod-boost-60-outland/src/Boost60Outland.cpp",
+      "line": 572,
+      "prefixSha256": "c825fd575d8e9a931dfd986200a7633f1a01345eeda354808af8a28d79362756"
+    },
+    {
+      "id": "w0009",
+      "source": "modules/mod-boost-60-outland/src/Boost60Outland.cpp",
+      "line": 585,
+      "prefixSha256": "0e51c3d3282a1b4f36c93c01fb42e701bd9860d40df70b81545b91c38c1e9f0c"
+    },
+    {
+      "id": "w0010",
+      "source": "modules/mod-boost-60-outland/src/Boost60Outland.cpp",
+      "line": 1147,
+      "prefixSha256": "c825fd575d8e9a931dfd986200a7633f1a01345eeda354808af8a28d79362756"
+    },
+    {
+      "id": "w0011",
+      "source": "modules/mod-boost-60-outland/src/Boost60Outland.cpp",
+      "line": 1297,
+      "prefixSha256": "c825fd575d8e9a931dfd986200a7633f1a01345eeda354808af8a28d79362756"
+    },
+    {
+      "id": "w0012",
+      "source": "modules/mod-boost-60-outland/src/Boost60Outland.cpp",
+      "line": 2022,
+      "prefixSha256": "c825fd575d8e9a931dfd986200a7633f1a01345eeda354808af8a28d79362756"
+    },
+    {
+      "id": "w0013",
+      "source": "modules/mod-craftspeed/src/mod_craftspeed.cpp",
+      "line": 202,
+      "prefixSha256": "b0e130db31443e0a8baeb5bb00671fa1e7e7af680f2b6d4ba6b2fe5e130a5106"
+    },
+    {
+      "id": "w0014",
+      "source": "modules/mod-craftspeed/src/mod_craftspeed.cpp",
+      "line": 271,
+      "prefixSha256": "b0e130db31443e0a8baeb5bb00671fa1e7e7af680f2b6d4ba6b2fe5e130a5106"
+    },
+    {
+      "id": "w0015",
+      "source": "modules/mod-craftspeed/src/mod_craftspeed.cpp",
+      "line": 290,
+      "prefixSha256": "b0e130db31443e0a8baeb5bb00671fa1e7e7af680f2b6d4ba6b2fe5e130a5106"
+    },
+    {
+      "id": "w0016",
+      "source": "modules/mod-craftspeed/src/mod_craftspeed.cpp",
+      "line": 308,
+      "prefixSha256": "b0e130db31443e0a8baeb5bb00671fa1e7e7af680f2b6d4ba6b2fe5e130a5106"
+    },
+    {
+      "id": "w0017",
+      "source": "modules/mod-craftspeed/src/mod_craftspeed.cpp",
+      "line": 425,
+      "prefixSha256": "b0e130db31443e0a8baeb5bb00671fa1e7e7af680f2b6d4ba6b2fe5e130a5106"
+    },
+    {
+      "id": "w0018",
+      "source": "modules/mod-dbm-fta-bridge/src/DBMFTABotCallouts.cpp",
+      "line": 993,
+      "prefixSha256": "0634e1d1d8fd94dfc96d73b64de7d6872521ebe26df697401cc303c0b36fdcb6"
+    },
+    {
+      "id": "w0019",
+      "source": "modules/mod-dbm-fta-bridge/src/DBMFTABotCallouts.cpp",
+      "line": 1009,
+      "prefixSha256": "0634e1d1d8fd94dfc96d73b64de7d6872521ebe26df697401cc303c0b36fdcb6"
+    },
+    {
+      "id": "w0020",
+      "source": "modules/mod-dbm-fta-bridge/src/DBMFTABridge.cpp",
+      "line": 346,
+      "prefixSha256": "1a07c49fffffb7e8c9de95e7bc21150f230053b39bae3c3aa6291f71c94a1555"
+    },
+    {
+      "id": "w0021",
+      "source": "modules/mod-dbm-fta-bridge/src/DBMFTABridge.cpp",
+      "line": 350,
+      "prefixSha256": "2f1cb1703b4590d3ad00c1029c211faff40bfce59aea37462402be464b08d073"
+    },
+    {
+      "id": "w0022",
+      "source": "modules/mod-dbm-fta-bridge/src/DBMFTABridge.cpp",
+      "line": 473,
+      "prefixSha256": "450ee5e3e8ac911dad22aa7fa4316d5bcccd0f31815a6b364ceda4cc7a2395e6"
+    },
+    {
+      "id": "w0023",
+      "source": "modules/mod-dbm-fta-bridge/src/DBMFTABridge.cpp",
+      "line": 484,
+      "prefixSha256": "24a858319277f9d19601ac5cc001e545d788b12a21037bb51f028dca5d72f0a1"
+    },
+    {
+      "id": "w0024",
+      "source": "modules/mod-dbm-fta-bridge/src/DBMFTABridge.cpp",
+      "line": 490,
+      "prefixSha256": "7cc31dac328247fc95917089531901a7fb6db095e6cdf3c33adc6721498f7ea8"
+    },
+    {
+      "id": "w0025",
+      "source": "modules/mod-dbm-fta-bridge/src/DBMFTABridge.cpp",
+      "line": 506,
+      "prefixSha256": "1a07c49fffffb7e8c9de95e7bc21150f230053b39bae3c3aa6291f71c94a1555"
+    },
+    {
+      "id": "w0026",
+      "source": "modules/mod-dbm-fta-bridge/src/DBMFTABridge.cpp",
+      "line": 512,
+      "prefixSha256": "2f1cb1703b4590d3ad00c1029c211faff40bfce59aea37462402be464b08d073"
+    },
+    {
+      "id": "w0027",
+      "source": "modules/mod-dynamic-loot-browser/src/DynamicLootBrowser.cpp",
+      "line": 993,
+      "prefixSha256": "b31f9c36d78fb34f5c868fa6d582ecac83bd19d3ba10d1c4e0f72cbaece1fbd3"
+    },
+    {
+      "id": "w0028",
+      "source": "modules/mod-dynamic-loot-browser/src/DynamicLootBrowser.cpp",
+      "line": 1544,
+      "prefixSha256": "480c17ac917f6855f1a8185627b9d6a74353386dcd3998ca1640748ff26e7829"
+    },
+    {
+      "id": "w0029",
+      "source": "modules/mod-dynamic-loot-browser/src/DynamicLootBrowser.cpp",
+      "line": 1685,
+      "prefixSha256": "b31f9c36d78fb34f5c868fa6d582ecac83bd19d3ba10d1c4e0f72cbaece1fbd3"
+    },
+    {
+      "id": "w0030",
+      "source": "modules/mod-goblin-glider/src/GoblinGlider.cpp",
+      "line": 111,
+      "prefixSha256": "65736b030b620aa916aa28b115b80721a5c579c22e3d3cbb83a9ba328b519f29"
+    },
+    {
+      "id": "w0031",
+      "source": "modules/mod-goblin-glider/src/GoblinGlider.cpp",
+      "line": 536,
+      "prefixSha256": "3a1fd4a936d81a456ea502f540090e3247413328e6272839f84ab1e8652bb636"
+    },
+    {
+      "id": "w0032",
+      "source": "modules/mod-goblin-glider/src/GoblinGlider.cpp",
+      "line": 572,
+      "prefixSha256": "7e4d673901e88f69bb5801838f84ec2c7ea1d4d4f5d7baa7220b44640cff6126"
+    },
+    {
+      "id": "w0033",
+      "source": "modules/mod-goblin-glider/src/GoblinGlider.cpp",
+      "line": 574,
+      "prefixSha256": "16193597e33cce0f325394147896fdbccdee8a4f365dd2fce839b4844135a52e"
+    },
+    {
+      "id": "w0034",
+      "source": "modules/mod-pocket-pals/src/PocketPals.cpp",
+      "line": 2784,
+      "prefixSha256": "b3b1172da1cef3cd06b079e2a6b72a443997efe95221112d31abbccb6d6ceffb"
+    },
+    {
+      "id": "w0035",
+      "source": "modules/mod-pocket-pals/src/PocketPals.cpp",
+      "line": 2803,
+      "prefixSha256": "5bd95b444d25d562218427b6d2b522d2ff05e993d371fee178678f6481a67a21"
+    },
+    {
+      "id": "w0036",
+      "source": "modules/mod-pocket-pals/src/PocketPals.cpp",
+      "line": 3282,
+      "prefixSha256": "1de215164e9634c4920efbfc5453abfd3ecbc3baa6b27a684eac5ef3a76ee824"
+    },
+    {
+      "id": "w0037",
+      "source": "modules/mod-pocket-pals/src/PocketPals.cpp",
+      "line": 3294,
+      "prefixSha256": "92be4a775327ef81c33a226a0b87b419494fe28646dc146a9cc0ee8c22e9721d"
+    },
+    {
+      "id": "w0038",
+      "source": "modules/mod-pocket-pals/src/PocketPals.cpp",
+      "line": 3619,
+      "prefixSha256": "2001d79c96571bdaa4aadeebfdf921d85f9ce46ee31341d3cfe9b52d8449f0d0"
+    },
+    {
+      "id": "w0039",
+      "source": "modules/mod-pocket-pals/src/PocketPals.cpp",
+      "line": 3626,
+      "prefixSha256": "93d6bb4d2ccd16b0ad46873e91e0411b33289cc7669519650d336ed807bbb990"
+    },
+    {
+      "id": "w0040",
+      "source": "modules/mod-pocket-pals/src/PocketPals.cpp",
+      "line": 3748,
+      "prefixSha256": "60d5f9e20c528437b2a3d180b168198f4eff316c3406122328b08d31550a4869"
+    },
+    {
+      "id": "w0041",
+      "source": "modules/mod-questie-bridge/src/QuestieBridge.cpp",
+      "line": 212,
+      "prefixSha256": "bb89052c053e05489dab7feb57dc922bb53c9d3e176f48de4a683a8cc48c18b7"
+    },
+    {
+      "id": "w0042",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 450,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0043",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 462,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0044",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 474,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0045",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 482,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0046",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 494,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0047",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 499,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0048",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 562,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0049",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 577,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0050",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 597,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0051",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 614,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0052",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 649,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0053",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 653,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0054",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 663,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0055",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 749,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0056",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 776,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0057",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 802,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0058",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 809,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0059",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 827,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0060",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 876,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0061",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 916,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0062",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 959,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0063",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 982,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0064",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1012,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0065",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1023,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0066",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1050,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0067",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1077,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0068",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1088,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0069",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1115,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0070",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1132,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0071",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1142,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0072",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1167,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0073",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1191,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0074",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1202,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0075",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1211,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0076",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1214,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0077",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1232,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0078",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1253,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0079",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1272,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0080",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1394,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0081",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1415,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0082",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1437,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0083",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1442,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0084",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1474,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0085",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1572,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0086",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 1853,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0087",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 2045,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0088",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 2091,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0089",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 2202,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0090",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 2548,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0091",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 2784,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0092",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 2837,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0093",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 2894,
+      "prefixSha256": "7f597f28cc7b4fb64370cdcfd32662e9971e42057f9d2081f9e6b8aca33a8bb6"
+    },
+    {
+      "id": "w0094",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 3626,
+      "prefixSha256": "a5b1806d5fde33116ef6b2572d6d8fc35718930b4d94658eea6649a4e434385d"
+    },
+    {
+      "id": "w0095",
+      "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+      "line": 3662,
+      "prefixSha256": "a5b1806d5fde33116ef6b2572d6d8fc35718930b4d94658eea6649a4e434385d"
+    },
+    {
+      "id": "w0096",
+      "source": "modules/mod-starter-food-water/src/mod_starter_food_water.cpp",
+      "line": 228,
+      "prefixSha256": "04e31bd02c7f5845ebac9d9552be9e08e7b1518e8bbae2fbc177362b8220ba96"
+    },
+    {
+      "id": "w0097",
+      "source": "modules/mod-starter-food-water/src/mod_starter_food_water.cpp",
+      "line": 532,
+      "prefixSha256": "1d0486014da53fcbbf42d20b7dd60b5e4b5cd9f325f01eda99ad93f712773e98"
+    },
+    {
+      "id": "w0098",
+      "source": "modules/mod-starter-food-water/src/mod_starter_food_water.cpp",
+      "line": 564,
+      "prefixSha256": "de2e281733d41544b92b87bf18112e8577a9f9c51024c01c9dab15ed626eaf48"
+    },
+    {
+      "id": "w0099",
+      "source": "modules/mod-starter-food-water/src/mod_starter_food_water.cpp",
+      "line": 610,
+      "prefixSha256": "ff640cfa630c9c70c4a3afcb7321920b18fe23f7dd721d85a00a4a35007577fe"
+    },
+    {
+      "id": "w0100",
+      "source": "modules/mod-starter-food-water/src/mod_starter_food_water.cpp",
+      "line": 625,
+      "prefixSha256": "bb4230531dabb51e8f2787a6783aa9b7c34fc67ffe520f6749de31d3e0ef619f"
+    },
+    {
+      "id": "w0101",
+      "source": "modules/mod-timewalking/src/TimewalkingMgr.cpp",
+      "line": 443,
+      "prefixSha256": "5392fde975320bce60116a48ead8d124b12590b3519c9695499b66330e8ef841"
+    },
+    {
+      "id": "w0102",
+      "source": "modules/mod-timewalking/src/TimewalkingMgr.cpp",
+      "line": 553,
+      "prefixSha256": "a680757fa399845f95dea8f0aef363050569369de0348b0c129cad967364d7a4"
+    },
+    {
+      "id": "w0103",
+      "source": "modules/mod-timewalking/src/TimewalkingMgr.cpp",
+      "line": 566,
+      "prefixSha256": "a680757fa399845f95dea8f0aef363050569369de0348b0c129cad967364d7a4"
+    },
+    {
+      "id": "w0104",
+      "source": "modules/mod-timewalking/src/TimewalkingMgr.cpp",
+      "line": 592,
+      "prefixSha256": "a680757fa399845f95dea8f0aef363050569369de0348b0c129cad967364d7a4"
+    },
+    {
+      "id": "w0105",
+      "source": "modules/mod-timewalking/src/TimewalkingMgr.cpp",
+      "line": 618,
+      "prefixSha256": "ea7778fa5e000067057a0604be84b73b55a9ca4e00ee18a534d9717f934d6657"
+    },
+    {
+      "id": "w0106",
+      "source": "modules/mod-timewalking/src/TimewalkingMgr.cpp",
+      "line": 1129,
+      "prefixSha256": "43bef65491f06645ae07d634452679bacd09b6f554673785cdd3ddbaf13e9fb1"
+    },
+    {
+      "id": "w0107",
+      "source": "modules/mod-timewalking/src/TimewalkingMgr.cpp",
+      "line": 1314,
+      "prefixSha256": "a1fda6fd72a5f9009e6fe6072217a473f9ec57544e13102f579d70bba8db3c6a"
+    },
+    {
+      "id": "w0108",
+      "source": "modules/mod-transmog/src/Transmogrification.cpp",
+      "line": 73,
+      "prefixSha256": "aafccaeda3a3a546ce8ef2e9925e6ced1b437898b071bce1463d1db72f698cb5"
+    },
+    {
+      "id": "w0109",
+      "source": "modules/mod-transmog/src/Transmogrification.cpp",
+      "line": 537,
+      "prefixSha256": "6ff2419c2af1ffbd769338abc4f2367032e85fc1d1bc1338b43c5d43dd9dcc9d"
+    },
+    {
+      "id": "w0110",
+      "source": "modules/mod-transmog/src/Transmogrification.cpp",
+      "line": 927,
+      "prefixSha256": "e2eedf00f7c9f571c7b136c6c2ede95b30330a4d087b7cc69742d4f9abfafb41"
+    },
+    {
+      "id": "w0111",
+      "source": "modules/mod-transmog/src/Transmogrification.cpp",
+      "line": 1390,
+      "prefixSha256": "0d752deca28cbdf24f5524f9e4f5174565bdeafaf2c218857e321ebe62589f09"
+    },
+    {
+      "id": "w0112",
+      "source": "modules/mod-warcraftxl-gameobject-editor/src/WarcraftXLGameObjectEditor.cpp",
+      "line": 336,
+      "prefixSha256": "914601a4abbdef4f455396cdee0ac6c91ee7f6cf2ef1bf44cdb62a5bf94cd3bd"
+    },
+    {
+      "id": "w0113",
+      "source": "modules/mod-warcraftxl-gameobject-editor/src/WarcraftXLGameObjectEditor.cpp",
+      "line": 394,
+      "prefixSha256": "19ed6c2785b04ae00bbbd0dac07e662e90e655adbee0e74d87ab1710490794eb"
+    },
+    {
+      "id": "w0114",
+      "source": "modules/mod-warcraftxl-gameobject-editor/src/WarcraftXLGameObjectEditor.cpp",
+      "line": 1240,
+      "prefixSha256": "c11d5ae58652440668d0d7d9b0bce58b5e4abb5404a75d2a5cc576973d261868"
+    },
+    {
+      "id": "w0115",
+      "source": "modules/mod-warcraftxl-gameobject-editor/src/WarcraftXLGameObjectEditor.cpp",
+      "line": 1656,
+      "prefixSha256": "53dfcb69f0665272f3a59d4eda66522a1ecf1e5cccc7016d14e63f16ffd37524"
+    },
+    {
+      "id": "w0116",
+      "source": "modules/mod-warcraftxl-gameobject-editor/src/WarcraftXLGameObjectEditor.cpp",
+      "line": 1677,
+      "prefixSha256": "6f927cf5d6357b70ba3d3a7f5bc7ff2e0c3b21e1af2f46cc3c87ad26c4b3a841"
+    },
+    {
+      "id": "w0117",
+      "source": "modules/mod-warcraftxl-ui-tracker/src/WarcraftXLUITracker.cpp",
+      "line": 268,
+      "prefixSha256": "dda8c8ef9698d31240f7247c1e90dd8c44c05b298fcaf5816f95f1d1987a1e20"
+    },
+    {
+      "id": "w0118",
+      "source": "modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp",
+      "line": 761,
+      "prefixSha256": "ae520fcef42fb9fb35b4cc4f0e37fa6afa5ed03fb8e70b2bbec8107db3c2df81"
+    },
+    {
+      "id": "w0119",
+      "source": "modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp",
+      "line": 772,
+      "prefixSha256": "5df6137288742cc7101cebb79bfc3987ccdfdc29d65282cb2c5e72f750f79eb7"
+    },
+    {
+      "id": "w0120",
+      "source": "modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp",
+      "line": 775,
+      "prefixSha256": "5df6137288742cc7101cebb79bfc3987ccdfdc29d65282cb2c5e72f750f79eb7"
+    },
+    {
+      "id": "w0121",
+      "source": "modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp",
+      "line": 843,
+      "prefixSha256": "a90a18c582b3943d72758ae85de85b0704e9bbc8e4e977acb11ecb5f90d1b442"
+    },
+    {
+      "id": "w0122",
+      "source": "modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp",
+      "line": 964,
+      "prefixSha256": "f5734333d0d31a03c09e4f72c66eee22425bb29cd7cae17113f971424a8b4cc2"
+    },
+    {
+      "id": "w0123",
+      "source": "modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp",
+      "line": 975,
+      "prefixSha256": "f5734333d0d31a03c09e4f72c66eee22425bb29cd7cae17113f971424a8b4cc2"
+    },
+    {
+      "id": "w0124",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 203,
+      "prefixSha256": "93546ced8c98136a194fa452ab9c662768c5b4624c9c22feedd0be4f356ccd81"
+    },
+    {
+      "id": "w0125",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 204,
+      "prefixSha256": "78efc99c527b34e3627220009b74d8230b1b37009ed777c5e821657b0ff439f8"
+    },
+    {
+      "id": "w0126",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 205,
+      "prefixSha256": "5f1b1711ecbd5f8d81c069aaaea65ec288a52c688d9c98d962b963acd57bfb84"
+    },
+    {
+      "id": "w0127",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 225,
+      "prefixSha256": "d3c7b7a1ec5b82ec0037cf7379bf0bd68f6a2ef5a76b03bc805a3cbd77968f8f"
+    },
+    {
+      "id": "w0128",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 276,
+      "prefixSha256": "c6b78a051e7a6c1b1b0281ba7387cf0ef0414c34fcb20519d3d23c3f38ec45ac"
+    },
+    {
+      "id": "w0129",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 350,
+      "prefixSha256": "b6a1dafa6dc7f0b6b0ac41bb7125151188dc21ef9513717caf9844fd7128f405"
+    },
+    {
+      "id": "w0130",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 357,
+      "prefixSha256": "800561daa261aa6a02898544b21b2da6e6f236c9c3fe6b8d3a93425552a2eeaa"
+    },
+    {
+      "id": "w0131",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 385,
+      "prefixSha256": "9218057488e4a42fa2b6a205af8e1ad015218b1e97adb089c1074903af6c79df"
+    },
+    {
+      "id": "w0132",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 420,
+      "prefixSha256": "60504bb7ff20fb4b1e45f976189161cd8ee45a7b4ca6c0ce352361a415b2d82e"
+    },
+    {
+      "id": "w0133",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 448,
+      "prefixSha256": "9bfa06f892ea506917e836486f1f2ef214e35737f99ad97508455c7488f44f40"
+    },
+    {
+      "id": "w0134",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 458,
+      "prefixSha256": "87074b3f409ffd84c19f5180973ebc17cb6a6525ef2a45a034e7f960cedeed65"
+    },
+    {
+      "id": "w0135",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 462,
+      "prefixSha256": "2dad1ccf36ededd418c25640733dab6921476eb28f04a9680355211df8b4f489"
+    },
+    {
+      "id": "w0136",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 463,
+      "prefixSha256": "f0204a7cfb7a9888d35653ded6e3dd655645f3885d74e6d54e608197a7f3fdc1"
+    },
+    {
+      "id": "w0137",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 479,
+      "prefixSha256": "068ac73b2377190c4bdc1bcabf87cc30da252752e2a77fb8f4c46bd7c3ee20e5"
+    },
+    {
+      "id": "w0138",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 593,
+      "prefixSha256": "90ebfc4814897036f66c3b736c37c68d192838f0bb0a59bb9463a4dae50bc26c"
+    },
+    {
+      "id": "w0139",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 642,
+      "prefixSha256": "893260288c9b0ae4a88d9b30cafc9e56313b9dd1b2c9e89c3faca2eccfe4ee1f"
+    },
+    {
+      "id": "w0140",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 661,
+      "prefixSha256": "67f8ad25e4ea90065e95a0b85169447edeeea805923c80419badbd5ae097fa37"
+    },
+    {
+      "id": "w0141",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 684,
+      "prefixSha256": "5c952399f7c3fc791da8a20b545ab8e6a8bbfe08011d95e19a0a60883bd71cc2"
+    },
+    {
+      "id": "w0142",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 693,
+      "prefixSha256": "5c952399f7c3fc791da8a20b545ab8e6a8bbfe08011d95e19a0a60883bd71cc2"
+    },
+    {
+      "id": "w0143",
+      "source": "src/server/apps/worldserver/Main.cpp",
+      "line": 702,
+      "prefixSha256": "5c952399f7c3fc791da8a20b545ab8e6a8bbfe08011d95e19a0a60883bd71cc2"
+    },
+    {
+      "id": "w0144",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 92,
+      "prefixSha256": "f1decbfbea13898b7744cfc17815bf664deff1f234db56b01d7bca8a0b3c3564"
+    },
+    {
+      "id": "w0145",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 148,
+      "prefixSha256": "ac77ce1684c70440d335d7e5817ef0a987338f85b3ae4eac4aa66ffd17d9349a"
+    },
+    {
+      "id": "w0146",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 149,
+      "prefixSha256": "44662fe0f1df1c8e5f302fff9f6bc099a7111e7b68e3876e8d21d6e0ec8a8667"
+    },
+    {
+      "id": "w0147",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 152,
+      "prefixSha256": "3198293096f0a51695e905a508e60ac21a60c6759fbb8b5038ef4ba6bd2ab286"
+    },
+    {
+      "id": "w0148",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 162,
+      "prefixSha256": "9b323d5a7c7de41bb2a71f2362d05a4f6a9eb78311ad508e0ee066677056dc29"
+    },
+    {
+      "id": "w0149",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 412,
+      "prefixSha256": "3d1874cf19900bee84d3350c6fe02f78bab93e4263ca60424a3133eacc0a48d2"
+    },
+    {
+      "id": "w0150",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 420,
+      "prefixSha256": "75a8c341410e9e4daf07a5b37607cb915ba15c2b5b793f4987da102e0ec0026e"
+    },
+    {
+      "id": "w0151",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 437,
+      "prefixSha256": "6cab202f616283b4fe43f189dc9769fde0dd2489ca32720b575a745ba29faa18"
+    },
+    {
+      "id": "w0152",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 445,
+      "prefixSha256": "75a8c341410e9e4daf07a5b37607cb915ba15c2b5b793f4987da102e0ec0026e"
+    },
+    {
+      "id": "w0153",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 511,
+      "prefixSha256": "e48e39d733ffadfd26f006005fac206eaada83dd6feb386438532f62d54004e0"
+    },
+    {
+      "id": "w0154",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 531,
+      "prefixSha256": "3ed1735958fbf467fc95b5cdfc478376b695f03a65c7dda327c6cc67d134ebeb"
+    },
+    {
+      "id": "w0155",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 539,
+      "prefixSha256": "19c67ef70766f387decbe748ecfb85cd9b7fad6c1bb78f0b9c8249396c50dfbe"
+    },
+    {
+      "id": "w0156",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 578,
+      "prefixSha256": "3257bc56fcbc6d9496b5283f057a734c9b48ca815aaeedea34cbd11008236822"
+    },
+    {
+      "id": "w0157",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 587,
+      "prefixSha256": "dd7f2092ba8c2ec031a1f1822c28a997cbb691375d7f20d9badd878567a06a9a"
+    },
+    {
+      "id": "w0158",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 603,
+      "prefixSha256": "5521bd25ec5c72c6392304f70e6c14b3741032cfcecf0cc275353a4fadc97d09"
+    },
+    {
+      "id": "w0159",
+      "source": "src/server/database/Database/MySQLConnection.cpp",
+      "line": 655,
+      "prefixSha256": "76067a99de60596a4100eb7cc5c3470f3eae3fbd5cc6236def229568a599d5eb"
+    }
+  ],
+  "dictionarySha256": "93fd3a4b6f0c567f7ab261997737c5fcaee31dd9fa74c3a0c97804f086724ae2",
+  "dynamicValuesExported": false,
+  "hookCompletionProven": false,
+  "crashCauseProven": false,
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb"
+}

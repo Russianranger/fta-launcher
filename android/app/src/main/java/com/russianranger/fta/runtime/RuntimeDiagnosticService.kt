@@ -163,7 +163,7 @@ class RuntimeDiagnosticService : Service() {
                 recoveryStore?.state(recoveryPhase!!, if (cancelled.get()) "STOPPED" else "FAILED")
                 writeStatus(if (cancelled.get()) "STOPPED" else "FAILED",
                     if (includeGameData) GameDataImport.failureSummary(failure, cancelled.get())
-                    else if (worldService) "World session stopped during $lastStage. The realm, assets and verified backup are retained. Export the report before retrying."
+                    else if (worldService) "World session stopped during ${(failure as? WorldSessionFailure)?.stage ?: lastStage}. The realm, assets and verified backup are retained. Export the report before retrying."
                     else if (localService) "Local service failed during $lastStage. The realm and verified backup are retained. Export the diagnostic report before retrying."
                     else if (includeLocalAuth) "Local auth service ${if (cancelled.get()) "stopped" else "failed"} during $lastStage. The realm and verified backup are retained. Normal auth startup may mark realms offline. Export the diagnostic report."
                     else if (cancelled.get()) "Database diagnostic stopped. Existing saves were untouched."

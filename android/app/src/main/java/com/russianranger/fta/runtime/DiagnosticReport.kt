@@ -41,7 +41,7 @@ object DiagnosticReport {
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")
         val currentAttempt = attemptFile.takeIf { it.isFile && it.length() <= 64 }?.readText()?.trim()
             ?.takeIf { NativeInvocationJournal.validAttemptId(it) }
-        if (scope == "game-data" && currentAttempt != null) result.put("gameDataOperation",
+        if (scope in setOf("game-data", "world-service") && currentAttempt != null) result.put("gameDataOperation",
             JSONObject(runCatching { GameDataDiagnostics.export(context, currentAttempt) }.getOrElse { mapOf("available" to false) }))
         val authFile = File(context.filesDir, "runtime/auth-diagnostic.json")
         val auth = if (authFile.isFile && authFile.length() <= 4096) runCatching { JSONObject(authFile.readText()) }.getOrNull() else null

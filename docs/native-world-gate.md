@@ -4,7 +4,10 @@ Code 26's physical import and publication passed; the report did not record a
 standalone full reverify. Code 27 adds **Start native world test**, which performs
 that full rehash and preflight under the asset lease before opening the retained
 realm. Follow the current procedure and evidence in [SHORT-HANDOFF.md](SHORT-HANDOFF.md).
-The native world session is implemented but remains physically unqualified.
+The physical code-27 rehash passed, but world exited 139 after the original DBC,
+ready and freeze-guard messages. Native runtime remains unqualified. Code 28 adds
+read-only recovery of retained log fingerprints; export the existing attempt before
+another launch. See the handoff for measured evidence and the current procedure.
 
 ## Live original GT loading
 
