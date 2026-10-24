@@ -13,7 +13,12 @@ internal object WorldLogEvidence {
     private const val MAX_LINE = 4096
     private const val MAX_EVENTS = 64
     private val header = Regex("^(INFO|WARN|ERROR|FATAL) \\[[A-Za-z0-9_.-]{1,80}\\] (.*)$")
-    private fun hex(bytes: ByteArray) = bytes.joinToString("") { "%02x".format(it.toInt() and 255) }
+    private fun hex(bytes: ByteArray): String {
+        val digits = "0123456789abcdef"
+        return buildString(bytes.size * 2) {
+            bytes.forEach { append(digits[(it.toInt() and 255) ushr 4]); append(digits[it.toInt() and 15]) }
+        }
+    }
     private fun hash(bytes: ByteArray) = hex(MessageDigest.getInstance("SHA-256").digest(bytes))
     data class Dictionary(val sha256: String, val ids: Map<String, List<String>>)
     fun dictionary(input: InputStream): Dictionary {

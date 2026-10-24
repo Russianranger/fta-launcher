@@ -53,6 +53,15 @@ class WorldServiceProtocolTest {
             assertFalse(f.checks["worldCleanStop"] == true && f.checks["worldListenerClosed"] == true)
         }
     }
+    @Test fun physicalCode27Exit139KeepsStartupFailureAfterAuthCleanup() {
+        val f = Fixture(); f.failStart = true; f.worldExit = 139
+        val failure = assertThrows(WorldSessionFailure::class.java) { f.run() }
+        assertEquals("WORLD_SESSION_START", failure.stage)
+        assertEquals(listOf("world.stop", "auth.stop"), f.calls.takeLast(2))
+        assertEquals(true, f.checks["authCleanStop"])
+        assertEquals(false, f.checks["worldCleanStop"])
+        assertFalse(f.checks["protocolReady"] == true)
+    }
     @Test fun liveOwnedWorldPreventsDependencyShutdown() {
         val f = Fixture(); f.worldExit = Int.MIN_VALUE
         assertThrows(Exception::class.java) { f.run(1) }
