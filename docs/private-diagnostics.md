@@ -1,16 +1,24 @@
 # Private native diagnostic builds
 
-## Current private delivery — code 27
+## Current private delivery — code 28
 
-`FTA-Launcher-0.12.0-native-world.apk` is the current private update. It reuses the
-persistent development certificate and all 17 verified native payloads from code
-26. SHA256: `08eef256f0006176e8937e607113a169a6da083d9461ea1a3aa145b2e939a8b8`.
-See [measured evidence](evidence/android-2026-10-24-private-world-session-apk.json)
-and the [single retained-world Thor procedure](SHORT-HANDOFF.md).
-It reached the physical world gate but exited 139 before health qualification.
-Code 28 is being qualified to export more evidence from that retained attempt
-without another world launch. The historical milestones below remain evidence
-for earlier gates, not instructions to repeat old tests.
+`FTA-Launcher-0.12.1-world-evidence.apk` is the current private update.
+SHA256: `304f07ae9f72118a4208fe0bbb489f3310a866b1af1c02733705c8c8cb29beaf`.
+It reuses the persistent development certificate and all 17 unchanged native
+payloads from code 27. [Measured evidence](evidence/android-2026-10-24-private-world-evidence-apk.json).
+All 358 Android unit tests, 165 tooling tests, lint/assembly, 221 private packaged
+inputs, v2 signature and 16 KiB alignment passed. Physical retained-log recovery
+is pending. Install in place and **Export diagnostic report before another world
+launch**; this update can inspect the existing code-27 failure without reopening
+the database or rehashing assets.
+
+Code 27's physical full rehash passed, and its original world reached all 113 DBC
+stores plus ready/freeze markers, then exited 139 before listener health. The
+failure's native instruction and cause are unknown. Code 28 adds bounded,
+source-derived log fingerprints and preserves primary failure stages across
+cleanup. It does not change native behavior or claim world readiness. Follow the
+[current handoff](SHORT-HANDOFF.md); historical milestones below are not requests
+to repeat passed tests.
 
 For recovery packaging, `python3 tools/package_private_update.py --help` documents
 the inputs. It uses the exact passing CI assembly and verified unchanged donor

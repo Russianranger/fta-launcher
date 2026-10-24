@@ -30,7 +30,19 @@ The original ready message precedes module OnStartup hooks; the failure's exact
 native instruction and cause are unknown. Do not attribute it to a particular
 module or alter game data based on this report alone.
 
-**Code 28 (`0.12.1-world-evidence`) is being qualified for read-only recovery.**
+**Private code 28 (`0.12.1-world-evidence`) is packaged, verified and saved.**
+Final application implementation: **06083f26a6cf1be6242b3524667c76b10483f407**.
+Its exact CI [40120557614](https://github.com/Russianranger/fta-launcher/actions/runs/40120557614)
+passed all three jobs. Only documentation/evidence follow that application commit.
+APK: `FTA-Launcher-0.12.1-world-evidence.apk` (42,222,309 bytes).
+SHA256: `304f07ae9f72118a4208fe0bbb489f3310a866b1af1c02733705c8c8cb29beaf`.
+[Measured APK evidence](evidence/android-2026-10-24-private-world-evidence-apk.json).
+Saved private file ID: `libfile_18d0dc9354e881918a6e6129cf59300a`.
+Original certificate, all 17 native payloads, all 148 runtime-manifest members and
+source companion v8 remain unchanged from code 27. All 221 packaged-input checks,
+v2 signature verification and 16 KiB alignment passed. Public CI APKs are not the
+private update. **Code 28's retained-log recovery has not yet run on Thor.**
+
 It preserves the original world failure phase across cleanup and reports successful
 auth cleanup separately from failed world cleanup. World reports now include the
 existing attempt-bound asset verification/process-exit evidence. Export additionally
@@ -48,13 +60,17 @@ explicit candidate sets; a match is neither hook completion nor a proven cause.
 No native payload, module, source rule, configuration or SQL was changed.
 The original source companion v8 and persistent signer remain required.
 
-Local qualification: **165 tooling tests** and exact private-source dictionary
-reproduction passed. Android tests/lint/assembly and private packaging are pending
-exact-commit CI. Do not deliver an unqualified public CI APK as the private update.
+Qualification: **165 tooling tests**, exact private-source dictionary reproduction,
+and CI Android tests/lint/assembly passed. There are **358 unit tests in 32 classes**,
+no ignored methods. The measured exit-139 regression preserves WORLD_SESSION_START
+across failed world cleanup and successful auth cleanup. Read-only scanner tests
+cover private dynamic text, stale/running/duplicate journals, links, oversized lines/
+files, candidate collisions and bounded event tails. Local full Gradle was not run;
+the exact implementation CI performed the prescribed Android qualification.
 
 ## Next Thor procedure
 
-After code 28's verified private APK is delivered, install it **in place**, reopen
+Install the saved code-28 private APK **in place**, reopen
 and select **Export diagnostic report** immediately. **Do not start another world
 test first**: the update can inspect code 27's existing failed attempt. Send the
 new JSON. No reimport, rehash, database/auth test, uninstall or storage clearing.

@@ -793,3 +793,17 @@ inputs were verified against the exact APK and all native delivery bytes remain
 identical. Do not claim old static archives or build reports are present. Exact
 Android tooling and host MariaDB were restored with published checksum/version
 checks; the new Java/Kotlin code and host metadata probe ran this session.
+
+
+## 2026-10-24 — physical world failure and retained evidence recovery
+
+Physical code 27 (`08eef256...`) passed full retained rehash of 22,817 files,
+strict metadata prechecks and exact GT coverage. Original world observed 113
+DBC stores and ready/freeze markers, then exited 139 after 27,590 ms before the
+challenge/health gate. No native readiness or 120-second screen-off pass is claimed.
+Code 28 fixes primary-stage reporting and adds read-only, attempt-bound source
+fingerprints for already-retained logs. Final application commit `06083f26a6cf1be6242b3524667c76b10483f407`,
+CI `40120557614`: all three jobs passed (358 Android tests, 165 tooling tests).
+Private APK SHA256 `304f07ae9f72118a4208fe0bbb489f3310a866b1af1c02733705c8c8cb29beaf`;
+original signer and all 17 native payloads unchanged. Next step: update in place
+and export the existing attempt, without another world launch or asset import.

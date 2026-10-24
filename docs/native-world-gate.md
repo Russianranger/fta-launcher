@@ -104,3 +104,32 @@ not proof of completed module initialization, world health or gameplay.
 World startup may legitimately change world runtime state; diagnose measured
 changes against original source rather than relaxing metadata checks. Controller,
 client import, WarcraftXL, account provisioning and playable login are later work.
+
+## Read-only recovery after code 27
+
+Code 28 can export the existing failed attempt without restarting a native process.
+`worldServiceDiagnostic.retainedWorldLogs` binds the journal's single terminated
+world invocation to its visit directory and only reads that visit's three fixed
+log roles. `gameDataOperation` also exposes the completed rehash and its original
+process identity; an app update's later exit is not an asset-validation failure.
+
+The log reader uses no-follow handles, rejects linked visit directories, limits
+each file to 8 MiB and each parsed line to 4 KiB, checks that the file stayed stable,
+and retains at most 64 matching events per log. An unavailable file stays unavailable.
+A matching line exports only its ordinal, fixed severity and candidate source IDs.
+Neither dynamic fields nor the 16 literal bytes are copied into the report.
+Hashes, counts and identifiers do not set any native qualification flag.
+
+`docs/evidence/world-log-dictionary.json` maps each reported `wNNNN` ID to the
+original source file and line. Shared 16-byte prefixes deliberately return multiple
+candidate IDs. The last matching log identifies an observed message, not necessarily
+the executing hook at the crash; concurrent threads and unlogged work remain possible.
+Reproduce its exact source provenance using:
+
+```sh
+python3 tools/world_log_dictionary.py --source-zip /private/From_The_Ashes_Source.zip
+```
+
+First update and export the retained code-27 attempt. Only a later diagnosis can
+justify a native change or another runtime run. The original 52 modules, DBC rules,
+SQL, native payloads and retained realm are unchanged by this recovery increment.
