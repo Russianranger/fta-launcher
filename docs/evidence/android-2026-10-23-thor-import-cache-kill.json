@@ -1,0 +1,113 @@
+{
+  "formatVersion": 1,
+  "scope": "physical-thor-import-low-memory-repeat",
+  "reportSha256": "90c86baec17fe944b8b38fe810ee8c73eb83bc7a9c5111c689fe8b66733efebd",
+  "appVersionCode": 23,
+  "appVersionName": "0.11.5-editor-companion",
+  "apkSha256": "b21a094876eed406bd38b6bb5623a282a4a88b98ad9d262f67ecfcdb71808120",
+  "verifiedPrivateApkMatched": true,
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "gameDataOperation": {
+    "available": true,
+    "attemptId": "53f5c989-3ab8-4c37-bd06-fe152c01da75",
+    "mode": "import",
+    "state": "INTERRUPTED",
+    "lastRecordedState": "RUNNING",
+    "stage": "copy",
+    "startedAtEpochMs": 1792807161042,
+    "updatedAtEpochMs": 1792807187375,
+    "completedUnits": 2258370560,
+    "totalUnits": 0,
+    "unit": "bytes",
+    "copiedBytes": 2258370560,
+    "freeStorageBytes": 249765294080,
+    "heapUsedBytes": 2911352,
+    "heapMaxBytes": 268435456,
+    "workerObservation": "inactive",
+    "systemMemoryObservationAvailable": true,
+    "systemMemoryObservation": {
+      "availableBytes": 10888626176,
+      "totalBytes": 15996096512,
+      "lowMemoryThresholdBytes": 226492416,
+      "lowMemory": false,
+      "workerImportance": 100,
+      "activityBound": true
+    },
+    "exitHistorySupported": true,
+    "exitHistoryAvailable": true,
+    "recentRuntimeExits": [
+      {
+        "timestampEpochMs": 1792807187616,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 23539,
+        "lastSampledRssKiB": 100092,
+        "attemptMatched": true
+      },
+      {
+        "timestampEpochMs": 1792807146665,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 0,
+        "lastSampledRssKiB": 0,
+        "attemptMatched": false
+      },
+      {
+        "timestampEpochMs": 1792805705658,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 0,
+        "lastSampledRssKiB": 0,
+        "attemptMatched": false
+      }
+    ]
+  },
+  "gameDataDiagnostic": {
+    "available": true,
+    "worldReady": false,
+    "gameLoginQualified": false,
+    "nativeSemanticValidationPassed": false,
+    "policySha256": "ebba21788b69a5021a7e7d330aa33e699fda18161b43848d16a5c75dc9e6fb4a",
+    "state": "COPYING",
+    "preflightPassed": false,
+    "files": 0,
+    "bytes": 0,
+    "problemCount": 0,
+    "count.dbc": 0,
+    "count.maps": 0,
+    "count.vmaps": 0,
+    "count.mmaps": 0,
+    "stockDbcFiles": 0,
+    "db2CompanionFiles": 0,
+    "editorCompanionFiles": 0,
+    "rejectedAssetCount": 0,
+    "rejectedAssets": [],
+    "problems": [],
+    "activeCandidateRetained": false,
+    "activeCatalogMatchesReport": false
+  },
+  "exitAfterLastCheckpointMs": 241,
+  "visibleBindingAndForegroundImportanceObserved": true,
+  "previousMitigationsDidNotPreventThisKill": true,
+  "javaOutOfMemoryExceptionObserved": false,
+  "mainActivityCrashCauseEstablished": false,
+  "globalMemoryExhaustionEstablished": false,
+  "fileCacheOrCgroupCauseEstablished": false,
+  "archiveHashReached": false,
+  "assetPreflightPassed": false,
+  "worldReady": false,
+  "interpretation": "Android records an attempt-matched low-memory exit during copy despite foreground binding and low sampled Java heap. Available memory and exit RSS/PSS are samples, not exact state at death. Root cause remains unknown."
+}

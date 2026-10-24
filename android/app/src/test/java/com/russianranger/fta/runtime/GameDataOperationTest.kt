@@ -43,6 +43,23 @@ class GameDataOperationTest {
         }
     }
 
+    @Test fun cacheAdviceRoundTripsWithoutClaimingEvictionOrReadiness() {
+        val stats = GameDataCache.Stats(200, 199, 1, 3L * 1024 * 1024 * 1024, true)
+        store.write(record().copy(cache = stats)); assertEquals(stats, store.read(attempt)!!.cache)
+        val exported = store.export(attempt, false)
+        assertEquals(true, exported["fileCacheAdviceAvailable"])
+        val advice = exported["fileCacheAdvice"] as Map<*, *>
+        assertEquals(false, advice["actualEvictionMeasured"]); assertEquals(true, advice["sourceDescriptorAvailable"])
+        assertEquals(199L, advice["accepted"]); assertFalse(exported.containsKey("worldReady"))
+    }
+    @Test fun oldCacheRecordsStayReadableAndIncompleteCountersFailClosed() {
+        store.write(record()); assertEquals(false, store.export(attempt, false)["fileCacheAdviceAvailable"])
+        store.write(record().copy(cache = GameDataCache.Stats(1, 1, 0, 16, false))); val good = file.readText()
+        for (bad in listOf(good.replace("cache.accepted=1", "cache.accepted=2"),
+            good.replace("cache.bytes=16\n", ""), good.replace("cache.sourceAvailable=false", "cache.sourceAvailable=unknown"))) {
+            file.writeText(bad); assertEquals(mapOf("available" to false), store.export(attempt, false))
+        }
+    }
     @Test fun runningInterruptedAndUnknownObservationsRemainDistinct() {
         store.write(record())
         assertEquals("RUNNING", store.export(attempt, true)["state"])

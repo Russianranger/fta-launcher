@@ -1,10 +1,54 @@
 # Extracted game-data import and source-derived preflight
 
-Private **0.11.5-editor-companion**, code **23**, imports an inert ZIP containing extracted
+Private **0.11.6-import-cache**, code **24**, imports an inert ZIP containing extracted
 `dbc`, `maps`, `vmaps` and `mmaps` folders, directly or under one enclosing folder.
 It preserves the retained realm, verified backup, Database.zip and native inputs.
 It does not extract a full client/MPQ archive, launch worldserver or create accounts.
 Matching actual game data is not present in the development environment.
+
+## Repeated physical low-memory exit and code 24 cache handling
+
+Private code 23 was killed during copy at **2,258,370,560 bytes**. Android's
+attempt-matched reason is `low_memory`, 241 ms after a checkpoint showing
+2.9 MB Java heap, 10.9 GB available system memory, importance 100 and an active
+visible-screen binding. No asset rejection or completed archive hash exists.
+The root cause remains unproven; a small Java heap and a free-memory sample do
+not measure file-cache/cgroup charges or the exact memory state at termination.
+See [physical evidence](evidence/android-2026-10-23-thor-import-cache-kill.json).
+
+Code 24 requests `POSIX_FADV_DONTNEED` after 16 MiB source ranges are consumed,
+after copied/extracted output is synced, every 128 indexed entries and periodically for the private extraction ZIP, after
+each preflight file, and during later full-file hashing. The provider's existing stream is
+preserved; only a duplicate seekable descriptor is borrowed for source advice.
+Pipe or non-file providers remain supported through the existing stream path.
+Cache advice is optional to integrity: rejection cannot skip checks, change bytes,
+replace missing runtime assets, publish early or assert world readiness.
+
+The dedicated `libfta_game_io.so` adds one native file; all 16 prior payloads,
+original SQL, source-derived policy and signer remain unchanged. The helper uses
+only read-only, NOFOLLOW regular-file handles and positive bounded ranges. It
+never changes file position or closes a borrowed descriptor. No kernel settings,
+root privileges, global cache clearing or process-killer changes are used.
+
+`gameDataOperation.fileCacheAdvice` records requests, accepted/rejected counts,
+cumulative requested bytes, source-descriptor availability and the 16 MiB
+interval. `actualEvictionMeasured=false` is intentional: syscall success is not
+proof of eviction on Thor. Repeated ZIP ranges make the byte counter larger than
+the archive; it is not a cache-size reading. Old checkpoints remain readable;
+malformed/incomplete counters reject the whole checkpoint export.
+
+[Android's file-cache guidance](https://developer.android.com/topic/performance/memory/guide/page-advice)
+distinguishes clean-page eviction from write synchronization; its
+[lmkd description](https://source.android.com/docs/core/perf/lmkd) includes memory
+pressure and thrashing, beyond a simple free-memory threshold. This supports the
+mitigation's mechanism but does not establish the Thor-specific cause.
+
+319 Android tests, original C++ loading, five source/store JVMs, a 3.23 GB import
+and full reverify with 64 MiB heap, boundary deaths, and the exact latest copy-byte
+interruption pass with advice enabled. Native host measurements show 64 MiB of
+clean cache becoming nonresident, with bytes/position unchanged. See the current
+[handoff](SHORT-HANDOFF.md) for exact evidence and private APK identity. Android
+cache eviction, survival, actual asset formats and world loading remain unqualified.
 
 ## Physical editor-archive rejection and code 23 correction
 
@@ -144,7 +188,7 @@ bytes and database expectations stay unchanged. Arbitrary nested folders,
 SQL/executable filenames, unsafe paths, duplicate names and invalid ZIP modes
 still fail before extraction. No files are silently discarded or rewritten.
 
-Retry the **unchanged original Data.zip** with code 23. On failure export the
+Retry the **unchanged original Data.zip** with code 24. On failure export the
 **diagnostic `.json` file** immediately. `failureStage`, `failureReason` and
 `failureAsset` identify the boundary; layout failures now include
 `rejectedAssetCount` and up to 32 `rejectedAssets`, collected across the validated
@@ -156,8 +200,8 @@ Old reports and receipts remain readable with new counts defaulting to zero.
 
 ## One focused physical test
 
-1. Install private code 23 as an in-place update. Its signer and all 16 native
-   payloads match code 22. Keep the retained realm, Database.zip and dependencies.
+1. Install private code 24 as an in-place update. Its signer and all 16 existing native
+   payloads match code 23; one small cache helper is added. Keep the retained realm, Database.zip and dependencies.
    Never uninstall, clear storage or substitute the public debug APK.
 2. Keep the launcher visible and select **Import extracted game-data ZIP** with
    the same unchanged `Data.zip`. Wait for **Game-data preflight passed**.

@@ -21,6 +21,34 @@ class GameDataStoreTest {
     @After fun cleanup() { root.deleteRecursively() }
     private fun store() = GameDataStore(File(root, "store"), text)
     private val editorPath = "dbc/WDBX - DBC EDITOR.zip"
+    @Test fun cacheAdviceCoversCopiedExtractedAndReverifiedFilesWithoutPublishingEarly() {
+        val paths = mutableSetOf<String>(); val advisedStages = mutableSetOf<String>(); var stage = "copy"
+        var verifying = false
+        val cache = GameDataCache { file, offset, length ->
+            assertTrue(file.isFile); assertTrue(length > 0); assertTrue(offset + length <= file.length())
+            if (!verifying) assertFalse(File(root, "store/active").exists())
+            paths += file.name; advisedStages += stage; 0
+        }
+        val target = GameDataStore(File(root, "store"), text, cache = cache)
+        val receipt = target.import(ByteArrayInputStream(zip()), boundary = { next, _ -> stage = next })
+        assertTrue(advisedStages.containsAll(listOf("copy_sync", "archive_index", "extract", "preflight")))
+        assertTrue(paths.contains(".input.zip")); assertTrue(paths.contains("Spell.dbc"))
+        assertEquals(0L, cache.stats().rejected); assertTrue(cache.stats().accepted >= receipt.files)
+        verifying = true; paths.clear()
+        assertEquals(receipt, target.verify()); assertTrue(paths.contains("Spell.dbc")); assertTrue(paths.contains("files.tsv"))
+        assertEquals(false, target.export()["worldReady"])
+    }
+    @Test fun unsupportedCacheAdviceDoesNotRelaxValidationOrPreventValidImport() {
+        val cache = GameDataCache { _, _, _ -> 29 }
+        val target = GameDataStore(File(root, "store"), text, cache = cache)
+        val receipt = target.import(ByteArrayInputStream(zip()))
+        assertEquals(receipt, target.verify()); assertTrue(cache.stats().rejected > 0)
+        val bytes = zip(fixture().apply { remove("dbc/Spell.dbc") })
+        assertThrows(GameDataRejected::class.java) { target.import(ByteArrayInputStream(bytes)) }
+        assertEquals(receipt, target.verify())
+        File(root, "store/${receipt.generation}/dbc/Spell.dbc").appendBytes(byteArrayOf(1))
+        assertThrows(IllegalArgumentException::class.java) { target.verify() }
+    }
     @Test fun reportedEditorArchiveIsPreservedOpaqueNonExecutableAndNeverExpanded() {
         val nested = zip(linkedMapOf("../outside.exe" to byteArrayOf(1, 2), "Spell.dbc" to byteArrayOf(3, 4)))
         val files = fixture().apply { put(editorPath, nested) }
@@ -534,18 +562,18 @@ class GameDataStoreTest {
     }
     @Test fun directorySyncFailureBeforePublicationKeepsPreviousCandidate() {
         val before = store().import(ByteArrayInputStream(zip()))
-        val failing = GameDataStore(File(root, "store"), text) { directory ->
+        val failing = GameDataStore(File(root, "store"), text, syncDirectory = { directory ->
             if (directory.name.startsWith(".partial-")) throw java.io.IOException("test sync failure")
-        }
+        })
         assertThrows(java.io.IOException::class.java) { failing.import(ByteArrayInputStream(zip())) }
         assertEquals(before, store().active()); assertEquals(before, store().verify())
     }
     @Test fun directorySyncFailureAfterPointerRenameNeverDeletesNewlyPublishedCandidate() {
         val before = store().import(ByteArrayInputStream(zip()))
-        val failing = GameDataStore(File(root, "store"), text) { directory ->
+        val failing = GameDataStore(File(root, "store"), text, syncDirectory = { directory ->
             if (directory == File(root, "store") && File(directory, "active").readText() != before.generation)
                 throw java.io.IOException("test post-publication sync failure")
-        }
+        })
         assertThrows(java.io.IOException::class.java) { failing.import(ByteArrayInputStream(zip())) }
         val after = store().active()!!
         assertNotEquals(before.generation, after.generation)

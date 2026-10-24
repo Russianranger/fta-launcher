@@ -20,6 +20,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--kotlin-classpath', required=True)
     p.add_argument('--java', default='java')
+    p.add_argument('--cache-advice-library', type=Path, help='Run the production cache helper from this host library directory')
     p.add_argument('--stress-zip', type=Path)
     p.add_argument('--copy-exit-bytes', type=int, help='Run only a mid-copy hard-exit/recovery probe at this byte count; requires --stress-zip')
     p.add_argument('--output', type=Path, required=True)
@@ -39,7 +40,7 @@ def main():
         subprocess.run([args.java, '-m', 'jdk.compiler/com.sun.tools.javac.Main', '-cp', args.kotlin_classpath,
                         '-d', str(classes), str(REPO / 'tests/fixtures/GameDataHost.java'),
                         str(REPO / 'tests/fixtures/GameDataCheckpointHost.java')], check=True)
-        command = [args.java, '-Xmx64m', '-cp', str(classes) + ':' + args.kotlin_classpath]
+        command = [args.java] + (['-Dfta.cacheAdvice=true', '-Djava.library.path=' + str(args.cache_advice_library.resolve())] if args.cache_advice_library else []) + ['-Xmx64m', '-cp', str(classes) + ':' + args.kotlin_classpath]
 
         def run(harness, mode, store, source, extra, expected=0):
             result = subprocess.run(command + [harness, mode, str(store), str(policy), str(source), str(extra)])
@@ -64,7 +65,7 @@ def main():
             if any(path.name.startswith('.partial-') for path in store.iterdir()):
                 raise ValueError('Next explicit import did not recover interrupted staging')
             proof = {'formatVersion': 1, 'scope': 'production-game-data-mid-copy-exit-host',
-                     'heapLimitMiB': 64, 'separateJvmProcesses': 6, 'interruptedCopyBytes': args.copy_exit_bytes,
+                     'cacheAdviceEnabled': bool(args.cache_advice_library), 'heapLimitMiB': 64, 'separateJvmProcesses': 6, 'interruptedCopyBytes': args.copy_exit_bytes,
                      'sourceArchiveBytes': args.stress_zip.stat().st_size, 'priorCandidatePreservedAndReverified': True,
                      'exactCopyCheckpointSurvivedProcessDeath': True, 'nextExplicitImportRecoveredOrphan': True,
                      'replacementFullyReverified': True, 'androidLowMemoryKillSimulated': False,
@@ -90,7 +91,7 @@ def main():
         if any(path.name.startswith('.partial-') for path in store.iterdir()):
             raise ValueError('Orphan staging was not recovered')
         proof = {'formatVersion': 1, 'scope': 'production-game-data-checkpoints-host',
-                 'heapLimitMiB': 64, 'interruptedStagesVerified': stages,
+                 'cacheAdviceEnabled': bool(args.cache_advice_library), 'heapLimitMiB': 64, 'interruptedStagesVerified': stages,
                  'prepublicationExitsPreservedPriorCandidate': True,
                  'postpublicationExitPreservedNewCandidate': True,
                  'durableCheckpointsReadableAfterProcessDeath': True,

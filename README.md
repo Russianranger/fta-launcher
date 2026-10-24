@@ -73,7 +73,7 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.11.5-editor-companion** (code **23**)
+signing and validation. Latest private version **0.11.6-import-cache** (code **24**)
 adds inert import and re-verification of extracted `dbc/maps/vmaps/mmaps` ZIPs.
 It checks the original source's 113 active DBC layouts, seven version sentinels,
 eight startup map locations and supplied map/vmap/mmap headers, then stores hashes
@@ -90,7 +90,11 @@ pressure remains unknown. Physical code 22 completes the copy and index walk,
 observing foreground importance and active binding. It rejects one editor ZIP:
 `dbc/WDBX - DBC EDITOR.zip`. Code 23 retains only that exact path as an unopened,
 non-executable, hash-verified companion. Required asset formats and source policy
-remain unchanged.
+remain unchanged. Physical code 23 again records a matched low-memory kill during
+copy despite active binding and a small Java heap. Code 24 requests file-cache
+release after consumed reads and synced writes, recording accepted/rejected
+requests without claiming actual eviction or Thor survival. All 16 existing
+native payloads remain unchanged; one small dedicated cache helper is added.
 See [game-data import](docs/game-data-import.md).
 
 Physical code **17 passed user-controlled service Stop and retained restart**:
@@ -101,14 +105,14 @@ native gate after the focused game-data report, without repeating restart.
 See [physical evidence](docs/evidence/android-2026-10-23-thor-local-service-pass.json).
 Code **16 passed retained local auth**; its automatic diagnostic also needs no repeat.
 
-Code 23 passes 310 Android tests, lint/assembly, 148 tooling tests, 221 packaged
-input checks and signing/alignment. Its signer and all 16 native payloads match
-code 22. The exact-path regression fails before the correction and passes after.
-Original-C++ loader checks and five production-store JVMs verify stock DBCs,
-DB2 companions and the unopened editor archive, including interruption recovery.
-Code 22's earlier 3.23 GB/64 MiB and copy-point hard-exit evidence is retained;
-those probes were not repeated for this narrow change. Actual game asset
-preflight and Android code 23 execution remain unverified.
+Code 24 passes 319 Android tests, lint/assembly, 148 tooling tests, 221 packaged
+input checks and signing/alignment. Its signer and all 16 existing native
+payloads match code 23, plus the new cache helper. Host JNI checks measure clean
+cache eviction without changing bytes or descriptor position. With cache handling
+enabled, a 3.23 GB/40,146-file import and full reverify pass under a 64 MiB heap;
+32 interruption/recovery JVMs include the latest exact device copy point.
+Original C++ loading and five source/store JVMs also pass. Thor cache eviction,
+survival, actual game-asset preflight and native world startup remain unverified.
 
 Physical code **14 passed cold backup and two isolated restored reopens**. The
 uploaded ZIP matches the recorded identity and every manifest file hash. Its

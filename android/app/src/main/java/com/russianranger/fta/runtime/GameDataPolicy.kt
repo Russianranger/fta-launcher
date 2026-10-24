@@ -17,7 +17,7 @@ data class GameDataPreflight(val files: Int, val bytes: Long, val counts: Map<St
 /** Exact source-derived headers/inventory only. Native loaders still own full semantic validation. */
 class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<String>,
     val mapVersion: Long, val vmapMagic: String, val mmapVersion: Long, val detourVersion: Long) {
-    fun inspect(directory: File, files: List<GameDataFile>, active: () -> Unit = {}): GameDataPreflight {
+    fun inspect(directory: File, files: List<GameDataFile>, active: () -> Unit = {}, cache: GameDataCache? = null): GameDataPreflight {
         val names = files.map { it.path }.toSet()
         val problems = mutableListOf<GameDataProblem>(); var problemCount = 0
         val missingTrees = mutableSetOf<String>()
@@ -42,7 +42,9 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
         if (files.none { it.path.endsWith(".mmtile") }) problem("mmaps", "missing_navmesh_tiles")
         for (entry in files) {
             active()
-            val failure = inspectFile(File(directory, entry.path), entry.path, active)
+            val file = File(directory, entry.path)
+            val failure = inspectFile(file, entry.path, active)
+            cache?.release(file, 0, entry.bytes)
             if (failure != null) problem(entry.path, failure)
         }
         return GameDataPreflight(files.size, files.sumOf { it.bytes }, counts, problems, problemCount)

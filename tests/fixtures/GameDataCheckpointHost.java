@@ -24,14 +24,16 @@ public final class GameDataCheckpointHost {
         String stat = Files.readString(Path.of("/proc/self/stat"));
         var owner = ProcessObservation.INSTANCE.parse(stat, Integer.parseInt(stat.substring(0, stat.indexOf(' ')))).getIdentity();
         long started = System.currentTimeMillis(); long[] copied = {0}; String[] hash = {null};
+        GameDataCache cache = Boolean.getBoolean("fta.cacheAdvice") ? new GameDataCache() : null;
         GameDataStore store = new GameDataStore(root, Files.readString(Path.of(args[2])), directory -> {
             try (var c = FileChannel.open(directory.toPath(), StandardOpenOption.READ)) { c.force(true); }
             catch (IOException failure) { throw new UncheckedIOException(failure); }
             return Unit.INSTANCE;
-        });
+        }, cache);
         try (var input = Files.newInputStream(Path.of(args[3]))) {
             store.getClass().getMethod("import", InputStream.class, kotlin.jvm.functions.Function0.class,
-                kotlin.jvm.functions.Function3.class, kotlin.jvm.functions.Function2.class).invoke(store, input,
+                kotlin.jvm.functions.Function3.class, kotlin.jvm.functions.Function2.class).invoke(store, cache == null ? input : cache.input(input, (at, length) ->
+                    GameDataCacheNative.INSTANCE.releasePath(new File(args[3]), at, length)),
                 (kotlin.jvm.functions.Function0<Unit>) () -> Unit.INSTANCE,
                 (kotlin.jvm.functions.Function3<String, Long, Long, Unit>) (stage, done, total) -> {
                     if (stage.equals("copy")) copied[0] = done;
@@ -39,7 +41,7 @@ public final class GameDataCheckpointHost {
                         var vm = Runtime.getRuntime();
                         journal.write(new GameDataOperation.Record(ATTEMPT, owner, "import", started, System.currentTimeMillis(),
                             "RUNNING", "copy", done, 0, done, null, root.getUsableSpace(),
-                            vm.totalMemory() - vm.freeMemory(), vm.maxMemory(), null, List.of(), null));
+                            vm.totalMemory() - vm.freeMemory(), vm.maxMemory(), null, List.of(), null, cache == null ? null : cache.stats()));
                         Runtime.getRuntime().halt(73);
                     }
                     return Unit.INSTANCE;
@@ -48,7 +50,7 @@ public final class GameDataCheckpointHost {
                     var vm = Runtime.getRuntime();
                     journal.write(new GameDataOperation.Record(ATTEMPT, owner, "import", started, System.currentTimeMillis(),
                         "RUNNING", stage, 0, 0, copied[0], archive, root.getUsableSpace(),
-                        vm.totalMemory() - vm.freeMemory(), vm.maxMemory(), null, List.of(), null));
+                        vm.totalMemory() - vm.freeMemory(), vm.maxMemory(), null, List.of(), null, cache == null ? null : cache.stats()));
                     if (mode.equals("halt-" + stage)) Runtime.getRuntime().halt(73);
                     return Unit.INSTANCE;
                 });

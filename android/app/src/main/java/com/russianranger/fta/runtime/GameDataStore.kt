@@ -21,8 +21,9 @@ data class GameDataReceipt(val generation: String, val archiveSha256: String, va
 class GameDataRejected(val preflight: GameDataPreflight) : java.io.IOException("Game-data preflight rejected the candidate")
 
 /** Inert game assets in their own generations. This store never opens a database or executes anything. */
-class GameDataStore(private val root: File, private val policyText: String,
-    private val syncDirectory: (File) -> Unit = { FileChannel.open(it.toPath(), READ).use { c -> c.force(true) } }) {
+class GameDataStore @JvmOverloads constructor(private val root: File, private val policyText: String,
+    private val syncDirectory: (File) -> Unit = { FileChannel.open(it.toPath(), READ).use { c -> c.force(true) } },
+    private val cache: GameDataCache? = null) {
     private val policy = GameDataPolicy.parse(policyText)
     private val policySha = hex(MessageDigest.getInstance("SHA-256").digest(policyText.toByteArray()))
     private val generationPattern = Regex("g-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
@@ -143,7 +144,8 @@ class GameDataStore(private val root: File, private val policyText: String,
             val archive = File(staging, ".input.zip")
             val digest = MessageDigest.getInstance("SHA-256"); var copied = 0L
             FileOutputStream(archive).use { out ->
-                val writer = GameDataWriteback(out) { active(); out.fd.sync(); active() }
+                val cached = cache?.file(archive)
+                val writer = GameDataWriteback(out) { active(); out.fd.sync(); cached?.consumed(out.channel.position(), true); active() }
                 val buffer = ByteArray(256 * 1024)
                 while (true) {
                     active(); if (root.usableSpace < 64L * 1024 * 1024) throw GameDataImportFailure("insufficient_space")
@@ -157,12 +159,16 @@ class GameDataStore(private val root: File, private val policyText: String,
             archiveHash = hex(digest.digest())
             stage = "archive_index"
             boundary(stage, archiveHash)
-            val entries = GameDataZip.inspect(archive, active) { done, total -> progress(stage, done, total) }
+            val entries = GameDataZip.inspect(archive, active) { done, total ->
+                // Index checks seek across local headers too; do not accumulate the whole ZIP again.
+                if (done > 0) cache?.release(archive, 0, archive.length())
+                progress(stage, done, total)
+            }
             val total = entries.sumOf { it.bytes }
             if (root.usableSpace < total + 64L * 1024 * 1024) throw GameDataImportFailure("insufficient_space")
             stage = "extract"
             boundary(stage, archiveHash); progress(stage, 0, total)
-            val files = mutableListOf<GameDataFile>(); var extracted = 0L
+            val files = mutableListOf<GameDataFile>(); var extracted = 0L; var archiveCacheAt = 0L
             ZipFile(archive).use { zip ->
                 entries.forEach { spec ->
                     active()
@@ -171,7 +177,15 @@ class GameDataStore(private val root: File, private val policyText: String,
                     val hash = MessageDigest.getInstance("SHA-256"); val crc = CRC32(); var size = 0L
                     zip.getInputStream(entry).use { source ->
                         FileChannel.open(target.toPath(), CREATE_NEW, WRITE, NOFOLLOW_LINKS).use { channel ->
-                            val output = GameDataWriteback(Channels.newOutputStream(channel)) { active(); channel.force(true); active() }
+                            val cached = cache?.file(target)
+                            val output = GameDataWriteback(Channels.newOutputStream(channel)) {
+                                active(); channel.force(true); cached?.consumed(channel.position(), true)
+                                // ZipFile owns its read FD; advise the same private inode after each writeback.
+                                if (cache != null && extracted - archiveCacheAt >= GameDataCache.INTERVAL) {
+                                    cache.release(archive, 0, archive.length()); archiveCacheAt = extracted
+                                }
+                                active()
+                            }
                             val buffer = ByteArray(256 * 1024)
                             while (true) {
                                 active(); val n = source.read(buffer); if (n < 0) break; if (n == 0) continue
@@ -188,8 +202,9 @@ class GameDataStore(private val root: File, private val policyText: String,
                     files += GameDataFile(spec.path, size, hex(hash.digest()))
                 }
             }
+            cache?.release(archive, 0, archive.length())
             stage = "preflight"; boundary(stage, archiveHash); active(); progress(stage, total, total)
-            val result = policy.inspect(staging, files, active)
+            val result = policy.inspect(staging, files, active, cache)
             if (!result.passed) { report("REJECTED", archiveHash, result, stage = stage); throw GameDataRejected(result) }
             stage = "publish"
             boundary(stage, archiveHash); progress(stage, total, total)
@@ -223,7 +238,7 @@ class GameDataStore(private val root: File, private val policyText: String,
         try {
             val catalog = File(directory, "files.tsv")
             require(Files.isRegularFile(catalog.toPath(), NOFOLLOW_LINKS) && catalog.length() in 1..32L * 1024 * 1024)
-            require(sha(catalog, active) == current.catalogSha256)
+            require(sha(catalog, active, cache) == current.catalogSha256)
             val files = catalog.readLines().map { line ->
                 val v = line.split('\t'); require(v.size == 3 && v[0].matches(Regex("[a-f0-9]{64}")))
                 GameDataPolicy.assetPath(v[2]); val n = v[1].toLong(); require(n in 0..GameDataPolicy.MAX_FILE_BYTES)
@@ -245,10 +260,10 @@ class GameDataStore(private val root: File, private val policyText: String,
                 active(); val file = File(directory, entry.path)
                 var parent = file.parentFile!!
                 while (parent != directory) { require(Files.isDirectory(parent.toPath(), NOFOLLOW_LINKS)); parent = parent.parentFile!! }
-                require(Files.isRegularFile(file.toPath(), NOFOLLOW_LINKS) && file.length() == entry.bytes && sha(file, active) == entry.sha256)
+                require(Files.isRegularFile(file.toPath(), NOFOLLOW_LINKS) && file.length() == entry.bytes && sha(file, active, cache) == entry.sha256)
                 checked += entry.bytes; progress(checked, current.bytes)
             }
-            val result = policy.inspect(directory, files, active)
+            val result = policy.inspect(directory, files, active, cache)
             require(result.passed)
             report("VERIFIED", current.archiveSha256, result, current.catalogSha256)
             current
@@ -257,9 +272,14 @@ class GameDataStore(private val root: File, private val policyText: String,
     companion object {
         private val FAILURE_STAGES = setOf("copy", "copy_sync", "archive_index", "extract", "preflight", "publish", "verify")
         private fun hex(bytes: ByteArray) = bytes.joinToString("") { "%02x".format(it.toInt() and 255) }
-        private fun sha(file: File, active: () -> Unit): String {
+        private fun sha(file: File, active: () -> Unit, cache: GameDataCache?): String {
             val digest = MessageDigest.getInstance("SHA-256")
-            file.inputStream().use { input -> val buffer = ByteArray(256 * 1024); while (true) { active(); val n = input.read(buffer); if (n < 0) break; digest.update(buffer, 0, n) } }
+            val cached = cache?.file(file); var read = 0L
+            file.inputStream().use { input -> val buffer = ByteArray(256 * 1024); while (true) {
+                active(); val n = input.read(buffer); if (n < 0) break
+                digest.update(buffer, 0, n); read += n; cached?.consumed(read)
+            } }
+            cached?.consumed(read, true)
             return hex(digest.digest())
         }
         private fun deleteTree(file: File) {

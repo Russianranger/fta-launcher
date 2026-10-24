@@ -47,6 +47,7 @@ def main():
     p.add_argument('--source-zip', type=Path, required=True)
     p.add_argument('--kotlin-classpath', required=True)
     p.add_argument('--java', default='java')
+    p.add_argument('--cache-advice-library', type=Path, help='Run the production cache helper from this host library directory')
     p.add_argument('--cxx', default='g++')
     p.add_argument('--with-stock-backup', action='store_true', help='Exercise the screenshot-observed auxiliary DBC folder')
     p.add_argument('--with-db2-companions', action='store_true', help='Preserve opaque DB2 companions without qualifying them as runtime DBCs')
@@ -57,7 +58,7 @@ def main():
         raise ValueError('Original source archive hash mismatch')
     check_jobs(1)
     policy = (REPO / 'manifests/game-data-policy.properties').read_text()
-    proof = {'formatVersion': 1, 'scope': 'synthetic-game-data-source-and-store-host-check',
+    proof = {'cacheAdviceEnabled': bool(args.cache_advice_library), 'formatVersion': 1, 'scope': 'synthetic-game-data-source-and-store-host-check',
              'sourceArchiveSha256': SOURCE_SHA256,
              'policySha256': hashlib.sha256(policy.encode()).hexdigest(),
              'worldReady': False, 'actualGameAssetsTested': False, 'androidSafQualified': False,
@@ -200,7 +201,7 @@ int main(int argc, char** argv) {
         subprocess.run([args.java, '-m', 'jdk.compiler/com.sun.tools.javac.Main', '-cp', args.kotlin_classpath,
                         '-d', str(classes), str(REPO / 'tests/fixtures/GameDataHost.java')], check=True)
         store = root / 'store'
-        command = [args.java, '-cp', str(classes) + ':' + args.kotlin_classpath, 'GameDataHost']
+        command = [args.java] + (['-Dfta.cacheAdvice=true', '-Djava.library.path=' + str(args.cache_advice_library.resolve())] if args.cache_advice_library else []) + ['-cp', str(classes) + ':' + args.kotlin_classpath, 'GameDataHost']
         def run(mode, code=0):
             result = subprocess.run(command + [mode, str(store), str(REPO / 'manifests/game-data-policy.properties'), str(archive), str(len(companions)), str(int(editor is not None))])
             if result.returncode != code:

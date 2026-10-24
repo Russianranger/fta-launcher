@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 object GameDataImport {
     const val PASSED = "GAME_DATA_PREFLIGHT_PASSED"
-    fun store(context: Context) = GameDataStore(File(context.filesDir, "game-data"),
-        context.assets.open(GameDataPolicy.ASSET).bufferedReader().use { it.readText() })
+    fun store(context: Context, cache: GameDataCache? = null) = GameDataStore(File(context.filesDir, "game-data"),
+        context.assets.open(GameDataPolicy.ASSET).bufferedReader().use { it.readText() }, cache = cache)
     fun failureSummary(failure: Exception, cancelled: Boolean): String {
         val detail = if (cancelled) "Import stopped at your request."
         else if (failure is java.util.concurrent.TimeoutException) "The game-data operation reached its one-hour time limit."
@@ -33,6 +33,7 @@ object GameDataImport {
             check(!cancelled.get())
             if (SystemClock.elapsedRealtime() >= end) throw java.util.concurrent.TimeoutException()
         }
+        val cache = GameDataCache()
         val journal = GameDataDiagnostics.store(context)
         val now = System.currentTimeMillis()
         var record = GameDataOperation.Record(attempt, ProcessObservation.self(android.os.Process.myPid()),
@@ -41,7 +42,7 @@ object GameDataImport {
             val vm = Runtime.getRuntime()
             record = record.copy(updated = System.currentTimeMillis(), freeStorage = context.filesDir.usableSpace.coerceAtLeast(0),
                 heapUsed = (vm.totalMemory() - vm.freeMemory()).coerceIn(0, vm.maxMemory()), heapMax = vm.maxMemory(),
-                memory = GameDataDiagnostics.memory(context, activityBound()))
+                memory = GameDataDiagnostics.memory(context, activityBound()), cache = cache.stats())
             journal.write(record)
         }
         checkpoint()
@@ -71,10 +72,24 @@ object GameDataImport {
             }
         }
         try {
-            val store = store(context)
+            val store = store(context, cache)
             if (uri == null) { boundary("verify", null); progress("verify", 0, 0) }
             val receipt = if (uri == null) store.verify(checkActive) { done, total -> progress("verify", done, total) }
-            else context.contentResolver.openInputStream(uri)?.use { store.import(it, checkActive, progress, boundary) }
+            else context.contentResolver.openInputStream(uri)?.use { input ->
+                // Preserve openInputStream's provider/slice semantics. Duplicate only a real
+                // file descriptor for advice, and never alter the stream's shared offset.
+                val descriptor = (input as? java.io.FileInputStream)?.let { stream ->
+                    runCatching { android.os.ParcelFileDescriptor.dup(stream.fd) }.getOrNull()
+                }
+                descriptor.use { fd ->
+                    val start = fd?.let { runCatching { android.system.Os.lseek(it.fileDescriptor, 0, android.system.OsConstants.SEEK_CUR) }.getOrNull() }
+                    cache.sourceAvailable = start != null && start >= 0
+                    val source = if (fd != null && start != null && start >= 0) cache.input(input) { at, size ->
+                        if (at > Long.MAX_VALUE - start) -1 else GameDataCacheNative.releaseDescriptor(fd.fd, start + at, size)
+                    } else input
+                    store.import(source, checkActive, progress, boundary)
+                }
+            }
                 ?: error("Game-data document could not be opened")
             record = record.copy(state = "FINISHED", archive = receipt.archiveSha256)
             checkpoint()

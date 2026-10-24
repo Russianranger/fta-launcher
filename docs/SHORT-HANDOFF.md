@@ -7,8 +7,77 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.11.5-editor-companion**, version code **23**.
-APK SHA256: `b21a094876eed406bd38b6bb5623a282a4a88b98ad9d262f67ecfcdb71808120`.
+Latest private update: **0.11.6-import-cache**, version code **24**.
+APK SHA256: `d1095b39b68e98747a157982e0dc2f815db8eaf23f76dc682e786ea0cef9fead`.
+
+**Physical code 23 again records an attempt-matched Android low-memory kill.**
+The APK identity is exact. At **2,258,370,560 copied bytes**, the worker last
+reported 2,911,352 bytes of Java heap, 10,888,626,176 available system-memory
+bytes, `lowMemory=false`, importance 100 and activity binding. Android's matching
+reason 3 exit occurs **241 ms later**. These are samples, not memory at death.
+No completed archive hash, extraction or asset-format result exists. The earlier
+binding and sync mitigations did not prevent this kill. Neither Java OOM nor
+the cause of an additional main-activity crash is established. See
+[physical evidence](evidence/android-2026-10-23-thor-import-cache-kill.json).
+
+Code 24 adds **file-cache advice**, addressing a concrete omission: `fsync`
+flushes dirty output but does not evict the clean cache left by reading/writing
+multi-gigabyte files. After consuming each 16 MiB source range, it requests
+`POSIX_FADV_DONTNEED` through a borrowed duplicate of the existing provider
+stream's descriptor when seekable. The stream's original slice bounds, reads,
+offset and ownership remain unchanged. A non-file/non-seekable stream still
+uses the existing import path. Each synced output range receives the same advice.
+The private ZIP cache is advised every 128 indexed entries, after each 16 MiB of
+extracted output and at completion. Preflight releases each inspected file; later
+full-hash verification releases consumed file ranges.
+
+This is an advisory mitigation, not proof that cache/cgroup pressure caused
+Thor's kills or a guarantee of survival. The JSON adds `fileCacheAdvice` request,
+accepted/rejected and requested-byte counters, source-descriptor availability,
+and explicitly `actualEvictionMeasured=false`. Accepted means syscall acceptance,
+not measured eviction. Repeated ranges make requested bytes cumulative, not a
+cache-footprint measurement. Advice never changes bytes, CRC/SHA256, validation,
+source policy or publication. Unavailable/rejected advice cannot grant readiness.
+
+A separate small **`libfta_game_io.so`** supplies only regular-file cache advice.
+It has no write/truncate/seek, process-control or imported-code execution path;
+path opens are read-only and NOFOLLOW. All **16 existing native payloads** and
+the signing certificate match code 23; the APK now contains **17** native files.
+Original SQL, database expectations, required asset formats and provenance stay
+unchanged. The editor ZIP handling remains exactly as introduced in code 23.
+
+Code 24 passes **319 Android tests** (29 classes), lint/assembly, **148 tooling
+tests**, 221 packaged runtime/notice inputs, signature and 16 KiB alignment.
+The actual host JNI entry points pass descriptor/path safety, >3 GiB offsets,
+unchanged bytes/offset, invalid ranges, pipe refusal and symlink refusal.
+A separate native measurement drops **64 MiB of resident clean file cache to
+zero** on this host. The 3,231,655,994-byte / 40,146-file synthetic import and
+full reverify pass under **64 MiB heap with cache advice enabled**, alongside
+boundary hard exits (**26 JVMs**). Another **six JVMs** exercise the exact latest
+2,258,370,560-byte hard exit, retained reverify and explicit-import recovery.
+Original C++ loader and five source/store JVM checks also pass. Host cache
+behavior does not qualify Android SAF/FUSE or lmkd. See
+[cache helper](evidence/host-2026-10-23-cache-advice.json),
+[large import/recovery](evidence/host-2026-10-23-cache-import-interruption.json),
+[exact copy point](evidence/host-2026-10-23-cache-copy-exit.json),
+[source checks](evidence/host-2026-10-23-cache-source.json), and
+[APK proof](evidence/android-2026-10-23-private-import-cache-apk.json).
+
+**Next focused physical gate:** update to private code 24 in place. Keep the
+launcher visible and import the same unchanged `Data.zip`; after success reopen,
+**Verify imported game data**, then **Export diagnostic report**. On any failure
+or process termination, reopen and export immediately before another attempt or
+diagnostic. Preserve imported dependencies, Database.zip, retained realm and
+backup. No uninstall, clearing storage, ZIP repackaging or repeated database
+milestones. Physical code 24, real asset preflight and native world loading remain
+unverified. The remaining 120-second screen-off measurement stays deferred to a
+later native gate after the asset report.
+
+## Previous code 23 companion correction
+
+Private code 23: **0.11.5-editor-companion**, SHA256
+`b21a094876eed406bd38b6bb5623a282a4a88b98ad9d262f67ecfcdb71808120`.
+Its physical attempt is the low-memory interruption above, before indexing.
 
 **Physical code 22 completed the ZIP copy and central-index walk.** The report
 matches the verified private APK and the unchanged archive SHA256
@@ -49,16 +118,6 @@ candidate reverify and orphan recovery. See
 The 3.23 GB/64 MiB and copy-byte interruption probes belong to code 22; they were
 not repeated for this narrow companion-path change. No actual game bytes are
 available here, and no native world loading is qualified.
-
-**Next focused physical step:** update to private code 23 in place, keep the
-launcher visible, and import the same unchanged `Data.zip`. After success,
-reopen and **Verify imported game data** with the launcher visible. Export the
-JSON after verification, or immediately on any failure/interruption, before
-another attempt or diagnostic. Preserve Database.zip, native dependencies,
-retained realm and backup. Do not uninstall, clear storage, repackage the ZIP or
-repeat passed database milestones. Physical code 23, asset-format preflight and
-native world loading remain unverified. The remaining 120-second screen-off
-measurement can join a later native gate after asset evidence is inspected.
 
 ## Previous memory investigation
 
@@ -165,12 +224,12 @@ See [host checks](evidence/host-2026-10-23-game-data-preflight.json),
 [private APK](evidence/android-2026-10-23-private-game-data-apk.json) and
 [import details](game-data-import.md).
 
-**Current physical gate:** use private code 23 for the focused import/reopen/
+**Current physical gate:** use private code 24 for the focused import/reopen/
 verify/export sequence above. Keep the retained realm, verified backup,
 Database.zip and native dependencies. World startup remains disabled until real
 asset evidence is inspected. Codes 18/19 failed import validation, code 20 did
 not finish, code 21 records a low-memory kill, and code 22 reaches the editor ZIP rejection.
-Code 23 remains unverified.
+Code 23 was killed during copying; code 24 remains physically unverified.
 
 Previous private update: **0.10.0-local-service**, version code **17**.
 APK SHA256: `864615af00847d0e648f3583fce353389b8be6db44093cbe1b671227d1685d94`.

@@ -18,7 +18,7 @@ class GameDataOperation(private val file: File) {
         val started: Long, val updated: Long, val state: String = "RUNNING", val stage: String = "open",
         val completed: Long = 0, val total: Long = 0, val copied: Long = 0, val archive: String? = null,
         val freeStorage: Long = 0, val heapUsed: Long = 0, val heapMax: Long = 0,
-        val failure: String? = null, val frames: List<String> = emptyList(), val memory: Memory? = null)
+        val failure: String? = null, val frames: List<String> = emptyList(), val memory: Memory? = null, val cache: GameDataCache.Stats? = null)
 
     fun write(record: Record) {
         validate(record)
@@ -36,6 +36,11 @@ class GameDataOperation(private val file: File) {
             values["memory.available"] = m.available.toString(); values["memory.total"] = m.total.toString()
             values["memory.threshold"] = m.threshold.toString(); values["memory.low"] = m.low.toString()
             values["memory.importance"] = m.importance.toString(); values["memory.activityBound"] = m.activityBound.toString()
+        }
+        record.cache?.let { c ->
+            values["cache.requests"] = c.requests.toString(); values["cache.accepted"] = c.accepted.toString()
+            values["cache.rejected"] = c.rejected.toString(); values["cache.bytes"] = c.bytes.toString()
+            values["cache.sourceAvailable"] = c.sourceAvailable.toString()
         }
         val temporary = File(file.parentFile, ".${file.name}.new")
         try {
@@ -56,7 +61,9 @@ class GameDataOperation(private val file: File) {
             (0 until 4).mapNotNull { p.getProperty("frame.$it") },
             if (p.stringPropertyNames().any { it.startsWith("memory.") }) Memory(number("memory.available"), number("memory.total"),
                 number("memory.threshold"), p.getProperty("memory.low").toBooleanStrict(), p.getProperty("memory.importance").toInt(),
-                p.getProperty("memory.activityBound").toBooleanStrict()) else null).also(::validate)
+                p.getProperty("memory.activityBound").toBooleanStrict()) else null,
+            if (p.stringPropertyNames().any { it.startsWith("cache.") }) GameDataCache.Stats(number("cache.requests"), number("cache.accepted"),
+                number("cache.rejected"), number("cache.bytes"), p.getProperty("cache.sourceAvailable").toBooleanStrict()) else null).also(::validate)
     }.getOrNull()
 
     fun export(attempt: String, workerObserved: Boolean?): Map<String, Any> {
@@ -75,6 +82,10 @@ class GameDataOperation(private val file: File) {
             record.archive?.let { put("archiveSha256", it) }
             record.failure?.let { put("failureKind", it) }
             if (record.frames.isNotEmpty()) put("applicationFrames", record.frames)
+            put("fileCacheAdviceAvailable", record.cache != null)
+            record.cache?.let { c -> put("fileCacheAdvice", mapOf("requests" to c.requests, "accepted" to c.accepted,
+                "rejected" to c.rejected, "requestedBytes" to c.bytes, "sourceDescriptorAvailable" to c.sourceAvailable,
+                "intervalBytes" to GameDataCache.INTERVAL, "actualEvictionMeasured" to false)) }
             put("systemMemoryObservationAvailable", record.memory != null)
             record.memory?.let { m -> put("systemMemoryObservation", mapOf("availableBytes" to m.available, "totalBytes" to m.total,
                 "lowMemoryThresholdBytes" to m.threshold, "lowMemory" to m.low, "workerImportance" to m.importance,

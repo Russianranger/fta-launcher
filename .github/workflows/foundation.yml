@@ -56,6 +56,18 @@ jobs:
       - name: Test, lint and compile foundation
         working-directory: android
         run: ./gradlew --no-daemon --max-workers=2 -PftaProviderDir="$RUNNER_TEMP/fta-provider" testDebugUnitTest lintDebug assembleDebug
+      - name: Check game-data cache helper and host JNI
+        run: |
+          python3 - <<'PYTHON'
+          import os, pathlib, subprocess
+          cache = pathlib.Path(os.environ.get('GRADLE_USER_HOME', str(pathlib.Path.home() / '.gradle')))
+          stdlib = next(cache.rglob('kotlin-stdlib-2.0.21.jar'))
+          cp = 'android/app/build/tmp/kotlin-classes/debug:' + str(stdlib)
+          temporary = pathlib.Path(os.environ['RUNNER_TEMP'])
+          subprocess.run(['python3', 'tools/check_game_data_cache.py', '--kotlin-classpath', cp,
+                          '--jdk', os.environ['JAVA_HOME'], '--library-dir', str(temporary / 'fta-cache-helper'),
+                          '--output', str(temporary / 'fta-cache-evidence.json')], check=True)
+          PYTHON
       - name: Record exact APK digest
         working-directory: android/app/build/outputs/apk/debug
         run: sha256sum app-debug.apk > app-debug.apk.sha256

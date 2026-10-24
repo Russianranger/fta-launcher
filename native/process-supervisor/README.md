@@ -44,3 +44,16 @@ g++ -std=c++17 -Wall -Wextra -Werror -pthread \
 ```
 
 These Linux host tests do not substitute for the JNI/Android runtime gate.
+
+## Inert game-data cache helper
+
+CMake also builds a separate `fta_game_io` library from `game_data_cache.cpp`.
+It only requests `POSIX_FADV_DONTNEED` on positive regular-file ranges, using a
+borrowed descriptor or read-only NOFOLLOW path open. It does not read/write file
+bytes, seek, truncate, execute payloads or control processes. Callers sync writes
+first. A syscall acceptance is advisory, not an eviction/readiness measurement.
+The original `fta_process` implementation and payload remain separate.
+
+`tools/check_game_data_cache.py` compiles this exact helper for host JNI safety
+checks and a clean-page residency measurement. It is also run by Android CI.
+Host results do not qualify Android SAF/FUSE behavior or low-memory survival.
