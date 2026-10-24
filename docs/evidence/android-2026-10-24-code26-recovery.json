@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "scope": "recovered-original-private-code26-artifact",
+  "sourceCommit": "1c9e51db48fd6a8eed3e083b10956f74a3333651",
+  "apkSha256": "2a276e781698c3a9501f15d25693fd57085e7965151ad13ff5f991e3f037ecba",
+  "apkBytes": 42193553,
+  "versionCode": 26,
+  "versionName": "0.11.8-dbc-loading",
+  "signatureV2Verified": true,
+  "signerCertificateSha256": "3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6",
+  "alignment16KiBVerified": true,
+  "nativePayloadsMatchedPriorEvidence": 17,
+  "manifestEntriesReverified": 148,
+  "runtimeManifestMatchedPriorEvidence": true,
+  "originalArtifactRebuilt": false,
+  "physicalCode26Qualified": false,
+  "worldReady": false
+}

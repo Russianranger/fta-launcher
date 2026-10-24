@@ -17,6 +17,8 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ('backup','source-zip','report','server','client','snapshots','output'):
      parser.add_argument('--'+name,type=Path,required=True)
+    parser.add_argument('--live-native', action='store_true',
+        help='Also qualify unchanged original DBC/ResultSet/Field with live host Connector/C')
     args=parser.parse_args()
     backup=args.backup
     assert sha(backup)=='0b5fb6ef6912add622f6371d5a1cfcbde3bd63155d03b95ecec6e6d0fa36df8f'
@@ -29,6 +31,9 @@ def main():
     with zipfile.ZipFile(args.source_zip) as source_zip:
      source=source_zip.read(SOURCE_ROOT+'/src/server/game/DataStores/DBCStores.cpp').decode()
     tablemap={name:table for name,table in re.findall(r'LOAD_DBC\(\w+,\s*"([^"]+)",\s*"([^"]+)"\)',source)}
+    from dbc_live import measured_routes, compile_loader, run_loader
+    routes = measured_routes(cases, tablemap)
+    native = compile_loader(args.source_zip, work, args.server.resolve().parent.parent) if args.live_native else None
     private=args.snapshots;private.mkdir(mode=0o700,parents=True,exist_ok=True)
     with zipfile.ZipFile(backup) as z:
      props=dict(l.split('=',1) for l in z.read('fta-backup.properties').decode().splitlines() if '=' in l and not l.startswith('#'))
@@ -46,7 +51,8 @@ def main():
     assert sha(server)=='6ce57fb4ff16449fab69cd9e9079a37b1a18c517a9f293a90205cd843b32bbee'
     with socket.socket() as reserve:reserve.bind(('127.0.0.1',0));port=reserve.getsockname()[1]
     secret=secrets.token_hex(24);defaults=work/'client.cnf';defaults.write_text('[client]\nuser=fta_dbc_host\npassword='+secret+'\n');defaults.chmod(0o600)
-    init=work/'init.sql';init.write_text("CREATE USER 'fta_dbc_host'@'127.0.0.1' IDENTIFIED BY '"+secret+"';\nGRANT ALL PRIVILEGES ON *.* TO 'fta_dbc_host'@'127.0.0.1';\n");init.chmod(0o600)
+    grant_option=' WITH GRANT OPTION' if args.live_native else ''
+    init=work/'init.sql';init.write_text("CREATE USER 'fta_dbc_host'@'127.0.0.1' IDENTIFIED BY '"+secret+"';\nGRANT ALL PRIVILEGES ON *.* TO 'fta_dbc_host'@'127.0.0.1'"+grant_option+";\n");init.chmod(0o600)
     cli=DatabaseCLI(str(args.client.resolve()),work/'unused.sock',work,port=port,defaults_file=defaults)
     server_args=[str(server),'--no-defaults','--basedir='+str(base),'--datadir='+str(work/'restored/database'),'--socket=','--bind-address=127.0.0.1','--port='+str(port),'--pid-file='+str(work/'db.pid'),'--init-file='+str(init),'--skip-name-resolve','--performance-schema=OFF','--innodb-buffer-pool-size=64M','--innodb-log-file-size=16M','--aria-pagecache-buffer-size=16M','--key-buffer-size=8M','--max-connections=8','--thread-cache-size=2']
     if os.geteuid()==0:server_args.append('--user=root')
@@ -64,6 +70,7 @@ def main():
       assert cli.query('SELECT VERSION();')=='12.3.2-MariaDB'
       expected=json.loads((repo/'manifests/world-updater-lock.json').read_text())['schemas']
       before=postconditions(cli);assert before==expected,'retained metadata mismatch'
+      retained_counts=cli.query('SELECT COUNT(*) FROM acore_auth.account; SELECT COUNT(*) FROM acore_characters.characters;')
       for case in cases:
        name=case['asset'].split('/')[-1];table=tablemap[name];rows=case['observedHeader']['rows']
        stats=cli.query(f'SELECT COUNT(*),MIN(ID),MAX(ID),COUNT(DISTINCT ID),SUM(Data IS NULL) FROM acore_world.`{table}`;')
@@ -76,12 +83,26 @@ def main():
        query=f'SELECT * FROM `{table}` ORDER BY `ID` DESC'
        data=cli.run(sql=query,schema='acore_world')+'\n';p=private/(table+'.tsv');p.write_text(data);p.chmod(0o600)
        proof['tables'][table]={'rows':rows,'minimumId':0,'maximumId':rows-1,'allFileRowIndicesCovered':True,'columns':['ID','Data'],'privateQueryResultSha256':sha(p),'querySha256':hashlib.sha256(query.encode()).hexdigest()}
+      if native:
+       binary, native_proof = native
+       native_proof.update(run_loader(cli, binary, work, private, routes, port))
+       proof['nativeLiveLoader'] = native_proof
       assert postconditions(cli)==before
+      assert cli.query('SELECT COUNT(*) FROM acore_auth.account; SELECT COUNT(*) FROM acore_characters.characters;') == retained_counts
+      for table, entry in proof['tables'].items():
+       data=cli.run(sql=f'SELECT * FROM `{table}` ORDER BY `ID` DESC',schema='acore_world')+'\n'
+       assert hashlib.sha256(data.encode()).hexdigest() == entry['privateQueryResultSha256']
       proof.update(retainedMetadataMatchesBeforeAndAfter=True,sourceSqlRewritten=False,originalDataZipAvailable=False,hostOnly=True)
+      proof.update(retainedGtRowsUnchanged=True,accountAndCharacterCountsUnchanged=True)
       cli.run(sql='SHUTDOWN;',capture=False);assert process.wait(timeout=30)==0
       proof['cleanSqlShutdown']=True
      finally:
       if process.poll() is None:process.terminate();process.wait(timeout=20)
+    assert sha(backup)==proof['backupSha256']
+    proof['originalBackupUnchanged']=True
+    if native:
+     proof['nativeLiveLoader']['driverSourceSha256']={
+      name:sha(repo/name) for name in ('tools/dbc_live.py','tools/check_dbc_backup.py')}
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(proof,indent=2)+'\n')
     temporary.cleanup()

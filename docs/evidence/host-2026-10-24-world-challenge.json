@@ -1,0 +1,22 @@
+{
+  "formatVersion": 1,
+  "scope": "source-derived-receive-only-world-challenge-host-probe",
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "sourceSha256": {
+    "src/server/game/Server/WorldSocket.cpp": "f7e49b9ef8b1bddf82e5a6043a022669f8244e8beb2dcd487219a1fbec105ed1",
+    "src/server/game/Server/WorldSocket.h": "52ac66127f0798110fb16b8a58aec0e8f8fabcd3a19cb341227abdc602ecad43",
+    "src/server/game/Server/Protocol/Opcodes.h": "9109ea4d2abd098883acd1e6b552104adf8965544478439811c75426315aa447",
+    "src/server/game/Server/Protocol/ServerPktHeader.h": "ac309024ea6a969a9e03bab2724fe5221b45f607f033ca294a83a0639ca836b5"
+  },
+  "productionProbeSha256": "f6ebac7f532f03ea363e2c27c1c503bdd1d205160dea0de60dd1acedf5774c43",
+  "originalServerHeaderCompiledUnchanged": true,
+  "syntheticPacketBytes": 44,
+  "fragmentedLoopbackChallengePassed": true,
+  "truncatedChallengeRejected": true,
+  "slowFragmentsHitTotalDeadline": true,
+  "clientBytesSent": 0,
+  "androidExecuted": false,
+  "originalWorldserverExecuted": false,
+  "worldReady": false,
+  "gameLoginQualified": false
+}
