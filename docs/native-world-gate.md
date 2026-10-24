@@ -1,5 +1,8 @@
 # Preparing the retained native world gate
 
+Current evidence: code 31 passes sustained health and the screen-off duration
+observation, but crashes in final script cleanup. See [repair and qualification](script-unload.md).
+
 Physical code 29 passed the original world challenge and two combined healthy
 samples. Its stdout limit then ended the test, and world cleanup exited 139 after
 its Halting message. Code 31 adds original logger thresholds and a bounded,

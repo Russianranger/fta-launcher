@@ -1,0 +1,18 @@
+--- a/src/server/game/Scripting/ScriptMgr.cpp
++++ b/src/server/game/Scripting/ScriptMgr.cpp
+@@ -156,6 +156,15 @@
+ 
+ void ScriptMgr::Unload()
+ {
++    // Stop dispatch before deleting any script: later script/static-object
++    // destructors can still enter enabled hooks. Keep the outer hook slots,
++    // because CALL_ENABLED_HOOKS indexes them without a bounds check.
++    Acore::for_each<ScriptRegistryTypes>([]<typename Info>()
++    {
++        for (auto& hooks : ScriptRegistry<typename Info::type>::EnabledHooks)
++            hooks.clear();
++    });
++
+     Acore::for_each<ScriptRegistryTypes>([]<typename Info>()
+     {
+         for (auto const& [scriptID, script] : ScriptRegistry<typename Info::type>::ScriptPointerList)

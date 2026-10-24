@@ -15,6 +15,10 @@ install a persistent realm or open player saves.
 
 ## Current measured checkpoint
 
+Code 31 passed sustained native health and 144.9 seconds healthy screen-off.
+Stop still fails at script-hook dispatch; a source-backed lifetime repair is in
+qualification. See [the repair evidence](docs/script-unload.md).
+
 Physical private code 29 reaches the original world challenge and early health.
 The combined runtime gate remains incomplete: log volume ended the attempt and
 world cleanup crashed. Code 31 adds bounded logging and executable-offset crash

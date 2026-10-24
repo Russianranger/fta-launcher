@@ -176,6 +176,7 @@ class NativeDependencyTests(unittest.TestCase):
         self.assertEqual((prefix / 'include/openssl/configuration.h').read_bytes(), b'generated-header')
         self.assertEqual(len(receipt['libraryHashes']), 8)
         self.assertEqual(len(self.calls), 15)
+        self.assertIn([str(self.work / 'sources/boost_1_83_0/b2'), '-v'], self.calls)
         events = [json.loads(line) for line in (self.work / 'logs/executed.jsonl').read_text().splitlines()]
         self.assertEqual([event['argv'] for event in events], self.calls)
         self.assertTrue(all(Path(event['log']).is_file() for event in events))

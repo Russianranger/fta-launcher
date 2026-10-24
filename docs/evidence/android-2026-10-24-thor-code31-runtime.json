@@ -1,0 +1,178 @@
+{
+  "appVersionCode": 31,
+  "appVersionName": "0.12.4-world-signals",
+  "apkSha256": "b34acb24a20b9e2388a12c2e13136718673c183429e6e2a1da9af40ae20ab517",
+  "scope": "retained-native-world-session",
+  "providerManifestSha256": "dda46e9555ad3b58acdbb0125fccdc89850de78a56159ee2bfcbfbde8f529c8b",
+  "processSupervisorSha256": "67a49ac20e9a6c145cd063d9e058b13941ca0b77c5ea03dda7db5f6fd1a82dc9",
+  "formatVersion": 1,
+  "reportSha256": "30c9f597530779f0c872c4c10ebc3de4d16269bdd1e78deedbeb290ee4d4b099",
+  "attemptId": "9845c633-f642-4c5e-8943-39c34c813b67",
+  "lastDiagnosticState": "FAILED",
+  "checks": {
+    "verifiedBackupAvailable": true,
+    "metadataBeforePassed": true,
+    "offlineRealmStatePrepared": true,
+    "protocolReady": true,
+    "authCleanStop": true,
+    "listenerClosed": false,
+    "temporaryRoleRemoved": true,
+    "metadataAfterPassed": false,
+    "databaseCleanShutdown": false,
+    "activeRealmRetained": false,
+    "assetsRehashed": true,
+    "gtCoverageBefore": true,
+    "dbcStoresLoaded": true,
+    "nativeReadyMarker": true,
+    "freezeGuardStarted": true,
+    "worldChallenge": true,
+    "worldHalted": true,
+    "worldCleanStop": false,
+    "worldListenerClosed": true,
+    "gtCoverageAfter": false
+  },
+  "failureMarkers": {
+    "missingStartingMaps": false,
+    "dbcMissingOrIncompatible": false,
+    "incorrectDataDirectory": false,
+    "worldLoopFrozen": false,
+    "worldLogLimitExceeded": false
+  },
+  "healthySamples": 19,
+  "elapsedMs": 186234,
+  "screenOffHealthyMs": 144884,
+  "sessionCompleted": false,
+  "assetFiles": 22817,
+  "assetBytes": 7625943031,
+  "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+  "catalogSha256": "0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff",
+  "worldReady": false,
+  "databaseFallbackValidated": false,
+  "gameLoginQualified": false,
+  "screenOffDurationRequirementObserved": true,
+  "combinedRuntimeQualified": false,
+  "screenOffCompositeGateQualified": false,
+  "nativeInvocations": [
+    {
+      "id": 1,
+      "role": "database-server",
+      "stage": "REALM_REOPEN",
+      "outcome": "exited",
+      "exitCode": 0,
+      "terminationExitCode": 0,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 225544,
+      "databaseReadyObserved": true,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    },
+    {
+      "id": 14,
+      "role": "auth-server",
+      "stage": "LOCAL_AUTH_START",
+      "outcome": "exited",
+      "exitCode": 0,
+      "terminationExitCode": 0,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 221633,
+      "databaseReadyObserved": false,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    },
+    {
+      "id": 15,
+      "role": "world-server",
+      "stage": "WORLD_SESSION_START",
+      "outcome": "exited",
+      "exitCode": 139,
+      "terminationExitCode": 139,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 221129,
+      "databaseReadyObserved": false,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    }
+  ],
+  "logs": {
+    "world": {
+      "bytes": 1813925,
+      "sha256": "9170288aac473b903863478ccbe8660b2e59e9206e43769986aec3a52d2a7e60",
+      "lines": 10282,
+      "levels": {
+        "INFO": 862,
+        "WARN": 9416,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "faultWitness": {
+        "installedMarkerObserved": false,
+        "available": false,
+        "rawAddressesExported": false,
+        "memoryContentsExported": false
+      }
+    },
+    "stdout": {
+      "bytes": 1040384,
+      "sha256": "351472db912f7d026d73d8cd0931b399e20372a682ca7dfa94c6a8558f02f765",
+      "lines": 2490,
+      "levels": {
+        "INFO": 0,
+        "WARN": 0,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "faultWitness": {
+        "installedMarkerObserved": false,
+        "available": false,
+        "rawAddressesExported": false,
+        "memoryContentsExported": false
+      }
+    },
+    "stderr": {
+      "bytes": 93,
+      "sha256": "bae376c987a1a437fe2a78b11bdb7cf1c237eb95fa1c53f98d22bf2909af63e9",
+      "lines": 2,
+      "levels": {
+        "INFO": 0,
+        "WARN": 0,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "faultWitness": {
+        "installedMarkerObserved": true,
+        "available": true,
+        "rawAddressesExported": false,
+        "memoryContentsExported": false,
+        "signal": 11,
+        "signalCode": 2,
+        "pc": {
+          "imageId": 0,
+          "elfOffsetHex": "0000000000000000"
+        },
+        "linkRegister": {
+          "imageId": 1,
+          "elfOffsetHex": "000000000220b8ac"
+        }
+      }
+    }
+  },
+  "symbolization": {
+    "worldElfSha256": "97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766",
+    "caller": "ScriptMgr::OnDestructObject(Object*)",
+    "symbolStartHex": "000000000220b86c",
+    "symbolBytes": 88,
+    "linkRegisterOffsetHex": "000000000220b8ac",
+    "precedingInstructionOffsetHex": "000000000220b8a8",
+    "precedingInstruction": "blr x8",
+    "virtualFunctionSlotBytes": 48,
+    "faultTargetAddressKnown": false,
+    "staleHookDefectReproducedOnHost": true,
+    "shutdownFixValidatedOnThor": false
+  }
+}

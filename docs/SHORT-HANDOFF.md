@@ -5,109 +5,84 @@ pushes. Target AYN Thor, Android 13, ARM64. Read `AGENTS.md`, this file,
 `game-data-import.md`, `private-diagnostics.md`, `native-world-gate.md`.
 Earlier history: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current increment — world logging and shutdown evidence
+## Physical code 31 and current repair
 
-Starting remote HEAD **cef17c93226087964b835cfcab65da13e445b806**; exact CI
-[40125171817](https://github.com/Russianranger/fta-launcher/actions/runs/40125171817)
-passed all three jobs. The starting private APK was code **29**,
-`0.12.2-world-crypto`, SHA256
-`93c08fabf51fd5a1e35503b101c953f6ed280d7d5a650cfa5d232cae5e09d62b`.
-Application commit **974ea36bd4a2de5fe2a8d2971cfe62452046b3aa**;
-[APK evidence](evidence/android-2026-10-24-private-world-crypto-apk.json).
+Recovered remote HEAD **5d4339f1bd91e6f5c290bcf90352d7bfb4ba3067**; exact CI
+[40133212573](https://github.com/Russianranger/fta-launcher/actions/runs/40133212573)
+passed all three jobs. Latest private APK is code **31**, `0.12.4-world-signals`,
+SHA256 `b34acb24a20b9e2388a12c2e13136718673c183429e6e2a1da9af40ae20ab517`.
+Application commit `52e53173e660955009d8a5c6bc3288bb13acc770`;
+[APK proof](evidence/android-2026-10-24-private-world-signals-apk.json).
+Private file ID `libfile_e74c3496085881919ae5ba93097d0b00`.
+Code 30 is withdrawn; do not install it. Public CI APKs are not private updates.
 
-**Physical code 29 passed the original world challenge and two combined healthy
-samples.** Report `FTA-database-diagnostic-1792874414598.json`, SHA256
-`3dbbecb62c63e72867f79b5ceedbdee05443cb0ba8ac7b7446671c77d6055497`.
-The RC4/provider correction worked. Automatic retained rehash passed all **22,817
-files / 7,625,943,031 bytes**, all 24 metadata prechecks and ten GT coverage queries
-passed, and the original world reached 113 DBC stores, ready and freeze guard.
-[Measured physical evidence](evidence/android-2026-10-24-thor-code29-runtime.json).
+**Code 31 passed sustained native health and the screen-off duration observation.**
+Report `FTA-database-diagnostic-1792883744162.json`, SHA256
+`30c9f597530779f0c872c4c10ebc3de4d16269bdd1e78deedbeb290ee4d4b099`.
+19 healthy samples, 186,234 ms measured session, **144,884 ms healthy screen-off**.
+All 22,817 files / 7,625,943,031 bytes rehashed; strict metadata/GT prechecks,
+113 native DBC stores, challenge and freeze guard passed. All failure markers,
+including the unchanged 8 MiB log cap, are false. This resolves log pressure and
+establishes the previously missing duration observation for this executable.
 
-The primary failure was **stdout reaching the unchanged 8 MiB limit** after
-10,312 ms of measured health. During cleanup world exited **139**, after 53,331 ms
-total, with empty stderr. Retained world-log fingerprint `w0132` independently
-identifies original Main.cpp's **Halting process** message before that crash.
-The old live scan missed it because it checked stdout's cap first. That message
-proves entry into late cleanup, not clean exit or a particular fault instruction.
-Auth exited zero; database exited zero without observed SQL shutdown. Postchecks
-were not reached; false results are unmeasured, not proof of lost realm data.
-Screen-off duration is zero. Native gate, GT fallback and gameplay remain unqualified.
+**The aggregate gate still failed during Stop.** World printed Halting then
+exited 139 after 221,129 ms. Auth exited zero; database exited zero without observed
+SQL shutdown. Metadata/GT postchecks were not reached; false postchecks do not
+prove data loss. `sessionCompleted`, `qualified`, `databaseFallbackValidated`,
+`worldReady` and composite `screenOffQualified` remain false.
+[Physical evidence](evidence/android-2026-10-24-thor-code31-runtime.json).
 
-**Private code 31, `0.12.4-world-signals`, is qualified, signed and saved.**
-Application commit **52e53173e660955009d8a5c6bc3288bb13acc770**; exact CI
-[40132849674](https://github.com/Russianranger/fta-launcher/actions/runs/40132849674)
-passed all three jobs. Only documentation/evidence follow this application commit.
-APK `FTA-Launcher-0.12.4-world-signals.apk`, **42,283,996 bytes**, SHA256
-`b34acb24a20b9e2388a12c2e13136718673c183429e6e2a1da9af40ae20ab517`.
-[APK evidence](evidence/android-2026-10-24-private-world-signals-apk.json).
-Saved private file ID: `libfile_e74c3496085881919ae5ba93097d0b00`.
-All **223** packaged-input checks, persistent-certificate v2 signature and 16 KiB
-alignment passed. This APK has **not run on Thor**. Public CI APKs are not this update.
+The new witness worked: SIGSEGV/code 2, unknown PC, world LR `0x220b8ac`.
+Exact original ELF symbolization identifies the virtual dispatch in
+`ScriptMgr::OnDestructObject(Object*)`. Original Unload deletes scripts but leaves
+EnabledHooks pointing at them. The original-code host fixture reproduces late
+and reentrant heap-use-after-free; the narrow fix passes Release and ASan/UBSan.
+[Diagnosis, limits and reproduction](script-unload.md).
 
-Code 30 was withdrawn before physical testing: its helper rejected Android's
-preinstalled crash handler. The saved file is marked **DO NOT INSTALL** and its
-historical evidence records the withdrawal. Use code 31 only.
+**Source repair implemented: `android-arm64-world-v14`.** It retains all v13
+patches and adds `0018`, clearing every inner enabled-hook list before deleting
+any script. Indexed outer slots, deletion order, active callbacks, all 52 modules,
+C++20, NPCBots, SQL and source defaults remain. Tree:
+`c85f87ebc192e78263fa14789223628c9df6e225bc0a632e67f3a1a720db11f5`.
+177 tooling tests and private original-code host probes pass. Full native rebuild,
+private update packaging, Android CI and physical repair validation remain pending.
+The Boost dependency driver also corrects B2's failing `--version` probe to `-v`.
 
-Android 13 linker source installs debuggerd before preload constructors. Code 31
-restores and chains the preinstalled handler with original siginfo/context/mask
-and preserves an existing alternate stack. Host preinitialization fixtures prove
-the old refusal and new normal startup/fatal-signal behavior for SA_SIGINFO,
-traditional and one-shot handlers. Explicit ignored fatal signals still refuse.
-[Signal-chain proof](evidence/host-android-2026-10-24-world-signals.json).
+## Next independent actions
 
-It uses original logger thresholds to retain all WARN/ERROR/FATAL messages plus
-required lifecycle INFO, with ERROR/FATAL console output. The 8 MiB limit remains.
-A bounded live scanner records complete lifecycle lines before checking other
-streams. An independently pinned, 13,760-byte ARM64 fault witness is preloaded only
-into world. It reports fixed image IDs and executable-relative PC/LR offsets for
-SIGSEGV/SIGBUS, then preserves the original signal disposition. No memory, raw addresses, paths,
-credentials or log text is exported. It does **not** fix the cleanup crash.
-[Design, qualification and symbolization](world-shutdown-diagnostic.md).
+Complete the memory-checked Android dependency/world rebuild, using the pinned
+NDK r28c, all 52 static modules/scripts and C++20. Do not ship a partial build.
+Preserve all retained realm/backup identities and original provider payloads when
+integrating the new world executable. Qualify exact build/link/source/ELF evidence,
+Android tests/lint/assembly, private signer and 16 KiB alignment before the next
+substantial Thor test. No new APK has been delivered for the shutdown repair.
+Do not reimport assets, replay seed/updater SQL, uninstall or clear storage.
 
-The original worldserver, crypto provider and all 18 code-29 native files remain
-byte identical. The new witness makes 19 native files. All 148 runtime-manifest
-entries, provider/backup identity, original SQL/configurations and game assets
-remain unchanged. All 52 modules, C++20 and NPCBots are preserved. Source companion
-v8 remains valid for the unchanged original binaries; the new MIT helper source
-is public here and its license is copied into APK metadata.
+Workspace maintenance removed earlier scratch builds. Source companion v8 was
+recovered and verified: SHA256
+`5e2532f8e78f1de0453e73f59c9d07fc4353cfdd393e355f3c22e0e443a334f1`,
+private ID `libfile_1c77e9d472fc8191a91ab7fc4b23ff0a`.
+It includes the unchanged original source ZIP and exact dependency sources.
+Original world ELF SHA256:
+`97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766`.
+Recover `FTA-Launcher-Development-Signing.zip` for delivery; never regenerate it.
+Persistent certificate:
+`3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 
-Qualification: **174 tooling tests**, **375 Android unit tests in 35 classes**
-(source test inventory, no ignored tests; exact CI test task passed), lint/assembly,
-original logging pressure fixture and expanded fatal-signal host fixture passed.
-NDK r28c/API33 corrected witness passed ELF/dependency/16 KiB checks; its symbols
-are bound eagerly. The private package retains all 18 code-29 donor native payloads
-and all 148 runtime-manifest entries exactly. Host tests are not Thor evidence.
-Local full Gradle was not run.
-`databaseFallbackValidated=false`, world readiness and game login remain false.
+## Preserved evidence and boundaries
 
-## Next physical gate
+Archive `407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`;
+catalog `0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff`.
+The persistent 148-entry runtime manifest SHA256 is
+`dda46e9555ad3b58acdbb0125fccdc89850de78a56159ee2bfcbfbde8f529c8b`.
+Host original DBC loaders and restored exact MariaDB loaded all 8,922 GT floats
+bit-for-bit, with ten empty-table negatives and ASan. Host transport adapters
+remain distinct from Android execution. Native GT qualification remains gated by
+complete runtime postconditions.
 
-Install the private code-31 APK **in place** over code 29. Keep all existing
-realm/database/backup/assets. Select **Start native world test** once and keep the
-launcher visible until healthy. Turn the screen off for **three minutes**, reopen,
-select **Stop**, then **Export diagnostic report**. On failure export immediately
-before another attempt. No manual import, manual rehash or already-passed database/auth
-test is needed. The automatic full rehash binds its new asset lease. Never uninstall
-or clear storage. Public CI APKs are not private native updates.
-
-Expected archive: `407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`.
-Expected catalog: `0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff`.
-Persistent certificate: `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
-Recover `FTA-Launcher-Development-Signing.zip`; never regenerate or publish it.
-
-## Preserved milestones and limits
-
-Host original DBC loaders/ResultSet/Field, Connector/C 3.4.9 and isolated exact
-MariaDB 12.3.2 restored Thor backup loaded all **8,922** GT floats bit-for-bit; ten
-empty-table negatives and ASan passed. Strict metadata/data/backup stayed unchanged.
-[Live evidence](evidence/host-2026-10-24-live-dbc.json). Host adapters are not Android
-execution. The original 44-byte challenge probe sends zero application bytes.
 Physical database/updater, persistent realm, backup/restore, process-death recovery,
-local auth and Stop/restart gates already passed. The earlier 112,127 ms screen-off
-interval remains short of 120,000 ms; qualify it during the native world gate.
-Client import, WarcraftXL and playable login are later milestones. Deferred
-Attriboost Settings field 8 vs 9 bug remains gameplay work.
-
-Native builds: one job by default, at most two after memory checks; no concurrent
-heavy builds. Keep logs/private binaries/assets/SQL/credentials outside Git. Run
-Python, Android tests/lint/assembly, package/signature/16 KiB checks and exact CI.
+local auth and Stop/restart gates already passed. Client import, WarcraftXL and
+playable login are later milestones. Deferred Attriboost Settings field 8 vs 9
+bug remains gameplay work. One compiler job by default, at most two after memory
+checks; no concurrent heavy builds. Logs/binaries/assets/SQL/credentials stay
+outside Git. Run prescribed Python/Android/package checks and exact-commit CI.

@@ -6,7 +6,8 @@
 SHA256: `b34acb24a20b9e2388a12c2e13136718673c183429e6e2a1da9af40ae20ab517`.
 It passed 174 tooling tests, Android tests/lint/assembly, 223 packaged-input checks,
 v2 signing and 16 KiB alignment. [Measured APK evidence](evidence/android-2026-10-24-private-world-signals-apk.json).
-Physical code 31 remains pending.
+Physical code 31 passed sustained health and 144.9 seconds healthy screen-off,
+but Stop still failed. See [the source-backed shutdown repair](script-unload.md).
 
 Code 30 was withdrawn before physical testing because its new helper refused
 Android's preinstalled crash handler. Its saved file is marked **DO NOT INSTALL**.

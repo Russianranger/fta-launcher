@@ -1,0 +1,40 @@
+{
+  "status": "original-stale-hook-reproduced-and-fixed",
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "sourceFilesSha256": {
+    "src/server/game/Scripting/ScriptMgr.cpp": "c9fa1b094140ad143a660b862992642ad44d5f5f191e5abf7af38de679b1c2b4",
+    "src/server/game/Scripting/ScriptMgr.h": "80c059911bd2e7645badd51cbd7ddd0159830898c830a48c2702d2d9b9b6d6e5",
+    "src/common/Utilities/TypeList.h": "2c260fd1976e6a983bac447c72daeef884eb631fc9334fdf720cc967c0152f28",
+    "src/server/game/Scripting/ScriptDefines/MiscScript.h": "5bc085fadea33dbfe9a5ef36cfa12d47988a5e2ea8f6d51140da81e540c4f59b",
+    "src/server/game/Scripting/ScriptMgrMacros.h": "35ac6308d598a90f2ff1fced6b0212de7e2e3eb9e528454bc0d2e9213b141cf8",
+    "src/server/game/Scripting/ScriptDefines/MiscScript.cpp": "4180e900de470685fe808c6d9e094071e890b48e8fae3d486b821a318acee3dc"
+  },
+  "patchSha256": "90e6385b137d906195711619fb6e8b7555c1c0d664e0495175831f2cdf9ca4d6",
+  "sourceProfile": "android-arm64-world-v14",
+  "originalActiveCallbacksPassed": true,
+  "originalLateAndReentrantHeapUseAfterFree": true,
+  "fixedActiveCallbacksPreserved": true,
+  "fixedLateAndReentrantCallbacksSafe": true,
+  "hookSlotDimensionsPreserved": true,
+  "scriptDeletionCountsPreserved": true,
+  "releaseAndAddressUndefinedSanitizersPassed": true,
+  "leakSanitizerClaimed": false,
+  "fixtureRegistryTypes": 3,
+  "fullWorldFixture": false,
+  "compilerJobs": 1,
+  "androidExecutionQualified": false,
+  "worldReady": false,
+  "databaseFallbackValidated": false,
+  "fixtureExitCodes": {
+    "original-release/active": 0,
+    "original-asan-ubsan/active": 0,
+    "original-asan-ubsan/late": 1,
+    "original-asan-ubsan/reentrant": 1,
+    "fixed-release/active": 0,
+    "fixed-release/late": 0,
+    "fixed-release/reentrant": 0,
+    "fixed-asan-ubsan/active": 0,
+    "fixed-asan-ubsan/late": 0,
+    "fixed-asan-ubsan/reentrant": 0
+  }
+}

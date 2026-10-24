@@ -194,7 +194,7 @@ def main():
                 for path in include.glob('*.h'):
                     shutil.copyfile(path, prefix / 'include/openssl' / path.name)
         if index == 5:
-            run([str(boost / 'b2'), '--version'], boost, 'version-b2')
+            run([str(boost / 'b2'), '-v'], boost, 'version-b2')
     receipt['libraryHashes'] = {str(path.relative_to(prefix)): digest(path) for path in sorted(prefix.rglob('*')) if path.is_file() and not path.is_symlink() and ('.so' in path.name or path.suffix == '.a')}
     receipt['completed'] = True
     save()
