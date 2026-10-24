@@ -18,6 +18,7 @@ static unsigned range_count;
 static int range_overflow;
 static atomic_int captured;
 static _Alignas(16) unsigned char alternate_stack[65536];
+static struct sigaction previous[2];
 
 static unsigned image_id(const char* path) {
     const char* name = strrchr(path, '/');
@@ -83,6 +84,7 @@ static char* location(char* out, uintptr_t address) {
 }
 
 static void fault(int number, siginfo_t* info, void* context) {
+    int saved_errno = errno;
     if (!atomic_exchange_explicit(&captured, 1, memory_order_relaxed)) {
         const ucontext_t* uc = context;
         uintptr_t pc = 0, lr = 0;
@@ -101,23 +103,34 @@ static void fault(int number, siginfo_t* info, void* context) {
         ssize_t result;
         do { result = write(STDERR_FILENO, line, (size_t)(out - line)); } while (result < 0 && errno == EINTR);
     }
-    // SA_RESETHAND restores the default action. Delivery occurs after this blocked handler returns.
-    if (syscall(SYS_tgkill, getpid(), syscall(SYS_gettid), number) != 0) _exit(128 + number);
+    // Android's linker installs debuggerd before preload constructors. Restore its
+    // original action before chaining: debuggerd queries SA_SIGINFO itself.
+    const struct sigaction* prior = &previous[number == SIGBUS];
+    struct sigaction restored = *prior;
+    if (prior->sa_flags & SA_RESETHAND) restored.sa_handler = SIG_DFL;
+    if (sigaction(number, &restored, 0)) _exit(128 + number);
+    errno = saved_errno;
+    if (prior->sa_handler == SIG_DFL) {
+        if (syscall(SYS_tgkill, getpid(), syscall(SYS_gettid), number) != 0) _exit(128 + number);
+    } else if (prior->sa_flags & SA_SIGINFO) prior->sa_sigaction(number, info, context);
+    else prior->sa_handler(number);
 }
 
 __attribute__((constructor)) static void install(void) {
     dl_iterate_phdr(collect, 0);
     if (!range_count || range_overflow) _exit(126);
-    stack_t stack = {.ss_sp = alternate_stack, .ss_size = sizeof(alternate_stack)};
-    if (sigaltstack(&stack, 0)) _exit(126);
+    stack_t old_stack;
+    if (sigaltstack(0, &old_stack)) _exit(126);
+    if (old_stack.ss_flags & SS_DISABLE) {
+        stack_t stack = {.ss_sp = alternate_stack, .ss_size = sizeof(alternate_stack)};
+        if (sigaltstack(&stack, 0)) _exit(126);
+    }
     const int signals[] = {SIGSEGV, SIGBUS};
     for (unsigned i = 0; i < 2; ++i) {
-        struct sigaction before, action;
-        if (sigaction(signals[i], 0, &before) || before.sa_handler != SIG_DFL) _exit(126);
-        memset(&action, 0, sizeof(action));
+        if (sigaction(signals[i], 0, &previous[i]) || previous[i].sa_handler == SIG_IGN) _exit(126);
+        struct sigaction action = previous[i];
         action.sa_sigaction = fault;
-        action.sa_flags = SA_SIGINFO | SA_ONSTACK | SA_RESETHAND;
-        sigemptyset(&action.sa_mask);
+        action.sa_flags |= SA_SIGINFO | SA_ONSTACK;
         if (sigaction(signals[i], &action, 0)) _exit(126);
     }
     static const char ready[] = "FTA_FAULT_READY_V1\n";

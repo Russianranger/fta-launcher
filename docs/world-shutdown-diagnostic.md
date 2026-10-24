@@ -38,11 +38,15 @@ No other role receives `LD_PRELOAD`; inherited overrides are refused. Its READY
 marker is mandatory before accepting the world challenge.
 
 At process initialization it records executable ELF load ranges, then installs
-SIGSEGV/SIGBUS handlers only when the existing disposition is default. The handler
-performs one bounded write with signal/code and image-relative PC/LR, and re-delivers
-the same fatal signal. It does not intercept SIGTERM/SIGABRT, unwind, allocate,
-resolve symbols or use stdio/locks in the handler. It does not open application
-files or issue SQL. The alternate stack belongs to the initializing thread; other native
+SIGSEGV/SIGBUS handlers while preserving the existing disposition. Its capture
+performs one bounded write with signal/code and image-relative PC/LR, restores the
+prior action and chains the original handler with the original siginfo/context.
+Default actions receive the same fatal signal; one-shot semantics remain intact.
+Explicit ignored fatal signals are refused. The capture itself does not unwind,
+allocate, resolve symbols or use stdio/locks. The chained platform handler retains
+its own existing crash-report behavior. SIGTERM/SIGABRT are untouched. It does not open application
+files or issue SQL. An existing alternate stack is retained; otherwise the helper installs one for
+the initializing thread. Other native
 threads use their own normal stacks. This is not a general crash reporter.
 
 The parser accepts exactly one complete READY and fault line, only known image IDs,
@@ -80,7 +84,11 @@ Real host SIGSEGV and SIGBUS preserve fatal status; normal exit, SIGTERM and
 SIGABRT are unchanged. Five ASLR-separated fault runs yield the same ELF offset,
 which matches the fixture's actual `fault_here` symbol. The Android helper uses
 NDK r28c/API33, needs only libc/libdl and has 16 KiB LOAD alignment.
-[Host/Android build proof](evidence/host-android-2026-10-24-world-fault.json).
+[Corrected host/Android build proof](evidence/host-android-2026-10-24-world-signals.json).
+A main-executable preinit fixture installs handlers before the preload constructor,
+as Android does. It verifies unchanged startup, fatal status, original signal info,
+context, signal mask and alternate stack, with traditional/SA_SIGINFO/one-shot
+handlers. The original code-30 helper exits 126 on this fixture; code 31 passes.
 No Android execution is claimed from these host checks.
 
 For the next report, match image 1 against the unchanged private world ELF SHA256
@@ -92,6 +100,22 @@ A symbol boundary may identify the function without proving a source line/cause.
 Keep private binaries and detailed symbolization logs outside Git; record only the
 minimal source-backed diagnosis. Rebuild original code only after that evidence.
 
-Code 30 does not qualify native GT fallback, clean world shutdown, the required
+Code 31 does not qualify native GT fallback, clean world shutdown, the required
 120-second screen-off interval or gameplay. Follow the current handoff for the
 single combined physical gate; preserve the retained realm and backup.
+
+## Android startup correction and provenance
+
+Code 30 was withdrawn before a Thor test. Android 13 installs its debuggerd handler
+before the shared-library constructors; requiring SIG_DFL would block startup.
+Code 31 chains that existing behavior. In particular, it restores the prior action
+before calling debuggerd because debuggerd itself checks the installed SA_SIGINFO
+flag. It does not replace platform crash collection with a guessed default exit.
+
+Inspected AOSP tag `android-13.0.0_r1` files (downloaded bytes, SHA256):
+
+- [linker_main.cpp](https://android.googlesource.com/platform/bionic/+/refs/tags/android-13.0.0_r1/linker/linker_main.cpp): `85c3a9b70b85f4d3644046ad16ff79c1d5b1024c2fd7242db43960930beafce6`; debuggerd initialization precedes constructors.
+- [debuggerd_handler.cpp](https://android.googlesource.com/platform/system/core/+/refs/tags/android-13.0.0_r1/debuggerd/handler/debuggerd_handler.cpp): `79e2199b5ef181c12ea74bd8d0f067d46f5ca8bc12c19b95f8a097038e761b53`; handler registration, `have_siginfo`, and original fatal re-delivery.
+
+These platform sources are references, not copied implementations or claims that
+the host fixture executes Android debuggerd. Actual Thor execution remains pending.

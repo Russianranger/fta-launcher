@@ -1,0 +1,37 @@
+{
+  "status": "host_fault_witness_passed",
+  "sourceSha256": "38b1eb95f00752b49a1e44d03079ad94a6190d2c56373ab097cb3d60997a1ef7",
+  "normalExitPreserved": true,
+  "sigsegvPreserved": true,
+  "sigbusPreserved": true,
+  "sigtermUntouched": true,
+  "sigabrtUntouched": true,
+  "repeatedFaultOffsetsStable": true,
+  "faultOffsetMatchesSymbol": true,
+  "rawAddressesExported": false,
+  "memoryContentsExported": false,
+  "nativeWorldRecompiled": false,
+  "compilerJobs": 1,
+  "androidExecutionQualified": false,
+  "preinstalledHandlersChained": true,
+  "originalSiginfoContextMaskAndAlternateStackPreserved": true,
+  "oneShotHandlerPreserved": true,
+  "ignoredFatalSignalRefused": true,
+  "moduleBytes": 13760,
+  "moduleSha256": "7c6705da298c4d2d7288b2f895fe447be5d7c6fe03e064610e677fabfa3d73ec",
+  "elf": {
+    "needed": [
+      "libc.so",
+      "libdl.so"
+    ],
+    "sonames": [
+      "libfta_world_fault.so"
+    ],
+    "interpreter": null,
+    "minimumLoadAlignment": 16384
+  },
+  "ndkVersion": "28.2.13676358",
+  "androidApi": 33,
+  "compilerSha256": "6156dd4e5e466333197a00b8d20bca72c292186643b749dcaaa3aa9164afb1de",
+  "oldCode30RefusedPreinstalledHandler": true
+}

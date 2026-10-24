@@ -20,10 +20,10 @@ android {
         targetSdk = 35
         versionCode = providers.gradleProperty("ftaVersionCode").orNull?.toInt()?.also {
             require(it in 1..2_100_000_000) { "ftaVersionCode is outside the Android version range" }
-        } ?: 30
+        } ?: 31
         versionName = providers.gradleProperty("ftaVersionName").orNull?.also {
             require(it.matches(Regex("[A-Za-z0-9._+-]{1,100}"))) { "Invalid ftaVersionName" }
-        } ?: "0.12.3-world-shutdown"
+        } ?: "0.12.4-world-signals"
         ndk { abiFilters += "arm64-v8a" }
         externalNativeBuild { cmake { arguments += "-DANDROID_STL=c++_static" } }
     }

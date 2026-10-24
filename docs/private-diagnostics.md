@@ -1,16 +1,15 @@
 # Private native diagnostic builds
 
-## Current private delivery — code 30
+## Current private checkpoint — code 31 in qualification
 
-`FTA-Launcher-0.12.3-world-shutdown.apk` is signed with the persistent certificate.
-SHA256: `37295978f21fca4819f948e606b71ba605dab249cb63689f8e16e1643ad66efe`.
-It passed 174 tooling tests, Android tests/lint/assembly, 223 packaged-input checks,
-v2 signing and 16 KiB alignment. [Measured APK evidence](evidence/android-2026-10-24-private-world-shutdown-apk.json).
-Physical code 30 remains pending.
+Code 30 was withdrawn before physical testing because its new helper refused
+Android's preinstalled crash handler. Its saved file is marked **DO NOT INSTALL**.
+Code 31 (`0.12.4-world-signals`) preserves and chains that handler. Follow the
+[current handoff](SHORT-HANDOFF.md) for the corrected artifact and exact identity.
 
 Code 29's private APK passed its original world challenge and two healthy samples
 on Thor. Its test ended at the stdout limit, followed by an unresolved cleanup
-SIGSEGV. Code 30 (`0.12.3-world-shutdown`) reduces routine INFO output using the
+SIGSEGV. Code 31 reduces routine INFO output using the
 original logger and adds a separately pinned fatal-signal witness. The original
 18 native files and all realm/backup identities remain unchanged; one small MIT
 helper is added. No validation limit or source module is removed.

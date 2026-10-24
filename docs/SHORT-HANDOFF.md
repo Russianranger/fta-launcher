@@ -33,23 +33,27 @@ Auth exited zero; database exited zero without observed SQL shutdown. Postchecks
 were not reached; false results are unmeasured, not proof of lost realm data.
 Screen-off duration is zero. Native gate, GT fallback and gameplay remain unqualified.
 
-**Private code 30, `0.12.3-world-shutdown`, is qualified, signed and saved.**
-Application commit **c8e51358452c3452df9fffe058748a6b783b4f63**; exact CI
-[40132133219](https://github.com/Russianranger/fta-launcher/actions/runs/40132133219)
-passed all three jobs. Only documentation/evidence follow this application commit.
-APK `FTA-Launcher-0.12.3-world-shutdown.apk`, **42,283,996 bytes**, SHA256
-`37295978f21fca4819f948e606b71ba605dab249cb63689f8e16e1643ad66efe`.
-[APK evidence](evidence/android-2026-10-24-private-world-shutdown-apk.json).
-Saved private file ID: `libfile_2068edc56dac819180d1eabde38de722`.
-All **223** packaged-input checks, persistent-certificate v2 signature and 16 KiB
-alignment passed. This APK has **not run on Thor**. Public CI APKs are not this update.
+**Code 31, `0.12.4-world-signals`, is being qualified.** Code 30 was signed but
+withdrawn before physical testing: its helper refused Android's preinstalled
+crash handler. The saved code-30 file is named `DO-NOT-INSTALL-superseded-FTA-code30.apk`.
+Its packaging proof remains historical evidence, not a current recommendation.
+The code-30 application commit was `c8e51358452c3452df9fffe058748a6b783b4f63`;
+delivery docs commit `c93240e871301ab0ecc6b919f743e340eb1586e5` passed CI
+[40132553046](https://github.com/Russianranger/fta-launcher/actions/runs/40132553046).
+
+Android 13 linker source installs debuggerd before preload constructors. Code 31
+restores and chains the preinstalled handler with original siginfo/context/mask
+and preserves an existing alternate stack. Host preinitialization fixtures prove
+the old refusal and new normal startup/fatal-signal behavior for SA_SIGINFO,
+traditional and one-shot handlers. Explicit ignored fatal signals still refuse.
+[Signal-chain proof](evidence/host-android-2026-10-24-world-signals.json).
 
 It uses original logger thresholds to retain all WARN/ERROR/FATAL messages plus
 required lifecycle INFO, with ERROR/FATAL console output. The 8 MiB limit remains.
 A bounded live scanner records complete lifecycle lines before checking other
-streams. An independently pinned, 13,664-byte ARM64 fault witness is preloaded only
+streams. An independently pinned, 13,760-byte ARM64 fault witness is preloaded only
 into world. It reports fixed image IDs and executable-relative PC/LR offsets for
-SIGSEGV/SIGBUS, then preserves the fatal signal. No memory, raw addresses, paths,
+SIGSEGV/SIGBUS, then preserves the original signal disposition. No memory, raw addresses, paths,
 credentials or log text is exported. It does **not** fix the cleanup crash.
 [Design, qualification and symbolization](world-shutdown-diagnostic.md).
 
@@ -60,17 +64,17 @@ remain unchanged. All 52 modules, C++20 and NPCBots are preserved. Source compan
 v8 remains valid for the unchanged original binaries; the new MIT helper source
 is public here and its license is copied into APK metadata.
 
-Qualification: **174 tooling tests**, **375 Android unit tests in 35 classes**
-(source test inventory, no ignored tests; exact CI test task passed), lint/assembly,
-original logging pressure fixture and real fatal-signal host fixture passed.
-NDK r28c/API33 witness build passed ELF/dependency/16 KiB checks. The private package
-retains all 18 donor native payloads and all 148 runtime-manifest entries exactly.
-Host signal tests are not Thor evidence. Local full Gradle was not run.
+Qualification: **174 tooling tests**, original logging pressure fixture and
+expanded fatal-signal host fixture passed. NDK r28c/API33 corrected witness build
+passed ELF/dependency/16 KiB checks. Exact code-31 Android tests/lint/assembly and
+private packaging are pending. Host signal tests are not Thor evidence.
+The planned package retains all 18 code-29 donor native payloads and all 148
+runtime-manifest entries. Local full Gradle was not run.
 `databaseFallbackValidated=false`, world readiness and game login remain false.
 
 ## Next physical gate
 
-Install the private code-30 APK **in place** over code 29. Keep all existing
+Install the private code-31 APK **in place** over code 29. Keep all existing
 realm/database/backup/assets. Select **Start native world test** once and keep the
 launcher visible until healthy. Turn the screen off for **three minutes**, reopen,
 select **Stop**, then **Export diagnostic report**. On failure export immediately

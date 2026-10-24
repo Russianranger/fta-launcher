@@ -38,8 +38,8 @@ def main():
         build(['gcc', '-O0', '-fPIE', '-pie', '-Wall', '-Wextra', '-Werror',
                str(ROOT / 'tests/fixtures/world_fault_host.c'), '-o', str(driver)])
         env = dict(os.environ, LD_PRELOAD=str(module))
-        def run(mode):
-            return subprocess.run([str(driver), str(mode)], env=env, capture_output=True, timeout=5)
+        def run(mode, prior=0):
+            return subprocess.run([str(driver), str(mode), str(prior)], env=env, capture_output=True, timeout=5)
         good = run(0)
         if good.returncode != 0 or good.stdout or good.stderr != READY:
             raise ValueError('Witness changed normal execution')
@@ -63,11 +63,24 @@ def main():
             result = run(mode)
             if result.returncode != -mode or result.stderr != READY:
                 raise ValueError('An unrelated signal was intercepted')
+        for prior in (1, 2, 4):
+            normal = run(0, prior)
+            if normal.returncode != 0 or normal.stderr != READY:
+                raise ValueError('Preinstalled signal handler blocked startup')
+            for mode in (signal.SIGSEGV, signal.SIGBUS):
+                result = run(mode, prior)
+                if result.returncode != -mode or not re.fullmatch(READY + FAULT + b'FTA_PRIOR_HANDLER_PRESERVED\n', result.stderr):
+                    raise ValueError('Original action, siginfo, context, mask or alternate stack not preserved')
+        ignored = run(0, 3)
+        if ignored.returncode != 126 or ignored.stderr:
+            raise ValueError('Explicit ignored fatal signal must fail closed')
         proof = dict(status='host_fault_witness_passed', sourceSha256=digest(SOURCE),
             normalExitPreserved=True, sigsegvPreserved=True, sigbusPreserved=True, sigtermUntouched=True,
             sigabrtUntouched=True, repeatedFaultOffsetsStable=True, faultOffsetMatchesSymbol=True,
             rawAddressesExported=False, memoryContentsExported=False, nativeWorldRecompiled=False,
-            compilerJobs=1, androidExecutionQualified=False)
+            compilerJobs=1, androidExecutionQualified=False, preinstalledHandlersChained=True,
+            originalSiginfoContextMaskAndAlternateStackPreserved=True, oneShotHandlerPreserved=True,
+            ignoredFatalSignalRefused=True)
         if args.ndk:
             props = (args.ndk / 'source.properties').read_text()
             if 'Pkg.Revision = 28.2.13676358' not in props:

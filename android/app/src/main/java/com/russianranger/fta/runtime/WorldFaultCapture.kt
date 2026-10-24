@@ -6,8 +6,8 @@ import java.nio.file.Files
 /** Separate pinned diagnostic module: the original world ELF and realm identity stay unchanged. */
 internal object WorldFaultCapture {
     const val NAME = "libfta_world_fault.so"
-    const val SHA256 = "a84a48b5db87bb7f874200a33b864c2ab1f42b330f19b91bf728661bcf9382a7"
-    const val BYTES = 13664L
+    const val SHA256 = "7c6705da298c4d2d7288b2f895fe447be5d7c6fe03e064610e677fabfa3d73ec"
+    const val BYTES = 13760L
     const val READY = "FTA_FAULT_READY_V1"
     fun ready(file: File): Boolean = runCatching {
         val expected = "$READY\n".toByteArray(Charsets.US_ASCII)

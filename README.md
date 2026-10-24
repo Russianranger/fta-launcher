@@ -17,7 +17,7 @@ install a persistent realm or open player saves.
 
 Physical private code 29 reaches the original world challenge and early health.
 The combined runtime gate remains incomplete: log volume ended the attempt and
-world cleanup crashed. Code 30 adds bounded logging and executable-offset crash
+world cleanup crashed. Code 31 adds bounded logging and executable-offset crash
 evidence while preserving the original worldserver and retained data. See the
 [current handoff](docs/SHORT-HANDOFF.md) for the qualified private APK and next
 Thor gate. Public CI APKs are development previews, not private native updates.

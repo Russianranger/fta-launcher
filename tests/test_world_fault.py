@@ -20,6 +20,8 @@ class WorldFaultTests(unittest.TestCase):
             self.assertTrue(proof['normalExitPreserved'] and proof['sigsegvPreserved'] and proof['sigbusPreserved'])
             self.assertTrue(proof['sigtermUntouched'] and proof['sigabrtUntouched'] and proof['faultOffsetMatchesSymbol'])
             self.assertTrue(proof['repeatedFaultOffsetsStable'])
+            self.assertTrue(proof['preinstalledHandlersChained'] and proof['originalSiginfoContextMaskAndAlternateStackPreserved'])
+            self.assertTrue(proof['oneShotHandlerPreserved'] and proof['ignoredFatalSignalRefused'])
             self.assertFalse(proof['rawAddressesExported'] or proof['memoryContentsExported'])
 
     def test_runtime_and_packager_pin_same_capture_module(self):

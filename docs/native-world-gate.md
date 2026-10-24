@@ -2,7 +2,7 @@
 
 Physical code 29 passed the original world challenge and two combined healthy
 samples. Its stdout limit then ended the test, and world cleanup exited 139 after
-its Halting message. Code 30 adds original logger thresholds and a bounded,
+its Halting message. Code 31 adds original logger thresholds and a bounded,
 process-only fault witness while retaining the original world ELF. See
 [shutdown evidence and design](world-shutdown-diagnostic.md) and the current
 handoff for the next private update. Native runtime remains unqualified.

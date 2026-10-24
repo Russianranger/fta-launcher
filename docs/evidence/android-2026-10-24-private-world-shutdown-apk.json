@@ -112,5 +112,8 @@
   "androidAssembly": "passed",
   "ciAllThreeJobs": "passed",
   "ciArtifactId": 12575417607,
-  "ciArtifactZipSha256": "04529748da05bdc18677722e672d20998a1bca1d2cc966df51b3dadcce44b32a"
+  "ciArtifactZipSha256": "04529748da05bdc18677722e672d20998a1bca1d2cc966df51b3dadcce44b32a",
+  "withdrawnForAndroidStartup": true,
+  "withdrawalReason": "Guard rejects Android preinstalled debuggerd crash handler; superseded before physical testing by code 31",
+  "libraryFileName": "DO-NOT-INSTALL-superseded-FTA-code30.apk"
 }
