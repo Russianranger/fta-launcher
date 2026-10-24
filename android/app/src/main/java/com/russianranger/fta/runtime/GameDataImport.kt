@@ -93,7 +93,9 @@ object GameDataImport {
                 ?: error("Game-data document could not be opened")
             record = record.copy(state = "FINISHED", archive = receipt.archiveSha256)
             checkpoint()
-            return "Game-data preflight passed: ${receipt.files} files, ${receipt.bytes / (1024 * 1024)} MiB. Original required DBCs, startup map files and supplied file headers match. World startup and complete terrain/navigation loading still need native qualification. Export the diagnostic report."
+            val database = if (store.export()["databaseFallbackRequired"] == true)
+                " Some game-data tables use the original server's database loader; those loads still need native validation." else ""
+            return "Game-data import and file preflight passed: ${receipt.files} files, ${receipt.bytes / (1024 * 1024)} MiB.$database World startup and complete terrain/navigation loading still need native qualification. Export the diagnostic report."
         } catch (failure: Throwable) {
             // Best effort for VM errors; the previous checkpoint and OS exit record survive
             // even when the failing process cannot allocate enough memory to write another.

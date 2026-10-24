@@ -1,10 +1,53 @@
 # Extracted game-data import and source-derived preflight
 
-Private **0.11.7-asset-headers**, code **25**, imports an inert ZIP containing extracted
+Private **0.11.8-dbc-loading**, code **26**, imports an inert ZIP containing extracted
 `dbc`, `maps`, `vmaps` and `mmaps` folders, directly or under one enclosing folder.
 It preserves the retained realm, verified backup, Database.zip and native inputs.
 It does not extract a full client/MPQ archive, launch worldserver or create accounts.
 Matching actual game data is not present in the development environment.
+
+## Source-proven DBC handling in code 26
+
+Physical code 25 passes all **104 high-bit mmap headers** and reports exactly
+twelve remaining DBC failures. Its SHA256 and the unchanged Data.zip identity
+match. The complete extraction runs without an attempt-matched Android kill.
+See [device evidence](evidence/android-2026-10-24-thor-dbc-layouts.json).
+
+| Measured file layout | Original source behavior | Code 26 handling |
+| --- | --- | --- |
+| CharHairTextures: 8 fields, 32-byte records, zero string block | Filename absent from active server/common/module references; raw loader accepts zero string bytes | Preserve the exact unused file, checking full length and hash |
+| PowerDisplay: 6 fields, 15-byte records | `nixxxx` consumes only the first eight bytes and ignores the trailing fields | Accept this additional packed width for this root filename only |
+| Ten GT files: 1 field, 4-byte records | `df` file loading fails, then `LoadDBC` invokes the named `LoadFromDB` route | Preserve exact bytes and declare the original database dependency |
+
+The ten GT routes use exact measured row counts: 100 for BarberShopCostBase and
+NPCManaCostScaler; 11 for both CritBase files; 3,200 for CombatRatings; 1,100 for
+each remaining reported GT file. A separately restored, hash-verified Thor backup
+has `ID, Data` columns and every zero-based ID for all **8,922 rows**, with unchanged
+three-schema metadata before/after read-only queries and a clean SQL shutdown.
+Unmodified original DBC storage/database loaders consume those exact captured
+query results, and empty results still fail. The host adapter replaces only the
+database transport for this probe; no native server payload is changed.
+
+Original DBC expectations remain in the unchanged policy manifest. These narrow
+routes do not admit missing files, other root names/locales, unexpected GT counts,
+other PowerDisplay widths, malformed lengths, corrupt ZIP payloads or changed
+later hashes. No asset gets an inserted ID, widened record, new string byte or
+SQL-generated replacement. All supplied bytes and provenance remain intact.
+
+`dbcFileCompatibility` reports every accepted special case, its SHA256 and row
+count. GT entries also identify the fixed source SQL table. The report explicitly
+sets `databaseFallbackRequired=true` and **`databaseFallbackValidated=false`**.
+Full reverify checks hashes and reconstructs these observations; it does not
+access the retained database. Native loading must still qualify the real database
+fallback and complete terrain/navigation semantics before world readiness.
+Format-1/2 reports remain readable without inferred compatibility observations.
+
+Update in place to private code 26, import the unchanged Data.zip once, reopen,
+**Verify imported game data**, then **Export diagnostic report**. Export immediately
+on failure. Keep all dependencies and retained saves. Passed updater/auth milestones
+need no repeat. See [original loader proof](evidence/host-2026-10-24-dbc-loaders.json),
+[store/recovery proof](evidence/host-2026-10-24-dbc-store.json), and
+[APK identity](evidence/android-2026-10-24-private-dbc-loading-apk.json).
 
 ## Completed physical extraction and code 25 header diagnosis
 
@@ -47,7 +90,7 @@ fails; relying on that requires independent original-loader/database-coverage
 qualification, not guessed schemas. An unused empty DBC likewise needs its actual
 header and source-use evidence before a narrowly justified policy change.
 
-Install the private signed code 25 in place and import the same Data.zip once
+The completed code 25 procedure was to update in place and import Data.zip once
 with the launcher visible. **Export diagnostic report** immediately afterward.
 If import succeeds, reopen and **Verify imported game data** before exporting.
 Preserve Database.zip, native dependencies, realm and backup. Do not repeat the

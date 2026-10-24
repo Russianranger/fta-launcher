@@ -1,0 +1,344 @@
+{
+  "formatVersion": 1,
+  "scope": "physical-thor-mmap-correction-confirmed-dbc-layouts-measured",
+  "reportSha256": "a3d10222a972df8be77e0bc6860f01d1e77c25ca2223b566b41707af711e5816",
+  "verifiedPrivateApkMatched": true,
+  "appVersionCode": 25,
+  "appVersionName": "0.11.7-asset-headers",
+  "apkSha256": "4f3f224abaae30837ded42fbccfbefcf52f07df68a5a07fa8a7a76400555bdb5",
+  "platform": {
+    "sdkInt": 33,
+    "androidRelease": "13",
+    "manufacturer": "AYN",
+    "model": "AYN Thor",
+    "supportedAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "armeabi"
+    ]
+  },
+  "gameDataDiagnostic": {
+    "available": true,
+    "worldReady": false,
+    "gameLoginQualified": false,
+    "nativeSemanticValidationPassed": false,
+    "policySha256": "ebba21788b69a5021a7e7d330aa33e699fda18161b43848d16a5c75dc9e6fb4a",
+    "state": "REJECTED",
+    "preflightPassed": false,
+    "files": 22817,
+    "bytes": 7625943031,
+    "problemCount": 12,
+    "count.dbc": 248,
+    "count.maps": 5889,
+    "count.vmaps": 10620,
+    "count.mmaps": 6060,
+    "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+    "stockDbcFiles": 0,
+    "db2CompanionFiles": 1,
+    "editorCompanionFiles": 1,
+    "failureStage": "preflight",
+    "rejectedAssetCount": 0,
+    "rejectedAssets": [],
+    "headerDiagnosticsAvailable": true,
+    "problemCountsByReason": {
+      "dbc_source_layout": 11,
+      "dbc_layout": 1
+    },
+    "mmapHighBitCapacityFiles": 104,
+    "problems": [
+      {
+        "asset": "dbc/CharHairTextures.dbc",
+        "reason": "dbc_layout",
+        "sha256": "7c1b683c2cfb640224bf9adfc9e9961a843c69ab47f9462120108ee9eeb22828",
+        "observedHeader": {
+          "fileBytes": 5812,
+          "recordBytes": 32,
+          "magic": 1128416343,
+          "fields": 8,
+          "stringBytes": 0,
+          "rows": 181
+        }
+      },
+      {
+        "asset": "dbc/gtBarberShopCostBase.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "67f516e72d709a74ad5e4e9a58297b495bd6ebb4a3052978ed6da16ca883be69",
+        "observedHeader": {
+          "recordBytes": 4,
+          "rows": 100,
+          "fileBytes": 421,
+          "stringBytes": 1,
+          "fields": 1,
+          "magic": 1128416343
+        },
+        "sourceExpected": {
+          "recordBytes": 8,
+          "fields": 2
+        }
+      },
+      {
+        "asset": "dbc/gtChanceToMeleeCrit.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "2acb54ef9c47418bea48e557503b7e9a03cfd1365ee2b7be4bc8c5cee5de7f30",
+        "observedHeader": {
+          "recordBytes": 4,
+          "fields": 1,
+          "magic": 1128416343,
+          "stringBytes": 1,
+          "fileBytes": 4421,
+          "rows": 1100
+        },
+        "sourceExpected": {
+          "fields": 2,
+          "recordBytes": 8
+        }
+      },
+      {
+        "asset": "dbc/gtChanceToMeleeCritBase.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "e2a82b78cb1ac14b697312b1dad6ca85dcd25fe993e56be9aca9326f52c35ddf",
+        "observedHeader": {
+          "stringBytes": 1,
+          "fields": 1,
+          "fileBytes": 65,
+          "magic": 1128416343,
+          "recordBytes": 4,
+          "rows": 11
+        },
+        "sourceExpected": {
+          "fields": 2,
+          "recordBytes": 8
+        }
+      },
+      {
+        "asset": "dbc/gtChanceToSpellCrit.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "8ec9ba0579200283619491509618f2a176a52bcbaf60f4d5a885e2c7d90ef4de",
+        "observedHeader": {
+          "magic": 1128416343,
+          "stringBytes": 1,
+          "rows": 1100,
+          "fields": 1,
+          "recordBytes": 4,
+          "fileBytes": 4421
+        },
+        "sourceExpected": {
+          "fields": 2,
+          "recordBytes": 8
+        }
+      },
+      {
+        "asset": "dbc/gtChanceToSpellCritBase.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "45963fe68a4293216a5345fb8cc5ba9acace8d93175d008148e11465416ffc5b",
+        "observedHeader": {
+          "fileBytes": 65,
+          "stringBytes": 1,
+          "magic": 1128416343,
+          "rows": 11,
+          "recordBytes": 4,
+          "fields": 1
+        },
+        "sourceExpected": {
+          "recordBytes": 8,
+          "fields": 2
+        }
+      },
+      {
+        "asset": "dbc/gtCombatRatings.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "92f4ef0247f6a23c7911e1a51ae0e9648e5d1ed1b5cbc1b01e646ddcae13f280",
+        "observedHeader": {
+          "magic": 1128416343,
+          "stringBytes": 1,
+          "fields": 1,
+          "fileBytes": 12821,
+          "recordBytes": 4,
+          "rows": 3200
+        },
+        "sourceExpected": {
+          "fields": 2,
+          "recordBytes": 8
+        }
+      },
+      {
+        "asset": "dbc/gtNPCManaCostScaler.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "3b33c96f97acefa9b15aebfbbe311dc4db02fd32933d9e2e84bd59fd81cb306e",
+        "observedHeader": {
+          "rows": 100,
+          "recordBytes": 4,
+          "magic": 1128416343,
+          "fields": 1,
+          "fileBytes": 421,
+          "stringBytes": 1
+        },
+        "sourceExpected": {
+          "fields": 2,
+          "recordBytes": 8
+        }
+      },
+      {
+        "asset": "dbc/gtOCTRegenHP.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "8ccff60891dd4c45c0ffcea56fe652e28163d3c39f9261541ec1d9bcb3e94dd2",
+        "observedHeader": {
+          "recordBytes": 4,
+          "rows": 1100,
+          "fileBytes": 4421,
+          "fields": 1,
+          "stringBytes": 1,
+          "magic": 1128416343
+        },
+        "sourceExpected": {
+          "recordBytes": 8,
+          "fields": 2
+        }
+      },
+      {
+        "asset": "dbc/gtRegenHPPerSpt.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "f4681e7686c9e2b8199634adf18f7fe18538557caf968d6f451613ec293419fc",
+        "observedHeader": {
+          "rows": 1100,
+          "recordBytes": 4,
+          "magic": 1128416343,
+          "stringBytes": 1,
+          "fileBytes": 4421,
+          "fields": 1
+        },
+        "sourceExpected": {
+          "recordBytes": 8,
+          "fields": 2
+        }
+      },
+      {
+        "asset": "dbc/gtRegenMPPerSpt.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "06b8000be88ce9795bff44a2bd3e31e519ea11e78c16c2e2a36eb144c5d24cfd",
+        "observedHeader": {
+          "stringBytes": 1,
+          "rows": 1100,
+          "recordBytes": 4,
+          "fileBytes": 4421,
+          "magic": 1128416343,
+          "fields": 1
+        },
+        "sourceExpected": {
+          "recordBytes": 8,
+          "fields": 2
+        }
+      },
+      {
+        "asset": "dbc/PowerDisplay.dbc",
+        "reason": "dbc_source_layout",
+        "sha256": "b9dd3d7066ce8af3d102b28d424eb8cbc15f2a0bcbfbd2058cdf60fc35c11124",
+        "observedHeader": {
+          "stringBytes": 117,
+          "fields": 6,
+          "magic": 1128416343,
+          "recordBytes": 15,
+          "rows": 7,
+          "fileBytes": 242
+        },
+        "sourceExpected": {
+          "recordBytes": 24,
+          "fields": 6
+        }
+      }
+    ],
+    "activeCandidateRetained": false,
+    "activeCatalogMatchesReport": false
+  },
+  "gameDataOperation": {
+    "available": true,
+    "attemptId": "dd51f342-7377-44a6-8825-9dc4afa5cfec",
+    "mode": "import",
+    "state": "FAILED",
+    "lastRecordedState": "FAILED",
+    "stage": "preflight",
+    "startedAtEpochMs": 1792848915415,
+    "updatedAtEpochMs": 1792849020649,
+    "completedUnits": 7625943031,
+    "totalUnits": 7625943031,
+    "unit": "bytes",
+    "copiedBytes": 2869892425,
+    "freeStorageBytes": 212722950144,
+    "heapUsedBytes": 44160232,
+    "heapMaxBytes": 268435456,
+    "workerObservation": "inactive",
+    "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+    "failureKind": "io",
+    "applicationFrames": [
+      "runtime.GameDataStore.import$lambda$67:243",
+      "runtime.GameDataStore$$ExternalSyntheticLambda14.invoke:0",
+      "runtime.GameDataStore.exclusive:33",
+      "runtime.GameDataStore.import:169"
+    ],
+    "fileCacheAdviceAvailable": true,
+    "fileCacheAdvice": {
+      "requests": 46596,
+      "accepted": 46596,
+      "rejected": 0,
+      "requestedBytes": 1760146480462,
+      "sourceDescriptorAvailable": true,
+      "intervalBytes": 16777216,
+      "actualEvictionMeasured": false
+    },
+    "systemMemoryObservationAvailable": true,
+    "systemMemoryObservation": {
+      "availableBytes": 10489139200,
+      "totalBytes": 15996096512,
+      "lowMemoryThresholdBytes": 226492416,
+      "lowMemory": false,
+      "workerImportance": 100,
+      "activityBound": true
+    },
+    "exitHistorySupported": true,
+    "exitHistoryAvailable": true,
+    "recentRuntimeExits": [
+      {
+        "timestampEpochMs": 1792809082532,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 47166,
+        "lastSampledRssKiB": 88648,
+        "attemptMatched": false
+      },
+      {
+        "timestampEpochMs": 1792807187616,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 23539,
+        "lastSampledRssKiB": 100092,
+        "attemptMatched": false
+      },
+      {
+        "timestampEpochMs": 1792807146665,
+        "reasonCode": 3,
+        "reason": "low_memory",
+        "status": 0,
+        "lastSampledPssKiB": 0,
+        "lastSampledRssKiB": 0,
+        "attemptMatched": false
+      }
+    ]
+  },
+  "mmapHeaderRejectionsResolved": 104,
+  "allExtractedFilesPassedSizeCrcAndSha256": true,
+  "matchedProcessKillObserved": false,
+  "gameDataImportQualified": false,
+  "worldReady": false,
+  "nativeFullAssetSemanticsQualified": false,
+  "originalSqlOrMetadataExpectationsChanged": false,
+  "conclusions": [
+    "All 104 previously rejected high-bit mmap headers pass after the source-backed correction.",
+    "All 12 remaining DBC rejections now have measured numeric headers and SHA256 fingerprints.",
+    "CharHairTextures has 181 records, 8 fields, 32-byte records and no string block; exact length 5812.",
+    "Ten GT DBCs have one float-sized field. Their original server routes use two-column SQL-backed df formats.",
+    "PowerDisplay has six fields in 15-byte records; original nixxxx loader reads only the first eight record bytes.",
+    "No candidate was published by version 25. No process kill matches this attempt. No world readiness is implied."
+  ]
+}

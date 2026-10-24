@@ -20,6 +20,109 @@ class GameDataStoreTest {
     private val policy = GameDataPolicy.parse(text)
     @After fun cleanup() { root.deleteRecursively() }
     private fun store() = GameDataStore(File(root, "store"), text)
+    private fun reportedDbcLayouts(): MutableMap<String, ByteArray> = fixture().apply {
+        val gt = mapOf("gtBarberShopCostBase.dbc" to 100, "gtChanceToMeleeCrit.dbc" to 1100,
+            "gtChanceToMeleeCritBase.dbc" to 11, "gtChanceToSpellCrit.dbc" to 1100,
+            "gtChanceToSpellCritBase.dbc" to 11, "gtCombatRatings.dbc" to 3200,
+            "gtNPCManaCostScaler.dbc" to 100, "gtOCTRegenHP.dbc" to 1100,
+            "gtRegenHPPerSpt.dbc" to 1100, "gtRegenMPPerSpt.dbc" to 1100)
+        for ((name, rows) in gt) put("dbc/$name", ByteBuffer.allocate(20 + rows * 4 + 1).order(LITTLE_ENDIAN)
+            .put("WDBC".toByteArray()).putInt(rows).putInt(1).putInt(4).putInt(1).array())
+        put("dbc/CharHairTextures.dbc", ByteBuffer.allocate(5812).order(LITTLE_ENDIAN)
+            .put("WDBC".toByteArray()).putInt(181).putInt(8).putInt(32).putInt(0).array())
+        put("dbc/PowerDisplay.dbc", ByteBuffer.allocate(242).order(LITTLE_ENDIAN)
+            .put("WDBC".toByteArray()).putInt(7).putInt(6).putInt(15).putInt(117).apply {
+                repeat(7) { row -> putInt(20 + row * 15, row + 1); putInt(24 + row * 15, row + 100) }
+            }.array())
+    }
+    @Test fun reportedDbcLayoutsImportPreserveBytesAndReverifyWithPendingDatabaseValidation() {
+        val files = reportedDbcLayouts()
+        val receipt = store().import(ByteArrayInputStream(zip(files)))
+        assertEquals(receipt, store().verify())
+        for ((path, bytes) in files) assertArrayEquals(bytes, File(root, "store/${receipt.generation}/$path").readBytes())
+        val report = store().export()
+        assertEquals(true, report["preflightPassed"])
+        assertEquals(true, report["databaseFallbackRequired"])
+        assertEquals(false, report["databaseFallbackValidated"])
+        assertEquals(false, report["nativeSemanticValidationPassed"]); assertEquals(false, report["worldReady"])
+        assertEquals(12, (report["dbcFileCompatibility"] as List<*>).size)
+    }
+    @Test fun dbcCompatibilityDoesNotSupplyMissingRequiredFilesOrBypassOtherFailures() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        for (missing in listOf("dbc/gtCombatRatings.dbc", "dbc/PowerDisplay.dbc", "dbc/Spell.dbc")) {
+            val files = reportedDbcLayouts().apply { remove(missing) }
+            val failure = assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+            assertTrue(failure.preflight.problems.any { it.path == missing && it.reason == "missing_required_dbc" })
+            assertEquals(before, store().active())
+        }
+        val files = reportedDbcLayouts(); put32(files.getValue("dbc/Spell.dbc"), 20, 0)
+        assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+        assertEquals(before, store().verify())
+    }
+    @Test fun onlyProvenRootDbcNamesWidthsAndGtRowCoverageAreAccepted() {
+        val file = File(root, "probe")
+        for (path in listOf("dbc/Other.dbc", "dbc/enUS/CharHairTextures.dbc", "dbc/stock_dbc/CharHairTextures.dbc")) {
+            file.writeBytes(reportedDbcLayouts().getValue("dbc/CharHairTextures.dbc"))
+            assertEquals("dbc_layout", policy.inspectFile(file, path))
+        }
+        for ((path, rows, fields, width, strings) in listOf(
+            listOf("dbc/gtCombatRatings.dbc", 3199, 1, 4, 1),
+            listOf("dbc/gtCombatRatings.dbc", 3200, 1, 4, 0),
+            listOf("dbc/gtCombatRatings.dbc", 3200, 1, 3, 1),
+            listOf("dbc/PowerDisplay.dbc", 7, 6, 16, 117),
+            listOf("dbc/PowerDisplay.dbc", 7, 5, 15, 117),
+            listOf("dbc/enUS/gtCombatRatings.dbc", 3200, 1, 4, 1))) {
+            val n = rows as Int; val f = fields as Int; val w = width as Int; val s = strings as Int
+            file.writeBytes(ByteBuffer.allocate(20 + n * w + s).order(LITTLE_ENDIAN)
+                .put("WDBC".toByteArray()).putInt(n).putInt(f).putInt(w).putInt(s).array())
+            assertNotNull(path as String, policy.inspectFile(file, path))
+        }
+    }
+    @Test fun compatibilityStillChecksExactBodyLengthAndRehashesUnusedBytes() {
+        val files = reportedDbcLayouts()
+        val before = store().import(ByteArrayInputStream(zip(files)))
+        for (path in listOf("dbc/CharHairTextures.dbc", "dbc/PowerDisplay.dbc", "dbc/gtCombatRatings.dbc")) {
+            val truncated = files.toMutableMap().apply { put(path, getValue(path).dropLast(1).toByteArray()) }
+            assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(truncated))) }
+            assertEquals(before, store().active())
+        }
+        val file = File(root, "store/${before.generation}/dbc/gtCombatRatings.dbc")
+        val changed = file.readBytes(); changed[20] = 1; file.writeBytes(changed)
+        assertThrows(IllegalArgumentException::class.java) { store().verify() }
+        assertEquals(false, store().export()["preflightPassed"])
+        assertEquals(before, store().active())
+    }
+    @Test fun compatibilityCannotOverrideChangedSourceSchemasOrSentinels() {
+        val file = File(root, "probe")
+        for (path in listOf("dbc/gtCombatRatings.dbc", "dbc/PowerDisplay.dbc")) {
+            file.writeBytes(reportedDbcLayouts().getValue(path))
+            val changed = GameDataPolicy(policy.dbc + (path.substringAfter('/') to DbcShape(2, 8, 0, 123)),
+                policy.startupTiles, policy.mapVersion, policy.vmapMagic, policy.mmapVersion, policy.detourVersion)
+            assertEquals("dbc_source_layout", changed.inspectFile(file, path))
+        }
+    }
+    @Test fun legacyReportsDoNotInventDatabaseFallbackQualification() {
+        store().import(ByteArrayInputStream(zip()))
+        val file = File(root, "store/last-report.properties")
+        file.writeText(file.readText().replace("formatVersion=3", "formatVersion=2"))
+        val report = store().export()
+        assertEquals(true, report["preflightPassed"]); assertEquals(false, report["dbcCompatibilityAvailable"])
+        assertFalse(report.containsKey("databaseFallbackRequired")); assertFalse(report.containsKey("databaseFallbackValidated"))
+    }
+    @Test fun malformedCompatibilityEvidenceRejectsWholeReportAndCannotClaimDatabaseValidation() {
+        store().import(ByteArrayInputStream(zip(reportedDbcLayouts())))
+        val file = File(root, "store/last-report.properties"); val original = file.readText()
+        file.appendText("databaseFallbackValidated=true\n")
+        assertEquals(false, store().export()["databaseFallbackValidated"])
+        for (bad in listOf("dbcUseCount=13\n", "dbcUseCount=0\n", "dbcUse.0.extra=1\n", "dbcUse.0.path=../private\n", "dbcUse.0.handling=skip_validation\n",
+            "dbcUse.0.sha256=bad\n", "dbcUse.0.rows=-1\n")) {
+            file.writeText(original + bad)
+            val report = store().export(); assertEquals(false, report["available"])
+            assertFalse(report.containsKey("preflightPassed"))
+        }
+        file.writeText(original.lines().filterNot { it.startsWith("dbcUse.0.path=") }.joinToString("\n"))
+        assertEquals(false, store().export()["available"])
+    }
     private val editorPath = "dbc/WDBX - DBC EDITOR.zip"
     @Test fun cacheAdviceCoversCopiedExtractedAndReverifiedFilesWithoutPublishingEarly() {
         val paths = mutableSetOf<String>(); val advisedStages = mutableSetOf<String>(); var stage = "copy"
@@ -389,7 +492,7 @@ class GameDataStoreTest {
         store().import(ByteArrayInputStream(zip()))
         val file = File(root, "store/last-report.properties")
         file.writeText(file.readLines().filterNot { it.startsWith("mmapHighBitCapacityFiles=") || it.startsWith("reasonCount.") }
-            .joinToString("\n", postfix = "\n").replace("formatVersion=2", "formatVersion=1"))
+            .joinToString("\n", postfix = "\n").replace("formatVersion=3", "formatVersion=1"))
         val report = store().export()
         assertEquals(true, report["preflightPassed"]); assertEquals(false, report["headerDiagnosticsAvailable"])
         assertFalse(report.containsKey("mmapHighBitCapacityFiles")); assertFalse(report.containsKey("problemCountsByReason"))

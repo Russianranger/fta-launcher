@@ -36,6 +36,15 @@ public final class GameDataHost {
                 || !Boolean.FALSE.equals(report.get("worldReady"))) throw new AssertionError(report);
         if (args.length > 4 && !Long.valueOf(args[4]).equals(report.get("db2CompanionFiles"))) throw new AssertionError(report);
         if (args.length > 5 && !Long.valueOf(args[5]).equals(report.get("editorCompanionFiles"))) throw new AssertionError(report);
+        if (args.length > 6) {
+            if (!Boolean.TRUE.equals(report.get("databaseFallbackRequired"))
+                    || !Boolean.FALSE.equals(report.get("databaseFallbackValidated"))
+                    || !Boolean.FALSE.equals(report.get("nativeSemanticValidationPassed"))) throw new AssertionError(report);
+            var uses = (java.util.List<?>) report.get("dbcFileCompatibility");
+            if (uses.size() != Integer.parseInt(args[6])) throw new AssertionError(report);
+            long sql = uses.stream().filter(use -> "original_database_fallback".equals(((java.util.Map<?,?>)use).get("handling"))).count();
+            if (sql != 10) throw new AssertionError(report);
+        }
         if (cache != null) {
             if (cache.stats().getAccepted() == 0 || cache.stats().getRejected() != 0) throw new AssertionError(cache.stats());
             System.out.println("Cache advice: " + cache.stats());

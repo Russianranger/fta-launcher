@@ -1,0 +1,173 @@
+{
+  "formatVersion": 1,
+  "scope": "original-dbc-loaders-with-reported-headers-and-captured-private-sql",
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "deviceReportSha256": "a3d10222a972df8be77e0bc6860f01d1e77c25ca2223b566b41707af711e5816",
+  "policySha256": "ebba21788b69a5021a7e7d330aa33e699fda18161b43848d16a5c75dc9e6fb4a",
+  "database": {
+    "backupSha256": "0b5fb6ef6912add622f6371d5a1cfcbde3bd63155d03b95ecec6e6d0fa36df8f",
+    "backupFilesVerified": 1357,
+    "serverSha256": "6ce57fb4ff16449fab69cd9e9079a37b1a18c517a9f293a90205cd843b32bbee",
+    "tables": {
+      "gtbarbershopcostbase_dbc": {
+        "rows": 100,
+        "minimumId": 0,
+        "maximumId": 99,
+        "allFileRowIndicesCovered": true,
+        "columns": [
+          "ID",
+          "Data"
+        ],
+        "privateQueryResultSha256": "80101f4ed15adacd8575dc22e85b8078d554633971b68796532cd08eea739013",
+        "querySha256": "01cafba1056ce492c3593730ea3f271681722d82648e7c49491f53c9ee7001f3"
+      },
+      "gtchancetomeleecrit_dbc": {
+        "rows": 1100,
+        "minimumId": 0,
+        "maximumId": 1099,
+        "allFileRowIndicesCovered": true,
+        "columns": [
+          "ID",
+          "Data"
+        ],
+        "privateQueryResultSha256": "b44efc57a2790e37ed1f5aacc80743ae957739888202b0dba6de558199070fe4",
+        "querySha256": "a9265fb8cfd44089072c173552de0d1d2de32c2a905dc1f61051b6134853290e"
+      },
+      "gtchancetomeleecritbase_dbc": {
+        "rows": 11,
+        "minimumId": 0,
+        "maximumId": 10,
+        "allFileRowIndicesCovered": true,
+        "columns": [
+          "ID",
+          "Data"
+        ],
+        "privateQueryResultSha256": "9cf1904edd77e60e286eb57e7d2237919f8adc331be44638250577ce0caa2267",
+        "querySha256": "c90f280e8ba9e40139cb548ee548ce0b619fad2140f7bfc0528badcc5db5a2e3"
+      },
+      "gtchancetospellcrit_dbc": {
+        "rows": 1100,
+        "minimumId": 0,
+        "maximumId": 1099,
+        "allFileRowIndicesCovered": true,
+        "columns": [
+          "ID",
+          "Data"
+        ],
+        "privateQueryResultSha256": "be327a138b9c3fd1f6cf9bef21642190f1273c62217cf0067407c8be21257bdc",
+        "querySha256": "a9e42eb4eb48617382529e9e94da00f827d5fe10042f46005fe82d061683f7c5"
+      },
+      "gtchancetospellcritbase_dbc": {
+        "rows": 11,
+        "minimumId": 0,
+        "maximumId": 10,
+        "allFileRowIndicesCovered": true,
+        "columns": [
+          "ID",
+          "Data"
+        ],
+        "privateQueryResultSha256": "9d1716d4355711a95a6f733752d657d064b446cfa043cde39e959c5245653aa5",
+        "querySha256": "32ca2ed74bb76e089f7fca386d55fc4d41d529e6ca8b2bc7587267b8293835e8"
+      },
+      "gtcombatratings_dbc": {
+        "rows": 3200,
+        "minimumId": 0,
+        "maximumId": 3199,
+        "allFileRowIndicesCovered": true,
+        "columns": [
+          "ID",
+          "Data"
+        ],
+        "privateQueryResultSha256": "5ca9170c14a91a74c716383c34de3ea2b54fce48ae7083596185d2f1dc4d6bed",
+        "querySha256": "40a2c1f14c04ed79a72a72077867096d6da4e242c85ffa7d1d48d04151011aac"
+      },
+      "gtnpcmanacostscaler_dbc": {
+        "rows": 100,
+        "minimumId": 0,
+        "maximumId": 99,
+        "allFileRowIndicesCovered": true,
+        "columns": [
+          "ID",
+          "Data"
+        ],
+        "privateQueryResultSha256": "1c5adf7cf249c6d8ed89c9bfbe6b8a079dbd4bb505d2281943349f320c896f99",
+        "querySha256": "b5fe4a3db224c67e0b173e939b0450f7f0d689c9d099b74ff02edd90b96ef252"
+      },
+      "gtoctregenhp_dbc": {
+        "rows": 1100,
+        "minimumId": 0,
+        "maximumId": 1099,
+        "allFileRowIndicesCovered": true,
+        "columns": [
+          "ID",
+          "Data"
+        ],
+        "privateQueryResultSha256": "199c5380267cd01398a9edb191402cab7760d9882b3cb1be2da093663ae3131e",
+        "querySha256": "e727c6ba36d8847c8330ebc34a008a2097c5bf6457e6416d194b0ecaa4da7b3a"
+      },
+      "gtregenhpperspt_dbc": {
+        "rows": 1100,
+        "minimumId": 0,
+        "maximumId": 1099,
+        "allFileRowIndicesCovered": true,
+        "columns": [
+          "ID",
+          "Data"
+        ],
+        "privateQueryResultSha256": "46c938d26420d9a6004bbd30af4e25254624c213725a7b2607385cafde9cf376",
+        "querySha256": "c7e3052d8ed91a52db485238eff0b420322397c50fe1648c8e6052003fcbe22f"
+      },
+      "gtregenmpperspt_dbc": {
+        "rows": 1100,
+        "minimumId": 0,
+        "maximumId": 1099,
+        "allFileRowIndicesCovered": true,
+        "columns": [
+          "ID",
+          "Data"
+        ],
+        "privateQueryResultSha256": "5bc789195c834c42bf39c7375fc819d8ff3744bc8edbcb21be351aeabb32e614",
+        "querySha256": "1d3743c810da4d5525bd31c50ba72c586ee9af007f835c8159cd25f2bce1b99d"
+      }
+    },
+    "retainedMetadataMatchesBeforeAndAfter": true,
+    "sourceSqlRewritten": false,
+    "originalDataZipAvailable": false,
+    "hostOnly": true,
+    "cleanSqlShutdown": true
+  },
+  "originalLoaderSourceSha256": {
+    "src/common/DataStores/DBCFileLoader.cpp": "8c1996712c5d0e353c2bb7f75e0518c33b3975b0a15cb04da9dba2a581026fc3",
+    "src/server/shared/DataStores/DBCStore.cpp": "63829b0b7e6b16f99327ab607625019fd891b747475ff97dd9bf91b64fd3cb1f",
+    "src/server/shared/DataStores/DBCDatabaseLoader.cpp": "82601fb870773d20f862e4ecf327d4b408213a19d9fc833d0fff8adad35da0e9"
+  },
+  "fixtureSourceSha256": {
+    "DatabaseEnv.h": "592f5e3032c6126aca97061ca97ba9e356a14322a7b6ff3dc588c2a1e81aaedb",
+    "QueryResult.h": "d03e4d0ee028fa2b625a7061d3ac7c10c099e571b0e8c3495c35d6e6550086fa",
+    "loader.cpp": "760dbba8d754e0525b9bd7995d78257494fd24c1dce2627232a5e2b28ad1f0c6"
+  },
+  "launcherCompatibilitySourceSha256": "3cc24155baacff287142628eb8160a631e1025ca350cca0c9f160ea747a055e0",
+  "launcherDatabaseRoutesMatchOriginalSourceAndBackup": true,
+  "fixtureSourceMmapHighBitCapacityIncluded": true,
+  "originalLoadDbcSqlFallbackOrderVerified": true,
+  "originalRequiredDbcInventoryUnchanged": true,
+  "serverCommonModuleFilesScanned": 2196,
+  "charHairTexturesNotReferencedByServer": true,
+  "reportedZeroStringHeaderAcceptedByOriginalFileLoader": true,
+  "packedPowerDisplayRowsReadCorrectly": 7,
+  "gtTablesLoadedFromCapturedOriginalQueries": 10,
+  "gtRowsComparedExactly": 8922,
+  "emptySqlFallbackFails": true,
+  "originalLoaderSourcesUnmodified": true,
+  "originalAssertionsEnabled": true,
+  "addressSanitizerPassed": true,
+  "leakSanitizerEnabled": false,
+  "compilerJobs": 1,
+  "cppStandard": 20,
+  "databaseConnectorIsHostFixture": true,
+  "actualGameAssetsTested": false,
+  "androidExecuted": false,
+  "worldReady": false,
+  "nativeFullAssetSemanticsQualified": false,
+  "originalSqlOrMetadataExpectationsChanged": false
+}

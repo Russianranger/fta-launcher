@@ -73,7 +73,7 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Latest private version **0.11.7-asset-headers** (code **25**)
+signing and validation. Latest private version **0.11.8-dbc-loading** (code **26**)
 adds inert import and re-verification of extracted `dbc/maps/vmaps/mmaps` ZIPs.
 It checks the original source's 113 active DBC layouts, seven version sentinels,
 eight startup map locations and supplied map/vmap/mmap headers, then stores hashes
@@ -100,6 +100,11 @@ preflight, which rejects 116 assets. Code 25 corrects a source-proven mmap signe
 capacity rejection (`1 << 31`, accepted by original 64-bit Detour) and exports
 numeric headers, file hashes and complete failure counts. DBC policy bytes remain
 unchanged pending actual header evidence. No candidate was published by code 24.
+Physical code 25 clears all 104 mmap rejections and measures twelve DBC layouts.
+Code 26 follows the original unused-file, packed PowerDisplay and SQL-backed GT
+loading behavior, preserving every file byte and the canonical schema definitions.
+Ten GT tables have complete 8,922-row coverage in the verified restored Thor
+backup. Inert import explicitly leaves native database-fallback validation pending.
 See [game-data import](docs/game-data-import.md).
 
 Physical code **17 passed user-controlled service Stop and retained restart**:
@@ -110,13 +115,13 @@ native gate after the focused game-data report, without repeating restart.
 See [physical evidence](docs/evidence/android-2026-10-23-thor-local-service-pass.json).
 Code **16 passed retained local auth**; its automatic diagnostic also needs no repeat.
 
-Code 25 passes 327 Android tests, lint/assembly, 148 tooling tests, 221 packaged
+Code 26 passes 334 Android tests, lint/assembly, 151 tooling tests, 221 packaged
 input checks and signing/alignment. Its signer and all 17 native payloads match
-code 24. Original Detour capacity generation/reload passes with UBSan, alongside
-113 original C++ DBC loads and five production-store JVMs using its mmap output.
-The code 24 cache/JNI, 3.23 GB/64 MiB heap and 32 interruption/recovery JVM results
-remain recorded evidence. Thor's actual DBC headers and remaining rejection
-counts are the next gate; native world startup is unqualified.
+code 25. Original loaders pass the reported layouts and all captured SQL rows;
+separate production-store JVMs check import, interrupted replacement, retained
+verification and recovery. Prior large cache/interruption evidence is preserved.
+The next gate is a successful physical import and full reverify; native database
+fallback, complete asset semantics and world startup remain unqualified.
 
 Physical code **14 passed cold backup and two isolated restored reopens**. The
 uploaded ZIP matches the recorded identity and every manifest file hash. Its
@@ -201,12 +206,12 @@ tables. Validation uses the measured archive inventory.
 | Cold realm backup and isolated restore | Physical code 14 passed; uploaded ZIP independently verified; earlier JSON lacks SAF readback receipt |
 | Retained local auth listener/restart | Passed on physical Thor code 16: all 15 flags, 39 successful native records and clean shutdown |
 | User-controlled retained database/auth foreground sessions | Physical code 17 Stop/restart passed; 112,127 /120,000 ms screen-off health recorded |
-| Extracted game-data import and format preflight | Physical code 24 completes extraction; 116 header rejections. Private code 25 corrects source-derived mmap capacity handling and collects exact remaining headers |
+| Extracted game-data import and format preflight | Physical code 25 clears 104 mmap rejections; twelve DBC layouts measured. Private code 26 implements proven original-loader routes; physical import/reverify pending |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-The next device gate is [game-data header diagnosis](docs/game-data-import.md). The remaining native screen-off measurement stays deferred until assets are resolved.
+The next device gate is [game-data import and re-verification](docs/game-data-import.md). The remaining native screen-off measurement stays deferred to native world loading.
 The ARM64 world build and original compiled updater have passing evidence;
 preserve their C++20, all 52 modules, static Lua 5.2, source hashes and strict
 [updater protocol](docs/world-updater-gate.md). Android service-process death is now qualified for the isolated runtime.

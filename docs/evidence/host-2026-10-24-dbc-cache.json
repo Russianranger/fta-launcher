@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "scope": "host-file-cache-advice",
+  "nativeSourceSha256": "595e2f38336319653411477698ea1c21747f2405032d11f374466b94dd6d51d4",
+  "nativeLibrarySha256": "5e5bc54e1ead53cb27fd0ecb3d4192504cd9b4355099907710df3458236efaf4",
+  "residentBytesBefore": 67108864,
+  "residentBytesAfter": 0,
+  "pipeRejected": true,
+  "actualJniEntryPointsPassed": true,
+  "fileBytesAndDescriptorPositionUnchanged": true,
+  "invalidRangesRejected": true,
+  "symbolicLinksNotFollowed": true,
+  "offsetsAboveThreeGiBPassed": true,
+  "androidCacheEvictionMeasured": false,
+  "thorLowMemoryCauseEstablished": false,
+  "thorSurvivalQualified": false
+}

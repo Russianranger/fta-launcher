@@ -12,7 +12,8 @@ data class GameDataProblem(val path: String, val reason: String, val sha256: Str
     val observed: Map<String, Long> = emptyMap(), val expected: Map<String, Long> = emptyMap())
 data class GameDataPreflight(val files: Int, val bytes: Long, val counts: Map<String, Int>,
     val problems: List<GameDataProblem>, val problemCount: Int,
-    val reasonCounts: Map<String, Int> = emptyMap(), val mmapHighBitCapacityFiles: Int = 0) {
+    val reasonCounts: Map<String, Int> = emptyMap(), val mmapHighBitCapacityFiles: Int = 0,
+    val dbcUses: List<GameDataDbcUse> = emptyList()) {
     val passed get() = problemCount == 0
 }
 
@@ -23,6 +24,7 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
         val names = files.map { it.path }.toSet()
         val problems = mutableListOf<GameDataProblem>(); var problemCount = 0
         val reasonCounts = sortedMapOf<String, Int>(); var highBitCapacityFiles = 0
+        val dbcUses = mutableListOf<GameDataDbcUse>()
         val missingTrees = mutableSetOf<String>()
         fun problem(path: String, reason: String, entry: GameDataFile? = null, header: Map<String, Long> = emptyMap()) {
             problemCount++; reasonCounts[reason] = (reasonCounts[reason] ?: 0) + 1
@@ -54,16 +56,18 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
         for (entry in files) {
             active()
             val file = File(directory, entry.path)
-            val failure = inspectFile(file, entry.path, active)
-            val header = if (entry.path.endsWith(".mmap") || (failure != null && problems.size < 32))
+            var handling: String? = null
+            val failure = inspectFile(file, entry.path, active) { handling = it }
+            val header = if (handling != null || entry.path.endsWith(".mmap") || (failure != null && problems.size < 32))
                 GameDataHeaders.read(file, entry.path) else emptyMap()
+            if (failure == null) handling?.let { dbcUses += GameDataDbcUse(entry.path, it, header.getValue("rows"), entry.sha256) }
             if (entry.path.endsWith(".mmap") && header["maxPolysBits"] == 0x80000000L) highBitCapacityFiles++
             if (failure != null) problem(entry.path, failure, entry, header)
             cache?.release(file, 0, entry.bytes)
         }
-        return GameDataPreflight(files.size, files.sumOf { it.bytes }, counts, problems, problemCount, reasonCounts, highBitCapacityFiles)
+        return GameDataPreflight(files.size, files.sumOf { it.bytes }, counts, problems, problemCount, reasonCounts, highBitCapacityFiles, dbcUses)
     }
-    internal fun inspectFile(file: File, path: String, active: () -> Unit = {}): String? = try {
+    internal fun inspectFile(file: File, path: String, active: () -> Unit = {}, compatible: (String) -> Unit = {}): String? = try {
         RandomAccessFile(file, "r").use { input ->
             fun bytes(n: Int) = ByteArray(n).also { input.readFully(it) }
             fun u32() = Integer.toUnsignedLong(java.lang.Integer.reverseBytes(input.readInt()))
@@ -77,13 +81,15 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
                 path.startsWith("dbc/") -> {
                     if (!bytes(4).contentEquals("WDBC".toByteArray())) return "dbc_magic"
                     val rows = u32(); val fields = u32(); val record = u32(); val strings = u32()
-                    if (fields !in 1..1024 || record !in fields..fields * 4 || strings < 1 ||
+                    val expected = if (path.startsWith("dbc/stock_dbc/")) null else dbc[path.substringAfterLast('/')]
+                    val handling = GameDataDbcCompatibility.handling(path, expected, rows, fields, record, strings)
+                    if (fields !in 1..1024 || record !in fields..fields * 4 || (strings < 1 && handling != GameDataDbcCompatibility.UNUSED) ||
                         rows > MAX_FILE_BYTES / record || 20 + rows * record + strings != input.length()) return "dbc_layout"
                     // The original loader reads dbc/<name> and recognized locale folders only.
                     // Screenshot-confirmed stock_dbc files are inert backups, never runtime substitutes.
-                    val expected = if (path.startsWith("dbc/stock_dbc/")) null else dbc[path.substringAfterLast('/')]
                     if (expected != null) {
-                        if (fields != expected.fields.toLong() || record != expected.recordBytes.toLong()) return "dbc_source_layout"
+                        if ((fields != expected.fields.toLong() || record != expected.recordBytes.toLong()) &&
+                            handling !in setOf(GameDataDbcCompatibility.PACKED, GameDataDbcCompatibility.DATABASE)) return "dbc_source_layout"
                         if (expected.sentinel >= 0) {
                             var found = false
                             for (row in 0 until rows) {
@@ -94,6 +100,7 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
                             if (!found) return "dbc_version_sentinel"
                         }
                     }
+                    handling?.let(compatible)
                 }
                 path.endsWith(".map") -> {
                     if (!bytes(4).contentEquals("MAPS".toByteArray()) || u32() != mapVersion) return "map_version"

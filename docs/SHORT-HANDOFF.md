@@ -7,7 +7,70 @@ are read-only unless separately authorized.
 
 ## Current checkpoint
 
-Latest private update: **0.11.7-asset-headers**, version code **25**.
+Latest private update: **0.11.8-dbc-loading**, version code **26**.
+APK SHA256: `2a276e781698c3a9501f15d25693fd57085e7965151ad13ff5f991e3f037ecba`.
+
+**Physical code 25 clears all 104 mmap rejections.** The exact private APK and
+unchanged Data.zip match; all 22,817 files / 7,625,943,031 bytes again extract.
+Exactly twelve DBC problems remain, now with complete headers and fingerprints.
+There is no attempt-matched process kill. See
+[physical evidence](evidence/android-2026-10-24-thor-dbc-layouts.json).
+
+The measured cases have three source-backed explanations:
+
+- **CharHairTextures:** 181 × 32-byte records, eight fields, zero string bytes,
+  exact total 5,812 bytes. None of the original server/common/module sources
+  references this filename. Its empty string block is a valid unused-file layout;
+  the original raw file loader accepts the header. Code 26 preserves it inert.
+- **PowerDisplay:** seven 15-byte records, six fields and 117 string bytes.
+  Original `nixxxx` loading reads the first two uint32 fields and skips all four
+  trailing fields. The unchanged original loader reads every packed test row
+  correctly. Code 26 accepts only this additional 15-byte record representation.
+- **Ten GT tables:** measured one-field/four-byte files differ from original
+  `df` definitions. Original `LoadDBC` calls the named SQL loader after file-load
+  failure. A verified isolated Thor backup contains both required columns and
+  exact contiguous ID coverage for all **8,922 rows**. Unchanged original
+  `DBCStorage`/`DBCDatabaseLoader` consume every captured SQL row correctly;
+  an empty SQL fallback still leaves the load failed.
+
+Code 26 keeps all 113 required names, original schema definitions and policy
+manifest bytes. It adds only the reported root-path compatibility cases, with
+the exact GT row counts proved against the retained backup. Other widths/counts,
+unreviewed locale variants, missing files, malformed lengths, bad CRC/SHA256 and
+sentinel failures still reject. Original files are never rewritten or repaired.
+
+The format-3 report lists `dbcFileCompatibility` with paths, handling, rows,
+hashes and fixed source-derived SQL table names. `databaseFallbackRequired=true`
+is explicit when GT files use that path. **`databaseFallbackValidated=false`**
+remains mandatory: the inert importer never opens the retained database or runs
+native loaders. A successful file import is not world readiness. Legacy reports
+remain readable without inventing those observations. Malformed new fields fail
+closed; full reverify recalculates compatibility after checking every hash.
+
+Code 26 passes **334 Android tests** (29 classes), lint/assembly, **151 tooling
+tests**, 221 packaged input checks, signature and 16 KiB alignment. The private
+certificate and all **17 native payloads** match code 25. The twelve-layout
+regression fails on unchanged code 25 and passes after correction. Original
+loader tests use AddressSanitizer; LeakSanitizer is disabled because this host's
+task inspection is unsupported. The SQL adapter supplies exact captured query
+results; this is not a full native world/database-connector test. The isolated
+backup's strict three-schema metadata matches before/after and shuts down cleanly.
+See [loader/backup proof](evidence/host-2026-10-24-dbc-loaders.json),
+[store/recovery proof](evidence/host-2026-10-24-dbc-store.json),
+and [APK proof](evidence/android-2026-10-24-private-dbc-loading-apk.json).
+
+**Next focused physical gate:** install private code 26 in place, keep the app
+visible and import the same Data.zip once. After success, reopen and **Verify
+imported game data**, then **Export diagnostic report**. If either operation
+fails, export immediately before another attempt. Preserve Database.zip, native
+dependencies, realm and backup; no uninstall, storage clearing, asset repackaging
+or repeated updater/auth milestones. Native database-backed DBC loading and
+world startup remain the next gate after a successful import/reverify report.
+Bundle the deferred 120-second screen-off observation with that native gate.
+
+## Previous code 25 header diagnosis
+
+Previous private update: **0.11.7-asset-headers**, version code **25**.
 APK SHA256: `4f3f224abaae30837ded42fbccfbefcf52f07df68a5a07fa8a7a76400555bdb5`.
 
 **Physical code 24 completed extraction and reached asset-format preflight.**
@@ -51,7 +114,7 @@ reverification. See [host evidence](evidence/host-2026-10-23-asset-headers.json)
 [APK proof](evidence/android-2026-10-23-private-asset-headers-apk.json).
 The large cache/interruption tests below are code 24 evidence, not rerun claims.
 
-**Next focused physical gate:** update in place to private code 25, keep the
+**Original code 25 physical gate (now completed):** update in place to private code 25, keep the
 launcher visible, import the same unchanged `Data.zip` once, then **Export
 diagnostic report** immediately after the result. If import succeeds, first
 reopen and **Verify imported game data**, then export. A DBC rejection is still
@@ -287,8 +350,8 @@ See [host checks](evidence/host-2026-10-23-game-data-preflight.json),
 [private APK](evidence/android-2026-10-23-private-game-data-apk.json) and
 [import details](game-data-import.md).
 
-**Current physical gate:** use private code 25 for the focused import/export
-sequence at the top. Keep the retained realm, verified backup,
+**Current physical gate:** use private code 26 for the focused import/reopen/
+verify/export sequence at the top. Keep the retained realm, verified backup,
 Database.zip and native dependencies. World startup remains disabled until real
 asset evidence is inspected. Codes 18/19 failed import validation, code 20 did
 not finish, code 21 records a low-memory kill, and code 22 reaches the editor ZIP rejection.
@@ -666,17 +729,17 @@ SQL files. Do not reintroduce the handoff's 372-world-table expectation.
 
 ## Next concrete work
 
-1. Inspect one private code 25 import/export report for complete rejection counts,
-   high-bit mmap observations and actual DBC headers. Compare numeric values and
-   file hashes against pinned source before choosing the next change.
+1. Inspect one private code 26 import/reopen/full-reverify report. The physical
+   code 25 header evidence and source/backup loader probes now support all twelve
+   measured DBC cases. Successful inert import still leaves native loading open.
 2. Preserve the physical code 10 all-24-check updater and exact snapshot match;
    codes 11/12 lifecycle and recovery; code 13 retained realm; code 14 backup;
    code 16 local auth; and code 17 user Stop/restart. These milestones need no
    repeat for the unchanged native payloads. Never replay a fresh seed over saves.
-3. Qualify any necessary DBC correction or original SQL-backed fallback with the
-   actual measurements, original loaders and retained database coverage. Keep
-   source SQL, strict metadata and all 52 modules intact. Preflight alone cannot
-   qualify full navigation/terrain semantics or world startup.
+3. Preserve the code 26 original-loader and restored-backup evidence. Qualify
+   real database-backed DBC loading in the next supervised native world gate,
+   keeping source SQL, strict metadata and all 52 modules intact. File preflight
+   alone cannot qualify full navigation/terrain semantics or world startup.
 4. After assets are accepted, proceed to supervised retained database → auth →
    world startup and native asset loading. Bundle the still-open 120-second
    screen-off measurement with that substantial native gate. Account provisioning,

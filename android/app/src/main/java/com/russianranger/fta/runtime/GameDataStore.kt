@@ -65,7 +65,7 @@ class GameDataStore @JvmOverloads constructor(private val root: File, private va
     }
     private fun report(state: String, archive: String?, result: GameDataPreflight? = null, catalog: String? = null,
         stage: String? = null, failure: Exception? = null) {
-        val values = mutableMapOf<String, Any>("formatVersion" to 2, "state" to state, "policySha256" to policySha,
+        val values = mutableMapOf<String, Any>("formatVersion" to 3, "state" to state, "policySha256" to policySha,
             "files" to (result?.files ?: 0), "bytes" to (result?.bytes ?: 0), "problemCount" to (result?.problemCount ?: 0))
         archive?.let { values["archiveSha256"] = it }; catalog?.let { values["catalogSha256"] = it }
         values["stockDbcFiles"] = result?.counts?.get("stock_dbc") ?: 0
@@ -89,6 +89,11 @@ class GameDataStore @JvmOverloads constructor(private val root: File, private va
             p.observed.forEach { (key, value) -> values["problem.$i.observed.$key"] = value }
             p.expected.forEach { (key, value) -> values["problem.$i.expected.$key"] = value }
         }
+        values["dbcUseCount"] = result?.dbcUses?.size ?: 0
+        result?.dbcUses?.forEachIndexed { i, use ->
+            values["dbcUse.$i.path"] = use.path; values["dbcUse.$i.handling"] = use.handling
+            values["dbcUse.$i.rows"] = use.rows; values["dbcUse.$i.sha256"] = use.sha256
+        }
         atomic(File(root, "last-report.properties"), text(values))
     }
     /** Stored receipt is historical import evidence; it never asserts present payload integrity or world readiness. */
@@ -98,8 +103,9 @@ class GameDataStore @JvmOverloads constructor(private val root: File, private va
         runCatching {
             val parsed = mutableMapOf<String, Any>()
             val p = read(File(root, "last-report.properties"), 65536)
-            val detailed = p.getProperty("formatVersion") == "2"
-            require(p.getProperty("formatVersion") in setOf("1", "2") && p.getProperty("policySha256") == policySha)
+            val format = p.getProperty("formatVersion")
+            val detailed = format in setOf("2", "3")
+            require(format in setOf("1", "2", "3") && p.getProperty("policySha256") == policySha)
             val state = p.getProperty("state"); require(state in setOf("COPYING", "IMPORTED", "VERIFIED", "REJECTED", "FAILED"))
             parsed["available"] = true; parsed["state"] = state
             parsed["preflightPassed"] = state in setOf("IMPORTED", "VERIFIED")
@@ -158,6 +164,25 @@ class GameDataStore @JvmOverloads constructor(private val root: File, private va
                 problems.groupingBy { it["reason"] }.eachCount().forEach { (reason, count) -> require(count <= reasonCounts.getValue(reason as String)) }
             }
             parsed["problems"] = problems
+            parsed["dbcCompatibilityAvailable"] = format == "3"
+            if (format == "3") {
+                val count = p.getProperty("dbcUseCount").toInt(); require(count in 0..12 && count.toLong() <= parsed["count.dbc"] as Long)
+                val useKeys = (0 until count).flatMap { i -> listOf("path", "handling", "rows", "sha256").map { "dbcUse.$i.$it" } }.toSet()
+                require(p.stringPropertyNames().filter { it.startsWith("dbcUse.") }.toSet() == useKeys)
+                val uses = (0 until count).map { i ->
+                    GameDataDbcUse(p.getProperty("dbcUse.$i.path"), p.getProperty("dbcUse.$i.handling"),
+                        p.getProperty("dbcUse.$i.rows").toLong(), p.getProperty("dbcUse.$i.sha256")).also(GameDataDbcCompatibility::validate)
+                }
+                require(uses.map { it.path }.toSet().size == uses.size)
+                parsed["dbcFileCompatibility"] = uses.map { use ->
+                    mutableMapOf<String, Any>("asset" to use.path, "handling" to use.handling, "rows" to use.rows, "sha256" to use.sha256).apply {
+                        if (use.handling == GameDataDbcCompatibility.DATABASE) put("databaseTable", GameDataDbcCompatibility.databaseRoutes.getValue(use.path).table)
+                    }
+                }
+                parsed["databaseFallbackRequired"] = uses.any { it.handling == GameDataDbcCompatibility.DATABASE }
+                // Import and full rehash never open the retained database or execute its loaders.
+                parsed["databaseFallbackValidated"] = false
+            }
             val current = receipt()
             parsed["activeCandidateRetained"] = current != null
             parsed["activeCatalogMatchesReport"] = current != null && current.catalogSha256 == p.getProperty("catalogSha256")
