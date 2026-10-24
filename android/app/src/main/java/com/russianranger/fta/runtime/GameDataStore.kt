@@ -67,10 +67,15 @@ class GameDataStore(private val root: File, private val policyText: String,
             "files" to (result?.files ?: 0), "bytes" to (result?.bytes ?: 0), "problemCount" to (result?.problemCount ?: 0))
         archive?.let { values["archiveSha256"] = it }; catalog?.let { values["catalogSha256"] = it }
         values["stockDbcFiles"] = result?.counts?.get("stock_dbc") ?: 0
+        values["db2CompanionFiles"] = result?.counts?.get("db2_companions") ?: 0
         stage?.let { values["failureStage"] = it }
         failure?.let {
             values["failureReason"] = (it as? GameDataImportFailure)?.reason ?: "operation_failed"
             (it as? GameDataImportFailure)?.asset?.let { path -> values["failureAsset"] = path }
+            (it as? GameDataImportFailure)?.let { detail ->
+                values["rejectedAssetCount"] = detail.rejectedAssetCount
+                detail.rejectedAssets.forEachIndexed { i, path -> values["rejectedAsset.$i"] = path }
+            }
         }
         GameDataPolicy.GROUPS.forEach { values["count.$it"] = result?.counts?.get(it) ?: 0 }
         result?.problems?.forEachIndexed { i, p -> values["problem.$i.path"] = p.path; values["problem.$i.reason"] = p.reason }
@@ -94,10 +99,19 @@ class GameDataStore(private val root: File, private val policyText: String,
                 require(it.matches(Regex("[a-f0-9]{64}"))); parsed[key] = it
             }
             parsed["stockDbcFiles"] = (p.getProperty("stockDbcFiles") ?: "0").toLong().also { require(it in 0..GameDataPolicy.MAX_FILES.toLong()) }
+            parsed["db2CompanionFiles"] = (p.getProperty("db2CompanionFiles") ?: "0").toLong().also { require(it in 0..GameDataPolicy.MAX_FILES.toLong()) }
             p.getProperty("failureStage")?.let { require(it in FAILURE_STAGES); parsed["failureStage"] = it }
             p.getProperty("failureReason")?.let { require(it in GameDataZip.FAILURE_REASONS); parsed["failureReason"] = it }
             p.getProperty("failureAsset")?.let {
                 GameDataPolicy.path(it); require(it.substringBefore('/') in GameDataPolicy.GROUPS); parsed["failureAsset"] = it
+            }
+            val rejectedCount = (p.getProperty("rejectedAssetCount") ?: "0").toInt()
+            require(rejectedCount in 0..GameDataPolicy.MAX_FILES)
+            parsed["rejectedAssetCount"] = rejectedCount
+            parsed["rejectedAssets"] = (0 until minOf(32, rejectedCount)).map { i ->
+                val path = p.getProperty("rejectedAsset.$i") ?: error("Incomplete rejected asset report")
+                GameDataPolicy.path(path); require(path.substringBefore('/') in GameDataPolicy.GROUPS)
+                path
             }
             parsed["problems"] = (0 until 32).mapNotNull { i ->
                 val path = p.getProperty("problem.$i.path") ?: return@mapNotNull null
@@ -164,7 +178,7 @@ class GameDataStore(private val root: File, private val policyText: String,
             }
             stage = "preflight"; active(); progress("preflight", total, total)
             val result = policy.inspect(staging, files, active)
-            if (!result.passed) { report("REJECTED", archiveHash, result); throw GameDataRejected(result) }
+            if (!result.passed) { report("REJECTED", archiveHash, result, stage = stage); throw GameDataRejected(result) }
             stage = "publish"
             check(archive.delete())
             val catalog = files.sortedBy { it.path }.joinToString("\n", postfix = "\n") { "${it.sha256}\t${it.bytes}\t${it.path}" }

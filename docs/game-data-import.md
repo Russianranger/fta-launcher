@@ -1,38 +1,49 @@
 # Extracted game-data import and source-derived preflight
 
-Private **0.11.1-data-import**, code **19**, imports an inert ZIP containing extracted
+Private **0.11.2-data-companions**, code **20**, imports an inert ZIP containing extracted
 `dbc`, `maps`, `vmaps` and `mmaps` folders, directly or under one enclosing folder.
 It preserves the retained realm, verified backup, Database.zip and native inputs.
 It does not extract a full client/MPQ archive, launch worldserver or create accounts.
 Matching actual game data is not present in the development environment.
 
-## Import correction from the supplied screenshots
+## Import correction from the physical diagnostic
 
-The uploaded code 18 APK matches its verified private identity. The screenshots
-show `dbc/stock_dbc` inside the existing `Data.zip`; code 18 rejects files in that
-namespace. A regression reproduces the rejection on unchanged code 18. The user
-provided the APK and screenshots, not the failed attempt's diagnostic JSON or
-actual archive, so additional failures remain possible.
+The new JSON proves that verified private code 19 rejected
+`dbc/lightskybox.db2` at `archive_index / unsupported_asset_path`, before any
+extraction. The reported archive SHA256 is
+`407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`.
+The actual archive bytes remain unavailable here. A synthetic regression using
+that exact path fails on unchanged code 19 and passes with code 20.
+See [physical failure evidence](evidence/android-2026-10-23-db2-import-failure.json).
 
-Code 19 preserves direct `.dbc` backup files there with exact hashes and generic
-WDBC bounds checks. They never substitute for `dbc/<required-name>.dbc`, never
-receive or bypass active-file source expectations, and cannot overwrite root
-files. Arbitrary nested folders, executable/SQL files, unsafe paths and malformed
-DBCs still fail. The source-derived policy and all runtime database expectations
-remain byte-identical. The original loader accesses root files and recognized
-locale names; it does not read `stock_dbc` as a runtime fallback.
+The exact pinned source explicitly loads 113 `.dbc` filenames and recognized
+locale variants. Inspection of its server/common/module C++ sources finds no DB2 loader
+or `.db2` runtime reference. Code 20 therefore preserves direct `.db2` files in
+`dbc`, recognized locale folders and `dbc/stock_dbc` as opaque companions. They
+are non-executable, size/CRC checked and included in full SHA256 verification.
+Their format is neither guessed nor qualified; their presence never satisfies
+a missing DBC or bypasses a required file's layout/version sentinel.
 
-Retry the **unchanged original Data.zip** with code 19; do not delete the backup
-folder or repackage the files. On failure use **Export diagnostic report** and
-send the resulting **`.json`**, not the APK. `failureStage`, `failureReason` and an
-optional safe `failureAsset` now identify archive failures without exporting raw
-exception text or private source paths. `stockDbcFiles` counts stored backup files.
-See [reported layout and reproduction](evidence/android-2026-10-23-stock-dbc-import-report.json).
+The code 19 stock-backup fix remains: direct `.dbc` backups under `stock_dbc`
+retain generic WDBC bounds checks and cannot replace root DBCs. All source policy
+bytes and database expectations stay unchanged. Arbitrary nested folders,
+SQL/executable filenames, unsafe paths, duplicate names and invalid ZIP modes
+still fail before extraction. No files are silently discarded or rewritten.
+
+Retry the **unchanged original Data.zip** with code 20. On failure export the
+**diagnostic `.json` file** immediately. `failureStage`, `failureReason` and
+`failureAsset` identify the boundary; layout failures now include
+`rejectedAssetCount` and up to 32 `rejectedAssets`, collected across the validated
+index. Format preflight similarly reports a total and up to 32 `problems`.
+Unsafe names and raw exceptions are never exported. `db2CompanionFiles` counts
+opaque DB2s, and `stockDbcFiles` counts only auxiliary `.dbc` backups. These are
+subsets of the overall `count.dbc` folder count, not extra runtime requirements.
+Old reports and receipts remain readable with new counts defaulting to zero.
 
 ## One combined physical test
 
-1. Install the verified private code 19 APK as an in-place update. Its certificate
-   and all 16 native payloads match code 18. Never uninstall, clear storage or use
+1. Install the verified private code 20 APK as an in-place update. Its certificate
+   and all 16 native payloads match code 19. Never uninstall, clear storage or use
    the differently signed public development/debug APK to replace it.
 2. With a ZIP of matching extracted game data, select **Import extracted game-data
    ZIP**. Allow free space for both the ZIP and unpacked files, plus any retained
@@ -105,19 +116,21 @@ scopes also include this bounded report, allowing the combined service export.
 
 ## Developer checks
 
-265 Android unit tests and 148 tooling tests pass. New adversarial cases cover
+274 Android unit tests and 148 tooling tests pass. New adversarial cases cover
 ZIP64, bad CRCs, path/mode/encryption attacks, incompatible headers, source version
 markers, unsafe size arithmetic, cancellation, directory-sync failures on both
 sides of publication, concurrent stores, changed files and preserved candidates.
 
-`tools/check_game_data_source.py --source-zip ... --kotlin-classpath ... --with-stock-backup --output ...`
+`tools/check_game_data_source.py --source-zip ... --kotlin-classpath ... --with-stock-backup --with-db2-companions --output ...`
 compiles the unchanged original DBC loader with C++20, original assertions and an
 abort-on-failure logging sink. It loads all 113 synthetic DBCs, checks seven IDs,
 byte-field offsets, invalid magic and original format/header sizes. Five separate
 JVMs run production import, abrupt replacement death, retained re-verification,
-orphan recovery/new import and final re-verification. No real assets or Android
+orphan recovery/new import and final re-verification with stock DBC backups and
+opaque DB2 companions. It confirms that their exact bytes survive and root DBCs
+remain intact. No real assets or Android
 SAF/foreground operation are qualified by that host test.
 
-See [host evidence with stock backup](evidence/host-2026-10-23-stock-dbc-import.json),
-[private APK identity](evidence/android-2026-10-23-private-data-import-fix-apk.json) and
+See [host evidence with stock and DB2 companions](evidence/host-2026-10-23-db2-companion-import.json),
+[private APK identity](evidence/android-2026-10-23-private-db2-companion-apk.json) and
 [physical code 17 evidence](evidence/android-2026-10-23-thor-local-service-pass.json).

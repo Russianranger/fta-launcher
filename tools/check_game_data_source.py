@@ -48,6 +48,7 @@ def main():
     p.add_argument('--java', default='java')
     p.add_argument('--cxx', default='g++')
     p.add_argument('--with-stock-backup', action='store_true', help='Exercise the screenshot-observed auxiliary DBC folder')
+    p.add_argument('--with-db2-companions', action='store_true', help='Preserve opaque DB2 companions without qualifying them as runtime DBCs')
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
     if sha256_file(args.source_zip) != SOURCE_SHA256:
@@ -65,6 +66,17 @@ def main():
             source = {path: z.read(SOURCE_ROOT + '/' + path) for path in FILES}
             if derive(source) != policy:
                 raise ValueError('Committed policy differs from exact original source')
+            if args.with_db2_companions:
+                scanned = 0
+                for info in z.infolist():
+                    name = info.filename.removeprefix(SOURCE_ROOT + '/')
+                    if name.startswith(('src/server/', 'src/common/', 'modules/')) and name.endswith(('.cpp', '.h', '.hpp', '.c')):
+                        scanned += 1
+                        if re.search(r'\.db2\b|\bDB2(?:Storage|FileLoader)\b', cpp_text(z.read(info)), re.IGNORECASE):
+                            raise ValueError('Pinned server DB2 references require review before companion handling')
+                if scanned < 100:
+                    raise ValueError('Incomplete original server source inspection')
+                proof.update(serverCommonAndModuleSourceFilesScanned=scanned, noDb2LoaderReferencesInPinnedServerSources=True)
             prefixes = ('src/common/', 'deps/fmt/include/', 'deps/g3dlite/include/', 'deps/recastnavigation/Detour/Include/')
             for info in z.infolist():
                 name = info.filename.removeprefix(SOURCE_ROOT + '/')
@@ -80,6 +92,9 @@ def main():
         if args.with_stock_backup:
             # Deliberately differs from the active Spell schema: this is not a runtime fallback.
             assets['dbc/stock_dbc/Spell.dbc'] = struct.pack('<4sIIIII', b'WDBC', 1, 1, 4, 1, 123) + b'\0'
+        companions = {'dbc/lightskybox.db2': b'opaque synthetic companion',
+                      'dbc/Spell.db2': b'not a runtime DBC', 'dbc/stock_dbc/lightskybox.db2': bytes(range(16))} if args.with_db2_companions else {}
+        assets.update(companions)
         for name, data in assets.items():
             path = root / 'assets' / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -94,6 +109,8 @@ def main():
         bad.write_bytes(b'NOPE' + data[4:])
         stores = dict(re.findall(r'DBCStorage\s*<[^>]+>\s+(\w+)\((\w+)\)', cpp_text(source[FILES[0]])))
         loads = re.findall(r'LOAD_DBC\((\w+),\s*"([^"]+)"', cpp_text(source[FILES[0]]))
+        if len(loads) != 113 or not all(name.endswith('.dbc') for _, name in loads):
+            raise ValueError('Original runtime DBC inventory changed')
         properties = dict(line.split('=', 1) for line in policy.splitlines())
         cases = []
         for store, name in loads:
@@ -174,7 +191,7 @@ int main(int argc, char** argv) {
         store = root / 'store'
         command = [args.java, '-cp', str(classes) + ':' + args.kotlin_classpath, 'GameDataHost']
         def run(mode, code=0):
-            result = subprocess.run(command + [mode, str(store), str(REPO / 'manifests/game-data-policy.properties'), str(archive)])
+            result = subprocess.run(command + [mode, str(store), str(REPO / 'manifests/game-data-policy.properties'), str(archive), str(len(companions))])
             if result.returncode != code:
                 raise ValueError(f'Host {mode} exited {result.returncode}, expected {code}')
         run('import')
@@ -197,6 +214,14 @@ int main(int argc, char** argv) {
             if (current / 'dbc/Spell.dbc').read_bytes() != assets['dbc/Spell.dbc']:
                 raise ValueError('Auxiliary stock DBC replaced the active runtime file')
             proof.update(stockBackupBytesPreserved=True, stockBackupNeverSubstitutedForRuntime=True)
+        if companions:
+            current = store / (store / 'active').read_text()
+            if any((current / name).read_bytes() != data for name, data in companions.items()):
+                raise ValueError('Opaque DB2 companion bytes were not preserved')
+            if (current / 'dbc/Spell.dbc').read_bytes() != assets['dbc/Spell.dbc']:
+                raise ValueError('DB2 companion replaced a required runtime DBC')
+            proof.update(db2CompanionBytesPreserved=True, db2CompanionCount=len(companions),
+                         db2CompanionsNeverSubstitutedForRuntime=True, db2FormatsInterpreted=False)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(proof, indent=2) + '\n')
     print('Original-source and production-store host checks passed; no real game data qualified')

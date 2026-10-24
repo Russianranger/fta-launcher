@@ -7,7 +7,8 @@ import java.nio.ByteOrder.LITTLE_ENDIAN
 import java.util.Locale
 
 data class GameDataZipEntry(val name: String, val path: String, val bytes: Long, val compressed: Long, val crc: Long)
-class GameDataImportFailure(val reason: String, val asset: String? = null) :
+class GameDataImportFailure(val reason: String, val asset: String? = null,
+    val rejectedAssets: List<String> = emptyList(), val rejectedAssetCount: Int = 0) :
     IllegalArgumentException("Game-data import rejected: $reason")
 
 /** ZIP/ZIP64 index, modes and local names checked before any asset is written. */
@@ -109,13 +110,16 @@ object GameDataZip {
         raw.filter { it.name.endsWith('/') }.forEach {
             require(it.name == prefix || it.name.startsWith(prefix) && it.name.removePrefix(prefix).substringBefore('/') in GameDataPolicy.GROUPS)
         }
-        payload.map {
-            val path = it.name.removePrefix(prefix)
-            try { GameDataPolicy.assetPath(path) }
-            catch (_: IllegalArgumentException) {
-                throw GameDataImportFailure("unsupported_asset_path", path.takeIf { p -> p.substringBefore('/') in GameDataPolicy.GROUPS })
-            }
-            it.copy(path = path)
+        val entries = payload.map { it.copy(path = it.name.removePrefix(prefix)) }
+        if (entries.any { it.path.substringBefore('/') !in GameDataPolicy.GROUPS })
+            throw GameDataImportFailure("unsupported_asset_path")
+        // Finish the validated index before reporting layout errors. One physical
+        // attempt can expose multiple unsupported assets without extracting any.
+        val unsupported = entries.filter {
+            try { GameDataPolicy.assetPath(it.path); false } catch (_: IllegalArgumentException) { true }
         }
+        if (unsupported.isNotEmpty()) throw GameDataImportFailure("unsupported_asset_path", unsupported.first().path,
+            unsupported.take(32).map { it.path }, unsupported.size)
+        entries
     }
 }

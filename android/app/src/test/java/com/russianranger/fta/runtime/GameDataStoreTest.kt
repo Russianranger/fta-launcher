@@ -20,6 +20,111 @@ class GameDataStoreTest {
     private val policy = GameDataPolicy.parse(text)
     @After fun cleanup() { root.deleteRecursively() }
     private fun store() = GameDataStore(File(root, "store"), text)
+    @Test fun reportedDb2CompanionIsPreservedWithoutBeingParsedAsRuntimeDbc() {
+        val files = fixture().apply { put("dbc/lightskybox.db2", byteArrayOf(0, 1, 2, 3, 4)) }
+        val receipt = store().import(ByteArrayInputStream(zip(files)))
+        assertArrayEquals(files.getValue("dbc/lightskybox.db2"), File(root, "store/${receipt.generation}/dbc/lightskybox.db2").readBytes())
+        assertArrayEquals(files.getValue("dbc/Spell.dbc"), File(root, "store/${receipt.generation}/dbc/Spell.dbc").readBytes())
+        assertEquals(receipt, store().verify())
+        val report = store().export()
+        assertEquals(1L, report["db2CompanionFiles"])
+        assertEquals(false, report["nativeSemanticValidationPassed"])
+        assertEquals(false, report["worldReady"])
+    }
+    @Test fun db2CompanionsCannotReplaceMissingMalformedOrWrongVersionRuntimeDbc() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        for (kind in listOf("missing", "layout", "sentinel")) {
+            val files = fixture().apply { put("dbc/Spell.db2", getValue("dbc/Spell.dbc").copyOf()) }
+            when (kind) {
+                "missing" -> files.remove("dbc/Spell.dbc")
+                "layout" -> put32(files.getValue("dbc/Spell.dbc"), 8, 1)
+                else -> put32(files.getValue("dbc/Spell.dbc"), 20, 1)
+            }
+            val failure = assertThrows(GameDataRejected::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+            assertTrue(failure.preflight.problems.any { it.path == "dbc/Spell.dbc" })
+            assertEquals("preflight", store().export()["failureStage"])
+            assertEquals(before, store().active())
+        }
+        assertEquals(before, store().verify())
+    }
+    @Test fun companionScopesKeepStockCountsSeparateAndPreserveEveryByteAfterReopen() {
+        val paths = listOf("dbc/lightskybox.db2", "dbc/stock_dbc/lightskybox.db2", "dbc/enUS/Spell.db2")
+        val files = fixture().apply {
+            paths.forEachIndexed { i, path -> put(path, ByteArray(i) { it.toByte() }) }
+            put("dbc/stock_dbc/Spell.dbc", getValue("dbc/Spell.dbc").copyOf())
+        }
+        val receipt = store().import(ByteArrayInputStream(zip(files, "Data/")))
+        assertEquals(receipt, store().verify())
+        paths.forEach { assertArrayEquals(files.getValue(it), File(root, "store/${receipt.generation}/$it").readBytes()) }
+        assertEquals(3L, store().export()["db2CompanionFiles"])
+        assertEquals(1L, store().export()["stockDbcFiles"])
+    }
+    @Test fun changedOpaqueCompanionFailsFullHashVerificationAndRetainsCandidate() {
+        val files = fixture().apply { put("dbc/lightskybox.db2", byteArrayOf(1, 2, 3)) }
+        val receipt = store().import(ByteArrayInputStream(zip(files)))
+        File(root, "store/${receipt.generation}/dbc/lightskybox.db2").writeBytes(byteArrayOf(1, 2, 4))
+        assertThrows(IllegalArgumentException::class.java) { store().verify() }
+        assertEquals("verify", store().export()["failureStage"])
+        assertEquals(false, store().export()["preflightPassed"])
+        assertEquals(receipt, store().active())
+    }
+    @Test fun db2NameDoesNotBypassNamespacePathModeOrCrcChecks() {
+        for (path in listOf("maps/lightskybox.db2", "dbc/other/lightskybox.db2", "dbc/stock_dbc/nested/a.db2", "dbc/../a.db2")) {
+            val files = fixture().apply { put(path, byteArrayOf(1)) }
+            assertThrows(GameDataImportFailure::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+            assertNull(store().active())
+        }
+        val files = linkedMapOf("dbc/lightskybox.db2" to byteArrayOf(1, 2, 3)).apply { putAll(fixture()) }
+        val symlink = zip(files); put32(symlink, central(symlink) + 38, 0xa000 shl 16)
+        val failure = assertThrows(GameDataImportFailure::class.java) { store().import(ByteArrayInputStream(symlink)) }
+        assertEquals("unsupported_file_mode", failure.reason)
+        val corrupt = zip(files); val c = central(corrupt); put32(corrupt, c + 16, intAt(corrupt, c + 16) xor 1)
+        assertThrows(Exception::class.java) { store().import(ByteArrayInputStream(corrupt)) }
+        assertNull(store().active())
+    }
+    @Test fun runtimePolicyCannotRedefineADbcRequirementAsOpaqueDb2() {
+        assertThrows(IllegalArgumentException::class.java) { GameDataPolicy.parse(text.replace("dbc.Spell.dbc=", "dbc.Spell.db2=")) }
+    }
+    @Test fun unsupportedAssetsAreCollectedAcrossWholeIndexBeforeAnyExtraction() {
+        val before = store().import(ByteArrayInputStream(zip()))
+        val unsupported = (0 until 40).map { "dbc/extra$it.txt" }
+        val files = fixture().apply { unsupported.forEach { put(it, byteArrayOf(1)) }; put("dbc/lightskybox.db2", byteArrayOf(1)) }
+        var extracted = false
+        val failure = assertThrows(GameDataImportFailure::class.java) {
+            store().import(ByteArrayInputStream(zip(files, "Data/")), progress = { stage, _, _ -> if (stage == "extract") extracted = true })
+        }
+        assertEquals(40, failure.rejectedAssetCount); assertFalse(extracted)
+        val report = store().export()
+        assertEquals(40, report["rejectedAssetCount"])
+        assertEquals(unsupported.take(32), report["rejectedAssets"])
+        assertEquals(unsupported.first(), report["failureAsset"])
+        assertEquals("archive_index", report["failureStage"])
+        assertEquals(false, report["preflightPassed"]); assertEquals(before, store().active())
+        store().verify()
+        assertEquals(0, store().export()["rejectedAssetCount"])
+        assertEquals(emptyList<String>(), store().export()["rejectedAssets"])
+    }
+    @Test fun unsafeNameAfterUnsupportedEntryIsNeverCollectedOrExported() {
+        val files = fixture().apply { put("dbc/extra.txt", byteArrayOf(1)); put("../private-file", byteArrayOf(1)) }
+        assertThrows(GameDataImportFailure::class.java) { store().import(ByteArrayInputStream(zip(files))) }
+        val report = store().export()
+        assertEquals("unsafe_archive_path", report["failureReason"])
+        assertEquals(emptyList<String>(), report["rejectedAssets"])
+        assertFalse(report.toString().contains("private-file"))
+    }
+    @Test fun legacyReportsDefaultNewFieldsAndMalformedCollectedPathsCannotClaimSuccess() {
+        store().import(ByteArrayInputStream(zip()))
+        val report = File(root, "store/last-report.properties")
+        val legacy = report.readLines().filterNot { it.startsWith("db2CompanionFiles=") }.joinToString("\n", postfix = "\n")
+        report.writeText(legacy)
+        assertEquals(true, store().export()["preflightPassed"])
+        assertEquals(0L, store().export()["db2CompanionFiles"])
+        for (bad in listOf("rejectedAssetCount=100001\n", "rejectedAssetCount=1\n", "rejectedAssetCount=1\nrejectedAsset.0=../private\n")) {
+            report.writeText(legacy + bad)
+            assertEquals(false, store().export()["available"])
+            assertFalse(store().export().containsKey("preflightPassed"))
+        }
+    }
     private fun fixture(): MutableMap<String, ByteArray> {
         val files = linkedMapOf<String, ByteArray>()
         for ((name, shape) in policy.dbc) {

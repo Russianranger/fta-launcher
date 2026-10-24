@@ -35,7 +35,8 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
             }
         }
         val counts = GROUPS.associateWith { group -> files.count { it.path.startsWith("$group/") } } +
-            ("stock_dbc" to files.count { it.path.startsWith("dbc/stock_dbc/") })
+            mapOf("stock_dbc" to files.count { it.path.startsWith("dbc/stock_dbc/") && it.path.endsWith(".dbc") },
+                "db2_companions" to files.count { isDb2Companion(it.path) })
         if (files.none { it.path.endsWith(".mmap") }) problem("mmaps", "missing_navmesh_parameters")
         if (files.none { it.path.endsWith(".mmtile") }) problem("mmaps", "missing_navmesh_tiles")
         for (entry in files) {
@@ -50,6 +51,10 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
             fun bytes(n: Int) = ByteArray(n).also { input.readFully(it) }
             fun u32() = Integer.toUnsignedLong(java.lang.Integer.reverseBytes(input.readInt()))
             when {
+                // The pinned server names .dbc inputs explicitly and has no DB2 loader.
+                // Preserve opaque companions without guessing a schema. ZIP integrity and
+                // full rehash still apply; these never satisfy required runtime DBCs.
+                isDb2Companion(path) -> Unit
                 path.startsWith("dbc/") -> {
                     if (!bytes(4).contentEquals("WDBC".toByteArray())) return "dbc_magic"
                     val rows = u32(); val fields = u32(); val record = u32(); val strings = u32()
@@ -109,6 +114,7 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
         const val MAX_TOTAL_BYTES = 32L * 1024 * 1024 * 1024
         const val MAX_FILES = 100_000
         val GROUPS = listOf("dbc", "maps", "vmaps", "mmaps")
+        fun isDb2Companion(value: String) = value.startsWith("dbc/") && value.endsWith(".db2")
         fun path(value: String, directory: Boolean = false) {
             val p = if (directory) value.removeSuffix("/") else value
             require(p.length in 1..240 && p.split('/').all { part -> part !in setOf(".", "..") &&
@@ -119,7 +125,8 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
             val p = value.split('/')
             require(p.first() in GROUPS)
             require(when (p.first()) {
-                "dbc" -> (p.size == 2 || (p.size == 3 && p[1] in setOf("stock_dbc", "enUS", "enGB", "deDE", "esES", "esMX", "frFR", "itIT", "koKR", "ruRU", "zhCN", "zhTW"))) && p.last().endsWith(".dbc")
+                "dbc" -> (p.size == 2 || (p.size == 3 && p[1] in setOf("stock_dbc", "enUS", "enGB", "deDE", "esES", "esMX", "frFR", "itIT", "koKR", "ruRU", "zhCN", "zhTW"))) &&
+                    (p.last().endsWith(".dbc") || p.last().endsWith(".db2"))
                 "maps" -> p.size == 2 && p[1].matches(Regex("[0-9]{7,8}\\.map"))
                 "mmaps" -> p.size == 2 && p[1].matches(Regex("([0-9]{3,4}\\.mmap|[0-9]{7,8}\\.mmtile)"))
                 else -> p.size == 2 && (p[1] == "GameObjectModels.dtree" || p[1].endsWith(".vmo") ||
@@ -132,6 +139,7 @@ class GameDataPolicy(val dbc: Map<String, DbcShape>, val startupTiles: List<Stri
             require(values.getProperty("formatVersion") == "1" && values.getProperty("sourceArchiveSha256") == Inputs.source.sha256)
             val dbc = values.stringPropertyNames().filter { it.startsWith("dbc.") }.associate { key ->
                 val name = key.removePrefix("dbc."); assetPath("dbc/$name")
+                require(name.endsWith(".dbc") && '/' !in name)
                 val parts = values.getProperty(key).split(',').map { it.toLong() }; require(parts.size == 4)
                 require(parts[0] in 1..1024 && parts[1] in parts[0]..parts[0] * 4 && parts[2] in -1..parts[1] - 4 && parts[3] in -1..0xffffffffL)
                 require(parts[3] == -1L || parts[2] >= 0)
