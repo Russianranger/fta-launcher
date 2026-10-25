@@ -1,4 +1,4 @@
-# Managed client import — code 36
+# Managed client import — code 37 memory backpressure
 
 Physical code 35 inspected the owner's complete extracted client successfully:
 10,476 files, 1,175 directories, 60,243,212,332 bytes, no unknown sizes and 33 MPQs.
@@ -26,11 +26,44 @@ For this initial 60.24 GB client, allow roughly **61.32 GB free** in addition to
 the original folder and retained server data. Space is checked before payload
 copying and each new chunk. There is no second temporary full-client copy.
 
-Each file streams through a 256 KiB buffer. At most 16 MiB of newly written data
-is unsynced. Each chunk is flushed, independently read back and SHA256-compared
-before its checksum-protected checkpoint is appended and synced. Advisory source
-and destination cache eviction reuses the existing helper; advice failure cannot
-change integrity decisions. The report records peak RSS and advice counters.
+Code 36 was interrupted at 4,865,320,527 bytes / 12 complete files after 97,164 ms.
+The owner reports a low-memory kill; peak sampled RSS was 154,576 KiB. Code 36 did
+not collect this client's exit history or pressure samples. Its exported historical
+runtime `low_memory` entry is older and cannot diagnose this attempt. The precise
+kernel/provider cause remains unproven. [Measured report](evidence/android-2026-10-25-thor-code36-client-interruption.json).
+
+Code 37 governs **all payload I/O**: source reads, new writes, destination readback,
+resume reads and retained rehash. The aggregate ceiling is 24 MiB/s, approximately
+8 MiB/s of new copied bytes before storage/hash overhead. No idle burst credit is
+accumulated. This intentionally trades speed for lower sustained pressure; the
+60.24 GB import can take more than two hours. The worker runs at background thread
+priority while retaining foreground-service/visible-activity protection.
+
+Each file streams through a 256 KiB buffer. New dirty output is synced in at most
+**1 MiB** windows, independently read back and hashed, then cache-eviction advice
+is requested. Source advice and retained-rehash advice also use 1 MiB intervals.
+The original **16 MiB checksum-protected checkpoints are unchanged**. A complete
+chunk is journaled only after all its window readbacks and hashes pass. Existing
+code-36 checkpoints resume without conversion or deleting the partial import.
+Cache advice remains optional to integrity; accepted calls are not eviction proof.
+
+The governor samples Android memory once per second and optional bounded read-only
+`/proc/pressure/memory` PSI data. It pauses before further payload I/O on low-memory
+callbacks/flags, available memory below max(2 GiB, 20% total, twice Android's low
+threshold), PSI `some avg10` >=10% or `full avg10` >=1%. Resumption requires five
+seconds of healthy samples, >=25% total available, PSI some <2% and full <0.2%,
+with no pressure callback in the last ten seconds. Missing Android memory samples
+fail closed; denied/unavailable PSI is explicitly reported. A two-minute pressure
+wait stops the attempt safely; Stop/deadline remain checked at <=250 ms wait
+intervals. No root access, global cache clearing or killer/kernel settings change.
+These are conservative engineering thresholds, not a measured Thor kill threshold.
+
+Reports add heap/RSS, available/total memory, PSI availability and values, trim
+signals, binding/importance, I/O accounting, throttled/paused time and three bounded
+**client-process** exit records. A matching exit requires the private owner PID,
+exact client attempt token and attempt time window. PIDs/tokens/raw descriptions
+are not exported. Old code-36 reports cannot acquire missing attempt-match proof
+retroactively. The old native-world receipt is never modified.
 
 On resume, the selected tree identity, full metadata plan and source IDs must
 match. Every previously committed chunk is re-read from both source and destination
@@ -71,11 +104,12 @@ Synthetic host tests cover exact copy/reopen, empty files/directories, bounded
 reads, mid-file interruption/resume, partial/tampered checkpoints, changed sources,
 destination corruption, shrinking/growing files, quota loss, lease contention,
 symlink escape, failed validation/publication and preservation of a previous active
-generation. Actual 60 GB SAF copy, Android lifecycle and physical retained rehash
-remain pending until the owner returns the new report.
+generation. The new throttle/backpressure, 1 MiB sync bounds and old-checkpoint compatibility
+are tested independently. Actual 60 GB SAF copy, Android survival under pressure
+and physical retained rehash remain pending until the owner returns the new report.
 
 Install the verified private update in place. Choose **Import / resume client
-folder**, select the same complete extracted folder, and keep the launcher visible.
+folder**, select the same complete extracted folder, and keep the launcher visible. The partial code-36 copy is retained and verified first.
 When complete, reopen the app, select **Verify imported client**, then **Export
 diagnostic report**. On any failure or interruption, export before resuming; do
 not delete originals or clear app storage. No repeated server/game-data test.

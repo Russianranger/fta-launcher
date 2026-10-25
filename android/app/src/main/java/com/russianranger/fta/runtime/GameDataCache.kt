@@ -21,18 +21,19 @@ class GameDataCache(private val advise: (File, Long, Long) -> Int = GameDataCach
         if (result == 0) accepted++ else rejected++
     }
     fun file(file: File) = range { at, size -> advise(file, at, size) }
-    fun range(action: (Long, Long) -> Int) = Range { at, size -> request(at, size, action) }
-    class Range internal constructor(private val release: (Long, Long) -> Unit) {
+    fun range(interval: Long = INTERVAL, action: (Long, Long) -> Int) = Range(interval) { at, size -> request(at, size, action) }
+    class Range internal constructor(private val interval: Long, private val release: (Long, Long) -> Unit) {
+        init { require(interval in 1..INTERVAL) }
         private var consumed = 0L; private var released = 0L
         fun consumed(end: Long, finish: Boolean = false) {
             require(end >= consumed); consumed = end
-            while (consumed - released >= INTERVAL) { release(released, INTERVAL); released += INTERVAL }
+            while (consumed - released >= interval) { release(released, interval); released += interval }
             if (finish && consumed > released) { release(released, consumed - released); released = consumed }
         }
     }
     /** Wraps the existing provider stream, retaining its slice bounds and ownership. */
-    fun input(source: InputStream, action: (Long, Long) -> Int): InputStream = object : FilterInputStream(source) {
-        private val range = range(action); private var read = 0L
+    fun input(source: InputStream, interval: Long = INTERVAL, action: (Long, Long) -> Int): InputStream = object : FilterInputStream(source) {
+        private val range = range(interval, action); private var read = 0L
         override fun read(): Int = super.read().also { if (it >= 0) { read++; range.consumed(read) } else range.consumed(read, true) }
         override fun read(buffer: ByteArray, offset: Int, length: Int): Int = source.read(buffer, offset, length).also {
             if (it > 0) { read += it; range.consumed(read) } else if (it < 0) range.consumed(read, true)

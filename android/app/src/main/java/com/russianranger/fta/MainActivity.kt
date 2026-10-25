@@ -377,12 +377,13 @@ class MainActivity : Activity() {
                     clientConnection, BIND_IMPORTANT or BIND_ADJUST_WITH_ACTIVITY)) releaseClientBinding()
             } catch (_: Exception) { releaseClientBinding() }
         } else if (!activityVisible || !clientRunning) releaseClientBinding()
-        val managed = ClientImportReport.export(this)
+        val managed = ClientImportReport.export(this, includeExitHistory = false)
         val managedState = managed.optString("state")
         clientImportStatus.text = when {
             clientRequested && !clientRunning -> "Starting client worker…"
             managedState == "complete" -> "Client ${managed.optString("operation")} complete: ${managed.optInt("files")} files verified. Export the report. Client execution remains unqualified."
             managedState == "failed" || managedState == "stopped" -> "Client operation ${managedState}: ${managed.optString("reason")}. Checkpoints retained; export the report."
+            clientRunning && managed.optBoolean("memoryPaused") -> "Client copy paused for memory pressure. It resumes after recovery, or stops safely after two minutes. Checkpoints retained."
             clientRunning -> "${managedState}: ${managed.optLong("bytes") / (1024 * 1024)} / ${managed.optLong("totalBytes") / (1024 * 1024)} MiB verified."
             managed.optBoolean("available") -> "Client operation interrupted. Checkpoints retained; export the report before resuming."
             else -> "No managed client import has completed."

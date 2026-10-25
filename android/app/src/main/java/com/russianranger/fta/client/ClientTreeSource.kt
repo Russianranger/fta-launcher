@@ -13,7 +13,7 @@ import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicReference
 
 /** Read-only persisted SAF grant. Never opens a source descriptor for writing. */
-class ClientTreeSource(private val context: Context, private val tree: Uri) : ClientSource {
+class ClientTreeSource(private val context: Context, private val tree: Uri, private val active: () -> Unit = {}) : ClientSource {
     private val signal = CancellationSignal()
     private val current = AtomicReference<ParcelFileDescriptor?>()
     override val identity = tree.toString()
@@ -22,7 +22,7 @@ class ClientTreeSource(private val context: Context, private val tree: Uri) : Cl
     fun preflight() {
         val plan = ClientPlan(identity, inventory())
         for (name in listOf("wow.exe", "d3d9.dll", "warcraftxl.dll")) {
-            signal.throwIfCanceled()
+            active(); signal.throwIfCanceled()
             val entry = plan.files.singleOrNull { it.path.equals(name, true) } ?: throw ClientImportFailure("client-files-missing")
             val descriptor = context.contentResolver.openFileDescriptor(Documents.buildDocumentUriUsingTree(tree, entry.identity), "r", signal)
                 ?: throw ClientImportFailure("provider-error")
@@ -33,7 +33,7 @@ class ClientTreeSource(private val context: Context, private val tree: Uri) : Cl
                     demand(channel.size() == entry.bytes, "source-changed")
                     val info = PeMetadata.inspect(entry.bytes) { offset, count ->
                         val bytes = ByteArray(count); val buffer = ByteBuffer.wrap(bytes)
-                        while (buffer.hasRemaining()) { signal.throwIfCanceled(); demand(channel.read(buffer, offset + buffer.position()) > 0, "client-build-mismatch") }
+                        while (buffer.hasRemaining()) { active(); signal.throwIfCanceled(); demand(channel.read(buffer, offset + buffer.position()) > 0, "client-build-mismatch") }
                         bytes
                     }
                     demand(if (name == "wow.exe") ClientInventory.matchesWow(info) else info.architecture == "x86" && info.dll, "client-build-mismatch")
@@ -46,14 +46,14 @@ class ClientTreeSource(private val context: Context, private val tree: Uri) : Cl
         val entries = ArrayList<ClientEntry>(); val seen = HashSet<String>(); val bounds = ClientInventory()
         var idCharacters = 0L
         fun visit(id: String, parent: String, depth: Int) {
-            signal.throwIfCanceled(); demand(depth < 32 && seen.add(id), "invalid-source")
+            active(); signal.throwIfCanceled(); demand(depth < 32 && seen.add(id), "invalid-source")
             val columns = arrayOf(Documents.Document.COLUMN_DOCUMENT_ID, Documents.Document.COLUMN_DISPLAY_NAME,
                 Documents.Document.COLUMN_MIME_TYPE, Documents.Document.COLUMN_SIZE, Documents.Document.COLUMN_LAST_MODIFIED)
             val uri = Documents.buildChildDocumentsUriUsingTree(tree, id)
             val cursor = context.contentResolver.query(uri, columns, null, null, null, signal) ?: throw ClientImportFailure("provider-error")
             cursor.use {
                 while (it.moveToNext()) {
-                    signal.throwIfCanceled()
+                    active(); signal.throwIfCanceled()
                     val child = it.getString(0) ?: throw ClientImportFailure("invalid-source")
                     val name = it.getString(1) ?: throw ClientImportFailure("invalid-source")
                     demand(name.isNotEmpty() && '/' !in name && '\\' !in name && child.length in 1..8192, "invalid-path")
@@ -72,12 +72,12 @@ class ClientTreeSource(private val context: Context, private val tree: Uri) : Cl
         return entries
     }
     override fun open(entry: ClientEntry): InputStream {
-        signal.throwIfCanceled()
+        active(); signal.throwIfCanceled()
         val descriptor = context.contentResolver.openFileDescriptor(Documents.buildDocumentUriUsingTree(tree, entry.identity), "r", signal)
             ?: throw ClientImportFailure("provider-error")
         current.set(descriptor)
         val fd = descriptor.fd
-        val stream = cache.input(ParcelFileDescriptor.AutoCloseInputStream(descriptor)) { offset, length ->
+        val stream = cache.input(ParcelFileDescriptor.AutoCloseInputStream(descriptor), ClientStore.IO_WINDOW.toLong()) { offset, length ->
             GameDataCacheNative.releaseDescriptor(fd, offset, length)
         }
         return object : FilterInputStream(stream) {

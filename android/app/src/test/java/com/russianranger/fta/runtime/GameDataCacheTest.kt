@@ -53,4 +53,16 @@ class GameDataCacheTest {
         cache.release(File("unused"), 0, 0)
         assertThrows(IllegalArgumentException::class.java) { cache.release(File("unused"), Long.MAX_VALUE, 1) }
     }
+    @Test fun clientCanRequestOneMiBAdviceWithoutChangingLegacyDefault() {
+        val sizes = mutableListOf<Long>()
+        val data = ByteArray(2 * 1024 * 1024 + 7)
+        val cache = GameDataCache()
+        cache.input(java.io.ByteArrayInputStream(data), 1024L * 1024) { _, size -> sizes += size; 0 }.use {
+            val buffer = ByteArray(256 * 1024)
+            while (it.read(buffer) >= 0) { }
+        }
+        assertEquals(listOf(1024L * 1024, 1024L * 1024, 7L), sizes)
+        assertEquals(16L * 1024 * 1024, GameDataCache.INTERVAL)
+    }
+
 }

@@ -214,4 +214,51 @@ class ClientStoreTest {
         }, validate = {}) }
         assertFalse(File(root, "active").exists())
     }
+    @Test fun smallSyncAndCacheWindowsKeepOriginalCheckpointFormat() {
+        val root = File(temporary.root, "store"); val source = Source()
+        source.contents["Data/a.mpq"] = ByteArray(17 * 1024 * 1024 + 3) { it.toByte() }
+        var previous = 0L; var largest = 0L; var charged = 0L
+        val windows = mutableListOf<Long>()
+        val result = ClientStore(root, availableBytes = { Long.MAX_VALUE }, beforeIo = { charged += it },
+            syncOutput = { out ->
+                val position = out.filePointer
+                if (position < previous) previous = 0
+                largest = maxOf(largest, position - previous); previous = position; out.fd.sync()
+            }, releaseCache = { _, _, bytes -> windows += bytes }).import(source, validate = {})
+        assertTrue(largest <= ClientStore.IO_WINDOW); assertTrue(windows.all { it <= ClientStore.IO_WINDOW })
+        assertEquals(result.bytes * 3, charged)
+        assertEquals("16777216", File(pending(root), "chunk-size").readText())
+        assertEquals(128L, File(pending(root), "chunks/0.bin").length())
+    }
+    @Test fun memoryPauseFailureRetainsVerifiedPrefixAndResumes() {
+        val root = File(temporary.root, "store"); val source = Source(); var io = 0L
+        rejected("memory-pressure") {
+            ClientStore(root, availableBytes = { Long.MAX_VALUE }, chunkBytes = 8, beforeIo = {
+                io += it; if (io > 28) throw ClientImportFailure("memory-pressure")
+            }).import(source, validate = {})
+        }
+        assertFalse(File(root, "active").exists())
+        assertEquals(8L, store(root).import(source, validate = {}).resumedBytes)
+        store(root).verify(validate = {})
+    }
+    @Test fun syncFailureCannotCommitItsChunk() {
+        val root = File(temporary.root, "store"); val source = Source()
+        try {
+            ClientStore(root, availableBytes = { Long.MAX_VALUE }, chunkBytes = 8,
+                syncOutput = { throw IOException("synthetic sync failure") }).import(source, validate = {})
+            fail()
+        } catch (_: IOException) { }
+        assertFalse(File(root, "active").exists()); assertEquals(0L, File(pending(root), "chunks/0.bin").length())
+        assertEquals(0L, store(root).import(source, validate = {}).resumedBytes)
+    }
+    @Test fun retainedVerificationIsGovernedAndCanStopWithoutChangingPublishedData() {
+        val root = File(temporary.root, "store"); val source = Source(); val result = store(root).import(source, validate = {})
+        val pointer = File(root, "active").readText()
+        rejected("memory-pressure") {
+            ClientStore(root, beforeIo = { throw ClientImportFailure("memory-pressure") }).verify(validate = {})
+        }
+        assertEquals(pointer, File(root, "active").readText())
+        assertEquals(result.catalogSha256, store(root).verify(validate = {}).catalogSha256)
+    }
+
 }

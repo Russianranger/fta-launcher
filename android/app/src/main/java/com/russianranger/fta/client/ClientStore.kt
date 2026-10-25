@@ -14,7 +14,9 @@ class ClientStore(private val root: File,
     private val availableBytes: () -> Long = { root.usableSpace },
     private val syncDirectory: (File) -> Unit = { FileChannel.open(it.toPath(), READ).use { c -> c.force(true) } },
     private val releaseCache: (File, Long, Long) -> Unit = { _, _, _ -> },
-    private val chunkBytes: Int = 16 * 1024 * 1024) {
+    private val chunkBytes: Int = 16 * 1024 * 1024,
+    private val beforeIo: (Int) -> Unit = {},
+    private val syncOutput: (RandomAccessFile) -> Unit = { it.fd.sync() }) {
     data class Result(val files: Int, val bytes: Long, val catalogSha256: String, val resumedBytes: Long)
     data class Progress(val stage: String, val files: Int, val totalFiles: Int, val bytes: Long, val totalBytes: Long, val resumedBytes: Long)
     init { demand(chunkBytes in 1..(16 * 1024 * 1024), "invalid-chunk-size"); directory(root) }
@@ -119,29 +121,42 @@ class ClientStore(private val root: File,
                                 demand(digest(expected).contentEquals(checksum), "invalid-checkpoint")
                             } else demand(availableBytes() >= length + RESERVE, "insufficient-space")
                             val sourceHash = MessageDigest.getInstance("SHA-256")
-                            destination.seek(offset)
+                            val readback = MessageDigest.getInstance("SHA-256")
+                            var windowOffset = offset
                             var remaining = length
+                            // Keep the original 16 MiB journal format, but drain dirty output and
+                            // independently read it back in <=1 MiB windows before advancing.
                             while (remaining > 0) {
-                                active()
-                                val read = input.read(buffer, 0, minOf(buffer.size, remaining))
-                                demand(read > 0, "source-changed")
-                                sourceHash.update(buffer, 0, read); full.update(buffer, 0, read)
-                                if (!existing) destination.write(buffer, 0, read)
-                                remaining -= read
+                                val window = minOf(IO_WINDOW, remaining)
+                                destination.seek(windowOffset)
+                                var pending = window
+                                while (pending > 0) {
+                                    active()
+                                    val requested = minOf(buffer.size, pending)
+                                    beforeIo(requested)
+                                    val read = input.read(buffer, 0, requested)
+                                    demand(read > 0, "source-changed")
+                                    sourceHash.update(buffer, 0, read); full.update(buffer, 0, read)
+                                    if (!existing) { beforeIo(read); destination.write(buffer, 0, read) }
+                                    pending -= read
+                                }
+                                if (!existing) syncOutput(destination)
+                                destination.seek(windowOffset); pending = window
+                                while (pending > 0) {
+                                    active(); val requested = minOf(buffer.size, pending); beforeIo(requested)
+                                    val read = destination.read(buffer, 0, requested)
+                                    demand(read > 0, "destination-changed")
+                                    readback.update(buffer, 0, read); pending -= read
+                                }
+                                releaseCache(output, windowOffset, window.toLong())
+                                windowOffset += window; remaining -= window
                             }
                             val hash = sourceHash.digest()
-                            if (existing) demand(hash.contentEquals(expected), "source-changed") else destination.fd.sync()
-                            destination.seek(offset)
-                            val readback = MessageDigest.getInstance("SHA-256"); remaining = length
-                            while (remaining > 0) {
-                                active(); val read = destination.read(buffer, 0, minOf(buffer.size, remaining))
-                                demand(read > 0, "destination-changed"); readback.update(buffer, 0, read); remaining -= read
-                            }
+                            if (existing) demand(hash.contentEquals(expected), "source-changed")
                             demand(hash.contentEquals(readback.digest()), "destination-changed")
                             if (!existing) {
                                 checkpoint.write(hash); checkpoint.write(digest(hash)); checkpoint.fd.sync()
                             } else resumed += length
-                            releaseCache(output, offset, length.toLong())
                             offset += length; processed += length
                             progress(Progress(if (existing) "resume-verify" else "copy", index, files.size, processed, plan.bytes, resumed))
                         }
@@ -207,10 +222,10 @@ class ClientStore(private val root: File,
                 val hash = MessageDigest.getInstance("SHA-256"); var readTotal = 0L; var released = 0L
                 file.inputStream().use { stream ->
                     while (true) {
-                        active(); val read = stream.read(buffer); if (read < 0) break
+                        active(); beforeIo(buffer.size); val read = stream.read(buffer); if (read < 0) break
                         demand(read > 0 && read <= size - readTotal, "destination-changed")
                         hash.update(buffer, 0, read); readTotal += read
-                        if (readTotal - released >= chunkBytes) {
+                        if (readTotal - released >= IO_WINDOW) {
                             releaseCache(file, released, readTotal - released); released = readTotal
                             progress(Progress("verify", index, count, processed + readTotal, total, 0))
                         }
@@ -238,5 +253,8 @@ class ClientStore(private val root: File,
             validate(data); active(); return Result(count, total, sha, 0)
         }
     }
-    companion object { const val RESERVE = 1024L * 1024 * 1024 }
+    companion object {
+        const val RESERVE = 1024L * 1024 * 1024
+        const val IO_WINDOW = 1024 * 1024
+    }
 }
