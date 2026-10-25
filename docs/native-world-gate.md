@@ -1,9 +1,10 @@
 # Preparing the retained native world gate
 
-Current evidence: code 32 passes sustained health, 651.9 seconds screen-off and
-world exit zero during failure cleanup. Log pressure ended the session before
-user Stop and retained postchecks. Recover the existing failed attempt with
-[the bounded log export](world-log-recovery.md) before another session.
+Current evidence: code 33 recovered the same code-32 log successfully. Sustained
+health, 651.9 seconds screen-off and world exit zero remain historical evidence;
+user Stop and retained postchecks remain open. The next gate uses the qualified
+[code-34 auction COUNT correction](auction-count.md). No repeated recovery
+export or standalone database/auth diagnostic is needed.
 
 Physical code 29 passed the original world challenge and two combined healthy
 samples. Its stdout limit then ended the test, and world cleanup exited 139 after

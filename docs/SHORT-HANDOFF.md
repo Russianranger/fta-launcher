@@ -5,43 +5,49 @@ pushes. AYN Thor, Android 13, ARM64. Read `AGENTS.md`, `game-data-import.md`,
 `private-diagnostics.md`, `native-world-gate.md`. Earlier history:
 [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current increment — code 34 qualification
+## Current private delivery — code 34
 
-Recovered remote **f71016941646ac7ddeded2a2a06cba3d00c7be99**; its exact CI
-[40152332918](https://github.com/Russianranger/fta-launcher/actions/runs/40152332918)
-passed all three jobs. Latest delivered private APK remains code 33 until the
-code-34 delivery proof is added. Code 33 and source: [recovery links](code33-recovery.md).
+Application commit **0885153f71061751bb7e189ed8d8e52479badfcb**, exact
+[CI 40155455259](https://github.com/Russianranger/fta-launcher/actions/runs/40155455259)
+passed all three jobs. **0.12.7-auction-count**, code **34**, 59,000,019 bytes;
+APK SHA256 `45ade0fd1cb78c52527f46bfe0c0ac338c40d8948debb838d1bb0db85a6431a8`.
+[Verified APK and corresponding source](code34-recovery.md).
+186 tooling tests; Android 383 passed/one existing private-fixture skip, no errors
+or failures; lint/assembly, 225 packaged inputs, persistent v2 signing/16 KiB
+alignment passed. Twenty of 21 native payloads and all 148 runtime entries are
+byte-identical to code 33; only the separate world-session executable changes.
 
-**Code 33 read-only recovery passed**, same code-32 attempt
-`d280294e-62b4-4255-82f1-5ca5c14bb80c`, no new native run. Report SHA256
+**Next: install code 34 in place, Start native world test once, wait for healthy
+samples, screen off three minutes, reopen, Stop once, Export diagnostic report.**
+Export immediately on failure before retrying. No reimport, seed replay, uninstall,
+storage clear or repeated standalone database/auth tests. The complete gate must
+prove clean world/auth exits, SQL shutdown and strict metadata/GT postchecks.
+
+## Measured diagnosis and implemented correction
+
+Code 33 recovered the same code-32 attempt without a new session:
+`d280294e-62b4-4255-82f1-5ca5c14bb80c`. Report SHA256
 `3c23e419d95637c8f907745bf05fc29332bb667aa66ea74ffb1e3e77e3a1f618`.
-[Exact measured evidence](evidence/android-2026-10-25-thor-code33-recovery.json)
-is authoritative for the report hash. World log 8,535,490 bytes; first/last 4 MiB
-samples omit 146,882 bytes. Tail: 67,108 warnings, 33,554 aggregate-hint matches,
-then original Halting. Existing prefix collides between Field.cpp's double and
-uint64 hints; no exact Thor caller is proven. No additional recovery export is
-needed before the next qualified update.
+[Recovery proof](evidence/android-2026-10-25-thor-code33-recovery.json).
+World log 8,535,490 bytes; sampled first/last 4 MiB, omitted 146,882. Tail has
+67,108 warnings/33,554 shared aggregate-hint matches and final Halting. The old
+prefix cannot distinguish double/uint64 hints; no exact Thor caller is proven.
 
-## Implemented source-backed correction
+[Source-backed correction](auction-count.md): recurring auction snapshot reads
+COUNT column 4 as uint32, emits two warnings per row, then retries uint64. v15
+changes only that expression to an explicit uint32 conversion of Get<uint64>().
+Query, narrowing/accumulation, original Field, SQL/configurations and all 52 modules
+are preserved; v14 shutdown repair remains. Four original/four fixed Release and
+ASan/UBSan fixtures pass with identical boundary counts and zero fixed warnings.
+Code 34 also distinguishes the two complete static hint hashes, preserving all
+existing IDs, privacy bounds, warning levels and the live 8 MiB guard.
 
-[Diagnosis, host proof and next gate](auction-count.md). Original recurring
-auction snapshot reads COUNT column 4 as uint32, causing two warning lines per
-row (three under strict checks), then falls back to uint64. v15 changes only
-that expression to an explicit uint32 conversion of Get<uint64>(). Original
-query, narrowing/accumulation, Field, all SQL/configurations and all 52 modules
-are preserved. v14 shutdown repair remains. Four original/four fixed Release
-and ASan/UBSan fixtures pass; boundary counts match and fixed warnings are zero.
-Native compilation uses one job and reuses completed objects. Only seller is
-recompiled. Repeated relink hash **3374a7515ec901d2fe1b413c91f423bb149f90a9cc41963cdcb7897decd21671**,
-62,665,968 bytes. [Build evidence](evidence/android-2026-10-25-world-auction-build.json).
-Code 34 also distinguishes the two complete static aggregate hints by hashes;
-all existing source IDs, privacy bounds and the 8 MiB live guard remain.
-
-**Finish exact application CI, package/sign code 34, verify all inputs and save
-APK plus corresponding source before requesting the combined Thor gate.**
-Keep source-backed defects separate from inferred Thor causation. Native runtime,
-GT fallback, world readiness and gameplay flags remain false until complete Stop
-and postconditions pass. Client import/WarcraftXL/playable login are later work.
+The single-job ARM64 build reuses the completed graph. Only seller recompiles;
+repeated relink SHA256 `3374a7515ec901d2fe1b413c91f423bb149f90a9cc41963cdcb7897decd21671`,
+62,665,968 bytes. [Build proof](evidence/android-2026-10-25-world-auction-build.json).
+This demonstrated caller bug is consistent with the warnings; Thor causation
+and successful runtime remain unqualified until the new report. Combined native
+runtime, GT fallback, world readiness and gameplay flags remain false.
 
 ## Physical runtime evidence retained
 

@@ -1,0 +1,25 @@
+{
+  "formatVersion": 1,
+  "sourceCompanionSha256": "02695902ac274ad33feb881b1d2f53f9933c7a2a6db08fe164fa27edc1a8c98c",
+  "sourceCompanionBytes": 540135812,
+  "baselineMembersPreserved": 178,
+  "parts": [
+    {
+      "name": "FTA-Launcher-0.12.7-corresponding-source.zip.part1",
+      "bytes": 419430400,
+      "sha256": "4327cd8cf34dfa05d15f7d16cda6bb821f83e7d94e1d95a359d148b1c7302287",
+      "libraryFileId": "libfile_69e672469cc8819184849abc0d4a52ef"
+    },
+    {
+      "name": "FTA-Launcher-0.12.7-corresponding-source.zip.part2",
+      "bytes": 120705412,
+      "sha256": "e1f54b7100486b33f53f8f14781f58db85c83acc01d970121aab01322b76b538",
+      "libraryFileId": "libfile_75a7323ebf888191b52ba626ed51cde8"
+    }
+  ],
+  "reassembly": "Concatenate part1 then part2 without separators; verify complete archive SHA256.",
+  "partConcatenationVerified": true,
+  "apkLibraryFileId": "libfile_8fa18bc7cfe0819199ea34f580703c71",
+  "nativeBaselineCacheUnchanged": "docs/code32-recovery.md",
+  "newWorldProfile": "android-arm64-world-v15"
+}

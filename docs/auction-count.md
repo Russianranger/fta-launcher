@@ -56,8 +56,8 @@ case and this patch deliberately leaves the original Field implementation intact
 
 ## Next combined Thor gate
 
-Use the verified private **code 34**, `0.12.7-auction-count`, when delivered with
-its measured APK identity and the original persistent signer. Install in place.
+Use the [verified private code 34 and matching source](code34-recovery.md),
+`0.12.7-auction-count`, with its measured identity and persistent signer. Install in place.
 
 1. Select **Start native world test** once; keep the launcher visible through
    its automatic retained-file rehash and startup.

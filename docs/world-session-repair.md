@@ -1,5 +1,9 @@
 # Additive world-session shutdown repair
 
+Current continuation: v15 preserves this shutdown repair and changes one auction
+COUNT getter. See [code-34 diagnosis and combined physical gate](auction-count.md).
+The v14 build and code-32 procedure below are historical evidence.
+
 Physical code 31 established sustained world/auth/database health and 144,884 ms
 of healthy screen-off operation. Its Stop failed with world exit 139. The source
 diagnosis and original-code regression are in [script-unload.md](script-unload.md).
@@ -21,10 +25,11 @@ client, auth and updater invocations keep their original executable selection.
 Session receipts record the tested world hash and source profile; an earlier or
 different executable's report cannot qualify this version.
 
-`tools/verify_world_session.py` independently checks the complete v13/v14 source
+`tools/verify_world_session.py` independently checked the complete v13/v14 source
 trees, a single changed source file, actual CMake file-API/link/static archives,
 all 52 compiled modules, C++20, static Lua 5.2 and the unchanged ELF dependency
 closure. All other source files, including SQL and configurations, must match.
+The current verifier applies the same checks to the single-file v14/v15 delta.
 The separate source companion includes every original source archive and notice,
 current reproduction sources and measured build evidence.
 
@@ -37,8 +42,8 @@ APK unchanged; only the separately verified v2 helper is preloaded for a session
 Code 32 passed 651,866 ms healthy screen-off and world exit zero during automatic
 failure cleanup. Its 8 MiB log cap ended the session before user Stop/postchecks.
 [Code-32 evidence](evidence/android-2026-10-25-thor-code32-runtime.json).
-Use the [read-only code-33 export](world-log-recovery.md) before any new session.
-The sequence below remains the later combined gate, not the next requested action.
+The [read-only code-33 export](world-log-recovery.md) has now recovered that log.
+Follow the current code-34 gate linked above, not the historical version below.
 
 ## Deferred combined physical gate
 

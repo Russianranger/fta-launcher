@@ -1,5 +1,10 @@
 # Bounded evidence recovery after the code-32 log limit
 
+**Recovery completed on code 33.** The same attempt's world log is 8,535,490
+bytes; its tail is dominated by the original aggregate conversion hint pair.
+[Measured result and subsequent caller correction](auction-count.md).
+The procedure below is historical; do not repeat this recovery before code 34.
+
 Physical code 32 matches the delivered APK and repaired world hashes. It passes
 64 receipt health samples (65 native probes), 672,534 ms elapsed and 651,866 ms
 healthy screen-off. Full retained asset rehash, strict metadata/GT prechecks,
@@ -11,7 +16,7 @@ not qualify user Stop, database fallback or complete runtime readiness.
 [Physical evidence](evidence/android-2026-10-25-thor-code32-runtime.json).
 
 Code 32 exports stdout (1,042,275 bytes) and stderr (19 bytes), but rejects the
-oversized world-file export. Its exact size and dominant messages are unknown.
+oversized world-file export. At that checkpoint its size/messages were unknown.
 The previous readable code-31 world log had 9,416 warnings; the old 160-entry
 startup dictionary did not identify those warning sources. No warning is assumed
 benign, suppressed or fixed without its measured source evidence.
@@ -48,7 +53,7 @@ Regression fixtures cover a sparse file larger than 1 GiB while reading only
 mtime, symlink/active/stale-attempt rejection, capped occurrence groups and exact
 runtime-limit rejection. The original complete fatal-witness behavior remains.
 
-## Verified delivery and next device action
+## Verified historical delivery and recovery action
 
 [Code-33 private APK and source](code33-recovery.md) passed 185 tooling tests,
 382 Android tests (one existing private-fixture skip), lint/assembly, 225 packaged

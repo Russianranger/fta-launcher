@@ -1,5 +1,8 @@
 # Code 33 private diagnostic and source recovery
 
+Recovery has completed. Keep this artifact for history; the next runtime gate
+uses [code 34's source-backed auction correction](auction-count.md).
+
 [FTA-Launcher-0.12.6-log-evidence.apk](https://chatgpt.com/library?file_id=libfile_0c8e511f801c8191b428838b78088c74&account_id=personal)
 
 APK SHA256 `c1b6f5434f1a43852ba7948f69232a7da51e53e56848eb872cdfda0f43fc1553`, **59,000,019 bytes**.
