@@ -20,6 +20,89 @@
     "mod-warcraftxl-ui-tracker",
     "mod-world-inspector-runtime"
   ],
+  "warningSources": [
+    "modules/mod-aura-timers/src/AuraTimers.cpp",
+    "modules/mod-craftspeed/src/mod_craftspeed.cpp",
+    "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+    "modules/mod-goblin-glider/src/GoblinGlider.cpp",
+    "modules/mod-junk-to-gold/src/mod_junk_to_gold.cpp",
+    "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+    "modules/mod-multitrainer/src/mod_multitrainer.cpp",
+    "modules/mod-pocket-pals/src/PocketPals.cpp",
+    "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+    "modules/mod-talisman-of-binding-shard/src/mod_talisman_of_binding_shard.cpp",
+    "modules/mod-timewalking/src/TimewalkingMgr.cpp",
+    "src/server/database/Database/DatabaseLoader.cpp",
+    "src/server/database/Database/DatabaseWorkerPool.cpp",
+    "src/server/database/Database/Field.cpp",
+    "src/server/database/Database/MySQLConnection.cpp",
+    "src/server/database/Database/MySQLPreparedStatement.cpp",
+    "src/server/database/Database/QueryResult.cpp",
+    "src/server/database/Database/Transaction.cpp",
+    "src/server/database/Updater/DBUpdater.cpp",
+    "src/server/database/Updater/UpdateFetcher.cpp",
+    "src/server/game/AI/NpcBots/bot_ai.cpp",
+    "src/server/game/AI/NpcBots/botconfig.cpp",
+    "src/server/game/AI/NpcBots/botdatamgr.cpp",
+    "src/server/game/AI/SmartScripts/SmartAI.cpp",
+    "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+    "src/server/game/Achievements/AchievementMgr.cpp",
+    "src/server/game/Addons/AddonMgr.cpp",
+    "src/server/game/AuctionHouse/AuctionHouseMgr.cpp",
+    "src/server/game/Autobroadcast/AutobroadcastMgr.cpp",
+    "src/server/game/Battlegrounds/ArenaSeason/ArenaSeasonMgr.cpp",
+    "src/server/game/Battlegrounds/ArenaTeamMgr.cpp",
+    "src/server/game/Battlegrounds/BattlegroundMgr.cpp",
+    "src/server/game/Battlegrounds/BattlegroundQueue.cpp",
+    "src/server/game/Cache/CharacterCache.cpp",
+    "src/server/game/Chat/Channels/ChannelMgr.cpp",
+    "src/server/game/Chat/ChatCommands/ChatCommand.cpp",
+    "src/server/game/Conditions/ConditionMgr.cpp",
+    "src/server/game/Conditions/DisableMgr.cpp",
+    "src/server/game/DungeonFinding/LFGMgr.cpp",
+    "src/server/game/Entities/Creature/Creature.cpp",
+    "src/server/game/Entities/Creature/CreatureGroups.cpp",
+    "src/server/game/Entities/Item/Item.cpp",
+    "src/server/game/Entities/Item/ItemEnchantmentMgr.cpp",
+    "src/server/game/Entities/Player/Player.cpp",
+    "src/server/game/Entities/Player/PlayerStorage.cpp",
+    "src/server/game/Events/GameEventMgr.cpp",
+    "src/server/game/Globals/ObjectMgr.cpp",
+    "src/server/game/Globals/WorldGlobals.cpp",
+    "src/server/game/Groups/GroupMgr.cpp",
+    "src/server/game/Guilds/GuildMgr.cpp",
+    "src/server/game/Handlers/CharacterHandler.cpp",
+    "src/server/game/Handlers/MailHandler.cpp",
+    "src/server/game/Loot/LootItemStorage.cpp",
+    "src/server/game/Loot/LootMgr.cpp",
+    "src/server/game/Mails/ServerMailMgr.cpp",
+    "src/server/game/Maps/TransportMgr.cpp",
+    "src/server/game/Misc/GameGraveyard.cpp",
+    "src/server/game/Movement/Waypoints/WaypointMgr.cpp",
+    "src/server/game/OutdoorPvP/OutdoorPvPMgr.cpp",
+    "src/server/game/Petitions/PetitionMgr.cpp",
+    "src/server/game/Pools/PoolMgr.cpp",
+    "src/server/game/Scripting/ScriptSystem.cpp",
+    "src/server/game/Server/WorldSession.cpp",
+    "src/server/game/Skills/SkillDiscovery.cpp",
+    "src/server/game/Skills/SkillExtraItems.cpp",
+    "src/server/game/Spells/SpellMgr.cpp",
+    "src/server/game/Texts/CreatureTextMgr.cpp",
+    "src/server/game/Tickets/TicketMgr.cpp",
+    "src/server/game/Warden/WardenCheckMgr.cpp",
+    "src/server/game/Weather/WeatherMgr.cpp",
+    "src/server/game/World/World.cpp",
+    "src/server/game/World/WorldState.cpp",
+    "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp",
+    "src/server/scripts/Custom/Custom_Misc/active_chat.cpp",
+    "src/server/scripts/Custom/Custom_Misc/mod_gm_item_lookup.cpp",
+    "src/server/scripts/Custom/Custom_NPC/multi_vendor.cpp",
+    "src/server/scripts/Custom/Custom_Player_Scripts/mod_glyph_unlocks.cpp",
+    "src/server/scripts/Custom/WellOfEternity/boss_fta_perotharn.cpp",
+    "src/server/scripts/Custom/WellOfEternity/instance_fta_well_of_eternity.cpp",
+    "src/server/scripts/Outland/CoilfangReservoir/SerpentShrine/boss_lady_vashj.cpp",
+    "src/server/scripts/Outland/CoilfangReservoir/SerpentShrine/instance_serpent_shrine.cpp"
+  ],
   "sourceSha256": {
     "modules/mod-ale/src/ALE_SC.cpp": "bbbde21d580845c5aeedc5b82bcb30cb1ac45fcc0d8a05e03485ba9f1f40d896",
     "modules/mod-ale/src/ALE_loader.cpp": "6e41b0e581036e0cf28bd5cf9444cddc5e3f6b32229d5f277776a3e1cc9dad48",
@@ -62,6 +145,7 @@
     "modules/mod-boost-60-outland/src/Boost60OutlandLoader.cpp": "985c054eb76ccf077fae27e1f12a132a9a5bcce024b4d0ff0f7ad264758eaea4",
     "modules/mod-craftspeed/src/mod_craftspeed.cpp": "7ebee8853d07743c0616b13b3ff21ff24bc4603392d98c9ff8f145e88700959f",
     "modules/mod-craftspeed/src/mod_craftspeed_loader.cpp": "d02afb92542f5002233fcec95a7b0f1e9189a8f791d41896f06c6f78f04356ab",
+    "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp": "a77c778115ca259364708898e79465d7eaa6ed67eec0bd3a283c0c11fd91288a",
     "modules/mod-dbm-fta-bridge/src/DBMFTABotCallouts.cpp": "bb275516f8a51f24655224a24a5b5239adc87b5eda40ccbcf86444ffb58a2bf2",
     "modules/mod-dbm-fta-bridge/src/DBMFTABridge.cpp": "3769aa70ed440772681dddec94554617c8218cec342a447989916fe02944cdc1",
     "modules/mod-dbm-fta-bridge/src/DBMFTABridge_loader.cpp": "056752891dc4cf7417aff43a9ba9e22fcc5dbf7c95b2e6cff5f30abb1eeead26",
@@ -70,6 +154,9 @@
     "modules/mod-goblin-glider/src/GoblinGlider.cpp": "15690dac7dcfa1c31494423deea2dbe9fbfbd760b2df05b05cbee7e20ad8083a",
     "modules/mod-goblin-glider/src/GoblinGliderLoader.cpp": "7cad9dc1b862fd19f69c6525cc9be28879edb22c41bf20f155eff200a87e777d",
     "modules/mod-goblin-glider/tests/GlideEnvelopeTests.cpp": "73d5e617cb7bf934799566538c66bad50524a52f361a18e923edd72917ccd38d",
+    "modules/mod-junk-to-gold/src/mod_junk_to_gold.cpp": "891854219c1f29b66c2f085fdea18a71bbf22fc75a5647dce12a79d2020739d6",
+    "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp": "b1de551112145bfa6ae8296e4d87ced1b2c4f2b60e0ef42a4ab3b1cda147f1a0",
+    "modules/mod-multitrainer/src/mod_multitrainer.cpp": "792951b9e7894070b0a0608ce490c6943fc90dadcda9466d1f46337cd2e963f4",
     "modules/mod-pocket-pals/src/PocketPals.cpp": "ce6be990156adad62f45b91404c4d3afec2384249526a23e6431985cdb720418",
     "modules/mod-pocket-pals/src/mod_pocket_pals_loader.cpp": "de08309b44e651ea4d9db5762d9c6308faef5c62ffae73a6a62acfac1adb1ed2",
     "modules/mod-questie-bridge/src/QuestieBridge.cpp": "49fd10970347cc8f95d3525e125091684170527be594eba0bbe8a4fa29d56e5d",
@@ -78,6 +165,7 @@
     "modules/mod-reagent-bank-account/src/ReagentBankAccount_loader.cpp": "9bde94d99edba39f550ef5d0ccdbd13ff8bff3927b1580627ec75bb4873e1b13",
     "modules/mod-starter-food-water/src/mod_starter_food_water.cpp": "af9db863ccffc682e9350b9f36a9cbb92329cda5bd3645d4c2abb8c1ae39dcfe",
     "modules/mod-starter-food-water/src/mod_starter_food_water_loader.cpp": "52462917fffc7ec06236b86b6bc347f75d2c6b6d693467999b1e3b0026644659",
+    "modules/mod-talisman-of-binding-shard/src/mod_talisman_of_binding_shard.cpp": "4ba94c15ff62c6a3f71f20cd69a641a318bdec8f0ce28ea6201e6035e05ff0d6",
     "modules/mod-timewalking/src/TimewalkingMgr.cpp": "6959a40682762537cafdc8d37bb86c84388d964c0b148c64b82401a88b66fb1c",
     "modules/mod-timewalking/src/TimewalkingScripts.cpp": "631d90de40a9d77d7589f9085989ea9c3434dd26057499e4f46acec10216c2b4",
     "modules/mod-timewalking/src/mod_timewalking_loader.cpp": "45a3c19eb2e2e53e79b956b8798ad1f1f218ce752792245c028c3eb4db7a9552",
@@ -98,7 +186,76 @@
     "modules/mod-world-inspector-runtime/src/WorldInspectorRuntime.cpp": "dd31bb4522aff0c33fbd50c3b49697584187f3c41a7e751064e9e218424eb0cd",
     "modules/mod-world-inspector-runtime/src/WorldInspectorRuntimeLoader.cpp": "803dccfbf82aa298c5c0bee240ba1baa491a9f7b9d4cf91d8c8cf1914f155e6a",
     "src/server/apps/worldserver/Main.cpp": "782a1100dcbc84c24b924f6394ee3cb7ec33712881089274aaa3f22974edd1a0",
-    "src/server/database/Database/MySQLConnection.cpp": "811446bd01b3b2709e98be6f909f3fca4ab8ceeddb6252a505dfbf3f92465e5a"
+    "src/server/database/Database/DatabaseLoader.cpp": "0f275c42496e1f74cdc7ba2a76ae83b2017d1a55ad67d35e9ad56da1c2137486",
+    "src/server/database/Database/DatabaseWorkerPool.cpp": "5b9009993bd2367a4e010d49fa56676a35c463e07a0606851494dd17ef0fe77c",
+    "src/server/database/Database/Field.cpp": "787d3c2f40ff705c9fe06d120d35137e413e07be95b975f10d897384e3c25302",
+    "src/server/database/Database/MySQLConnection.cpp": "811446bd01b3b2709e98be6f909f3fca4ab8ceeddb6252a505dfbf3f92465e5a",
+    "src/server/database/Database/MySQLPreparedStatement.cpp": "4cc5942e262324922937d47ddc304b9c3f391662fd752b8c20c8d2467a35a0b3",
+    "src/server/database/Database/QueryResult.cpp": "6210ddb8cd6a7a12f17236e3dbbd5bb0637795587f97d04b5511cc6892e5cbcd",
+    "src/server/database/Database/Transaction.cpp": "cbd8582eb53b230b54c8c8fc5f6dd7dd19124208f2de5e291874e8a81ec25896",
+    "src/server/database/Updater/DBUpdater.cpp": "a091e4dc6b83457eef7f63ef7cf973ccc63ab1344154dc69010704e2e5f79019",
+    "src/server/database/Updater/UpdateFetcher.cpp": "9b153a1a637f11613dd6ea00a68d4b5b2e3d47c33d6b8ca7ab5fd5bf38a5259a",
+    "src/server/game/AI/NpcBots/bot_ai.cpp": "c2ed273c0856f6c37c23c94cfd834aed76e736bf918c7c027f2ecdb2a11a9f34",
+    "src/server/game/AI/NpcBots/botconfig.cpp": "518922e0ce97f396016ec75e1dcf68ed99bc21c64ae05a5d9973902b4ec79811",
+    "src/server/game/AI/NpcBots/botdatamgr.cpp": "28e585cab1ee5892531bfe393cbdf4cff7fc6dba7f28d39b346359fcb88b3154",
+    "src/server/game/AI/SmartScripts/SmartAI.cpp": "f5475ebebfd22739f6f799e43a793f2fc29efe37f1a17f5cef679d5fdbd39d07",
+    "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp": "150bcd19415c5dac6dbb70c9dcb2274a011e2918a026f9e39a6b0abb11f0e089",
+    "src/server/game/Achievements/AchievementMgr.cpp": "82b859d3543a3d6c58b855d47d089617305de0d0033adde35a01b3d411d3e646",
+    "src/server/game/Addons/AddonMgr.cpp": "b518719d7f57f1dc64e1e24dc7d6224680ce9b783ce6a075ede21142e0f9c3f1",
+    "src/server/game/AuctionHouse/AuctionHouseMgr.cpp": "32faae9e8da4d37bec9f30e7f287d3a7304e5db07c32e778cd0356532506dd82",
+    "src/server/game/Autobroadcast/AutobroadcastMgr.cpp": "48a3256ea3a9888b40022ce3bf6bfaa2d7c7f3ea63ccfa0fb08efd58f6457fdf",
+    "src/server/game/Battlegrounds/ArenaSeason/ArenaSeasonMgr.cpp": "90221e7f39470fb22406ac6cab5dcc5bb0a3cbfbc5734ec542d1360815d8d201",
+    "src/server/game/Battlegrounds/ArenaTeamMgr.cpp": "e810fe76125ce092f5bfba1a5eb8b64eda6c63af82dd5ec493a882e48fded31d",
+    "src/server/game/Battlegrounds/BattlegroundMgr.cpp": "4b73ee2b99cb795cc953ea880948be843cc564e69b66486fd8471cd29034dfaf",
+    "src/server/game/Battlegrounds/BattlegroundQueue.cpp": "54fbbd5565646af2b958c03d12f95cd715f8583659c58a5be4cd59e6819bc9e0",
+    "src/server/game/Cache/CharacterCache.cpp": "0eeea46739c610fe8e1d2ebea0dfe16ae8bb02d9b80f88da680459b794649ec4",
+    "src/server/game/Chat/Channels/ChannelMgr.cpp": "ec054f83914ba2b53d2559e06bedcabffc8b3f62eacf369205b74057692182fb",
+    "src/server/game/Chat/ChatCommands/ChatCommand.cpp": "429439aad9a22a8cbe43a6c160632d0da541416a8aaf2a39e012a234f3523104",
+    "src/server/game/Conditions/ConditionMgr.cpp": "377c461170a198d3f451c11376cd8636ea72582466abdf4c7dde155e18e6eef3",
+    "src/server/game/Conditions/DisableMgr.cpp": "ce8c5aaefc229dad9fa0856ded2ce143f47c94c336eeea7660f61cb7b8da3b88",
+    "src/server/game/DungeonFinding/LFGMgr.cpp": "16fcc1d3cdd1f1c85a8c081c9db13bef4db400076861bdc70e6787c5d57a8e80",
+    "src/server/game/Entities/Creature/Creature.cpp": "7c7dd0cc34fd4a6625f33b58bdfff57f7e13679ad6c0b72f6eefff391ffa48cc",
+    "src/server/game/Entities/Creature/CreatureGroups.cpp": "355d96599e143e5fc7f9eacd2b24308f8ff0ea3701c3afe0fc0ca91666ded06c",
+    "src/server/game/Entities/Item/Item.cpp": "00979bada980bafe18a6665f1dc062bacb255c9daeb987acb1772501eace4aba",
+    "src/server/game/Entities/Item/ItemEnchantmentMgr.cpp": "776eed44428c00e9ea66f13af5d70a2bf40986f8cf56de0d24b4fce4aa4c3301",
+    "src/server/game/Entities/Player/Player.cpp": "334e7a3fdd423ec91b8bfaae4b044b92139a3c0504871a4fa082c85c1033e0f5",
+    "src/server/game/Entities/Player/PlayerStorage.cpp": "c8edc74591cfb4ad258c513795a00f9a420ac3d2f99acfe79fae5c0238658129",
+    "src/server/game/Events/GameEventMgr.cpp": "b716012d0ec99232bed581418e15a6520452c5c55623e034c42366c22eaa6dfe",
+    "src/server/game/Globals/ObjectMgr.cpp": "8892141a5f7d2b4cb7e68dbd5d77980dcb02383bdce48c50c50accb413ded63e",
+    "src/server/game/Globals/WorldGlobals.cpp": "abc702cceb8b1e1c16fd9b453554c4e37031d39138d6d9afae86c2b9406f2b72",
+    "src/server/game/Groups/GroupMgr.cpp": "361e33fd6881b05f3e843a390495f21f73d01c42b11821cbaceec93666961d6c",
+    "src/server/game/Guilds/GuildMgr.cpp": "5aeed49a3ebaf6bec11b9c949804a035eacb55dda25a3ba19b708fb1cecb3c33",
+    "src/server/game/Handlers/CharacterHandler.cpp": "a0501d371d1438c3aed63ab931de8f9e00412b80ef37424f55f03247d7759786",
+    "src/server/game/Handlers/MailHandler.cpp": "725d8122d56cd5695a0e42442f5391f96468be6cf5117e1bdafc99e5e3100108",
+    "src/server/game/Loot/LootItemStorage.cpp": "5fb8e7715f733e89454d53b5dea26512d81a6008bacdadf59339641f7e47a8b0",
+    "src/server/game/Loot/LootMgr.cpp": "5c004d0f1280196572f198949dfe0a97a589e5fac1d65bfdf59b63b9b6cef8f5",
+    "src/server/game/Mails/ServerMailMgr.cpp": "b571f427dae58b0551d5de75331517d0a66b85f35e115bbbb21b579883c5d1cb",
+    "src/server/game/Maps/TransportMgr.cpp": "7732c96e489b2fdc13f901cf690d6b0389ecf773ee2788826df9a4a5ad5a3048",
+    "src/server/game/Misc/GameGraveyard.cpp": "f41f4fb8ac448389ac69cbed09fc34fb35e93c3fb5317affe425a5d862cde4ca",
+    "src/server/game/Movement/Waypoints/WaypointMgr.cpp": "43e764c5bcb6a00c342fff514fff3286b10948de72c190a7e374a549f4d3db98",
+    "src/server/game/OutdoorPvP/OutdoorPvPMgr.cpp": "a2de6278702adb187e2e71b8255e3a49eaacfeac3e4effe8422f689636319ffe",
+    "src/server/game/Petitions/PetitionMgr.cpp": "b5f72300bcd4ee8094f51e529ff61d6c177fdb8c45b3c577dc89ccb0a36e2c39",
+    "src/server/game/Pools/PoolMgr.cpp": "ecf48ddc9ef4492b68d555be6b23b59ef3b3228f9692c27487ae0100b70a30c0",
+    "src/server/game/Scripting/ScriptSystem.cpp": "8a5c211aa58b669606bbc23ed3aec009ca26260ada1ac5dd8742c095f1657ca5",
+    "src/server/game/Server/WorldSession.cpp": "14ff9d3a2c5b658b29e81063ab6c0728d0d0d30576d1372e543f3ead6d0f8e3b",
+    "src/server/game/Skills/SkillDiscovery.cpp": "c60e92db7cfda6248d5615a011f2302abb6dff61bcdb3c6a0156c1bfd9fa7bb4",
+    "src/server/game/Skills/SkillExtraItems.cpp": "6defc07a7683a43cc5cc790fd7ee983d3200a374ff7118bfcffb3725264a9627",
+    "src/server/game/Spells/SpellMgr.cpp": "a1c22a01a370877dfc2b78240ad328c9d50a50585a8ceed43ab7a8d53cedc5e5",
+    "src/server/game/Texts/CreatureTextMgr.cpp": "3c6b2a7fcba4bc5e92f67a25730926f1516a93c914d5422d673252c476a19141",
+    "src/server/game/Tickets/TicketMgr.cpp": "33c3962ab8e99e3a156150019c4c1bd68f2b9c47dc7287839363470decd99d3e",
+    "src/server/game/Warden/WardenCheckMgr.cpp": "e864e87eedfda999babe756024fea2944cbeb0411e7f6ec4773db3bf89bd6934",
+    "src/server/game/Weather/WeatherMgr.cpp": "82259dda4c413cc85a0a33f09d5be840a613447fcc5c315adbbd7d1aa3eee6e7",
+    "src/server/game/World/World.cpp": "2774cc222da87dc909264b91c6868378674b1fc26525fb1f45a61564f2419788",
+    "src/server/game/World/WorldState.cpp": "06c5527c843cacdd6fc35c79cb55e8abf00e764359ba301ce9a54de776b117f1",
+    "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp": "3d0ffe3f806c27a72c29cb59e067d421f5ace3628d28ad942a257c23076af651",
+    "src/server/scripts/Custom/Custom_Misc/active_chat.cpp": "0188d167071df7f2cad7e955701dc1e3572499449fcfe6f13fd1346f4001e634",
+    "src/server/scripts/Custom/Custom_Misc/mod_gm_item_lookup.cpp": "0584426c8fdf68fea6ef64fa30149e494abd0f35181d27233f1004420b0febdc",
+    "src/server/scripts/Custom/Custom_NPC/multi_vendor.cpp": "5d2287da03802dc8d13620269d10ea901b24fa0274c5b65d165c70960e766933",
+    "src/server/scripts/Custom/Custom_Player_Scripts/mod_glyph_unlocks.cpp": "d165199377d274cf55da2b23c330b4d2329b4dd217d646583c4e577237557352",
+    "src/server/scripts/Custom/WellOfEternity/boss_fta_perotharn.cpp": "deae0bd20ce872cb96cb349c7199aac925d2d269e17c1766ea95e6d77fbfcd39",
+    "src/server/scripts/Custom/WellOfEternity/instance_fta_well_of_eternity.cpp": "8bb8203800f6fe35536d613b499b7457e0d31a2e9589540f623dfe1e64f9c823",
+    "src/server/scripts/Outland/CoilfangReservoir/SerpentShrine/boss_lady_vashj.cpp": "fbb00bebde90afc7e68dd4f8b5be8ddb02abf6cb9a728bb667d9f6f39466c546",
+    "src/server/scripts/Outland/CoilfangReservoir/SerpentShrine/instance_serpent_shrine.cpp": "b3dbb5806329aff500d9b6092014869b5af04705d63ed63e6082cfa575cf04c3"
   },
   "events": [
     {
@@ -1060,9 +1217,1731 @@
       "source": "src/server/database/Database/MySQLConnection.cpp",
       "line": 655,
       "prefixSha256": "76067a99de60596a4100eb7cc5c3470f3eae3fbd5cc6236def229568a599d5eb"
+    },
+    {
+      "id": "w0160",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 199,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0161",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 225,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0162",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 248,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0163",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 256,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0164",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 487,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0165",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 501,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0166",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 507,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0167",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 515,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0168",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 531,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0169",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 597,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0170",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 611,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0171",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 632,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0172",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 639,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0173",
+      "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+      "line": 657,
+      "prefixSha256": "dcd2c3d22684289890c7b5c80e2b76ae581b53b737c17d355964d4a54de58d8d"
+    },
+    {
+      "id": "w0174",
+      "source": "modules/mod-junk-to-gold/src/mod_junk_to_gold.cpp",
+      "line": 190,
+      "prefixSha256": "8994362963c8d378ccfeec0dc8dc109f907a26ef349fc2d7e31a9ded4a883327"
+    },
+    {
+      "id": "w0175",
+      "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+      "line": 86,
+      "prefixSha256": "7f58f77e162d59077f44ba7a3e9b59db0632efe435aec56bffc57536d30da2ca"
+    },
+    {
+      "id": "w0176",
+      "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+      "line": 92,
+      "prefixSha256": "7f58f77e162d59077f44ba7a3e9b59db0632efe435aec56bffc57536d30da2ca"
+    },
+    {
+      "id": "w0177",
+      "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+      "line": 98,
+      "prefixSha256": "7f58f77e162d59077f44ba7a3e9b59db0632efe435aec56bffc57536d30da2ca"
+    },
+    {
+      "id": "w0178",
+      "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+      "line": 250,
+      "prefixSha256": "7f58f77e162d59077f44ba7a3e9b59db0632efe435aec56bffc57536d30da2ca"
+    },
+    {
+      "id": "w0179",
+      "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+      "line": 259,
+      "prefixSha256": "7f58f77e162d59077f44ba7a3e9b59db0632efe435aec56bffc57536d30da2ca"
+    },
+    {
+      "id": "w0180",
+      "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+      "line": 265,
+      "prefixSha256": "7f58f77e162d59077f44ba7a3e9b59db0632efe435aec56bffc57536d30da2ca"
+    },
+    {
+      "id": "w0181",
+      "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+      "line": 272,
+      "prefixSha256": "7f58f77e162d59077f44ba7a3e9b59db0632efe435aec56bffc57536d30da2ca"
+    },
+    {
+      "id": "w0182",
+      "source": "modules/mod-multitrainer/src/mod_multitrainer.cpp",
+      "line": 551,
+      "prefixSha256": "1f76d3cb47cee00c915b9b58d49c58f8c90eec6c670abda8dff905be9b96e03b"
+    },
+    {
+      "id": "w0183",
+      "source": "modules/mod-talisman-of-binding-shard/src/mod_talisman_of_binding_shard.cpp",
+      "line": 643,
+      "prefixSha256": "aabc05e9f390aa1ace759b92ecb49106465b34993d9b6ee336e3ae338b622034"
+    },
+    {
+      "id": "w0184",
+      "source": "modules/mod-talisman-of-binding-shard/src/mod_talisman_of_binding_shard.cpp",
+      "line": 655,
+      "prefixSha256": "ea5ea974176e8e669ca1d0d3f5a0ea6c52943f544ab13651073d078aa4306d23"
+    },
+    {
+      "id": "w0185",
+      "source": "modules/mod-talisman-of-binding-shard/src/mod_talisman_of_binding_shard.cpp",
+      "line": 810,
+      "prefixSha256": "504071cd5e3277b18d58797432adbfd78e31d0160eefc36db79278ff12b57616"
+    },
+    {
+      "id": "w0186",
+      "source": "src/server/database/Database/DatabaseLoader.cpp",
+      "line": 176,
+      "prefixSha256": "c1248230c965a6cf80d5e9fc9f8cbbc7e748718dfa733d544bd7699d4053dd0b"
+    },
+    {
+      "id": "w0187",
+      "source": "src/server/database/Database/Field.cpp",
+      "line": 254,
+      "prefixSha256": "1844f020acbc81563d32b1b106e47aae1ae33d4806a146896a0bd1e284002f33"
+    },
+    {
+      "id": "w0188",
+      "source": "src/server/database/Database/Field.cpp",
+      "line": 261,
+      "prefixSha256": "1844f020acbc81563d32b1b106e47aae1ae33d4806a146896a0bd1e284002f33"
+    },
+    {
+      "id": "w0189",
+      "source": "src/server/database/Database/MySQLPreparedStatement.cpp",
+      "line": 85,
+      "prefixSha256": "20657e42a1bc2b808c6b5333a103cef97e6ce32bc62cf7ed3ca98b71b6f13229"
+    },
+    {
+      "id": "w0190",
+      "source": "src/server/database/Database/QueryResult.cpp",
+      "line": 72,
+      "prefixSha256": "62a11b0d4f6ec41d2a4bcd02094dfb879a3cc238d8652355ec0d51d0bb74dff1"
+    },
+    {
+      "id": "w0191",
+      "source": "src/server/database/Database/QueryResult.cpp",
+      "line": 114,
+      "prefixSha256": "32e86c06485472dc5623fa2cc0005d49fd57702178c9f8550067dbaeb979dadd"
+    },
+    {
+      "id": "w0192",
+      "source": "src/server/database/Database/Transaction.cpp",
+      "line": 118,
+      "prefixSha256": "0c2ab5bda1d38d5243cf05ddd6c06cd1fc4cc4547208c505b15b10d1ec6cd20c"
+    },
+    {
+      "id": "w0193",
+      "source": "src/server/database/Database/Transaction.cpp",
+      "line": 168,
+      "prefixSha256": "0c2ab5bda1d38d5243cf05ddd6c06cd1fc4cc4547208c505b15b10d1ec6cd20c"
+    },
+    {
+      "id": "w0194",
+      "source": "src/server/database/Updater/UpdateFetcher.cpp",
+      "line": 146,
+      "prefixSha256": "9de0e16d3e9d4c2fe2482e142e3f4a17f581da6758de488f6a30f55c9083cfb0"
+    },
+    {
+      "id": "w0195",
+      "source": "src/server/game/AI/NpcBots/bot_ai.cpp",
+      "line": 33848,
+      "prefixSha256": "38f397979ec4401ee84cb7604077a77a4efb3cc190a9de6c4665e4927f93605f"
+    },
+    {
+      "id": "w0196",
+      "source": "src/server/game/AI/NpcBots/botconfig.cpp",
+      "line": 678,
+      "prefixSha256": "ad61cb3d5342e20a2bcee663686382928345101c70298e9d3812079794537c58"
+    },
+    {
+      "id": "w0197",
+      "source": "src/server/game/AI/NpcBots/botconfig.cpp",
+      "line": 912,
+      "prefixSha256": "bc5c920d563e84997b730059e7335b1e08b84d66236a43b83a7cbd7da1ef2fe8"
+    },
+    {
+      "id": "w0198",
+      "source": "src/server/game/AI/NpcBots/botconfig.cpp",
+      "line": 923,
+      "prefixSha256": "bc5c920d563e84997b730059e7335b1e08b84d66236a43b83a7cbd7da1ef2fe8"
+    },
+    {
+      "id": "w0199",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 1518,
+      "prefixSha256": "f17173f1e2e94d4bd3f9f6321ddb2d0feba1ddd8588092b68a5c573a57302246"
+    },
+    {
+      "id": "w0200",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 2232,
+      "prefixSha256": "9e7f45e6493a3eef61f0e2e4be5bd4593bc2f38ec70001aa996fbe7044d3fcb7"
+    },
+    {
+      "id": "w0201",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4017,
+      "prefixSha256": "347efaba9677aa091e1ae231d1fc6fd31a3ef0c5610698d888b12f570496b31b"
+    },
+    {
+      "id": "w0202",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4246,
+      "prefixSha256": "4af419f4be293fa3e863683ab50a264f194374beb673f161ba3a3bcd9266bc89"
+    },
+    {
+      "id": "w0203",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4251,
+      "prefixSha256": "d82162d2a92ce9f9f5f557c9cb57686615ec6a080e8770732405cfa857a4ebb2"
+    },
+    {
+      "id": "w0204",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4256,
+      "prefixSha256": "fffea127d07c1b93022c17a4340481369509139cf90afb108db0d654817f2854"
+    },
+    {
+      "id": "w0205",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4261,
+      "prefixSha256": "4bf64e0c87050c4efd91ddddd50aeeea40d3264743e7183b339b36abb8acc47b"
+    },
+    {
+      "id": "w0206",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4266,
+      "prefixSha256": "7e16e58619b86760b82517eac36f3b7137b95e08795e92bb64e84d5659f33017"
+    },
+    {
+      "id": "w0207",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4271,
+      "prefixSha256": "ff7a9cab1aac4813c3b190a2cd8a2ac7fce5223707e29d62091e05400f1f4ec2"
+    },
+    {
+      "id": "w0208",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4276,
+      "prefixSha256": "39190b0cda6a96cbf68eb831f907141a4d9f46fefef0f5f42046d4ae84ef95c8"
+    },
+    {
+      "id": "w0209",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4594,
+      "prefixSha256": "d081b52df54be801b837f2b7b3d25b0d0ad4bad03ad6996f0553b49ac02032a3"
+    },
+    {
+      "id": "w0210",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4596,
+      "prefixSha256": "d081b52df54be801b837f2b7b3d25b0d0ad4bad03ad6996f0553b49ac02032a3"
+    },
+    {
+      "id": "w0211",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4745,
+      "prefixSha256": "eb7d8d82bbf668c54207e48149bf2755aaed12aff1ef9d5c4812beb60944d304"
+    },
+    {
+      "id": "w0212",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4865,
+      "prefixSha256": "d81c861b122af0f0309a6ce5813c71c4abf66095d3606dbc6a8abece09a8a80e"
+    },
+    {
+      "id": "w0213",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4878,
+      "prefixSha256": "d81c861b122af0f0309a6ce5813c71c4abf66095d3606dbc6a8abece09a8a80e"
+    },
+    {
+      "id": "w0214",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 4979,
+      "prefixSha256": "bf3f51e425439f03a5c167e55b6445a2288791b73125852775c0d6f2cab5937e"
+    },
+    {
+      "id": "w0215",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 5972,
+      "prefixSha256": "53a3a1b5857aa528ab6d4ca96e12ad0b998eec7cb9cf63dfc7c5ea543100799e"
+    },
+    {
+      "id": "w0216",
+      "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+      "line": 6015,
+      "prefixSha256": "0f87d8db7b252134dec4994381255f8d070cd322c130dc1dbea2f668cf932a69"
+    },
+    {
+      "id": "w0217",
+      "source": "src/server/game/AI/SmartScripts/SmartAI.cpp",
+      "line": 1094,
+      "prefixSha256": "eb92ebef936ea2eaefe34af347d94558a199b282c89f2b8b2d46c929d0a08d5a"
+    },
+    {
+      "id": "w0218",
+      "source": "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+      "line": 58,
+      "prefixSha256": "f127ee13e09e2eb6a6f6bff3389a70520f09aba3077dfd1ffa403dd7ba6f4f67"
+    },
+    {
+      "id": "w0219",
+      "source": "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+      "line": 129,
+      "prefixSha256": "f127ee13e09e2eb6a6f6bff3389a70520f09aba3077dfd1ffa403dd7ba6f4f67"
+    },
+    {
+      "id": "w0220",
+      "source": "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+      "line": 710,
+      "prefixSha256": "103022347dc3777f17ffec4f2207005a7df8b9d8ebb957c8b3192a1f86ce0f23"
+    },
+    {
+      "id": "w0221",
+      "source": "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+      "line": 918,
+      "prefixSha256": "103022347dc3777f17ffec4f2207005a7df8b9d8ebb957c8b3192a1f86ce0f23"
+    },
+    {
+      "id": "w0222",
+      "source": "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+      "line": 987,
+      "prefixSha256": "103022347dc3777f17ffec4f2207005a7df8b9d8ebb957c8b3192a1f86ce0f23"
+    },
+    {
+      "id": "w0223",
+      "source": "src/server/game/Achievements/AchievementMgr.cpp",
+      "line": 2676,
+      "prefixSha256": "a87a16c4139830953aec627b270a3d212098c319bb21bdeb6681d8df3dc2c4d2"
+    },
+    {
+      "id": "w0224",
+      "source": "src/server/game/Achievements/AchievementMgr.cpp",
+      "line": 2831,
+      "prefixSha256": "a87a16c4139830953aec627b270a3d212098c319bb21bdeb6681d8df3dc2c4d2"
+    },
+    {
+      "id": "w0225",
+      "source": "src/server/game/Achievements/AchievementMgr.cpp",
+      "line": 2862,
+      "prefixSha256": "55ddaf7effbce9ee54573df536fe4b559537b80f761f3eba3d3334afedf5eb76"
+    },
+    {
+      "id": "w0226",
+      "source": "src/server/game/Achievements/AchievementMgr.cpp",
+      "line": 3004,
+      "prefixSha256": "cf92183a1cb9ae6cfb0b059b3b6c83a7572fb296f47212a15aaf1fe313c7b258"
+    },
+    {
+      "id": "w0227",
+      "source": "src/server/game/Achievements/AchievementMgr.cpp",
+      "line": 3046,
+      "prefixSha256": "a87a16c4139830953aec627b270a3d212098c319bb21bdeb6681d8df3dc2c4d2"
+    },
+    {
+      "id": "w0228",
+      "source": "src/server/game/Achievements/AchievementMgr.cpp",
+      "line": 3167,
+      "prefixSha256": "a87a16c4139830953aec627b270a3d212098c319bb21bdeb6681d8df3dc2c4d2"
+    },
+    {
+      "id": "w0229",
+      "source": "src/server/game/Addons/AddonMgr.cpp",
+      "line": 46,
+      "prefixSha256": "69cf25cace7982a641ef6dcfb4d705a87944521c3ee14c47123975d0ac896453"
+    },
+    {
+      "id": "w0230",
+      "source": "src/server/game/AuctionHouse/AuctionHouseMgr.cpp",
+      "line": 342,
+      "prefixSha256": "a42c3abc4ada577f6313c0d079a0c6c4dfe6dbc57c011cd6e2eacd4f6d325e7a"
+    },
+    {
+      "id": "w0231",
+      "source": "src/server/game/AuctionHouse/AuctionHouseMgr.cpp",
+      "line": 387,
+      "prefixSha256": "a42c3abc4ada577f6313c0d079a0c6c4dfe6dbc57c011cd6e2eacd4f6d325e7a"
+    },
+    {
+      "id": "w0232",
+      "source": "src/server/game/Autobroadcast/AutobroadcastMgr.cpp",
+      "line": 44,
+      "prefixSha256": "1af0ce0b1c22acd274bd261165295ee504c5667f0cc81c91010b77547bf98695"
+    },
+    {
+      "id": "w0233",
+      "source": "src/server/game/Autobroadcast/AutobroadcastMgr.cpp",
+      "line": 83,
+      "prefixSha256": "75941a536a5c02878b6c523f52f2b5b057d1bd75cb2361d902dcb8784620f027"
+    },
+    {
+      "id": "w0234",
+      "source": "src/server/game/Battlegrounds/ArenaSeason/ArenaSeasonMgr.cpp",
+      "line": 45,
+      "prefixSha256": "e6ec3c1e071f5c8a34cfb53ac5fa9de2ef8da89ec49cfc413403727023d6ac3e"
+    },
+    {
+      "id": "w0235",
+      "source": "src/server/game/Battlegrounds/ArenaSeason/ArenaSeasonMgr.cpp",
+      "line": 79,
+      "prefixSha256": "e6ec3c1e071f5c8a34cfb53ac5fa9de2ef8da89ec49cfc413403727023d6ac3e"
+    },
+    {
+      "id": "w0236",
+      "source": "src/server/game/Battlegrounds/ArenaTeamMgr.cpp",
+      "line": 182,
+      "prefixSha256": "e6ec3c1e071f5c8a34cfb53ac5fa9de2ef8da89ec49cfc413403727023d6ac3e"
+    },
+    {
+      "id": "w0237",
+      "source": "src/server/game/Battlegrounds/BattlegroundMgr.cpp",
+      "line": 822,
+      "prefixSha256": "abfececd9e4cf48f7796083ca0d46b62b89afe7699e313d5e29eee8a23144ecb"
+    },
+    {
+      "id": "w0238",
+      "source": "src/server/game/Battlegrounds/BattlegroundQueue.cpp",
+      "line": 289,
+      "prefixSha256": "81b9c45cc94bfddaf59e6da2d6785501bb95e5aab6be2d72c9e180d42798131e"
+    },
+    {
+      "id": "w0239",
+      "source": "src/server/game/Cache/CharacterCache.cpp",
+      "line": 222,
+      "prefixSha256": "b0fbcbf2097d214643a44c0880ca1046b8ab3e74351724267676a235898b2d2d"
+    },
+    {
+      "id": "w0240",
+      "source": "src/server/game/Chat/Channels/ChannelMgr.cpp",
+      "line": 59,
+      "prefixSha256": "2bb6d8180dc336276888cdf5a8c574d3148b30a60b7b6c0657144576423cc6dd"
+    },
+    {
+      "id": "w0241",
+      "source": "src/server/game/Chat/Channels/ChannelMgr.cpp",
+      "line": 174,
+      "prefixSha256": "f1885412cfbd786680ded88ca08d904c697a98fcdfdef753fa032d4bc47e2fa0"
+    },
+    {
+      "id": "w0242",
+      "source": "src/server/game/Chat/ChatCommands/ChatCommand.cpp",
+      "line": 120,
+      "prefixSha256": "c51e255292f3acb91f2c693781a9c2b63777fd0fbe1fbf8fefbf0be766d22001"
+    },
+    {
+      "id": "w0243",
+      "source": "src/server/game/Chat/ChatCommands/ChatCommand.cpp",
+      "line": 143,
+      "prefixSha256": "c51e255292f3acb91f2c693781a9c2b63777fd0fbe1fbf8fefbf0be766d22001"
+    },
+    {
+      "id": "w0244",
+      "source": "src/server/game/Conditions/ConditionMgr.cpp",
+      "line": 1220,
+      "prefixSha256": "298eed5dc83964bc23a38e7a0a7685a733213ffacfda2490f3d0f83fecce6794"
+    },
+    {
+      "id": "w0245",
+      "source": "src/server/game/Conditions/DisableMgr.cpp",
+      "line": 55,
+      "prefixSha256": "0ef91402541ccd601ef31ba782391cf4233a0c27704b8f59fa79fd07a5f27f5b"
+    },
+    {
+      "id": "w0246",
+      "source": "src/server/game/DungeonFinding/LFGMgr.cpp",
+      "line": 2644,
+      "prefixSha256": "8f61537d5ddff93d551efecaefab2da7857caf28de30a80ef7032d44e8ed4c7a"
+    },
+    {
+      "id": "w0247",
+      "source": "src/server/game/Entities/Creature/Creature.cpp",
+      "line": 2384,
+      "prefixSha256": "8a00dd5f92e8e52566734ffdd9fe9beefb177a990bc259b55eae66d2e17488f5"
+    },
+    {
+      "id": "w0248",
+      "source": "src/server/game/Entities/Creature/CreatureGroups.cpp",
+      "line": 92,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0249",
+      "source": "src/server/game/Entities/Item/Item.cpp",
+      "line": 489,
+      "prefixSha256": "ec94fc3288e61654a5d8350ccea8e3c7a1868e0eaa00fe962df70bb39cea3991"
+    },
+    {
+      "id": "w0250",
+      "source": "src/server/game/Entities/Item/ItemEnchantmentMgr.cpp",
+      "line": 79,
+      "prefixSha256": "4604104fa64ca91aee18166a328cc244a6553dafd1ecf77364631f816630e361"
+    },
+    {
+      "id": "w0251",
+      "source": "src/server/game/Entities/Player/PlayerStorage.cpp",
+      "line": 5122,
+      "prefixSha256": "66852f87d202a0f2e4bd288104e7614775b35808b17ef959445764499e01f3de"
+    },
+    {
+      "id": "w0252",
+      "source": "src/server/game/Entities/Player/PlayerStorage.cpp",
+      "line": 5127,
+      "prefixSha256": "66852f87d202a0f2e4bd288104e7614775b35808b17ef959445764499e01f3de"
+    },
+    {
+      "id": "w0253",
+      "source": "src/server/game/Entities/Player/PlayerStorage.cpp",
+      "line": 6195,
+      "prefixSha256": "df2ca2a7a8a7619c7ce7d73198f1bacf078183df7b354aad58a1c0318629c4ef"
+    },
+    {
+      "id": "w0254",
+      "source": "src/server/game/Entities/Player/PlayerStorage.cpp",
+      "line": 6308,
+      "prefixSha256": "1eb3f62f8b8398bc3db0814238c2a5fd21b58dff778761f7977784f0d7266120"
+    },
+    {
+      "id": "w0255",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 249,
+      "prefixSha256": "f14bc4df2c70cb7c0fdfc50a99682e57d2a53099b208742f831c2289f5b95480"
+    },
+    {
+      "id": "w0256",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 337,
+      "prefixSha256": "d946588c8b5285dfd7ee0d58627a9b5da3780c1f8a0142fdbc4d05419e9b4da4"
+    },
+    {
+      "id": "w0257",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 404,
+      "prefixSha256": "2690e286a26fe7ed10c1da8218f00b5f32005217cbba43b522258b94aa9dfe29"
+    },
+    {
+      "id": "w0258",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 452,
+      "prefixSha256": "2690e286a26fe7ed10c1da8218f00b5f32005217cbba43b522258b94aa9dfe29"
+    },
+    {
+      "id": "w0259",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 505,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0260",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 555,
+      "prefixSha256": "d946588c8b5285dfd7ee0d58627a9b5da3780c1f8a0142fdbc4d05419e9b4da4"
+    },
+    {
+      "id": "w0261",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 605,
+      "prefixSha256": "c5374d6c1d36278b06dd2faa94e698e4a6ca8c80136824c697f9a385b352d1f8"
+    },
+    {
+      "id": "w0262",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 664,
+      "prefixSha256": "6ac3be9adf61c26bdeffbee8237ec76be49973ff41f1f429b3da1eeba8d9ede9"
+    },
+    {
+      "id": "w0263",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 706,
+      "prefixSha256": "3be4d636317ee01569ea106ba4f16e58ac3876c5b38ba16243d360dd9e1a9333"
+    },
+    {
+      "id": "w0264",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 748,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0265",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 792,
+      "prefixSha256": "5739d4d5f8bdd6382f6f22751f77068f6ae8b64a18cbf901c12ad8e39b974ca9"
+    },
+    {
+      "id": "w0266",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 835,
+      "prefixSha256": "5739d4d5f8bdd6382f6f22751f77068f6ae8b64a18cbf901c12ad8e39b974ca9"
+    },
+    {
+      "id": "w0267",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 884,
+      "prefixSha256": "87d9916f9809028903c104810960dcb6038dac4ff54ed07d48ad593dadf8fdcc"
+    },
+    {
+      "id": "w0268",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 924,
+      "prefixSha256": "fe19e77edc9913cadfefa0055d24b58b6cadfa57ae229b8d3a4c8bacec369e1d"
+    },
+    {
+      "id": "w0269",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 972,
+      "prefixSha256": "e38586e2c805e278611ad13931c5fc6630a89511dc8059253a2dadc34b2211f6"
+    },
+    {
+      "id": "w0270",
+      "source": "src/server/game/Events/GameEventMgr.cpp",
+      "line": 1011,
+      "prefixSha256": "19e805dd54e1066f8330ad67b49bb918a2df21f3885e83371a66c5def6f1e7be"
+    },
+    {
+      "id": "w0271",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 468,
+      "prefixSha256": "9819d013782167fa55b70483055b8eab24463403277c1d346d7052f54be6000a"
+    },
+    {
+      "id": "w0272",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 550,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0273",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 704,
+      "prefixSha256": "77bad7902b5c1290160aace6c924326d567ee66279fdde9151f057303559c834"
+    },
+    {
+      "id": "w0274",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 706,
+      "prefixSha256": "77bad7902b5c1290160aace6c924326d567ee66279fdde9151f057303559c834"
+    },
+    {
+      "id": "w0275",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 708,
+      "prefixSha256": "77bad7902b5c1290160aace6c924326d567ee66279fdde9151f057303559c834"
+    },
+    {
+      "id": "w0276",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 778,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0277",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 824,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0278",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 870,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0279",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 1281,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0280",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 1382,
+      "prefixSha256": "d946588c8b5285dfd7ee0d58627a9b5da3780c1f8a0142fdbc4d05419e9b4da4"
+    },
+    {
+      "id": "w0281",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 1499,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0282",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 1588,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0283",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 1735,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0284",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 1947,
+      "prefixSha256": "c99114f6c6865728e02b6735f370d8b4a9fb6cf485dfa4385b8c3f7c9889ad01"
+    },
+    {
+      "id": "w0285",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 2178,
+      "prefixSha256": "8eb6aa6969bd169feff037c5338c494770d69da34009db70597f7702448b3b2a"
+    },
+    {
+      "id": "w0286",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 2266,
+      "prefixSha256": "d946588c8b5285dfd7ee0d58627a9b5da3780c1f8a0142fdbc4d05419e9b4da4"
+    },
+    {
+      "id": "w0287",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 2352,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0288",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 2771,
+      "prefixSha256": "b143a8a7feda6a5c385506910060c6de5629acc7a28be020680c7874e5c8d915"
+    },
+    {
+      "id": "w0289",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 2951,
+      "prefixSha256": "d946588c8b5285dfd7ee0d58627a9b5da3780c1f8a0142fdbc4d05419e9b4da4"
+    },
+    {
+      "id": "w0290",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 3370,
+      "prefixSha256": "f2f004b14bd4b53f93db9cdd6dc58effd4bb8f1ded3d5460c4288dca752e9de9"
+    },
+    {
+      "id": "w0291",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 3959,
+      "prefixSha256": "1be1df95c17069fde6002fb5dbefabcb1c0511f69928d20e8f1fede7cc9d8c23"
+    },
+    {
+      "id": "w0292",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4089,
+      "prefixSha256": "f2f004b14bd4b53f93db9cdd6dc58effd4bb8f1ded3d5460c4288dca752e9de9"
+    },
+    {
+      "id": "w0293",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4161,
+      "prefixSha256": "3a055601e2e457b2b54ce45e5571b13526426fbaf2d6ed4233e7b9ea0bfabeee"
+    },
+    {
+      "id": "w0294",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4217,
+      "prefixSha256": "9bd760f4ed7f0c721daacf12d3acc01715f8600e225efd66d1e4f470db5f2c2e"
+    },
+    {
+      "id": "w0295",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4313,
+      "prefixSha256": "38013002f7dd0414166d80803e802c9544050558ae5015ff064c3d7f0fc7f46e"
+    },
+    {
+      "id": "w0296",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4462,
+      "prefixSha256": "25029646c17a919e57e28da49951d8d4babbc29e30d9591b2d676af2ba5ef46f"
+    },
+    {
+      "id": "w0297",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4548,
+      "prefixSha256": "bc981b26442366af74001252dc0011a6c3b35ed376b8038ee88e39160da927cf"
+    },
+    {
+      "id": "w0298",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4619,
+      "prefixSha256": "b163180e7a9ead1158190b401e5703ab82035c380fa3013bf7bd0bc82df00afd"
+    },
+    {
+      "id": "w0299",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4694,
+      "prefixSha256": "25029646c17a919e57e28da49951d8d4babbc29e30d9591b2d676af2ba5ef46f"
+    },
+    {
+      "id": "w0300",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4752,
+      "prefixSha256": "b163180e7a9ead1158190b401e5703ab82035c380fa3013bf7bd0bc82df00afd"
+    },
+    {
+      "id": "w0301",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4811,
+      "prefixSha256": "b163180e7a9ead1158190b401e5703ab82035c380fa3013bf7bd0bc82df00afd"
+    },
+    {
+      "id": "w0302",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 4866,
+      "prefixSha256": "615280f6391666e3740cf8564d6c2a21fb265fd4f23016581995b58eba55f28e"
+    },
+    {
+      "id": "w0303",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 5030,
+      "prefixSha256": "1bebd539861c9d5effbdd3239ae7a1a787000e3d12a2b8fed99ceb2538cf8977"
+    },
+    {
+      "id": "w0304",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 5220,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0305",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 5262,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0306",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 5285,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0307",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 5308,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0308",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 5333,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0309",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 6050,
+      "prefixSha256": "8658a4580b5be5f9c904a352d02c8211cc5c0d879de53ce96961e5e8d34e687f"
+    },
+    {
+      "id": "w0310",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 6448,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0311",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 6577,
+      "prefixSha256": "c7b19c3b35d6f8115ebd965362f9288cbd63d426d5c47086a64911617b78a49b"
+    },
+    {
+      "id": "w0312",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 6629,
+      "prefixSha256": "c7b19c3b35d6f8115ebd965362f9288cbd63d426d5c47086a64911617b78a49b"
+    },
+    {
+      "id": "w0313",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 6660,
+      "prefixSha256": "308925ec860215b7984728f43de074948583c259aaf94dfdd87c0882486ddabe"
+    },
+    {
+      "id": "w0314",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 6710,
+      "prefixSha256": "308925ec860215b7984728f43de074948583c259aaf94dfdd87c0882486ddabe"
+    },
+    {
+      "id": "w0315",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 6812,
+      "prefixSha256": "c6f0414d13c9304e27fab02732af6f916581e6a1a443ff411bbed7c8c93585ee"
+    },
+    {
+      "id": "w0316",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 6916,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0317",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 6992,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0318",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 7044,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0319",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 7165,
+      "prefixSha256": "875e38068d0896e82dc359327d7cc5af7aa63a691b317a82898f841bc5008005"
+    },
+    {
+      "id": "w0320",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 7205,
+      "prefixSha256": "2a88ceb7b1e9e0d8e9a519ca28ae02fc7ea5113c58975bbd5c0c31b3bc73535b"
+    },
+    {
+      "id": "w0321",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 7353,
+      "prefixSha256": "6045534eca1c4326461266c9d404061389a2f8361591fa334b0568ac5d82c89b"
+    },
+    {
+      "id": "w0322",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 7404,
+      "prefixSha256": "6045534eca1c4326461266c9d404061389a2f8361591fa334b0568ac5d82c89b"
+    },
+    {
+      "id": "w0323",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 7490,
+      "prefixSha256": "45868136d92cc39e7f81ad7e7ed351564e96dfe91ecba8b09d95cd9826911065"
+    },
+    {
+      "id": "w0324",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 7876,
+      "prefixSha256": "d946588c8b5285dfd7ee0d58627a9b5da3780c1f8a0142fdbc4d05419e9b4da4"
+    },
+    {
+      "id": "w0325",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 8060,
+      "prefixSha256": "d946588c8b5285dfd7ee0d58627a9b5da3780c1f8a0142fdbc4d05419e9b4da4"
+    },
+    {
+      "id": "w0326",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 8138,
+      "prefixSha256": "cde8e5f4e2e2a96af177b4b1f2d02c6b6ac458f40c2a275ed82959e43edb605a"
+    },
+    {
+      "id": "w0327",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 8178,
+      "prefixSha256": "9819d013782167fa55b70483055b8eab24463403277c1d346d7052f54be6000a"
+    },
+    {
+      "id": "w0328",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 8359,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0329",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 8546,
+      "prefixSha256": "c71bec66a724b54cd6d7cfb0abbb546e357ee91cd7f536cf26303d0e75bf55c8"
+    },
+    {
+      "id": "w0330",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 8601,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0331",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 8674,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0332",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 8943,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0333",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9042,
+      "prefixSha256": "99b90a05045eaf968a19b53dd0d0497bb8264f671e40dab8a730e6c2bdbf46b8"
+    },
+    {
+      "id": "w0334",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9074,
+      "prefixSha256": "99b90a05045eaf968a19b53dd0d0497bb8264f671e40dab8a730e6c2bdbf46b8"
+    },
+    {
+      "id": "w0335",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9145,
+      "prefixSha256": "5928a14d2d40eab3e309c6aa98f5def0086003f66abe54216615bbb990dfc1ee"
+    },
+    {
+      "id": "w0336",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9177,
+      "prefixSha256": "5928a14d2d40eab3e309c6aa98f5def0086003f66abe54216615bbb990dfc1ee"
+    },
+    {
+      "id": "w0337",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9249,
+      "prefixSha256": "696f0eb297df97cf7948f120c876dc7947e1f7bcb953623c5451fd1e7b1b4cfa"
+    },
+    {
+      "id": "w0338",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9491,
+      "prefixSha256": "2690e286a26fe7ed10c1da8218f00b5f32005217cbba43b522258b94aa9dfe29"
+    },
+    {
+      "id": "w0339",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9567,
+      "prefixSha256": "14c992cef0d531d96e8cf31cb33692742ed60a8f26ae5b38a07901d45c0029d0"
+    },
+    {
+      "id": "w0340",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9598,
+      "prefixSha256": "14c992cef0d531d96e8cf31cb33692742ed60a8f26ae5b38a07901d45c0029d0"
+    },
+    {
+      "id": "w0341",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9659,
+      "prefixSha256": "7246672aeec2fff83116fa659a499e708714448c13b1f7b7158f195aec9b5de3"
+    },
+    {
+      "id": "w0342",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9710,
+      "prefixSha256": "6045534eca1c4326461266c9d404061389a2f8361591fa334b0568ac5d82c89b"
+    },
+    {
+      "id": "w0343",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 9929,
+      "prefixSha256": "2690e286a26fe7ed10c1da8218f00b5f32005217cbba43b522258b94aa9dfe29"
+    },
+    {
+      "id": "w0344",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10069,
+      "prefixSha256": "38013002f7dd0414166d80803e802c9544050558ae5015ff064c3d7f0fc7f46e"
+    },
+    {
+      "id": "w0345",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10338,
+      "prefixSha256": "f14bc4df2c70cb7c0fdfc50a99682e57d2a53099b208742f831c2289f5b95480"
+    },
+    {
+      "id": "w0346",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10384,
+      "prefixSha256": "804c4bff339c64992cf93fe8c350e4288e0562b1da150c7aa9c40e7b3777c522"
+    },
+    {
+      "id": "w0347",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10424,
+      "prefixSha256": "804c4bff339c64992cf93fe8c350e4288e0562b1da150c7aa9c40e7b3777c522"
+    },
+    {
+      "id": "w0348",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10498,
+      "prefixSha256": "08cd9fe24bab87cc802773389d939357f00150caa0c4f0314c177a0a9ed47780"
+    },
+    {
+      "id": "w0349",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10712,
+      "prefixSha256": "59f7726c23e8e4a13f965b54490ac2222904c318687699d559f7b1af14350b79"
+    },
+    {
+      "id": "w0350",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10796,
+      "prefixSha256": "59f7726c23e8e4a13f965b54490ac2222904c318687699d559f7b1af14350b79"
+    },
+    {
+      "id": "w0351",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10867,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0352",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10932,
+      "prefixSha256": "b182360a7a010a5b10b7f86e75ee90677bc686d5915b703d8c3052b2ec902a32"
+    },
+    {
+      "id": "w0353",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10962,
+      "prefixSha256": "deb496a03611212aaee23aab99a3e549a8efae5a30a8c8ad4cc8db6dcfeae8b6"
+    },
+    {
+      "id": "w0354",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 10998,
+      "prefixSha256": "deb496a03611212aaee23aab99a3e549a8efae5a30a8c8ad4cc8db6dcfeae8b6"
+    },
+    {
+      "id": "w0355",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 11034,
+      "prefixSha256": "deb496a03611212aaee23aab99a3e549a8efae5a30a8c8ad4cc8db6dcfeae8b6"
+    },
+    {
+      "id": "w0356",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 11070,
+      "prefixSha256": "deb496a03611212aaee23aab99a3e549a8efae5a30a8c8ad4cc8db6dcfeae8b6"
+    },
+    {
+      "id": "w0357",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 11106,
+      "prefixSha256": "deb496a03611212aaee23aab99a3e549a8efae5a30a8c8ad4cc8db6dcfeae8b6"
+    },
+    {
+      "id": "w0358",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 11142,
+      "prefixSha256": "deb496a03611212aaee23aab99a3e549a8efae5a30a8c8ad4cc8db6dcfeae8b6"
+    },
+    {
+      "id": "w0359",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 11258,
+      "prefixSha256": "d946588c8b5285dfd7ee0d58627a9b5da3780c1f8a0142fdbc4d05419e9b4da4"
+    },
+    {
+      "id": "w0360",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 11303,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0361",
+      "source": "src/server/game/Globals/ObjectMgr.cpp",
+      "line": 11349,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0362",
+      "source": "src/server/game/Globals/WorldGlobals.cpp",
+      "line": 39,
+      "prefixSha256": "ad3cd826ef193bd9a2570746fe4556173390abf53c7a69c5c90ac5161e1c7e6f"
+    },
+    {
+      "id": "w0363",
+      "source": "src/server/game/Groups/GroupMgr.cpp",
+      "line": 135,
+      "prefixSha256": "c77b0e26ca94283ca119e05105a475a695dc22fb2b7011d9be97625ee7cd1182"
+    },
+    {
+      "id": "w0364",
+      "source": "src/server/game/Groups/GroupMgr.cpp",
+      "line": 175,
+      "prefixSha256": "c77b0e26ca94283ca119e05105a475a695dc22fb2b7011d9be97625ee7cd1182"
+    },
+    {
+      "id": "w0365",
+      "source": "src/server/game/Guilds/GuildMgr.cpp",
+      "line": 109,
+      "prefixSha256": "a4685d405967f7154e7b28a8bc406fffecdbc104b48f62f48855f5ce2b3dc355"
+    },
+    {
+      "id": "w0366",
+      "source": "src/server/game/Guilds/GuildMgr.cpp",
+      "line": 149,
+      "prefixSha256": "a4685d405967f7154e7b28a8bc406fffecdbc104b48f62f48855f5ce2b3dc355"
+    },
+    {
+      "id": "w0367",
+      "source": "src/server/game/Guilds/GuildMgr.cpp",
+      "line": 190,
+      "prefixSha256": "a4685d405967f7154e7b28a8bc406fffecdbc104b48f62f48855f5ce2b3dc355"
+    },
+    {
+      "id": "w0368",
+      "source": "src/server/game/Guilds/GuildMgr.cpp",
+      "line": 226,
+      "prefixSha256": "a4685d405967f7154e7b28a8bc406fffecdbc104b48f62f48855f5ce2b3dc355"
+    },
+    {
+      "id": "w0369",
+      "source": "src/server/game/Guilds/GuildMgr.cpp",
+      "line": 260,
+      "prefixSha256": "a4685d405967f7154e7b28a8bc406fffecdbc104b48f62f48855f5ce2b3dc355"
+    },
+    {
+      "id": "w0370",
+      "source": "src/server/game/Guilds/GuildMgr.cpp",
+      "line": 295,
+      "prefixSha256": "a4685d405967f7154e7b28a8bc406fffecdbc104b48f62f48855f5ce2b3dc355"
+    },
+    {
+      "id": "w0371",
+      "source": "src/server/game/Guilds/GuildMgr.cpp",
+      "line": 330,
+      "prefixSha256": "a4685d405967f7154e7b28a8bc406fffecdbc104b48f62f48855f5ce2b3dc355"
+    },
+    {
+      "id": "w0372",
+      "source": "src/server/game/Guilds/GuildMgr.cpp",
+      "line": 367,
+      "prefixSha256": "a4685d405967f7154e7b28a8bc406fffecdbc104b48f62f48855f5ce2b3dc355"
+    },
+    {
+      "id": "w0373",
+      "source": "src/server/game/Loot/LootItemStorage.cpp",
+      "line": 48,
+      "prefixSha256": "23558c01e9ffcbf829cdceb63edd4fbaa4571498a95fde84e623a4b6b72d7e94"
+    },
+    {
+      "id": "w0374",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 1955,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0375",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 1990,
+      "prefixSha256": "ac5958c7fccf55d237fefa5f742ca8e376b9c36f6b46841758abc12ba349613a"
+    },
+    {
+      "id": "w0376",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 2015,
+      "prefixSha256": "5ef3b4e140e859b88a3c2e4409c0afa6370ae77929d81153b60bfe5433adbe83"
+    },
+    {
+      "id": "w0377",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 2051,
+      "prefixSha256": "d946588c8b5285dfd7ee0d58627a9b5da3780c1f8a0142fdbc4d05419e9b4da4"
+    },
+    {
+      "id": "w0378",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 2077,
+      "prefixSha256": "f2f004b14bd4b53f93db9cdd6dc58effd4bb8f1ded3d5460c4288dca752e9de9"
+    },
+    {
+      "id": "w0379",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 2108,
+      "prefixSha256": "dd310fe72ababcca8437f1b2f95d225dfa6fce4c219531c71e003b7679377e74"
+    },
+    {
+      "id": "w0380",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 2144,
+      "prefixSha256": "8bd2d82d874b9834719ca265e06075daba7a1dbac62cccfd9b5bbd1014a01b47"
+    },
+    {
+      "id": "w0381",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 2175,
+      "prefixSha256": "d4e2199d88be9aa89e10667361f19a32e7320b8b70e0d376a8306532d2c24656"
+    },
+    {
+      "id": "w0382",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 2201,
+      "prefixSha256": "332bde4f97825a972a462ceac896b70f3783b1b034ef12e51ced5e46203378a7"
+    },
+    {
+      "id": "w0383",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 2237,
+      "prefixSha256": "b7c210c38773b6140e78e9024cbba454787aabc1efa0929168e15711ad91a0c9"
+    },
+    {
+      "id": "w0384",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 2281,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0385",
+      "source": "src/server/game/Loot/LootMgr.cpp",
+      "line": 2300,
+      "prefixSha256": "25029646c17a919e57e28da49951d8d4babbc29e30d9591b2d676af2ba5ef46f"
+    },
+    {
+      "id": "w0386",
+      "source": "src/server/game/Mails/ServerMailMgr.cpp",
+      "line": 100,
+      "prefixSha256": "eea858665bbd6b9f6402b332f7cb23be61bbe2983ce690069aacc5dabb8f664e"
+    },
+    {
+      "id": "w0387",
+      "source": "src/server/game/Mails/ServerMailMgr.cpp",
+      "line": 169,
+      "prefixSha256": "eea858665bbd6b9f6402b332f7cb23be61bbe2983ce690069aacc5dabb8f664e"
+    },
+    {
+      "id": "w0388",
+      "source": "src/server/game/Mails/ServerMailMgr.cpp",
+      "line": 198,
+      "prefixSha256": "610cfd08022fb0a4e58570a408de17f92ddd0478d7c341d5e0ef4caaf65b661a"
+    },
+    {
+      "id": "w0389",
+      "source": "src/server/game/Maps/TransportMgr.cpp",
+      "line": 62,
+      "prefixSha256": "ffab6daad1ae3c4839d36811a0df05a6e7263498f059866c8f3378801834ee42"
+    },
+    {
+      "id": "w0390",
+      "source": "src/server/game/Misc/GameGraveyard.cpp",
+      "line": 40,
+      "prefixSha256": "86642e4c48a0676c1cde39e5c2ce61157a22efead9db90d1204469719f586a0e"
+    },
+    {
+      "id": "w0391",
+      "source": "src/server/game/Misc/GameGraveyard.cpp",
+      "line": 373,
+      "prefixSha256": "61250598d5705d3f122b1dd5f6fb19c756428a8ea25c80dcaabb2b7cf79f671d"
+    },
+    {
+      "id": "w0392",
+      "source": "src/server/game/Movement/Waypoints/WaypointMgr.cpp",
+      "line": 40,
+      "prefixSha256": "903dfa211cb9ed722ad41d4f7238f826594b6a4aa1b1fc09e6fff851ea795695"
+    },
+    {
+      "id": "w0393",
+      "source": "src/server/game/OutdoorPvP/OutdoorPvPMgr.cpp",
+      "line": 51,
+      "prefixSha256": "2c6fb8b35ed2f9756611a108188a95e634b685134db5f034202e6c3dc7bb5755"
+    },
+    {
+      "id": "w0394",
+      "source": "src/server/game/Petitions/PetitionMgr.cpp",
+      "line": 49,
+      "prefixSha256": "f6a34e43bf75afdd393b2dd9902a89af5c00b888b4474bc3a0f2f591d8622462"
+    },
+    {
+      "id": "w0395",
+      "source": "src/server/game/Petitions/PetitionMgr.cpp",
+      "line": 85,
+      "prefixSha256": "f6a34e43bf75afdd393b2dd9902a89af5c00b888b4474bc3a0f2f591d8622462"
+    },
+    {
+      "id": "w0396",
+      "source": "src/server/game/Pools/PoolMgr.cpp",
+      "line": 598,
+      "prefixSha256": "041440d6fb8b46114e5e2ca92e5e32d8114279b8ef94eee6b528e17bb2eca918"
+    },
+    {
+      "id": "w0397",
+      "source": "src/server/game/Pools/PoolMgr.cpp",
+      "line": 633,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0398",
+      "source": "src/server/game/Pools/PoolMgr.cpp",
+      "line": 701,
+      "prefixSha256": "d946588c8b5285dfd7ee0d58627a9b5da3780c1f8a0142fdbc4d05419e9b4da4"
+    },
+    {
+      "id": "w0399",
+      "source": "src/server/game/Pools/PoolMgr.cpp",
+      "line": 780,
+      "prefixSha256": "e3b51113afbfa4c4e15e5187f5fdb0a5ee43144052a0a133c478bfb600407189"
+    },
+    {
+      "id": "w0400",
+      "source": "src/server/game/Pools/PoolMgr.cpp",
+      "line": 886,
+      "prefixSha256": "ad7ddfc1336d9253ede2454cf3275ee95783f13d38a2fcf14764b9d7315a96b1"
+    },
+    {
+      "id": "w0401",
+      "source": "src/server/game/Scripting/ScriptSystem.cpp",
+      "line": 51,
+      "prefixSha256": "461f8b8ae6939d2f4ab74d04d801ddf110e3a7e48082d30fcf68bf23a07c4449"
+    },
+    {
+      "id": "w0402",
+      "source": "src/server/game/Server/WorldSession.cpp",
+      "line": 1467,
+      "prefixSha256": "80edb75acdca02a28373ad0e3342e6570f4940248f07c9aac786794077261bfd"
+    },
+    {
+      "id": "w0403",
+      "source": "src/server/game/Skills/SkillDiscovery.cpp",
+      "line": 57,
+      "prefixSha256": "6db06593a5e1f6a973eafb1e1e8cef41801831b168c3dce9638764b9184d85f7"
+    },
+    {
+      "id": "w0404",
+      "source": "src/server/game/Skills/SkillExtraItems.cpp",
+      "line": 63,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0405",
+      "source": "src/server/game/Skills/SkillExtraItems.cpp",
+      "line": 149,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0406",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 1291,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0407",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 1402,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0408",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 1519,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0409",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 1624,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0410",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 1711,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0411",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 1794,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0412",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 2016,
+      "prefixSha256": "25ab57fab6bac9a66d28677994be15b8e3a70dd138e16ed127f8bccd624fa1d6"
+    },
+    {
+      "id": "w0413",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 2305,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0414",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 2346,
+      "prefixSha256": "906acdfeb20b33ae26e3a4c9a9a94bc9b142156079c17ac0166fc12eea4a47b7"
+    },
+    {
+      "id": "w0415",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 2387,
+      "prefixSha256": "b2d8a87e08b64f83272d0f359ee7111eadf797034c2242e309bae7091f7709c8"
+    },
+    {
+      "id": "w0416",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 2445,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0417",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 2549,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0418",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 2594,
+      "prefixSha256": "c99114f6c6865728e02b6735f370d8b4a9fb6cf485dfa4385b8c3f7c9889ad01"
+    },
+    {
+      "id": "w0419",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 2825,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0420",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 3266,
+      "prefixSha256": "4ca9f62c54e09dd6207a3dd73747e8e7015c3cf4e84425d361d8650d7a26861f"
+    },
+    {
+      "id": "w0421",
+      "source": "src/server/game/Spells/SpellMgr.cpp",
+      "line": 3304,
+      "prefixSha256": "25ab57fab6bac9a66d28677994be15b8e3a70dd138e16ed127f8bccd624fa1d6"
+    },
+    {
+      "id": "w0422",
+      "source": "src/server/game/Texts/CreatureTextMgr.cpp",
+      "line": 95,
+      "prefixSha256": "386391d18eab40bbef25646190b4a394a3a4783db5d7a171b94adb20fb52eda7"
+    },
+    {
+      "id": "w0423",
+      "source": "src/server/game/Texts/CreatureTextMgr.cpp",
+      "line": 212,
+      "prefixSha256": "15281498c02520e6404f3cfdd6d26fd01f5c5c4c7998c49b7bb82211d936bb1b"
+    },
+    {
+      "id": "w0424",
+      "source": "src/server/game/Tickets/TicketMgr.cpp",
+      "line": 317,
+      "prefixSha256": "12d7504eb0e23875144902f26a91d2a8d042586e5f3c625fe215a83474fee726"
+    },
+    {
+      "id": "w0425",
+      "source": "src/server/game/Warden/WardenCheckMgr.cpp",
+      "line": 54,
+      "prefixSha256": "9ee61398aeb29b97309494fc48134b27c7138fe42218ba02d71c32cae942dce2"
+    },
+    {
+      "id": "w0426",
+      "source": "src/server/game/Warden/WardenCheckMgr.cpp",
+      "line": 180,
+      "prefixSha256": "9ee61398aeb29b97309494fc48134b27c7138fe42218ba02d71c32cae942dce2"
+    },
+    {
+      "id": "w0427",
+      "source": "src/server/game/Weather/WeatherMgr.cpp",
+      "line": 59,
+      "prefixSha256": "88308a4baca8950e82a9681e522ab6f7f02add88819a0462c3be40974aeaa830"
+    },
+    {
+      "id": "w0428",
+      "source": "src/server/game/World/WorldState.cpp",
+      "line": 146,
+      "prefixSha256": "b98ce0178f7add6a15d06c8ef95c070414e1f8fa95f66f29e881992966daea61"
+    },
+    {
+      "id": "w0429",
+      "source": "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp",
+      "line": 129,
+      "prefixSha256": "ba9fd3b812ffc6a8acb8afe775fb2e6d8d6e3cfa02b93757b80aaee650b1ae1c"
+    },
+    {
+      "id": "w0430",
+      "source": "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp",
+      "line": 210,
+      "prefixSha256": "ba9fd3b812ffc6a8acb8afe775fb2e6d8d6e3cfa02b93757b80aaee650b1ae1c"
+    },
+    {
+      "id": "w0431",
+      "source": "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp",
+      "line": 220,
+      "prefixSha256": "ba9fd3b812ffc6a8acb8afe775fb2e6d8d6e3cfa02b93757b80aaee650b1ae1c"
+    },
+    {
+      "id": "w0432",
+      "source": "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp",
+      "line": 261,
+      "prefixSha256": "ba9fd3b812ffc6a8acb8afe775fb2e6d8d6e3cfa02b93757b80aaee650b1ae1c"
+    },
+    {
+      "id": "w0433",
+      "source": "src/server/scripts/Custom/Custom_Misc/active_chat.cpp",
+      "line": 438,
+      "prefixSha256": "30f866d3d91d5c0b42498490208c8192265b486b4b904b33e22a6417e71cdeb5"
+    },
+    {
+      "id": "w0434",
+      "source": "src/server/scripts/Custom/Custom_Misc/active_chat.cpp",
+      "line": 556,
+      "prefixSha256": "ef8e06602c745cff24f4898626bed35bad23230386fed126dd91eb2f113dcb7e"
+    },
+    {
+      "id": "w0435",
+      "source": "src/server/scripts/Custom/Custom_Misc/active_chat.cpp",
+      "line": 588,
+      "prefixSha256": "293c3f80bc5ff4c093ed15ec9e216db8ce7e0bf89c84092b0134ca3084c5cddb"
+    },
+    {
+      "id": "w0436",
+      "source": "src/server/scripts/Custom/Custom_Misc/active_chat.cpp",
+      "line": 608,
+      "prefixSha256": "3af69d7d85456db8ad0c6c4088ab788aa663b34cb3c278be4afb0799700e299e"
+    },
+    {
+      "id": "w0437",
+      "source": "src/server/scripts/Custom/Custom_Misc/active_chat.cpp",
+      "line": 633,
+      "prefixSha256": "293c3f80bc5ff4c093ed15ec9e216db8ce7e0bf89c84092b0134ca3084c5cddb"
+    },
+    {
+      "id": "w0438",
+      "source": "src/server/scripts/Custom/Custom_Misc/active_chat.cpp",
+      "line": 651,
+      "prefixSha256": "24cf7fd09b8a1cd40d435a76e364401b82c84fff217867c4fa86114a73264b7b"
+    },
+    {
+      "id": "w0439",
+      "source": "src/server/scripts/Custom/Custom_Misc/mod_gm_item_lookup.cpp",
+      "line": 851,
+      "prefixSha256": "90851fb5e40a4fa8de0e8727e55a856fd9d5525981f02bddf2684c8025465ceb"
+    },
+    {
+      "id": "w0440",
+      "source": "src/server/scripts/Custom/Custom_NPC/multi_vendor.cpp",
+      "line": 380,
+      "prefixSha256": "aa36b54fd875da6c9cbfdaa3035ed3efd303efbd953e4f048ebcd59f0c09b211"
+    },
+    {
+      "id": "w0441",
+      "source": "src/server/scripts/Custom/Custom_NPC/multi_vendor.cpp",
+      "line": 426,
+      "prefixSha256": "cf58ea5c20a4045c47d138b768f0cee75b5ad9a55b06d6f0a8b4d9ab0edad4f9"
+    },
+    {
+      "id": "w0442",
+      "source": "src/server/scripts/Custom/Custom_Player_Scripts/mod_glyph_unlocks.cpp",
+      "line": 971,
+      "prefixSha256": "4ace6593fd8e6b0621261a428d9e39922d00eabd71e5d891f7af6637d0f2f098"
+    },
+    {
+      "id": "w0443",
+      "source": "src/server/scripts/Custom/WellOfEternity/boss_fta_perotharn.cpp",
+      "line": 592,
+      "prefixSha256": "6fd03bdcb3b3e1998a15e746e34b71bdfbac1e2ac717897e4e20f3f9a33db3d7"
+    },
+    {
+      "id": "w0444",
+      "source": "src/server/scripts/Custom/WellOfEternity/instance_fta_well_of_eternity.cpp",
+      "line": 438,
+      "prefixSha256": "80a5704bbf8a69ebe6161385aa5ac51db8842b83136e85d2ee2b42ef0ec9ea09"
+    },
+    {
+      "id": "w0445",
+      "source": "src/server/scripts/Outland/CoilfangReservoir/SerpentShrine/boss_lady_vashj.cpp",
+      "line": 180,
+      "prefixSha256": "1b7d508dd2fa7ebf32d8f051a14794575b5e34b353ba5047a3a4d50c7a46226c"
+    },
+    {
+      "id": "w0446",
+      "source": "src/server/scripts/Outland/CoilfangReservoir/SerpentShrine/instance_serpent_shrine.cpp",
+      "line": 247,
+      "prefixSha256": "b904cdfa8f56f29f4ca4b85f94d13a0644463dac99239b2a6d582f6979778fb5"
     }
   ],
-  "dictionarySha256": "93fd3a4b6f0c567f7ab261997737c5fcaee31dd9fa74c3a0c97804f086724ae2",
+  "dictionarySha256": "bcb8c4d552f995158ae4ab3b7505e789f96d11066fbc1abacc00f838e13f7dbe",
   "dynamicValuesExported": false,
   "hookCompletionProven": false,
   "crashCauseProven": false,

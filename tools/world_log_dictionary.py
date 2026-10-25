@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Derive non-content log fingerprints from pinned original startup-module sources.
+"""Derive non-content log fingerprints from pinned original startup and warning sources.
 
 Only SHA256 of 16 literal ASCII prefix bytes reaches the APK. Dynamic values,
 format strings and original source code are not copied into public artifacts.
@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSET = ROOT / 'android/app/src/main/assets/metadata/world-log-prefixes.tsv'
 PROOF = ROOT / 'docs/evidence/world-log-dictionary.json'
 LOG = re.compile(r'LOG_(?:INFO|WARN|ERROR|FATAL)\s*\(\s*(?:"[^"\n]+"|[A-Z_]+)\s*,\s*((?:"(?:[^"\\]|\\.)*"\s*)+)')
+WARN = re.compile(LOG.pattern.replace('(?:INFO|WARN|ERROR|FATAL)', 'WARN'))
 LITERAL = re.compile(r'"(?:[^"\\]|\\.)*"')
 
 
@@ -28,9 +29,14 @@ def dictionary(sources):
                 (name.startswith('modules/') and name.split('/')[1] in modules) or
                 name in ('src/server/apps/worldserver/Main.cpp', 'src/server/database/Database/MySQLConnection.cpp')}
     events = []
-    for name, data in sorted(selected.items()):
+    warnings = {name: data for name, data in sources.items() if
+                name.startswith(('src/server/', 'modules/')) and WARN.search(data.decode('utf-8'))}
+    # Keep every existing startup ID stable. Append warning sites outside that original selection.
+    entries = [(name, data, LOG) for name, data in sorted(selected.items())]
+    entries += [(name, data, WARN) for name, data in sorted(warnings.items()) if name not in selected]
+    for name, data, pattern in entries:
         source = data.decode('utf-8')
-        for match in LOG.finditer(source):
+        for match in pattern.finditer(source):
             try:
                 message = ''.join(json.loads(token) for token in LITERAL.findall(match[1]))
             except ValueError:
@@ -45,7 +51,8 @@ def dictionary(sources):
         raise ValueError('Fingerprint dictionary exceeds the runtime bound')
     asset = ''.join(f"{e['prefixSha256']}\t{e['id']}\n" for e in events)
     return asset, {'formatVersion': 1, 'prefixBytes': 16, 'startupModules': modules,
-                   'sourceSha256': {name: hashlib.sha256(data).hexdigest() for name, data in sorted(selected.items())},
+                   'warningSources': sorted(warnings),
+                   'sourceSha256': {name: hashlib.sha256(data).hexdigest() for name, data in sorted((selected | warnings).items())},
                    'events': events, 'dictionarySha256': hashlib.sha256(asset.encode()).hexdigest(),
                    'dynamicValuesExported': False, 'hookCompletionProven': False, 'crashCauseProven': False}
 

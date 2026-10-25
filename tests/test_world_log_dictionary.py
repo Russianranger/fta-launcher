@@ -28,9 +28,30 @@ class WorldLogDictionaryTests(unittest.TestCase):
         self.assertEqual(proof['dictionarySha256'], hashlib.sha256(asset.encode()).hexdigest())
         self.assertEqual(asset, ''.join(f"{e['prefixSha256']}\t{e['id']}\n" for e in proof['events']))
         self.assertEqual(17, len(proof['startupModules']))
-        self.assertEqual(160, len(proof['events']))
+        self.assertEqual(447, len(proof['events']))
+        self.assertEqual(81, len(proof['warningSources']))
+        original = ''.join(asset.splitlines(keepends=True)[:160])
+        self.assertEqual('93fd3a4b6f0c567f7ab261997737c5fcaee31dd9fa74c3a0c97804f086724ae2',
+                         hashlib.sha256(original.encode()).hexdigest())
         self.assertFalse(proof['crashCauseProven'])
         self.assertFalse(proof['hookCompletionProven'])
+
+    def test_warnings_outside_startup_modules_are_appended_without_variable_prefixes(self):
+        initial = {'modules/mod-start/src/hook.cpp': b'void OnStartup() {}\nLOG_INFO("module", "Existing startup marker");'}
+        old, before = dictionary(initial)
+        sources = dict(initial, **{
+            'src/server/game/example.cpp': b'LOG_INFO("core", "Unselected normal info");\n'
+                b'LOG_WARN("core", "Source warning prefix {}", private_value);\n'
+                b'LOG_WARN("core", "{} dynamic-first-warning", private_value);',
+            'modules/mod-other/src/other.cpp': b'LOG_WARN("module", "Another warning prefix {}", private_value);',
+        })
+        asset, proof = dictionary(sources)
+        self.assertTrue(asset.startswith(old))
+        self.assertEqual(before['events'], proof['events'][:1])
+        self.assertEqual(3, len(proof['events']))
+        self.assertEqual(2, len(proof['warningSources']))
+        self.assertNotIn('private_value', asset + json.dumps(proof))
+        self.assertNotIn('warning prefix', asset + json.dumps(proof))
 
 
 if __name__ == '__main__':

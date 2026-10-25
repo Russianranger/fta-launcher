@@ -32,7 +32,15 @@ The v2 fault witness recognizes both world executable names. It preserves the
 original signal protocol and chaining behavior. The old witness remains in the
 APK unchanged; only the separately verified v2 helper is preloaded for a session.
 
-## Next physical gate
+## Code-32 result and immediate recovery
+
+Code 32 passed 651,866 ms healthy screen-off and world exit zero during automatic
+failure cleanup. Its 8 MiB log cap ended the session before user Stop/postchecks.
+[Code-32 evidence](evidence/android-2026-10-25-thor-code32-runtime.json).
+Use the [read-only code-33 export](world-log-recovery.md) before any new session.
+The sequence below remains the later combined gate, not the next requested action.
+
+## Deferred combined physical gate
 
 Private code **32**, `0.12.5-world-stop`, passed full ARM64 build, exact application
 CI, 225 packaged-input checks, persistent v2 signing and 16 KiB alignment.

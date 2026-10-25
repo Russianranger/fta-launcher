@@ -2,6 +2,9 @@ package com.russianranger.fta.runtime
 
 import java.io.File
 import java.io.InputStream
+import java.nio.ByteBuffer
+import java.nio.channels.SeekableByteChannel
+import java.nio.file.StandardOpenOption.READ
 import java.nio.file.Files
 import java.nio.file.LinkOption.NOFOLLOW_LINKS
 import java.nio.file.attribute.BasicFileAttributes
@@ -44,21 +47,25 @@ internal object WorldLogEvidence {
         }
         return output.toByteArray()
     }
-    internal fun scan(file: File, dictionary: Dictionary, exitCode: Int? = null): Map<String, Any> = runCatching {
-        val before = Files.readAttributes(file.toPath(), BasicFileAttributes::class.java, NOFOLLOW_LINKS)
-        require(before.isRegularFile && before.size() <= WorldSessionEvidence.MAX_LOG_BYTES)
+    /** Reads only the specified bytes. Offsets and digests describe this range, never an unseen file. */
+    private fun summarize(channel: SeekableByteChannel, offset: Long, length: Long, dictionary: Dictionary,
+        sampled: Boolean, exitCode: Int?): Map<String, Any> {
+        require(length in 0..WorldSessionEvidence.MAX_LOG_BYTES)
+        channel.position(offset)
         var bytes = 0L; var lines = 0; var longLines = 0; var matches = 0; var lastMatch = 0
         var used = 0; var oversized = false; var unterminated = false
+        var skipLeading = offset > 0; var leadingBytes = 0L; var trailingBytes = 0L; var currentBytes = 0L
         val line = ByteArray(MAX_LINE); val buffer = ByteArray(8192)
         val digest = MessageDigest.getInstance("SHA-256")
         val levels = linkedMapOf("INFO" to 0, "WARN" to 0, "ERROR" to 0, "FATAL" to 0)
         val tail = ArrayDeque<Map<String, Any>>()
+        val frequencies = mutableMapOf<Pair<String, List<String>>, Int>()
         val witness = WorldFaultCapture.Evidence()
         fun accept(complete: Boolean = true) {
             lines++
             if (oversized) longLines++ else {
                 val text = String(line, 0, used, Charsets.UTF_8).removeSuffix("\r")
-                if (complete) witness.accept(text)
+                if (complete && !sampled) witness.accept(text)
                 val parsed = header.matchEntire(text)
                 if (parsed != null) {
                     val level = parsed.groupValues[1]; levels[level] = levels.getValue(level) + 1
@@ -67,37 +74,73 @@ internal object WorldLogEvidence {
                         val ids = dictionary.ids[hash(payload.copyOf(16))]
                         if (ids != null) {
                             matches++; lastMatch = lines
+                            val key = level to ids
+                            frequencies[key] = (frequencies[key] ?: 0) + 1
                             if (tail.size == MAX_EVENTS) tail.removeFirst()
                             tail.addLast(mapOf("line" to lines, "level" to level, "sourceMessageIds" to ids))
                         }
                     }
                 }
             }
-            used = 0; oversized = false; unterminated = false
+            used = 0; oversized = false; unterminated = false; currentBytes = 0
         }
-        Files.newInputStream(file.toPath(), NOFOLLOW_LINKS).use { input ->
-            while (true) {
-                val count = input.read(buffer)
-                if (count < 0) break
-                bytes += count; require(bytes <= WorldSessionEvidence.MAX_LOG_BYTES)
-                digest.update(buffer, 0, count)
-                for (index in 0 until count) {
-                    val byte = buffer[index]
-                    if (byte == 10.toByte()) accept() else {
-                        unterminated = true
-                        if (used < MAX_LINE) line[used++] = byte else oversized = true
-                    }
+        while (bytes < length) {
+            val count = channel.read(ByteBuffer.wrap(buffer, 0, minOf(buffer.size.toLong(), length - bytes).toInt()))
+            require(count > 0) { "Log changed during bounded read" }
+            bytes += count; digest.update(buffer, 0, count)
+            for (index in 0 until count) {
+                val byte = buffer[index]
+                if (skipLeading) {
+                    leadingBytes++
+                    if (byte == 10.toByte()) skipLeading = false
+                } else if (byte == 10.toByte()) accept() else {
+                    currentBytes++; unterminated = true
+                    if (used < MAX_LINE) line[used++] = byte else oversized = true
                 }
             }
         }
-        if (unterminated) accept(complete = false)
-        val after = Files.readAttributes(file.toPath(), BasicFileAttributes::class.java, NOFOLLOW_LINKS)
-        require(after.isRegularFile && bytes == before.size() && bytes == after.size() &&
-            before.fileKey() == after.fileKey() && before.lastModifiedTime() == after.lastModifiedTime())
-        mapOf("available" to true, "bytes" to bytes, "sha256" to hex(digest.digest()), "lines" to lines,
+        if (unterminated) {
+            if (sampled) trailingBytes = currentBytes else accept(complete = false)
+        }
+        val counts = frequencies.entries.sortedWith(compareByDescending<Map.Entry<Pair<String, List<String>>, Int>> { it.value }
+            .thenBy { it.key.first }.thenBy { it.key.second.joinToString(",") }).take(MAX_EVENTS).map {
+            mapOf("level" to it.key.first, "sourceMessageIds" to it.key.second, "count" to it.value)
+        }
+        return mapOf("bytes" to bytes, "sha256" to hex(digest.digest()), "lines" to lines,
             "oversizedLinesSkipped" to longLines, "levels" to levels, "matchedLines" to matches,
             "linesAfterLastMatch" to (lines - lastMatch), "lastSourceMessages" to tail.toList(),
+            "sourceMessageCounts" to counts, "sourceMessageGroupsOmitted" to (frequencies.size - counts.size),
+            "leadingFragmentBytesSkipped" to leadingBytes, "trailingFragmentBytesSkipped" to trailingBytes,
             "faultWitness" to witness.export(exitCode))
+    }
+
+    internal fun scan(file: File, dictionary: Dictionary, exitCode: Int? = null): Map<String, Any> = runCatching {
+        val before = Files.readAttributes(file.toPath(), BasicFileAttributes::class.java, NOFOLLOW_LINKS)
+        require(before.isRegularFile)
+        val size = before.size()
+        val result = Files.newByteChannel(file.toPath(), setOf<java.nio.file.OpenOption>(READ, NOFOLLOW_LINKS)).use { channel ->
+            require(channel.size() == size)
+            val evidence = if (size <= WorldSessionEvidence.MAX_LOG_BYTES) {
+                mapOf("available" to true, "completeFileRead" to true, "limitReached" to (size >= WorldSessionEvidence.MAX_LOG_BYTES)) +
+                    summarize(channel, 0, size, dictionary, false, exitCode)
+            } else {
+                // Forensic evidence only: keep the runtime cap unchanged and never scan the middle.
+                val half = WorldSessionEvidence.MAX_LOG_BYTES / 2
+                val ranges = listOf(0L, size - half).map { offset ->
+                    val summary = summarize(channel, offset, half, dictionary, true, null) - "faultWitness"
+                    mapOf("offsetBytes" to offset, "lengthBytes" to half, "lineNumbersAreRangeLocal" to true) + summary
+                }
+                mapOf("available" to true, "completeFileRead" to false, "limitReached" to true,
+                    "bytes" to size, "sampledBytes" to (half * 2), "omittedBytes" to (size - half * 2),
+                    "regions" to ranges, "runtimeQualificationEvidence" to false)
+            }
+            require(channel.size() == size)
+            evidence
+        }
+        val after = Files.readAttributes(file.toPath(), BasicFileAttributes::class.java, NOFOLLOW_LINKS)
+        require(after.isRegularFile && size == after.size() && before.fileKey() == after.fileKey() &&
+            before.lastModifiedTime() == after.lastModifiedTime())
+        result
     }.getOrElse { mapOf("available" to false) }
 
     fun export(visit: File, attempt: String, terminal: Boolean, dictionary: Dictionary): Map<String, Any> = runCatching {

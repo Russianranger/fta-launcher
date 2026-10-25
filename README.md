@@ -15,13 +15,12 @@ install a persistent realm or open player saves.
 
 ## Current measured checkpoint
 
-Code 31 passed sustained world/auth/database health, a full retained asset rehash,
-and 144.9 seconds of healthy screen-off operation. Stop still exits 139 during
-script-hook dispatch. Private code 32 (`0.12.5-world-stop`) contains the narrow
-source repair, with original-code host regression, full ARM64 build, exact-commit
-CI, persistent signature and package verification complete. Its Thor Stop gate
-is pending; see the
-[repair evidence](docs/script-unload.md) and [retained-identity integration](docs/world-session-repair.md).
+Code 32 sustained native world/auth/database health for over 11 minutes, including
+651.9 seconds screen-off, and the repaired world exited zero during failure cleanup.
+The unchanged 8 MiB log cap ended the session before user Stop and postchecks.
+Code 33 adds bounded read-only recovery of that retained log and original warning
+fingerprints. Native runtime remains unqualified; see
+[measured evidence and recovery](docs/world-log-recovery.md).
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.
@@ -198,14 +197,14 @@ tables. Validation uses the measured archive inventory.
 | Retained local auth listener/restart | Passed on physical Thor code 16: all 15 flags, 39 successful native records and clean shutdown |
 | User-controlled retained database/auth foreground sessions | Physical code 17 Stop/restart passed; 112,127 /120,000 ms screen-off health recorded |
 | Extracted game-data import and format preflight | Physical code 26 passed import/preflight/publication; later retained sessions, including code 31, fully rehashed all 22,817 files |
-| Retained native world/auth/database session | Code 31 passed sustained health and 144.9 s healthy screen-off; Stop crashed. Verified private code 32 repairs script teardown; complete Thor gate pending |
+| Retained native world/auth/database session | Code 32 passed 651.9 s healthy screen-off and world exit zero during failure cleanup; log cap blocked completion. Recover retained evidence before retrying |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-The next device gate is [one code-32 world session through clean Stop](docs/world-session-repair.md).
-No repeat import or separate database/auth test is needed. The rebuilt world needs
-its own combined health, screen-off and shutdown observations.
+The next device action is [read-only export of the retained code-32 attempt](docs/world-log-recovery.md).
+Do not repeat import, database/auth checks or world startup before recovering this
+evidence. Clean shutdown and retained postconditions still need their complete gate.
 The ARM64 world build and original compiled updater have passing evidence;
 preserve their C++20, all 52 modules, static Lua 5.2, source hashes and strict
 [updater protocol](docs/world-updater-gate.md). Android service-process death is now qualified for the isolated runtime.

@@ -63,8 +63,12 @@ class WorldLogEvidenceTest {
         assertEquals(64, tail.size)
         assertTrue(tail.first().toString().contains("line=37"))
         assertTrue(tail.last().toString().contains("sourceMessageIds=[w0000, w0001]"))
+        val counts = result["sourceMessageCounts"] as List<*>
+        assertEquals(1, counts.size)
+        assertTrue(counts.single().toString().contains("count=100"))
+        assertEquals(0, result["sourceMessageGroupsOmitted"])
     }
-    @Test fun symlinksAndOversizedLogsAreNotRead() = fixture { visit, attempt, journal ->
+    @Test fun symlinksAreRejectedAndOversizedLogsRemainPartialEvidence() = fixture { visit, attempt, journal ->
         end(journal)
         val actual = File(visit, "other").apply { writeText("INFO [module] $prefix\n") }
         val log = File(visit, "world-session.log")
@@ -72,10 +76,82 @@ class WorldLogEvidenceTest {
         assertEquals(false, WorldLogEvidence.scan(log, dictionary())["available"])
         log.delete()
         java.io.RandomAccessFile(log, "rw").use { it.setLength(WorldSessionEvidence.MAX_LOG_BYTES + 1) }
-        assertEquals(false, WorldLogEvidence.scan(log, dictionary())["available"])
+        val sampled = WorldLogEvidence.scan(log, dictionary())
+        assertEquals(true, sampled["available"])
+        assertEquals(false, sampled["completeFileRead"])
+        assertEquals(true, sampled["limitReached"])
+        assertEquals(false, sampled["runtimeQualificationEvidence"])
+        assertFalse(sampled.containsKey("sha256"))
+        assertFalse(sampled.containsKey("faultWitness"))
+        assertTrue(WorldSessionEvidence.scan(log).limitReached)
         val redirected = File(visit.parentFile, "link").apply { mkdir() }
         Files.createSymbolicLink(File(redirected, visit.name).toPath(), visit.toPath())
         assertEquals(false, WorldLogEvidence.export(File(redirected, visit.name), attempt, true, dictionary())["available"])
+    }
+    @Test fun frequencyExportIsBoundedAndPrioritizesRepeatedSourceGroups() = fixture { visit, _, _ ->
+        val prefixes = (0 until 100).map { "source-msg-%05d".format(it) }
+        val dict = WorldLogEvidence.dictionary(prefixes.mapIndexed { index, value ->
+            sha(value.toByteArray().copyOf(16)) + "\tw%04d\n".format(index)
+        }.joinToString("").byteInputStream())
+        val log = File(visit, "world-session.log")
+        log.writeText((prefixes + List(9) { prefixes[0] }).joinToString("") { "WARN [module] $it private-content\n" })
+        val result = WorldLogEvidence.scan(log, dict)
+        val counts = result["sourceMessageCounts"] as List<*>
+        assertEquals(64, counts.size)
+        assertEquals(36, result["sourceMessageGroupsOmitted"])
+        assertEquals(109, result["matchedLines"])
+        assertTrue(counts.first().toString().contains("sourceMessageIds=[w0000]"))
+        assertTrue(counts.first().toString().contains("count=10"))
+        assertFalse(result.toString().contains("private-content"))
+    }
+    @Test fun hugeSparseLogReadsOnlyBoundedHeadAndTailWithConservativeLineBoundaries() = fixture { visit, _, _ ->
+        val log = File(visit, "world-session.log")
+        val half = WorldSessionEvidence.MAX_LOG_BYTES / 2
+        val size = 1024 * 1024 * 1024L + 17
+        val known = "WARN [module] $prefix private-value=must-not-export\n"
+        val partial = "WARN [module] $prefix incomplete-private"
+        java.io.RandomAccessFile(log, "rw").use {
+            it.setLength(size)
+            it.writeBytes(known)
+            it.seek(half - partial.length); it.writeBytes(partial)
+            it.seek(size - half); it.writeBytes(known + known)
+            it.seek(size - partial.length); it.writeBytes(partial)
+        }
+        val stamp = log.lastModified()
+        val result = WorldLogEvidence.scan(log, dictionary(), 139)
+        assertEquals(true, result["available"])
+        assertEquals(size, result["bytes"])
+        assertEquals(WorldSessionEvidence.MAX_LOG_BYTES, result["sampledBytes"])
+        assertEquals(size - WorldSessionEvidence.MAX_LOG_BYTES, result["omittedBytes"])
+        val ranges = result["regions"] as List<*>
+        assertEquals(2, ranges.size)
+        for ((index, raw) in ranges.withIndex()) {
+            val range = raw as Map<*, *>
+            assertEquals(if (index == 0) 0L else size - half, range["offsetBytes"])
+            assertEquals(half, range["bytes"])
+            assertEquals(1, range["matchedLines"])
+            assertEquals(1, range["lines"])
+            assertTrue((range["trailingFragmentBytesSkipped"] as Long) > 0)
+            assertFalse(range.containsKey("faultWitness"))
+            val expectedBytes = ByteArray(half.toInt())
+            java.io.RandomAccessFile(log, "r").use {
+                it.seek(range["offsetBytes"] as Long); it.readFully(expectedBytes)
+            }
+            assertEquals(sha(expectedBytes), range["sha256"])
+        }
+        assertEquals(known.length.toLong(), (ranges[1] as Map<*, *>)["leadingFragmentBytesSkipped"])
+        assertFalse(result.toString().contains("private-value"))
+        assertFalse(result.toString().contains("incomplete-private"))
+        assertEquals(size, log.length()); assertEquals(stamp, log.lastModified())
+    }
+    @Test fun exactRuntimeLimitIsStillRejectedWithoutPromotingForensicMarkers() = fixture { visit, _, _ ->
+        val log = File(visit, "world-session.log")
+        java.io.RandomAccessFile(log, "rw").use { it.setLength(WorldSessionEvidence.MAX_LOG_BYTES) }
+        val result = WorldLogEvidence.scan(log, dictionary())
+        assertEquals(true, result["completeFileRead"])
+        assertEquals(true, result["limitReached"])
+        assertTrue(WorldSessionEvidence.scan(log).limitReached)
+        assertTrue(WorldSessionEvidence.scan(log).markers.isEmpty())
     }
     @Test fun dictionaryRejectsUnboundedOrUnvalidatedOutputIdentifiers() {
         val digest = sha(prefix.toByteArray())

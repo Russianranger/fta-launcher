@@ -240,7 +240,7 @@ def main():
         result['opensslLegacyProvider'] = verify_legacy(args.legacy_provider)
         result['worldFaultWitness'] = verify_fault(args.fault_witness)
         result['nativeRecompiledForDelivery'] = bool(added)
-        result['nativeWorldRecompiledForDelivery'] = True
+        result['nativeWorldRecompiledForDelivery'] = WORLD not in proof['nativePayloadSha256']
         result['worldSessionExecutable'] = verify_world_module(args.world_session, json.loads((ROOT / 'manifests/world-session.json').read_text()))
         result['baselineSourceCompanionSha256'] = proof['nativeSourceCompanionSha256']
         result['nativeSourceCompanionSha256'] = companion_sha

@@ -10,10 +10,10 @@ v2 signing and 16 KiB alignment. All 19 donor native payloads remain byte-identi
 the separately pinned repaired world and v2 fault witness bring the total to 21.
 [Measured APK evidence](evidence/android-2026-10-25-private-world-stop-apk.json).
 [Private APK, matching source and build-cache recovery](code32-recovery.md).
-Physical code 31 passed sustained health and 144.9 seconds healthy screen-off,
-but Stop failed. The repaired code-32 executable still needs its complete Thor
-gate. See [the source-backed shutdown repair](script-unload.md) and
-[one focused physical procedure](world-session-repair.md).
+Physical code 32 passed 651.9 seconds healthy screen-off and world exit zero during
+failure cleanup. The 8 MiB log limit stopped the session before postchecks. Code 33
+is being qualified to recover bounded evidence from this retained log, preserving
+all 21 native payloads. See [the read-only recovery action](world-log-recovery.md).
 
 Code 30 was withdrawn before physical testing because its new helper refused
 Android's preinstalled crash handler. Its saved file is marked **DO NOT INSTALL**.
@@ -29,10 +29,9 @@ helper is added. No validation limit or source module is removed.
 
 See the [current handoff](SHORT-HANDOFF.md) for the exact delivery state and
 [shutdown diagnostic](world-shutdown-diagnostic.md) for measured evidence and scope.
-The next test is one **Start native world test**, three minutes screen-off after
-healthy status, then Stop/export. Export immediately on failure. Install only the
-correctly signed private update in place; no import or separate database/auth test
-is needed. Historical milestones below are not instructions to repeat passed work.
+The next action is **Export diagnostic report only** after the private code-33
+update is delivered. Do not start another test before recovering the retained
+attempt. Historical milestones below are not instructions to repeat passed work.
 
 For recovery packaging, `python3 tools/package_private_update.py --help` documents
 the inputs. It uses the exact passing CI assembly and verified unchanged donor

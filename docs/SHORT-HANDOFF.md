@@ -5,30 +5,41 @@ pushes. Target AYN Thor, Android 13, ARM64. Read `AGENTS.md`, this file,
 `game-data-import.md`, `private-diagnostics.md`, `native-world-gate.md`.
 Earlier history: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery and next action
+## Current checkpoint and next action
 
-Application commit **da1a92f1ec6904f389adf7489f3b828ccfb06388**; exact CI
-[40147468365](https://github.com/Russianranger/fta-launcher/actions/runs/40147468365)
-passed all three jobs. Private code **32**, `0.12.5-world-stop`:
-**58,987,731 bytes**, APK SHA256
+Recovered main **becada5e6fbf5a5789913628f12cd3fa324ebff8**; exact CI
+[40148421622](https://github.com/Russianranger/fta-launcher/actions/runs/40148421622)
+passed all three jobs. Latest delivered APK is private code **32**,
+`0.12.5-world-stop`, SHA256
 `abaa6cbc199817cecd016db8b542642b9561da86819a824b3887ddf3ca7e0fda`.
-[Measured APK proof](evidence/android-2026-10-25-private-world-stop-apk.json).
-[Verified private APK](https://chatgpt.com/library?file_id=libfile_2ac409c7f814819181b82c6ec4020e02&account_id=personal).
-184 tooling tests pass; Android: 379 total, **378 passed, one skipped**, no failures
-or errors. The existing `WorldUpdaterStoreTest` needs private `Database.zip`, absent
-in public CI; do not repeat earlier physical database tests. Lint/assembly,
-225 packaged-input checks, persistent v2 signature and 16 KiB alignment pass.
-All 19 donor native files and 148 runtime entries are unchanged; the additive
-world and v2 witness bring the native file count to 21. Code 30 remains withdrawn.
-Public CI APKs are foundation previews, not private updates.
+[APK/source/cache recovery](code32-recovery.md).
 
-**Next substantial gate: install private code 32 in place, select Start native
-world test, keep visible through retained full rehash/startup, then leave the
-screen off for at least three minutes after healthy world/auth/database checks.
-Reopen, select Stop once, and export the diagnostic report immediately.** Export
-immediately on failure. No uninstall, storage clear, asset reimport, seed replay
-or repeat database/auth tests. The new world needs its own complete combined gate.
-Native database fallback, world readiness and gameplay remain **unqualified**.
+**New code-32 Thor report** `FTA-database-diagnostic-1792892076477.json`, SHA256
+`a6bd04057da09649c78ce08c7ba87c0494fb2d0bbf51029789a5abcb12a915f1`:
+exact APK/world matched; 64 receipt samples / 65 native health probes, **672,534 ms**
+measured session and **651,866 ms healthy screen-off**. Full 22,817-file rehash,
+strict metadata/GT prechecks, native DBC stores, ready/freeze/challenge passed.
+The unchanged 8 MiB log cap ended the session during LOCAL_SERVICE_RUNNING.
+World exited **zero**, with no fatal capture; auth zero, database zero without
+observed SQL shutdown. This is improved failure cleanup, not a qualified user Stop.
+Metadata/GT postchecks were not reached; false postchecks do not prove data loss.
+The world-file export is unavailable; stdout 1,042,275 bytes, stderr 19 bytes.
+[Physical proof](evidence/android-2026-10-25-thor-code32-runtime.json).
+
+**Code-33 candidate: `0.12.6-log-evidence`.** Read-only export samples oversized
+retained logs in two bounded 4 MiB regions, with explicit omitted bytes and
+range-specific hashes. Adds capped source-message frequencies and 287 original
+warning-site fingerprints, preserving all 160 earlier IDs. Native bytes, logger
+policy, runtime 8 MiB cap, realm/backup/assets and qualification gates stay unchanged.
+185 Python tests pass; Android CI, private packaging and delivery pending.
+[Recovery design and procedure](world-log-recovery.md).
+
+Next independent step: qualify Android on the exact application commit, package
+with all 21 unchanged code-32 native files and persistent key, verify/save the APK
+and matching source companion. Then **install in place and Export diagnostic report
+only**. Do not start another world session: recover the existing failed attempt
+before it is replaced. No import, verification run, seed replay, uninstall or storage
+clear. All combined runtime/database-fallback/world-ready/gameplay flags stay false.
 
 ## Exact physical finding and repair
 

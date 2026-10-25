@@ -1,0 +1,167 @@
+{
+  "formatVersion": 1,
+  "appVersionCode": 32,
+  "appVersionName": "0.12.5-world-stop",
+  "apkSha256": "abaa6cbc199817cecd016db8b542642b9561da86819a824b3887ddf3ca7e0fda",
+  "scope": "retained-native-world-session",
+  "providerManifestSha256": "dda46e9555ad3b58acdbb0125fccdc89850de78a56159ee2bfcbfbde8f529c8b",
+  "processSupervisorSha256": "67a49ac20e9a6c145cd063d9e058b13941ca0b77c5ea03dda7db5f6fd1a82dc9",
+  "reportSha256": "a6bd04057da09649c78ce08c7ba87c0494fb2d0bbf51029789a5abcb12a915f1",
+  "reportBytes": 87218,
+  "lastDiagnosticState": "FAILED",
+  "attemptId": "d280294e-62b4-4255-82f1-5ca5c14bb80c",
+  "checks": {
+    "verifiedBackupAvailable": true,
+    "metadataBeforePassed": true,
+    "offlineRealmStatePrepared": true,
+    "protocolReady": true,
+    "authCleanStop": true,
+    "listenerClosed": false,
+    "temporaryRoleRemoved": true,
+    "metadataAfterPassed": false,
+    "databaseCleanShutdown": false,
+    "activeRealmRetained": false,
+    "worldExecutableVerified": true,
+    "assetsRehashed": true,
+    "gtCoverageBefore": true,
+    "dbcStoresLoaded": true,
+    "nativeReadyMarker": true,
+    "freezeGuardStarted": true,
+    "worldChallenge": true,
+    "worldHalted": false,
+    "worldCleanStop": true,
+    "worldListenerClosed": true,
+    "gtCoverageAfter": false
+  },
+  "failureMarkers": {
+    "missingStartingMaps": false,
+    "dbcMissingOrIncompatible": false,
+    "incorrectDataDirectory": false,
+    "worldLoopFrozen": false,
+    "worldLogLimitExceeded": true
+  },
+  "healthySamples": 64,
+  "elapsedMs": 672534,
+  "screenOffHealthyMs": 651866,
+  "sessionCompleted": false,
+  "assetFiles": 22817,
+  "assetBytes": 7625943031,
+  "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+  "catalogSha256": "0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff",
+  "worldReady": false,
+  "databaseFallbackValidated": false,
+  "gameLoginQualified": false,
+  "worldExecutableMatches": true,
+  "worldExecutableSha256": "a7f7d3f2018703f931da68031972d1468a0c120d8f815608fcaf0e153322b20e",
+  "worldSourceProfile": "android-arm64-world-v14",
+  "stopReason": "running",
+  "screenOffDurationRequirementObserved": true,
+  "combinedRuntimeQualified": false,
+  "worldExitZeroDuringFailureCleanupObserved": true,
+  "explicitUserStopQualified": false,
+  "nativeHealthySamples": 65,
+  "nativeRecordCount": 82,
+  "nativeRecordsDropped": 0,
+  "nativeInvocations": [
+    {
+      "id": 1,
+      "role": "database-server",
+      "stage": "REALM_REOPEN",
+      "outcome": "exited",
+      "exitCode": 0,
+      "terminationExitCode": 0,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 719136,
+      "databaseReadyObserved": true,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    },
+    {
+      "id": 14,
+      "role": "auth-server",
+      "stage": "LOCAL_AUTH_START",
+      "outcome": "exited",
+      "exitCode": 0,
+      "terminationExitCode": 0,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 714215,
+      "databaseReadyObserved": false,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    },
+    {
+      "id": 15,
+      "role": "world-server",
+      "stage": "WORLD_SESSION_START",
+      "outcome": "exited",
+      "exitCode": 0,
+      "terminationExitCode": 0,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 713107,
+      "databaseReadyObserved": false,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    }
+  ],
+  "logs": {
+    "world": {
+      "available": false
+    },
+    "stdout": {
+      "available": true,
+      "bytes": 1042275,
+      "sha256": "5a88c2801a53cd31b3a589f406349132b7762c3009cbf20ff18749f4babc1154",
+      "lines": 2494,
+      "oversizedLinesSkipped": 0,
+      "levels": {
+        "INFO": 0,
+        "WARN": 0,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "matchedLines": 0,
+      "linesAfterLastMatch": 2494,
+      "lastSourceMessages": [],
+      "faultWitness": {
+        "installedMarkerObserved": false,
+        "available": false,
+        "rawAddressesExported": false,
+        "memoryContentsExported": false
+      }
+    },
+    "stderr": {
+      "available": true,
+      "bytes": 19,
+      "sha256": "e89781b9095fc1f8d5d820fa92fb390a33b8cbb525a2d2e388b5832f932fc65f",
+      "lines": 1,
+      "oversizedLinesSkipped": 0,
+      "levels": {
+        "INFO": 0,
+        "WARN": 0,
+        "ERROR": 0,
+        "FATAL": 0
+      },
+      "matchedLines": 0,
+      "linesAfterLastMatch": 1,
+      "lastSourceMessages": [],
+      "faultWitness": {
+        "installedMarkerObserved": true,
+        "available": false,
+        "rawAddressesExported": false,
+        "memoryContentsExported": false
+      }
+    }
+  },
+  "limits": [
+    "Failure during LOCAL_SERVICE_RUNNING from unchanged 8 MiB log limit; no user Stop completion recorded.",
+    "World log unavailable in code32 export; exact over-limit bytes and dominant messages unknown.",
+    "World exited zero and fault witness captured no fatal signal; full shutdown/postconditions remain unqualified.",
+    "Metadata/GT postchecks not reached; false postchecks are not evidence of data loss."
+  ]
+}

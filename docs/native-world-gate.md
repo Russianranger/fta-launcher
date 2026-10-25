@@ -1,10 +1,9 @@
 # Preparing the retained native world gate
 
-Current evidence: code 31 passes sustained health and the screen-off duration
-observation, but crashes in final script cleanup. Private code 32 has completed
-the source repair, ARM64 build, CI and signed APK verification. Its complete Thor
-gate is pending. See [repair and qualification](script-unload.md) and
-[the next physical procedure](world-session-repair.md).
+Current evidence: code 32 passes sustained health, 651.9 seconds screen-off and
+world exit zero during failure cleanup. Log pressure ended the session before
+user Stop and retained postchecks. Recover the existing failed attempt with
+[the bounded log export](world-log-recovery.md) before another session.
 
 Physical code 29 passed the original world challenge and two combined healthy
 samples. Its stdout limit then ended the test, and world cleanup exited 139 after
