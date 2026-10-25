@@ -15,12 +15,14 @@ install a persistent realm or open player saves.
 
 ## Current measured checkpoint
 
-Code 32 sustained native world/auth/database health for over 11 minutes, including
-651.9 seconds screen-off, and the repaired world exited zero during failure cleanup.
-The unchanged 8 MiB log cap ended the session before user Stop and postchecks.
-Code 33 adds bounded read-only recovery of that retained log and original warning
-fingerprints. Native runtime remains unqualified; see
-[measured evidence and recovery](docs/world-log-recovery.md).
+Private code 34 passed the complete native world gate on Thor: original database
+GT fallback, all 113 DBC stores, 30 healthy samples, 259.2 seconds healthy
+screen-off, user Stop, clean world/auth/database exits and strict retained
+metadata/GT postchecks. All 22,817 game-data files were rehashed unchanged.
+[Measured physical proof](docs/evidence/android-2026-10-25-thor-code34-world-pass.json).
+Code 35 adds a read-only inspection of the owner's extracted client folder.
+Client import, WarcraftXL execution and playable login remain unqualified.
+See [client inspection scope](docs/client-inspection.md).
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.

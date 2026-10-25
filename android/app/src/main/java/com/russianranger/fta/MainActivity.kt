@@ -38,6 +38,9 @@ class MainActivity : Activity() {
     private lateinit var gameDataButton: Button
     private lateinit var gameDataVerifyButton: Button
     private lateinit var gameDataStatus: TextView
+    private lateinit var clientInspectButton: Button
+    private lateinit var clientCancelButton: Button
+    private lateinit var clientStatus: TextView
     private var pendingGameData = false
     private var pendingGameDataUri: android.net.Uri? = null
     private lateinit var sourceButton: Button
@@ -233,7 +236,18 @@ class MainActivity : Activity() {
         status.addView(runtimeBundleStatus)
         runtimeBundleButton = action("Select runtime bundle ZIP") { selectArchive(103) }
         status.addView(runtimeBundleButton)
-        status.addView(label("WarcraftXL client import comes in a later milestone. Your original folders stay unchanged.", 13, muted).apply { setPadding(0, dp(8), 0, dp(16)) })
+        status.addView(label("WarcraftXL client", 17, ink, true).apply { setPadding(0, dp(16), 0, dp(8)) })
+        clientInspectButton = action("Inspect client folder") {
+            startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            }, 107)
+        }
+        status.addView(clientInspectButton)
+        clientCancelButton = action("Cancel client inspection") { app.cancelClientInspection() }
+        status.addView(clientCancelButton)
+        clientStatus = label("", 13, muted)
+        status.addView(clientStatus)
+        status.addView(label("Select your complete extracted client folder containing Wow.exe. Keep this screen open, then export the diagnostic report. This read-only check counts files and inspects executable metadata; full import and client launch come later.", 13, muted))
         progressLabel = label("", 14, ink)
         status.addView(progressLabel)
         progress = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
@@ -316,6 +330,15 @@ class MainActivity : Activity() {
         worldServiceButton.isEnabled = localAuthButton.isEnabled && File(filesDir, "game-data/active").isFile
         exportBackupButton.isEnabled = File(filesDir, "realm-backups/latest.json").isFile && !app.busy && !testing && !requested
         gameDataButton.isEnabled = !app.busy && !testing && !requested
+        clientInspectButton.isEnabled = gameDataButton.isEnabled
+        clientCancelButton.isEnabled = app.inspectingClient
+        val client = com.russianranger.fta.client.ClientInspection.export(this)
+        clientStatus.text = when (client.optString("state")) {
+            "complete" -> "Inspection complete: ${client.optInt("files")} files counted. Export the report; client compatibility is not yet qualified."
+            "running" -> if (app.inspectingClient) "Inspection running…" else "Inspection interrupted. Export the report before retrying."
+            "failed", "cancelled", "invalid" -> "Inspection did not finish. Export the report before retrying."
+            else -> "No client folder inspected yet."
+        }
         gameDataVerifyButton.isEnabled = gameDataButton.isEnabled && File(filesDir, "game-data/active").isFile
         gameDataStatus.text = if (File(filesDir, "game-data/active").isFile) "Game-data candidate stored. Verify hashes before native world qualification." else "Matching extracted game data is needed for world startup."
         diagnosticStopButton.isEnabled = testing || requested
@@ -438,6 +461,10 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) return
+        if (requestCode == 107) {
+            if (!databaseCheckRunning()) data?.data?.let { app.inspectClient(it) }
+            return
+        }
         if (requestCode == 106) { data?.data?.let { pendingGameDataUri = it; requestDatabaseCheck(includeGameData = true) }; return }
         if (requestCode == 104) { data?.data?.let { app.exportDiagnosticReport(it) }; return }
         if (requestCode == 105) { data?.data?.let { app.exportRealmBackup(it) }; return }

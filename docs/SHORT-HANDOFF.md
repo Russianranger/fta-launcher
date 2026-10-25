@@ -5,58 +5,39 @@ pushes. AYN Thor, Android 13, ARM64. Read `AGENTS.md`, `game-data-import.md`,
 `private-diagnostics.md`, `native-world-gate.md`. Earlier history:
 [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current private delivery — code 34
+## Complete native world gate passed — physical code 34
 
-Application commit **0885153f71061751bb7e189ed8d8e52479badfcb**, exact
-[CI 40155455259](https://github.com/Russianranger/fta-launcher/actions/runs/40155455259)
-passed all three jobs. **0.12.7-auction-count**, code **34**, 59,000,019 bytes;
-APK SHA256 `45ade0fd1cb78c52527f46bfe0c0ac338c40d8948debb838d1bb0db85a6431a8`.
-[Verified APK and corresponding source](code34-recovery.md).
-186 tooling tests; Android 383 passed/one existing private-fixture skip, no errors
-or failures; lint/assembly, 225 packaged inputs, persistent v2 signing/16 KiB
-alignment passed. Twenty of 21 native payloads and all 148 runtime entries are
-byte-identical to code 33; only the separate world-session executable changes.
+Recovered remote/delivery commit **92b483507c20051b604ccbeda33f334283ec6929**;
+all three jobs in [CI 40155924517](https://github.com/Russianranger/fta-launcher/actions/runs/40155924517)
+passed. Application commit **0885153f71061751bb7e189ed8d8e52479badfcb**, all three
+jobs [CI 40155455259](https://github.com/Russianranger/fta-launcher/actions/runs/40155455259).
+Private `0.12.7-auction-count`, code 34, APK SHA256
+`45ade0fd1cb78c52527f46bfe0c0ac338c40d8948debb838d1bb0db85a6431a8`.
+[APK/source recovery](code34-recovery.md).
 
-**Next: install code 34 in place, Start native world test once, wait for healthy
-samples, screen off three minutes, reopen, Stop once, Export diagnostic report.**
-Export immediately on failure before retrying. No reimport, seed replay, uninstall,
-storage clear or repeated standalone database/auth tests. The complete gate must
-prove clean world/auth exits, SQL shutdown and strict metadata/GT postchecks.
+New [physical proof](evidence/android-2026-10-25-thor-code34-world-pass.json):
+report SHA256 `382cf547ae370fc2f012c40528e84ad865e488953f784cc090db41ea16fd485d`,
+attempt `9e7570a8-23db-4a23-ab82-c44cbf360a02`. All 23 checks true; all five failure
+markers false. Native runtime, original database fallback, world readiness and
+screen-off gates are **qualified for this exact build**. 30 healthy receipt/native
+samples, 307,424 ms session, **259,192 ms healthy screen-off**. User Stop completed;
+owned world/auth/database all exited zero, SQL shutdown observed, listeners closed,
+temporary role removed, retained metadata/GT postchecks passed. No seed imported.
+World log 1,626,489 bytes, no ERROR/FATAL, two exact COUNT hints, no log-limit hit.
+Game login remains false. Do not repeat passed server or standalone DB/auth tests.
 
-## Measured diagnosis and implemented correction
+## Current work — code 35 client inspection
 
-Code 33 recovered the same code-32 attempt without a new session:
-`d280294e-62b4-4255-82f1-5ca5c14bb80c`. Report SHA256
-`3c23e419d95637c8f907745bf05fc29332bb667aa66ea74ffb1e3e77e3a1f618`.
-[Recovery proof](evidence/android-2026-10-25-thor-code33-recovery.json).
-World log 8,535,490 bytes; sampled first/last 4 MiB, omitted 146,882. Tail has
-67,108 warnings/33,554 shared aggregate-hint matches and final Halting. The old
-prefix cannot distinguish double/uint64 hints; no exact Thor caller is proven.
-
-[Source-backed correction](auction-count.md): recurring auction snapshot reads
-COUNT column 4 as uint32, emits two warnings per row, then retries uint64. v15
-changes only that expression to an explicit uint32 conversion of Get<uint64>().
-Query, narrowing/accumulation, original Field, SQL/configurations and all 52 modules
-are preserved; v14 shutdown repair remains. Four original/four fixed Release and
-ASan/UBSan fixtures pass with identical boundary counts and zero fixed warnings.
-Code 34 also distinguishes the two complete static hint hashes, preserving all
-existing IDs, privacy bounds, warning levels and the live 8 MiB guard.
-
-The single-job ARM64 build reuses the completed graph. Only seller recompiles;
-repeated relink SHA256 `3374a7515ec901d2fe1b413c91f423bb149f90a9cc41963cdcb7897decd21671`,
-62,665,968 bytes. [Build proof](evidence/android-2026-10-25-world-auction-build.json).
-This demonstrated caller bug is consistent with the warnings; Thor causation
-and successful runtime remain unqualified until the new report. Combined native
-runtime, GT fallback, world readiness and gameplay flags remain false.
-
-## Physical runtime evidence retained
-
-Code 32: 64 receipt samples / 65 native probes, 672,534 ms session and 651,866 ms
-healthy screen-off. Complete 22,817-file / 7,625,943,031-byte rehash; strict
-metadata/GT prechecks, original 113 DBC stores, readiness/freeze/challenge passed.
-Log limit ended the session. World/auth exited zero; SQL shutdown and metadata/GT
-postchecks were not reached. User Stop remains unqualified. No seed replay,
-uninstall, storage clearing or repeated standalone database/auth tests.
+`0.13.0-client-inspection` adds read-only SAF folder inventory and bounded PE
+architecture/version checks. [Scope and next action](client-inspection.md).
+Select the complete extracted client folder containing Wow.exe, keep the launcher
+visible, export the report. No source writes/copies/config edits or native launches;
+the successful world receipt remains separate. Source-derived root proxy/DLL and
+embedded DXVK roles, anonymous auxiliary EXEs for x64 host discovery, metadata-only
+MPQ counts. Client import, exact host pairing, Wine/translator IPC, WarcraftXL and
+playable login remain unqualified. Actual complete client files are not present
+in this workspace; obtain measured inventory before deciding the managed import.
+Application qualification/delivery is in progress; do not install an unverified APK.
 
 ## Recovery and safety
 

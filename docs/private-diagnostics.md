@@ -1,38 +1,22 @@
 # Private native diagnostic builds
 
-## Current private delivery — code 33
+## Current private milestone — code 34 passed; code 35 preparation
 
-`FTA-Launcher-0.12.6-log-evidence.apk` is signed with the persistent certificate.
-SHA256 `c1b6f5434f1a43852ba7948f69232a7da51e53e56848eb872cdfda0f43fc1553`;
-59,000,019 bytes. It passed 185 tooling tests, 382 Android tests (one existing
-private database-fixture test skipped), lint/assembly, 225 packaged-input checks,
-v2 signing and 16 KiB alignment. All 21 native payloads are identical to code 32.
-[APK evidence](evidence/android-2026-10-25-private-log-evidence-apk.json),
-[private APK and matching source](code33-recovery.md).
+The verified code-34 APK passed the complete physical Thor world gate, including
+original GT fallback, all 113 DBC stores, sustained health, 259.2 seconds healthy
+screen-off, user Stop, clean exits and strict retained metadata/GT postchecks.
+[Measured proof](evidence/android-2026-10-25-thor-code34-world-pass.json).
+[Code-34 APK and source](code34-recovery.md). Native world qualification now passes
+for that exact build; client execution and playable login remain open.
 
-Physical code 32 passed 651.9 seconds healthy screen-off and world exit zero during
-failure cleanup. The 8 MiB log limit stopped the session before postchecks. Code 33
-recovers bounded source-message and category counts from this retained log without
-changing native binaries, runtime logging limits or qualification flags. See
-[the read-only recovery action](world-log-recovery.md).
+Code 35 adds [read-only client-folder inspection](client-inspection.md) with the
+same native payloads. Follow the [current handoff](SHORT-HANDOFF.md) for its exact
+CI, artifact identity and availability. The next physical action is client folder
+inspection and report export. Do not repeat the passed server, screen-off,
+standalone database/auth, game-data import or rehash tests.
 
-Code 30 was withdrawn before physical testing because its new helper refused
-Android's preinstalled crash handler. Its saved file is marked **DO NOT INSTALL**.
-Code 31 (`0.12.4-world-signals`) preserves and chains that handler. Follow the
-[current handoff](SHORT-HANDOFF.md) for the corrected artifact and exact identity.
-
-Code 29's private APK passed its original world challenge and two healthy samples
-on Thor. Its test ended at the stdout limit, followed by an unresolved cleanup
-SIGSEGV. Code 31 reduces routine INFO output using the
-original logger and adds a separately pinned fatal-signal witness. The original
-18 native files and all realm/backup identities remain unchanged; one small MIT
-helper is added. No validation limit or source module is removed.
-
-See the [current handoff](SHORT-HANDOFF.md) for the exact delivery state and
-[shutdown diagnostic](world-shutdown-diagnostic.md) for measured evidence and scope.
-The next action is **Export diagnostic report only** after installing the verified private code-33
-update in place. Do not start another test before recovering the retained
-attempt. Historical milestones below are not instructions to repeat passed work.
+Historical milestones below are evidence, not instructions to repeat passed work.
+Code 30 was withdrawn before physical testing; do not install it.
 
 For recovery packaging, `python3 tools/package_private_update.py --help` documents
 the inputs. It uses the exact passing CI assembly and verified unchanged donor

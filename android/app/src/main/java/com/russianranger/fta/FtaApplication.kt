@@ -32,6 +32,31 @@ class FtaApplication : Application() {
     var progressPercent = 0
         private set
     private lateinit var logFile: File
+    private var clientInspection: com.russianranger.fta.client.ClientInspection? = null
+    val inspectingClient get() = clientInspection != null
+
+    fun cancelClientInspection() { clientInspection?.cancel() }
+
+    fun inspectClient(uri: Uri) {
+        if (busy) return
+        busy = true
+        val inspection = com.russianranger.fta.client.ClientInspection(this)
+        clientInspection = inspection
+        progressText = "Inspecting client folder. Keep this screen open; no files are copied."
+        observer?.invoke()
+        executor.execute {
+            val state = runCatching { inspection.run(uri) { count ->
+                main.post { progressText = "Client inspection: $count files counted. Keep this screen open."; observer?.invoke() }
+            } }.getOrDefault("failed")
+            main.post {
+                clientInspection = null
+                progressText = if (state == "complete") "Client inspection complete. Export the diagnostic report."
+                    else "Client inspection did not finish. Export the diagnostic report before retrying."
+                record("Read-only client inspection ended. No import or client execution was performed.")
+                finishImport()
+            }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()

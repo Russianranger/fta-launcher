@@ -1,17 +1,20 @@
 # Preparing the retained native world gate
 
-Current evidence: code 33 recovered the same code-32 log successfully. Sustained
-health, 651.9 seconds screen-off and world exit zero remain historical evidence;
-user Stop and retained postchecks remain open. The next gate uses the qualified
-[code-34 auction COUNT correction](auction-count.md). No repeated recovery
-export or standalone database/auth diagnostic is needed.
+**Passed on physical Thor with code 34 / world-v15.** The exact report proves
+original GT fallback, all 113 DBC stores, 30 healthy samples, 259,192 ms healthy
+screen-off, explicit user Stop, clean world/auth/database exits, SQL shutdown and
+strict metadata/GT postchecks. All 23 checks pass; all five failure markers are
+false. [Measured proof](evidence/android-2026-10-25-thor-code34-world-pass.json).
+This qualifies that exact native runtime and data path; gameplay remains open.
+No repeated server, import, screen-off or standalone database/auth test is needed.
 
 Physical code 29 passed the original world challenge and two combined healthy
 samples. Its stdout limit then ended the test, and world cleanup exited 139 after
 its Halting message. Code 31 adds original logger thresholds and a bounded,
 process-only fault witness while retaining the original world ELF. See
 [shutdown evidence and design](world-shutdown-diagnostic.md) and the current
-handoff for the next private update. Native runtime remains unqualified.
+handoff for the current private update. These are historical failures resolved
+before the complete code-34 pass.
 
 ## Live original GT loading
 
@@ -85,7 +88,7 @@ python3 tools/check_world_probe_source.py --source-zip /private/From_The_Ashes_S
 The guarded native world action invokes this helper. A challenge is a listener observation,
 not proof of completed module initialization, world health or gameplay.
 
-## Retained session protocol; clean Stop and postconditions pending
+## Retained session protocol; complete code-34 gate passed
 
 1. Bind a full asset rehash/preflight to the exact candidate generation and
    retained realm under their ownership leases; require the verified cold backup.

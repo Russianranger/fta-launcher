@@ -36,6 +36,7 @@ object DiagnosticReport {
         val scope = if (scopeFile.isFile && scopeFile.length() < 32) scopeFile.readText() else "database"
         val gameData = runCatching { GameDataImport.store(context).export() }.getOrElse { mapOf("available" to false, "worldReady" to false) }
         result.put("gameDataDiagnostic", JSONObject(gameData))
+        result.put("clientInspection", com.russianranger.fta.client.ClientInspection.export(context))
         result.put("requestedDiagnostic", if (scope in setOf("game-data", "auth-updater", "full-seed", "compiled-updater", "database-lifecycle", "runtime-recovery", "realm-storage", "realm-backup", "local-auth", "local-service", "world-service")) scope else "database")
         result.put("scope", when (scope) { "world-service" -> "retained-native-world-session"; "game-data" -> "inert-game-data-preflight"; "local-service" -> "retained-realm-local-service"; "local-auth" -> "retained-realm-local-auth"; "realm-backup" -> "persistent-realm-backup"; "realm-storage" -> "persistent-realm-storage"; "runtime-recovery" -> "disposable-runtime-recovery-diagnostic"; "database-lifecycle" -> "disposable-native-database-lifecycle-diagnostic"; "auth-updater" -> "disposable-native-auth-updater-diagnostic"; "full-seed" -> "disposable-native-full-seed-diagnostic"; "compiled-updater" -> "disposable-native-compiled-updater-diagnostic"; else -> "disposable-native-database-diagnostic" })
         val attemptFile = File(context.filesDir, "runtime/diagnostic-attempt.id")

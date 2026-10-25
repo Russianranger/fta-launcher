@@ -1,0 +1,236 @@
+{
+  "formatVersion": 1,
+  "reportSha256": "382cf547ae370fc2f012c40528e84ad865e488953f784cc090db41ea16fd485d",
+  "reportBytes": 94208,
+  "appVersionCode": 34,
+  "appVersionName": "0.12.7-auction-count",
+  "apkSha256": "45ade0fd1cb78c52527f46bfe0c0ac338c40d8948debb838d1bb0db85a6431a8",
+  "nativeWorldRuntimeQualified": true,
+  "qualified": true,
+  "databaseFallbackValidated": true,
+  "worldReady": true,
+  "screenOffQualified": true,
+  "gameLoginQualified": false,
+  "seedImported": false,
+  "checks": {
+    "verifiedBackupAvailable": true,
+    "metadataBeforePassed": true,
+    "offlineRealmStatePrepared": true,
+    "protocolReady": true,
+    "authCleanStop": true,
+    "listenerClosed": true,
+    "temporaryRoleRemoved": true,
+    "metadataAfterPassed": true,
+    "databaseCleanShutdown": true,
+    "activeRealmRetained": true,
+    "worldExecutableVerified": true,
+    "assetsRehashed": true,
+    "gtCoverageBefore": true,
+    "dbcStoresLoaded": true,
+    "nativeReadyMarker": true,
+    "freezeGuardStarted": true,
+    "worldChallenge": true,
+    "worldHalted": true,
+    "worldCleanStop": true,
+    "worldListenerClosed": true,
+    "gtCoverageAfter": true
+  },
+  "failureMarkers": {
+    "missingStartingMaps": false,
+    "dbcMissingOrIncompatible": false,
+    "incorrectDataDirectory": false,
+    "worldLoopFrozen": false,
+    "worldLogLimitExceeded": false
+  },
+  "attemptId": "9e7570a8-23db-4a23-ab82-c44cbf360a02",
+  "worldExecutableMatches": true,
+  "worldExecutableSha256": "3374a7515ec901d2fe1b413c91f423bb149f90a9cc41963cdcb7897decd21671",
+  "worldSourceProfile": "android-arm64-world-v15",
+  "activeAssetsMatch": true,
+  "archiveSha256": "407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225",
+  "catalogSha256": "0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff",
+  "assetFiles": 22817,
+  "assetBytes": 7625943031,
+  "healthySamples": 30,
+  "elapsedMs": 307424,
+  "screenOffHealthyMs": 259192,
+  "stopReason": "user",
+  "sessionCompleted": true,
+  "nativeEvidence": {
+    "available": true,
+    "qualified": true,
+    "recordCount": 52,
+    "droppedCount": 0,
+    "healthySamples": 30
+  },
+  "ownedProcesses": [
+    {
+      "id": 1,
+      "role": "database-server",
+      "stage": "REALM_REOPEN",
+      "outcome": "exited",
+      "exitCode": 0,
+      "terminationExitCode": null,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 337179,
+      "databaseReadyObserved": true,
+      "sqlShutdownRequested": true,
+      "cleanShutdownObserved": true
+    },
+    {
+      "id": 14,
+      "role": "auth-server",
+      "stage": "LOCAL_AUTH_START",
+      "outcome": "exited",
+      "exitCode": 0,
+      "terminationExitCode": 0,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 332804,
+      "databaseReadyObserved": false,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    },
+    {
+      "id": 15,
+      "role": "world-server",
+      "stage": "WORLD_SESSION_START",
+      "outcome": "exited",
+      "exitCode": 0,
+      "terminationExitCode": 0,
+      "timedOut": false,
+      "cancelled": false,
+      "validationFailure": null,
+      "durationMs": 332386,
+      "databaseReadyObserved": false,
+      "sqlShutdownRequested": false,
+      "cleanShutdownObserved": false
+    }
+  ],
+  "retainedWorldLogs": {
+    "available": true,
+    "origin": "retained-attempt-logs",
+    "attemptId": "9e7570a8-23db-4a23-ab82-c44cbf360a02",
+    "worldInvocationId": 15,
+    "worldExitCode": 0,
+    "dictionarySha256": "68ee634ff71cc82f75ec11201f1b974c72e38c2229d62c7b6a4343b4e4e92b75",
+    "prefixBytes": 16,
+    "sourceMessageMatchIsCrashCause": false,
+    "sourceMessageMatchIsHookCompletion": false,
+    "logs": {
+      "world": {
+        "available": true,
+        "completeFileRead": true,
+        "limitReached": false,
+        "bytes": 1626489,
+        "sha256": "b34c9cfe384d144eaee4f756ba12b64cccffbf739447199eaedd44b3a0b2e087",
+        "lines": 7284,
+        "oversizedLinesSkipped": 0,
+        "levels": {
+          "INFO": 864,
+          "WARN": 6416,
+          "ERROR": 0,
+          "FATAL": 0
+        },
+        "matchedLines": 913,
+        "linesAfterLastMatch": 0,
+        "lastSourceMessages": [
+          {
+            "line": 7284,
+            "level": "INFO",
+            "sourceMessageIds": [
+              "w0132"
+            ]
+          }
+        ],
+        "sourceCategoryGroupsOmitted": 0,
+        "sourceMessageGroupsOmitted": 0,
+        "leadingFragmentBytesSkipped": 0,
+        "trailingFragmentBytesSkipped": 0,
+        "faultWitness": {
+          "installedMarkerObserved": false,
+          "available": false,
+          "rawAddressesExported": false,
+          "memoryContentsExported": false
+        },
+        "selectedSourceMessageCounts": [
+          {
+            "level": "WARN",
+            "sourceMessageIds": [
+              "w0188"
+            ],
+            "count": 2
+          },
+          {
+            "level": "INFO",
+            "sourceMessageIds": [
+              "w0132"
+            ],
+            "count": 1
+          }
+        ]
+      },
+      "stdout": {
+        "available": true,
+        "completeFileRead": true,
+        "limitReached": false,
+        "bytes": 1042275,
+        "sha256": "926e4af6d45faee6c70ff7b8627c8ea413489deeb7d6b28eac5ea66fa80e0949",
+        "lines": 2494,
+        "oversizedLinesSkipped": 0,
+        "levels": {
+          "INFO": 0,
+          "WARN": 0,
+          "ERROR": 0,
+          "FATAL": 0
+        },
+        "matchedLines": 0,
+        "linesAfterLastMatch": 2494,
+        "lastSourceMessages": [],
+        "sourceCategoryGroupsOmitted": 0,
+        "sourceMessageGroupsOmitted": 0,
+        "leadingFragmentBytesSkipped": 0,
+        "trailingFragmentBytesSkipped": 0,
+        "faultWitness": {
+          "installedMarkerObserved": false,
+          "available": false,
+          "rawAddressesExported": false,
+          "memoryContentsExported": false
+        },
+        "selectedSourceMessageCounts": []
+      },
+      "stderr": {
+        "available": true,
+        "completeFileRead": true,
+        "limitReached": false,
+        "bytes": 19,
+        "sha256": "e89781b9095fc1f8d5d820fa92fb390a33b8cbb525a2d2e388b5832f932fc65f",
+        "lines": 1,
+        "oversizedLinesSkipped": 0,
+        "levels": {
+          "INFO": 0,
+          "WARN": 0,
+          "ERROR": 0,
+          "FATAL": 0
+        },
+        "matchedLines": 0,
+        "linesAfterLastMatch": 1,
+        "lastSourceMessages": [],
+        "sourceCategoryGroupsOmitted": 0,
+        "sourceMessageGroupsOmitted": 0,
+        "leadingFragmentBytesSkipped": 0,
+        "trailingFragmentBytesSkipped": 0,
+        "faultWitness": {
+          "installedMarkerObserved": true,
+          "available": false,
+          "rawAddressesExported": false,
+          "memoryContentsExported": false
+        },
+        "selectedSourceMessageCounts": []
+      }
+    }
+  }
+}
