@@ -83,7 +83,7 @@ class WorldLogEvidenceTest {
         assertTrue(events[1].toString().contains("sourceMessageIds=[w0001]"))
         assertTrue(events[2].toString().contains("sourceMessageIds=[w0000, w0001]"))
         assertEquals(3, result["matchedLines"])
-        for (private in listOf(left, right, "secret-value")) assertFalse(result.toString().contains(private))
+        for (value in listOf(left, right, "secret-value")) assertFalse(result.toString().contains(value))
         for (bad in listOf("$digest\tw0000\tfull\n", data + "${sha(left.toByteArray())}\tw0000\tfull\n",
                 "$digest\tc0000\tfull\n", "$digest\tw0000\tunknown\n"))
             assertThrows(Exception::class.java) { WorldLogEvidence.dictionary(bad.byteInputStream()) }
