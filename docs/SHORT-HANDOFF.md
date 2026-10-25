@@ -37,7 +37,17 @@ embedded DXVK roles, anonymous auxiliary EXEs for x64 host discovery, metadata-o
 MPQ counts. Client import, exact host pairing, Wine/translator IPC, WarcraftXL and
 playable login remain unqualified. Actual complete client files are not present
 in this workspace; obtain measured inventory before deciding the managed import.
-Application qualification/delivery is in progress; do not install an unverified APK.
+Application commit **66529c938ea6c4ed8c5b9a3363b40a730a54ee11**; all three jobs
+in [CI 40160920921](https://github.com/Russianranger/fta-launcher/actions/runs/40160920921)
+passed. 186 tooling tests; Android 405 passed/one existing private-fixture skip
+(22 new client regressions), lint, assembly and cache-helper checks passed.
+Private APK **59,020,557 bytes**, SHA256
+`a4fc4d4b177a40c61ed7a6bc145914a93af0b543590c49a4b684c8eaa4448b8b`.
+[Verified APK, corresponding source and procedure](code35-recovery.md). Persistent
+v2 signer, 16 KiB alignment and 225 packaged checks pass. All 21 native payloads
+and 148 runtime entries are identical to passed code 34. No native rebuild.
+**Next: install code 35 in place, Inspect client folder once, Export diagnostic
+report.** The client inspection is not yet physically qualified.
 
 ## Recovery and safety
 

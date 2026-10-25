@@ -1,6 +1,6 @@
 # Private native diagnostic builds
 
-## Current private milestone — code 34 passed; code 35 preparation
+## Current private delivery — code 35; complete code-34 world gate passed
 
 The verified code-34 APK passed the complete physical Thor world gate, including
 original GT fallback, all 113 DBC stores, sustained health, 259.2 seconds healthy
@@ -9,8 +9,8 @@ screen-off, user Stop, clean exits and strict retained metadata/GT postchecks.
 [Code-34 APK and source](code34-recovery.md). Native world qualification now passes
 for that exact build; client execution and playable login remain open.
 
-Code 35 adds [read-only client-folder inspection](client-inspection.md) with the
-same native payloads. Follow the [current handoff](SHORT-HANDOFF.md) for its exact
+[Verified private code 35](code35-recovery.md) adds [read-only client-folder inspection](client-inspection.md) with the
+same 21 native payloads and 148 runtime entries. Follow the [current handoff](SHORT-HANDOFF.md) for its exact
 CI, artifact identity and availability. The next physical action is client folder
 inspection and report export. Do not repeat the passed server, screen-off,
 standalone database/auth, game-data import or rehash tests.

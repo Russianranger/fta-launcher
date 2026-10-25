@@ -55,7 +55,8 @@ Thor gates. Public CI APKs are foundation previews, not private native updates.
   The exact private version 5 APK passed on physical Thor: all 27 unchanged auth
   imports, original auth updater and dry-run completion with native exit 0, then
   observed SQL shutdown and database exit 0. The resolver correction preserves
-  the seed and network restrictions. A listener and world remain unqualified.
+  the seed and network restrictions. Later local-auth and code-34 world gates
+  qualify listener operation and the complete native runtime separately.
 - CI: Python safety tests, Android unit tests/lint/debug compilation and an APK
   checksum. Debug artifacts are setup previews, not playable releases.
 
@@ -103,15 +104,15 @@ See [diagnosis and reproduction](docs/world-crypto-provider.md) and
 [game-data import](docs/game-data-import.md).
 
 Code 31 subsequently passed sustained health and the screen-off duration
-observation. Clean Stop, final metadata/GT postconditions and aggregate native
-runtime qualification remain blocked by the teardown crash.
+observation. The later shutdown and COUNT corrections resolved its blockers;
+code 34 passed clean Stop, final metadata/GT postconditions and the complete gate.
 Client import, WarcraftXL and playable login remain later milestones.
 
 Physical code **17 passed user-controlled service Stop and retained restart**:
 all ten checks in both sessions, all 54 native exits zero and all 24 metadata
 checks before/after both clean shutdowns. Screen-off health reached **112,127 ms**,
-short of the unchanged 120,000 ms threshold; finish that measurement with a later
-native gate after the focused game-data report, without repeating restart.
+short of the unchanged 120,000 ms threshold at that time. Code 34 completed the
+deferred measurement during the passed native gate; no repeat is needed.
 See [physical evidence](docs/evidence/android-2026-10-23-thor-local-service-pass.json).
 Code **16 passed retained local auth**; its automatic diagnostic also needs no repeat.
 

@@ -1,10 +1,12 @@
 # Extracted game-data import and source-derived preflight
 
-**Current status:** physical code 26 passed import/preflight/publication, and
-physical code 29 passed the full retained rehash of all 22,817 unchanged files.
-Do not repeat import or standalone verification for the next world test. Its
-automatic rehash binds a new asset lease. Follow the [current handoff](SHORT-HANDOFF.md);
-the version-specific procedures below document earlier checkpoints.
+**Current status:** physical code 26 passed import/preflight/publication. Code 34
+passed the full 22,817-file retained rehash, original native GT fallback and the
+complete controlled world gate, including clean Stop and metadata/GT postchecks.
+[Physical proof](evidence/android-2026-10-25-thor-code34-world-pass.json).
+No repeat import, verification or server test is needed for client inspection.
+Follow the [current handoff](SHORT-HANDOFF.md); the version-specific procedures
+below document earlier checkpoints.
 
 Private **0.11.8-dbc-loading**, code **26**, imports an inert ZIP containing extracted
 `dbc`, `maps`, `vmaps` and `mmaps` folders, directly or under one enclosing folder.

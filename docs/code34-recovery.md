@@ -15,11 +15,11 @@ private-fixture skip, no failures/errors, lint/assembly passed. The original-cod
 fixture and single-job ARM64 build passed separately. Public CI downloads are
 foundation previews, not this private diagnostic.
 
-**Install in place. Start native world test once, wait for healthy samples,
-lock the screen for three minutes, reopen, Stop once, then Export diagnostic
-report.** Export immediately on any failure before retrying. Preserve all data;
-no reimport or repeated standalone database/auth tests.
-[Diagnosis and full gate](auction-count.md).
+**The complete physical gate passed.** Thirty healthy samples, 259,192 ms healthy
+screen-off, user Stop, clean native exits and strict metadata/GT postchecks are
+recorded in the [physical proof](evidence/android-2026-10-25-thor-code34-world-pass.json).
+No repeat is needed. Follow the [current handoff](SHORT-HANDOFF.md) for the client
+milestone; preserve the realm, backup and imported assets.
 
 ## Matching corresponding source
 

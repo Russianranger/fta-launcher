@@ -54,7 +54,15 @@ original GT fallback, native Stop, or gameplay. A separate SUM/AVG alias branch
 may recurse for incompatible metadata, but this report does not establish that
 case and this patch deliberately leaves the original Field implementation intact.
 
-## Next combined Thor gate
+## Combined Thor gate passed
+
+The code-34 report passes all 23 checks with all five failure markers false.
+Thirty healthy samples, 259,192 ms healthy screen-off, user Stop, clean owned
+world/auth/database exits and strict retained metadata/GT postchecks complete the
+gate. The complete world log is 1,626,489 bytes with two exact uint64 aggregate
+hints, no double hints and no ERROR/FATAL. The earlier log-limit failure did not
+recur. [Measured proof](evidence/android-2026-10-25-thor-code34-world-pass.json).
+No repeated server test is needed; the procedure below documents the passed gate.
 
 Use the [verified private code 34 and matching source](code34-recovery.md),
 `0.12.7-auction-count`, with its measured identity and persistent signer. Install in place.
