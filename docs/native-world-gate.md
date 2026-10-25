@@ -1,7 +1,10 @@
 # Preparing the retained native world gate
 
 Current evidence: code 31 passes sustained health and the screen-off duration
-observation, but crashes in final script cleanup. See [repair and qualification](script-unload.md).
+observation, but crashes in final script cleanup. Private code 32 has completed
+the source repair, ARM64 build, CI and signed APK verification. Its complete Thor
+gate is pending. See [repair and qualification](script-unload.md) and
+[the next physical procedure](world-session-repair.md).
 
 Physical code 29 passed the original world challenge and two combined healthy
 samples. Its stdout limit then ended the test, and world cleanup exited 139 after
@@ -82,7 +85,7 @@ python3 tools/check_world_probe_source.py --source-zip /private/From_The_Ashes_S
 The guarded native world action invokes this helper. A challenge is a listener observation,
 not proof of completed module initialization, world health or gameplay.
 
-## Implemented code-27 integration; physical validation pending
+## Retained session protocol; clean Stop and postconditions pending
 
 1. Bind a full asset rehash/preflight to the exact candidate generation and
    retained realm under their ownership leases; require the verified cold backup.

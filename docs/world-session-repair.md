@@ -34,11 +34,14 @@ APK unchanged; only the separately verified v2 helper is preloaded for a session
 
 ## Next physical gate
 
-Use only a private APK with completed build, CI, package, signature and alignment
-evidence. A public CI foundation APK does not include the repaired private world.
+Private code **32**, `0.12.5-world-stop`, passed full ARM64 build, exact application
+CI, 225 packaged-input checks, persistent v2 signing and 16 KiB alignment.
+[Measured APK proof](evidence/android-2026-10-25-private-world-stop-apk.json) and
+[current handoff](SHORT-HANDOFF.md) record the artifact and source companion.
+A public CI foundation APK does not include the repaired private world.
 
 1. Install the verified private code-32 update in place. Preserve app storage.
-2. Start the retained world session. Keep the launcher visible during its normal
+2. Select **Start native world test**. Keep the launcher visible during its normal
    full asset rehash and startup.
 3. After world/auth/database health checks begin, lock the screen for at least
    three minutes, reopen, and select Stop once.

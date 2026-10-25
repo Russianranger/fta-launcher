@@ -1,0 +1,67 @@
+{
+  "artifacts": [
+    {
+      "file": "FTA-Launcher-0.12.5-corresponding-source.zip",
+      "bytes": 540086927,
+      "sha256": "d824893644c3167193630bc4813866272b2fefe46d6cb3a5f13b0a9914acc8d0",
+      "parts": [
+        {
+          "file": "FTA-Launcher-0.12.5-corresponding-source.zip.part1",
+          "bytes": 419430400,
+          "sha256": "6ab993214d8d458b5727bd5e97f9c910e31934db53b1f69a5c8ba2225e312ac8",
+          "libraryFileId": "libfile_c5d99a5e7f0481918e4195cba39e4c64",
+          "libraryVersion": 0
+        },
+        {
+          "file": "FTA-Launcher-0.12.5-corresponding-source.zip.part2",
+          "bytes": 120656527,
+          "sha256": "235c76fdf1212acca652c2583c06a5275632d4f8eda5a6ae1ff9769b2446da1c",
+          "libraryFileId": "libfile_aa43c3ea3048819197c7ec01c2ead6fd",
+          "libraryVersion": 0
+        }
+      ]
+    },
+    {
+      "file": "FTA-World-v14-private-build-cache.tar.zst",
+      "bytes": 909252695,
+      "sha256": "f4c76e94d9941b97da45d573a9fdd82211ba11bfc9884afa2acf0a045b8cf624",
+      "parts": [
+        {
+          "file": "FTA-World-v14-private-build-cache.tar.zst.part1",
+          "bytes": 419430400,
+          "sha256": "8e983460b199f5f6c3ebc24ffcffaa1786470bdb37420559f834bd035a36178e",
+          "libraryFileId": "libfile_32cac90afe0c8191bb2a07a8b213794b",
+          "libraryVersion": 0
+        },
+        {
+          "file": "FTA-World-v14-private-build-cache.tar.zst.part2",
+          "bytes": 419430400,
+          "sha256": "8f78c71b660a60cbf2dffabfc284ff06c810687ee1bde9e22ce12a2a26c603ed",
+          "libraryFileId": "libfile_2493033f72208191a8c27d6079f7858c",
+          "libraryVersion": 0
+        },
+        {
+          "file": "FTA-World-v14-private-build-cache.tar.zst.part3",
+          "bytes": 70391895,
+          "sha256": "dfdcc37435775e8a94b91749d7e7bfd68611e20f4efc62b10cc3fa3a2adc28d4",
+          "libraryFileId": "libfile_4b1a6f4c464481919601a247848a6af0",
+          "libraryVersion": 0
+        }
+      ]
+    }
+  ],
+  "status": "private_artifacts_saved",
+  "applicationCommit": "da1a92f1ec6904f389adf7489f3b828ccfb06388",
+  "recoveryMethod": "Concatenate each artifact parts array in order; verify each part and complete artifact SHA256 before opening.",
+  "sourceOriginalMembersPreserved": 178,
+  "cacheArchiveVerification": {
+    "passed": true,
+    "regularFiles": 24120,
+    "timestampRecords": 32573,
+    "worldserverSha256": "a7f7d3f2018703f931da68031972d1468a0c120d8f815608fcaf0e153322b20e"
+  },
+  "cacheContainsSigningMaterial": false,
+  "cacheContainsPlayerData": false,
+  "cacheContainsGameAssets": false,
+  "runtimeQualified": false
+}

@@ -17,8 +17,10 @@ install a persistent realm or open player saves.
 
 Code 31 passed sustained world/auth/database health, a full retained asset rehash,
 and 144.9 seconds of healthy screen-off operation. Stop still exits 139 during
-script-hook dispatch. The narrow source repair passes the original-code host
-regression and is undergoing full ARM64 qualification; see the
+script-hook dispatch. Private code 32 (`0.12.5-world-stop`) contains the narrow
+source repair, with original-code host regression, full ARM64 build, exact-commit
+CI, persistent signature and package verification complete. Its Thor Stop gate
+is pending; see the
 [repair evidence](docs/script-unload.md) and [retained-identity integration](docs/world-session-repair.md).
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
@@ -195,17 +197,20 @@ tables. Validation uses the measured archive inventory.
 | Cold realm backup and isolated restore | Physical code 14 passed; uploaded ZIP independently verified; earlier JSON lacks SAF readback receipt |
 | Retained local auth listener/restart | Passed on physical Thor code 16: all 15 flags, 39 successful native records and clean shutdown |
 | User-controlled retained database/auth foreground sessions | Physical code 17 Stop/restart passed; 112,127 /120,000 ms screen-off health recorded |
-| Extracted game-data import and format preflight | Physical code 25 clears 104 mmap rejections; twelve DBC layouts measured. Private code 26 implements proven original-loader routes; physical import/reverify pending |
+| Extracted game-data import and format preflight | Physical code 26 passed import/preflight/publication; later retained sessions, including code 31, fully rehashed all 22,817 files |
+| Retained native world/auth/database session | Code 31 passed sustained health and 144.9 s healthy screen-off; Stop crashed. Verified private code 32 repairs script teardown; complete Thor gate pending |
 | Supervised persistent server APK and local account provisioning | Open |
 | WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-The next device gate is [game-data import and re-verification](docs/game-data-import.md). The remaining native screen-off measurement stays deferred to native world loading.
+The next device gate is [one code-32 world session through clean Stop](docs/world-session-repair.md).
+No repeat import or separate database/auth test is needed. The rebuilt world needs
+its own combined health, screen-off and shutdown observations.
 The ARM64 world build and original compiled updater have passing evidence;
 preserve their C++20, all 52 modules, static Lua 5.2, source hashes and strict
 [updater protocol](docs/world-updater-gate.md). Android service-process death is now qualified for the isolated runtime.
-Persistent auth/world service orchestration remains separate. World startup also requires matching
-DBC/maps/vmaps/mmaps, which were not supplied.
+Persistent world readiness requires clean shutdown and retained database/GT
+postconditions. Matching DBC/maps/vmaps/mmaps are already imported and verified.
 
 Preserve the original SQL/update
 receipts; never restore the populated fresh-install seed over live saves.

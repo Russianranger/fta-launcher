@@ -1,13 +1,19 @@
 # Private native diagnostic builds
 
-## Current private delivery — code 31
+## Current private delivery — code 32
 
-`FTA-Launcher-0.12.4-world-signals.apk` is signed with the persistent certificate.
-SHA256: `b34acb24a20b9e2388a12c2e13136718673c183429e6e2a1da9af40ae20ab517`.
-It passed 174 tooling tests, Android tests/lint/assembly, 223 packaged-input checks,
-v2 signing and 16 KiB alignment. [Measured APK evidence](evidence/android-2026-10-24-private-world-signals-apk.json).
+`FTA-Launcher-0.12.5-world-stop.apk` is signed with the persistent certificate.
+SHA256: `abaa6cbc199817cecd016db8b542642b9561da86819a824b3887ddf3ca7e0fda`;
+58,987,731 bytes. It passed 184 tooling tests, 378 Android tests (one existing
+private database-fixture test skipped), lint/assembly, 225 packaged-input checks,
+v2 signing and 16 KiB alignment. All 19 donor native payloads remain byte-identical;
+the separately pinned repaired world and v2 fault witness bring the total to 21.
+[Measured APK evidence](evidence/android-2026-10-25-private-world-stop-apk.json).
+[Private APK, matching source and build-cache recovery](code32-recovery.md).
 Physical code 31 passed sustained health and 144.9 seconds healthy screen-off,
-but Stop still failed. See [the source-backed shutdown repair](script-unload.md).
+but Stop failed. The repaired code-32 executable still needs its complete Thor
+gate. See [the source-backed shutdown repair](script-unload.md) and
+[one focused physical procedure](world-session-repair.md).
 
 Code 30 was withdrawn before physical testing because its new helper refused
 Android's preinstalled crash handler. Its saved file is marked **DO NOT INSTALL**.
@@ -41,8 +47,8 @@ member and adds the reviewed repair sources and full build evidence. The helper
 source is public MIT code; `assets/metadata/launcher-LICENSE.txt` must match the
 repository license. The repaired world is selected only for retained sessions;
 original updater and realm/backup identities remain unchanged. See
-[the integration and next gate](world-session-repair.md). No code-32 APK is
-qualified until its measured private delivery evidence is recorded.
+[the integration and next gate](world-session-repair.md). Package qualification
+does not set native database fallback, world readiness or gameplay flags.
 
 
 Public CI snapshots package the database provider. A source-matching authserver
