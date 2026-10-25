@@ -27,7 +27,10 @@ class WorldLogDictionaryTests(unittest.TestCase):
         asset = ASSET.read_text()
         self.assertEqual(proof['dictionarySha256'], hashlib.sha256(asset.encode()).hexdigest())
         self.assertEqual(asset, ''.join(f"{e['prefixSha256']}\t{e['id']}\n" for e in proof['events']) +
-                         ''.join(f"{c['categorySha256']}\t{c['id']}\n" for c in proof['warningCategories']))
+                         ''.join(f"{c['categorySha256']}\t{c['id']}\n" for c in proof['warningCategories']) +
+                         ''.join(f"{e['messageSha256']}\t{e['id']}\tfull\n" for e in proof['exactMessages']))
+        self.assertEqual(['w0187', 'w0188'], [e['id'] for e in proof['exactMessages']])
+        self.assertEqual(2, len({e['messageSha256'] for e in proof['exactMessages']}))
         self.assertEqual(22, len(proof['warningCategories']))
         self.assertEqual(17, len(proof['startupModules']))
         self.assertEqual(447, len(proof['events']))

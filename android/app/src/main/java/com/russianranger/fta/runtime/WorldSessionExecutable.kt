@@ -6,9 +6,9 @@ import java.nio.file.Files
 /** Additive runtime repair. The immutable baseline still identifies realms and backups. */
 internal object WorldSessionExecutable {
     const val NAME = "libfta_world_session.so"
-    const val SHA256 = "a7f7d3f2018703f931da68031972d1468a0c120d8f815608fcaf0e153322b20e"
+    const val SHA256 = "3374a7515ec901d2fe1b413c91f423bb149f90a9cc41963cdcb7897decd21671"
     const val BYTES = 62665968L
-    const val PROFILE = "android-arm64-world-v14"
+    const val PROFILE = "android-arm64-world-v15"
     const val BASE_MANIFEST = "dda46e9555ad3b58acdbb0125fccdc89850de78a56159ee2bfcbfbde8f529c8b"
     const val BASE_WORLD = "97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766"
     const val BASE_TREE = "847f2e60c06cdb1b1154f9a1ed5c31b483550ed5c5ec925910c4347edbd0e064"

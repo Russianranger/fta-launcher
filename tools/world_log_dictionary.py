@@ -30,6 +30,7 @@ def dictionary(sources):
                 (name.startswith('modules/') and name.split('/')[1] in modules) or
                 name in ('src/server/apps/worldserver/Main.cpp', 'src/server/database/Database/MySQLConnection.cpp')}
     events = []
+    exact_events = []
     warnings = {name: data for name, data in sources.items() if
                 name.startswith(('src/server/', 'modules/')) and WARN.search(data.decode('utf-8'))}
     # Keep every existing startup ID stable. Append warning sites outside that original selection.
@@ -48,6 +49,11 @@ def dictionary(sources):
             events.append({'id': f'w{len(events):04d}', 'source': name,
                            'line': source.count('\n', 0, match.start()) + 1,
                            'prefixSha256': hashlib.sha256(prefix).hexdigest()})
+            # These two original conversion hints share the same 16-byte prefix.
+            # Full static-message hashes distinguish them without exporting a value.
+            if name == 'src/server/database/Database/Field.cpp' and message in (
+                    '> Please use GetData<double>()', '> Please use GetData<uint64>()'):
+                exact_events.append({'id': events[-1]['id'], 'messageSha256': hashlib.sha256(message.encode()).hexdigest()})
     category_sites = {}
     for name, data in sorted(warnings.items()):
         source = data.decode('utf-8')
@@ -58,11 +64,13 @@ def dictionary(sources):
                 category_sites.setdefault(key, []).append({'source': name, 'line': source.count('\n', 0, match.start()) + 1})
     categories = [{'id': f'c{index:04d}', 'categorySha256': key, 'sourceLocations': sites}
                   for index, (key, sites) in enumerate(sorted(category_sites.items()))]
-    if len(events) + len(categories) > 1000:
+    if len(events) + len(categories) + len(exact_events) > 1000:
         raise ValueError('Fingerprint dictionary exceeds the runtime bound')
     asset = ''.join(f"{e['prefixSha256']}\t{e['id']}\n" for e in events)
     asset += ''.join(f"{c['categorySha256']}\t{c['id']}\n" for c in categories)
-    return asset, {'formatVersion': 2, 'prefixBytes': 16, 'startupModules': modules,
+    asset += ''.join(f"{e['messageSha256']}\t{e['id']}\tfull\n" for e in exact_events)
+    return asset, {'formatVersion': 3, 'prefixBytes': 16, 'startupModules': modules,
+                   'exactMessages': exact_events,
                    'warningSources': sorted(warnings), 'warningCategories': categories,
                    'sourceSha256': {name: hashlib.sha256(data).hexdigest() for name, data in sorted((selected | warnings).items())},
                    'events': events, 'dictionarySha256': hashlib.sha256(asset.encode()).hexdigest(),

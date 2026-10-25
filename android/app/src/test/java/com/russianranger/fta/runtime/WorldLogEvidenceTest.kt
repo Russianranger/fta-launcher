@@ -68,6 +68,26 @@ class WorldLogEvidenceTest {
         assertTrue(counts.single().toString().contains("count=100"))
         assertEquals(0, result["sourceMessageGroupsOmitted"])
     }
+    @Test fun fullStaticHashesResolvePrefixCollisionsWithoutExportingMessages() = fixture { visit, _, _ ->
+        val left = "$prefix left"; val right = "$prefix right"
+        val digest = sha(prefix.toByteArray())
+        val data = "$digest\tw0000\n$digest\tw0001\n" +
+            "${sha(left.toByteArray())}\tw0000\tfull\n${sha(right.toByteArray())}\tw0001\tfull\n"
+        val dict = WorldLogEvidence.dictionary(data.byteInputStream())
+        val log = File(visit, "world-session.log").apply {
+            writeText("WARN [module] $left\nWARN [module] $right\nWARN [module] $left secret-value\n")
+        }
+        val result = WorldLogEvidence.scan(log, dict)
+        val events = result["lastSourceMessages"] as List<*>
+        assertTrue(events[0].toString().contains("sourceMessageIds=[w0000]"))
+        assertTrue(events[1].toString().contains("sourceMessageIds=[w0001]"))
+        assertTrue(events[2].toString().contains("sourceMessageIds=[w0000, w0001]"))
+        assertEquals(3, result["matchedLines"])
+        for (private in listOf(left, right, "secret-value")) assertFalse(result.toString().contains(private))
+        for (bad in listOf("$digest\tw0000\tfull\n", data + "${sha(left.toByteArray())}\tw0000\tfull\n",
+                "$digest\tc0000\tfull\n", "$digest\tw0000\tunknown\n"))
+            assertThrows(Exception::class.java) { WorldLogEvidence.dictionary(bad.byteInputStream()) }
+    }
     @Test fun symlinksAreRejectedAndOversizedLogsRemainPartialEvidence() = fixture { visit, attempt, journal ->
         end(journal)
         val actual = File(visit, "other").apply { writeText("INFO [module] $prefix\n") }

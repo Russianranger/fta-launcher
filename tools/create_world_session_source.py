@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extend the exact private corresponding-source companion with the shutdown repair.
+"""Extend the exact private corresponding-source companion with the reviewed world-session repairs.
 
 All original source archives/notices remain byte-identical. No binaries or keys.
 """
@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE_SHA = '5e2532f8e78f1de0453e73f59c9d07fc4353cfdd393e355f3c22e0e443a334f1'
 BASE_SUMS_SHA = 'fe386a4c654bc6041a67ed3d956985ec0758eaa281d2cd64bc1effa3f4069c0f'
 BASE_PREFIX = 'fta-corresponding-source/'
-PREFIX = 'world-session-v14/'
+PREFIX = 'world-session-v15/'
 INDEX = PREFIX + 'CONTENTS.json'
 
 
@@ -110,15 +110,15 @@ def main():
         add(PREFIX + 'BUILD_EVIDENCE.json', args.build_evidence.read_bytes())
         add(PREFIX + 'README.txt', (
             'This additive world-session build preserves all baseline source archives, notices and recipes above.\n'
-            'Use world-session-v14/repository as the reviewed launcher checkout.\n'
-            'Stage the original source ZIP with tools/fta_source.py; apply android-arm64-world-v14 with tools/fta_port.py.\n'
+            'Use world-session-v15/repository as the reviewed launcher checkout.\n'
+            'Stage the original source ZIP with tools/fta_source.py; apply android-arm64-world-v15 with tools/fta_port.py.\n'
             'Reproduce dependencies using native-port/build-dependencies.py and build-world-dependencies.py, NDK r28c, API33.\n'
             'Reuse the exact retained provider libraries with the generated target headers.\n'
-            'Run tools/build_native.py --platform android --stage world --port-profile android-arm64-world-v14 --jobs 1,\n'
+            'Run tools/build_native.py --platform android --stage world --port-profile android-arm64-world-v15 --jobs 1,\n'
             'with explicit source/build/toolchain/dependency-prefix/mysql-library/mysql-include/mysql-executable paths.\n'
             'Use the original Lua 5.2.4 archive hash, static scripts/modules, C++20 and all 52 modules.\n'
             'tools/verify_world_session.py verifies the actual file-API, link, source and baseline dependency evidence.\n'
-            'The script-unload host probe and fault-witness v2 source/fixtures are included.\n'
+            'The script-unload, auction-count and fault-witness v2 host probes are included.\n'
             'This companion contains no APK, server binary, live database, game assets or signing material.\n'
             'Compilation evidence does not qualify Android runtime or graceful shutdown.\n').encode())
         out.writestr(INDEX, json.dumps(index, indent=2) + '\n')

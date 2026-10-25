@@ -1,0 +1,74 @@
+{
+  "status": "original-auction-count-warning-reproduced-and-caller-fixed",
+  "sourceArchiveSha256": "907a0a0bfde4f86b0471f798d93d2a74fdc50ece398cbb31c0ba22ddbc8e81bb",
+  "sourceProfile": "android-arm64-world-v15",
+  "patchSha256": "387919ebb059a7fe108675df027de2b228cca643633dcb269b196f2443249e8d",
+  "originalFieldSha256": "787d3c2f40ff705c9fe06d120d35137e413e07be95b975f10d897384e3c25302",
+  "originalStringEqualILeafSha256": "3f380c1da62c93788c0a2bd55b4156d43750c1168f95792e515d6fc7dfcdb617",
+  "sellerSourceSha256": {
+    "before_sha256": "ee9ee648303b49025a21729565e237cd9db5f0e3213c6e716bb9a66209d2d966",
+    "after_sha256": "cac9072bc091aeb9f2e50a8f39fd482982837e9585f813e3606013643af1c65c"
+  },
+  "fixtureSourceSha256": {
+    "Log.h": "2e01b3d47be467578c345f20b6ecfcff3ce8563134dfc3a74bb1d8f9a889b766",
+    "snapshot.cpp": "883293f8a0733622854b3156c6ee6156623626585be4bfee3a28fd1990e272cc"
+  },
+  "originalSnapshotFunctionCompiled": true,
+  "originalFieldUnmodified": true,
+  "syntheticTextProtocolRows": true,
+  "snapshotCountConversionAndAccumulationPreserved": true,
+  "queryBytesUnchanged": true,
+  "emptyResultAndMissingOriginResolverCovered": true,
+  "uint32AndUint64BoundariesCovered": true,
+  "releaseAndAddressUndefinedSanitizersPassed": true,
+  "strictFieldTypesTestedBothModes": true,
+  "leakSanitizerClaimed": false,
+  "compilerJobs": 1,
+  "liveDatabaseTested": false,
+  "androidExecutionQualified": false,
+  "measuredThorWarningCallerProven": false,
+  "databaseFallbackValidated": false,
+  "worldReady": false,
+  "results": {
+    "original-normal-release": {
+      "exitCode": 0,
+      "rows": 12,
+      "warnings": 24
+    },
+    "original-normal-asan-ubsan": {
+      "exitCode": 0,
+      "rows": 12,
+      "warnings": 24
+    },
+    "original-strict-release": {
+      "exitCode": 0,
+      "rows": 12,
+      "warnings": 36
+    },
+    "original-strict-asan-ubsan": {
+      "exitCode": 0,
+      "rows": 12,
+      "warnings": 36
+    },
+    "fixed-normal-release": {
+      "exitCode": 0,
+      "rows": 12,
+      "warnings": 0
+    },
+    "fixed-normal-asan-ubsan": {
+      "exitCode": 0,
+      "rows": 12,
+      "warnings": 0
+    },
+    "fixed-strict-release": {
+      "exitCode": 0,
+      "rows": 12,
+      "warnings": 0
+    },
+    "fixed-strict-asan-ubsan": {
+      "exitCode": 0,
+      "rows": 12,
+      "warnings": 0
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "moduleName": "libfta_world_session.so",
   "moduleBytes": 62665968,
-  "moduleSha256": "a7f7d3f2018703f931da68031972d1468a0c120d8f815608fcaf0e153322b20e",
+  "moduleSha256": "3374a7515ec901d2fe1b413c91f423bb149f90a9cc41963cdcb7897decd21671",
   "elf": {
     "needed": [
       "libc.so",
@@ -19,9 +19,9 @@
     "interpreter": "/system/bin/linker64",
     "minimumLoadAlignment": 16384
   },
-  "sourceProfile": "android-arm64-world-v14",
-  "sourceTreeSha256": "c85f87ebc192e78263fa14789223628c9df6e225bc0a632e67f3a1a720db11f5",
-  "patchSha256": "90e6385b137d906195711619fb6e8b7555c1c0d664e0495175831f2cdf9ca4d6",
+  "sourceProfile": "android-arm64-world-v15",
+  "sourceTreeSha256": "a3fe8de9d41502e26975e77c3044ff28d3bf17de4b2b849b4666a141f7561ce3",
+  "patchSha256": "387919ebb059a7fe108675df027de2b228cca643633dcb269b196f2443249e8d",
   "baselineManifestSha256": "dda46e9555ad3b58acdbb0125fccdc89850de78a56159ee2bfcbfbde8f529c8b",
   "baselineWorldSha256": "97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766",
   "compiledUpdaterLockSha256": "466c1c6673d7f939b14c4b6f4dc787efa58ac6c8fa91e982c76151a3f1f8c02f"

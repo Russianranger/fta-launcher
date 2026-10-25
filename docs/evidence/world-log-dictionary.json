@@ -1,5 +1,5 @@
 {
-  "formatVersion": 2,
+  "formatVersion": 3,
   "prefixBytes": 16,
   "startupModules": [
     "mod-ale",
@@ -19,6 +19,16 @@
     "mod-warcraftxl-gameobject-editor",
     "mod-warcraftxl-ui-tracker",
     "mod-world-inspector-runtime"
+  ],
+  "exactMessages": [
+    {
+      "id": "w0187",
+      "messageSha256": "e26ddc9c6927823de30057d021dd65c81d1358c341f18f4e586c01d8b2fd6f60"
+    },
+    {
+      "id": "w0188",
+      "messageSha256": "34baad874387ad56869dbb8bd0c9dee655163d5013d8cf80678dd7e2ee2ae3f9"
+    }
   ],
   "warningSources": [
     "modules/mod-aura-timers/src/AuraTimers.cpp",
@@ -4359,7 +4369,7 @@
       "prefixSha256": "b904cdfa8f56f29f4ca4b85f94d13a0644463dac99239b2a6d582f6979778fb5"
     }
   ],
-  "dictionarySha256": "357ff0ef127f33fe6be837b6d95f59fb1dcbe25b19d8fee4211ddf3b97f32459",
+  "dictionarySha256": "68ee634ff71cc82f75ec11201f1b974c72e38c2229d62c7b6a4343b4e4e92b75",
   "dynamicValuesExported": false,
   "hookCompletionProven": false,
   "crashCauseProven": false,

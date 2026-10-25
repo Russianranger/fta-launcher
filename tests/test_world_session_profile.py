@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
-from verify_world_session import profile_delta, verify_link_libraries, compiler_identity, LINK_LIBRARIES, PROFILE, MANAGER
+from verify_world_session import profile_delta, verify_link_libraries, compiler_identity, LINK_LIBRARIES, PROFILE, CHANGED_SOURCE
 
 
 class WorldSessionProfileTests(unittest.TestCase):
@@ -29,10 +29,10 @@ class WorldSessionProfileTests(unittest.TestCase):
             extra = root / 'CMakeFiles/other/CMakeCXXCompiler.cmake'; extra.parent.mkdir(); extra.write_text(good)
             with self.assertRaisesRegex(ValueError, 'ambiguous'): compiler_identity(root)
 
-    def test_only_one_reviewed_shutdown_source_delta_can_extend_the_baseline(self):
+    def test_only_one_reviewed_auction_source_delta_can_extend_the_baseline(self):
         good = json.loads((ROOT / 'native-port/profiles.json').read_text())
         patch = profile_delta(good)
-        self.assertEqual([MANAGER], list(patch['files']))
+        self.assertEqual([CHANGED_SOURCE], list(patch['files']))
         for mutation in ('patch', 'file', 'module'):
             bad = copy.deepcopy(good); profile = bad['profiles'][PROFILE]
             if mutation == 'patch': profile['patches'][0]['sha256'] = '0' * 64

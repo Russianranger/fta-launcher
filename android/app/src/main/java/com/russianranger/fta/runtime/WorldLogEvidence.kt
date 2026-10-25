@@ -23,19 +23,23 @@ internal object WorldLogEvidence {
         }
     }
     private fun hash(bytes: ByteArray) = hex(MessageDigest.getInstance("SHA-256").digest(bytes))
-    data class Dictionary(val sha256: String, val ids: Map<String, List<String>>, val categories: Map<String, List<String>> = emptyMap())
+    data class Dictionary(val sha256: String, val ids: Map<String, List<String>>, val categories: Map<String, List<String>> = emptyMap(),
+        val exact: Map<String, List<String>> = emptyMap())
     fun dictionary(input: InputStream): Dictionary {
         val data = input.use { it.readBytesBounded(80_000) }
         val rows = data.toString(Charsets.US_ASCII).trimEnd('\n').split('\n')
         require(rows.size in 1..1000)
         val pairs = rows.map { row ->
             val parts = row.split('\t')
-            require(parts.size == 2 && parts[0].matches(Regex("[a-f0-9]{64}")) && parts[1].matches(Regex("[wc][0-9]{4}")))
-            parts[0] to parts[1]
+            require(parts.size in 2..3 && parts[0].matches(Regex("[a-f0-9]{64}")) && parts[1].matches(Regex("[wc][0-9]{4}")))
+            require(parts.size == 2 || (parts[2] == "full" && parts[1].startsWith("w")))
+            Triple(parts[0], parts[1], parts.size == 3)
         }
-        require(pairs.map { it.second }.distinct().size == pairs.size)
-        return Dictionary(hash(data), pairs.filter { it.second.startsWith("w") }.groupBy({ it.first }, { it.second }),
-            pairs.filter { it.second.startsWith("c") }.groupBy({ it.first }, { it.second }))
+        require(pairs.map { it.second to it.third }.distinct().size == pairs.size)
+        require(pairs.filter { it.third }.all { full -> pairs.any { !it.third && it.second == full.second } })
+        return Dictionary(hash(data), pairs.filter { !it.third && it.second.startsWith("w") }.groupBy({ it.first }, { it.second }),
+            pairs.filter { it.second.startsWith("c") }.groupBy({ it.first }, { it.second }),
+            pairs.filter { it.third }.groupBy({ it.first }, { it.second }))
     }
     private fun InputStream.readBytesBounded(limit: Int): ByteArray {
         val output = java.io.ByteArrayOutputStream()
@@ -77,7 +81,7 @@ internal object WorldLogEvidence {
                     }
                     val payload = parsed.groupValues[3].toByteArray(Charsets.UTF_8)
                     if (payload.size >= 16 && payload.take(16).all { it in 32..126 }) {
-                        val ids = dictionary.ids[hash(payload.copyOf(16))]
+                        val ids = dictionary.exact[hash(payload)] ?: dictionary.ids[hash(payload.copyOf(16))]
                         if (ids != null) {
                             matches++; lastMatch = lines
                             val key = level to ids

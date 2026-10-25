@@ -1,78 +1,72 @@
 # From the Ashes Android — current handoff
 
-Only `Russianranger/fta-launcher`, **main**. Owner authorizes qualified commits and
-pushes. Target AYN Thor, Android 13, ARM64. Read `AGENTS.md`, this file,
-`game-data-import.md`, `private-diagnostics.md`, `native-world-gate.md`.
-Earlier history: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
+Only **Russianranger/fta-launcher/main**. Owner authorizes qualified commits and
+pushes. AYN Thor, Android 13, ARM64. Read `AGENTS.md`, `game-data-import.md`,
+`private-diagnostics.md`, `native-world-gate.md`. Earlier history:
+[DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current private delivery and immediate action
+## Current increment — code 34 qualification
 
-Application commit **9155fd76009b2ff613f8d2975a7784d1d7ccc477**; exact CI
-[40151936482](https://github.com/Russianranger/fta-launcher/actions/runs/40151936482)
-passed all three jobs. Private code **33**, `0.12.6-log-evidence`, **59,000,019 bytes**;
-APK SHA256 `c1b6f5434f1a43852ba7948f69232a7da51e53e56848eb872cdfda0f43fc1553`.
-[Delivery and matching source](code33-recovery.md);
-[APK proof](evidence/android-2026-10-25-private-log-evidence-apk.json).
-185 tooling tests pass; Android **382 passed, one existing private-fixture test
-skipped**, no failures/errors. Lint/assembly, 225 packaged-input checks, persistent
-v2 signature and 16 KiB alignment pass. All **21** native files and all 148 runtime
-manifest entries are byte-identical to code 32. No native rebuild occurred.
-Public CI APKs are foundation previews, not private native updates.
+Recovered remote **f71016941646ac7ddeded2a2a06cba3d00c7be99**; its exact CI
+[40152332918](https://github.com/Russianranger/fta-launcher/actions/runs/40152332918)
+passed all three jobs. Latest delivered private APK remains code 33 until the
+code-34 delivery proof is added. Code 33 and source: [recovery links](code33-recovery.md).
 
-**Next action: install private code 33 in place, reopen and Export diagnostic
-report only. Do not start another world session or import/verify assets first.**
-Recover attempt `d280294e-62b4-4255-82f1-5ca5c14bb80c` before a new test replaces it.
-No seed replay, uninstall, storage clear or repeat database/auth checks.
-[Recovery design and procedure](world-log-recovery.md).
+**Code 33 read-only recovery passed**, same code-32 attempt
+`d280294e-62b4-4255-82f1-5ca5c14bb80c`, no new native run. Report SHA256
+`3c23e419d95637c8f907745bf05fc29332bb667aa66ea74ffb1e3e77e3a1f618`.
+[Exact measured evidence](evidence/android-2026-10-25-thor-code33-recovery.json)
+is authoritative for the report hash. World log 8,535,490 bytes; first/last 4 MiB
+samples omit 146,882 bytes. Tail: 67,108 warnings, 33,554 aggregate-hint matches,
+then original Halting. Existing prefix collides between Field.cpp's double and
+uint64 hints; no exact Thor caller is proven. No additional recovery export is
+needed before the next qualified update.
 
-## New measured physical result
+## Implemented source-backed correction
 
-Code-32 report `FTA-database-diagnostic-1792892076477.json`, SHA256
-`a6bd04057da09649c78ce08c7ba87c0494fb2d0bbf51029789a5abcb12a915f1`:
-exact APK/world matched; 64 receipt samples / 65 native health probes, **672,534 ms**
-measured session and **651,866 ms healthy screen-off**. Full 22,817-file /
-7,625,943,031-byte rehash, strict metadata/GT prechecks, original 113 DBC stores,
-ready/freeze/challenge passed. The unchanged 8 MiB log cap ended the session during
-LOCAL_SERVICE_RUNNING. World exited **zero**, with no fatal capture; auth zero,
-database zero without observed SQL shutdown. Metadata/GT postchecks were not
-reached; their false values do not prove data loss. User Stop remains unqualified.
-World-file export unavailable; stdout 1,042,275 bytes, stderr 19 bytes.
-[Physical proof](evidence/android-2026-10-25-thor-code32-runtime.json).
+[Diagnosis, host proof and next gate](auction-count.md). Original recurring
+auction snapshot reads COUNT column 4 as uint32, causing two warning lines per
+row (three under strict checks), then falls back to uint64. v15 changes only
+that expression to an explicit uint32 conversion of Get<uint64>(). Original
+query, narrowing/accumulation, Field, all SQL/configurations and all 52 modules
+are preserved. v14 shutdown repair remains. Four original/four fixed Release
+and ASan/UBSan fixtures pass; boundary counts match and fixed warnings are zero.
+Native compilation uses one job and reuses completed objects. Only seller is
+recompiled. Repeated relink hash **3374a7515ec901d2fe1b413c91f423bb149f90a9cc41963cdcb7897decd21671**,
+62,665,968 bytes. [Build evidence](evidence/android-2026-10-25-world-auction-build.json).
+Code 34 also distinguishes the two complete static aggregate hints by hashes;
+all existing source IDs, privacy bounds and the 8 MiB live guard remain.
 
-Code 33 recovers oversized logs using only first/last 4 MiB, explicit omitted
-bytes and range hashes. It adds bounded frequencies for 447 original message
-fingerprints plus 22 source-category IDs; all 160 old message IDs remain stable.
-Variable-first warnings can identify candidate categories without exporting text.
-Native bytes, logger policy, live 8 MiB cap and qualification gates are unchanged.
-After the retained report arrives, resolve measured IDs against the exact source
-index, then implement a source-backed correction. Do not suppress warnings or
-raise limits speculatively. Combined runtime, database fallback, world readiness
-and gameplay flags remain false until the full clean-stop/postcondition gate.
+**Finish exact application CI, package/sign code 34, verify all inputs and save
+APK plus corresponding source before requesting the combined Thor gate.**
+Keep source-backed defects separate from inferred Thor causation. Native runtime,
+GT fallback, world readiness and gameplay flags remain false until complete Stop
+and postconditions pass. Client import/WarcraftXL/playable login are later work.
 
-## Retained native repair and recovery
+## Physical runtime evidence retained
 
-Code 31 identified SIGSEGV at `ScriptMgr::OnDestructObject(Object*)` from freed
-EnabledHooks after Unload. The narrow v14 fix detaches hooks before deleting
-scripts; original-code Release and ASan/UBSan fixtures pass. Code 32 now observes
-world exit zero during failure cleanup; explicit Stop/postconditions still open.
-[Diagnosis](script-unload.md), [integration](world-session-repair.md).
+Code 32: 64 receipt samples / 65 native probes, 672,534 ms session and 651,866 ms
+healthy screen-off. Complete 22,817-file / 7,625,943,031-byte rehash; strict
+metadata/GT prechecks, original 113 DBC stores, readiness/freeze/challenge passed.
+Log limit ended the session. World/auth exited zero; SQL shutdown and metadata/GT
+postchecks were not reached. User Stop remains unqualified. No seed replay,
+uninstall, storage clearing or repeated standalone database/auth tests.
 
-The completed ARM64 world preserves all 52 modules / 224 module translation units,
-C++20, static scripts/Lua 5.2 and six exact retained link libraries. Only
-`ScriptMgr.cpp` differs from v13; SQL/configurations and other source files match.
-World SHA256 `a7f7d3f2018703f931da68031972d1468a0c120d8f815608fcaf0e153322b20e`,
-62,665,968 bytes. [Build proof](evidence/android-2026-10-25-world-session-build.json).
-The additive executable is only selected for retained world sessions. Original
-world/updater/manifest pins remain the realm and backup identity; no migration.
+## Recovery and safety
 
-[Code-32 native cache/source recovery](code32-recovery.md) remains valid. Do not
-rebuild completed objects to recover a session. Read cache `RECOVERY.json`, restore
-the pinned NDK at its recorded absolute prefix, then restore nanosecond timestamps
-before Ninja. One job by default, maximum two after memory checks; no concurrent
-heavy native builds. Logs and private compiled files stay outside Git.
-Signing capsule `FTA-Launcher-Development-Signing.zip`:
-`libfile_7f9c88258f0c8191a09ab071e7447d30`; never regenerate or print its contents.
-Persistent certificate `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
+[Code-32 cache/source recovery](code32-recovery.md) remains the v14 build baseline.
+Restore its pinned NDK and timestamps before Ninja. Apply reviewed 0019 to the
+source and rebuild one seller object plus relinks for v15; do not rebuild the
+whole graph unnecessarily. The local cached path may still be named world-v14;
+verify its actual v15 source inventory and build report, never infer profile from
+its directory name. One job by default/max two after memory check; no concurrent
+heavy native builds. Preserve all native link dependencies and old updater pins.
+
+Persistent signing capsule: `FTA-Launcher-Development-Signing.zip`,
+`libfile_7f9c88258f0c8191a09ab071e7447d30`. Never regenerate or expose credentials.
+Certificate `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
+Private source, compiled binaries, database archives/configurations and assets
+stay outside public Git. Public CI APKs are foundation previews only.
 
 ## Preserved milestones
 

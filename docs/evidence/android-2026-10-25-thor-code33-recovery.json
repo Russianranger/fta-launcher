@@ -1,0 +1,548 @@
+{
+  "appVersionName": "0.12.6-log-evidence",
+  "appVersionCode": 33,
+  "apkSha256": "c1b6f5434f1a43852ba7948f69232a7da51e53e56848eb872cdfda0f43fc1553",
+  "providerManifestSha256": "dda46e9555ad3b58acdbb0125fccdc89850de78a56159ee2bfcbfbde8f529c8b",
+  "formatVersion": 1,
+  "reportSha256": "3c23e419d95637c8f907745bf05fc29332bb667aa66ea74ffb1e3e77e3a1f618",
+  "reportBytes": 127693,
+  "scope": "read-only-retained-code32-log-recovery",
+  "attemptId": "d280294e-62b4-4255-82f1-5ca5c14bb80c",
+  "worldExecutableSha256": "a7f7d3f2018703f931da68031972d1468a0c120d8f815608fcaf0e153322b20e",
+  "worldSourceProfile": "android-arm64-world-v14",
+  "healthySamples": 64,
+  "elapsedMs": 672534,
+  "screenOffHealthyMs": 651866,
+  "sessionCompleted": false,
+  "qualified": false,
+  "databaseFallbackValidated": false,
+  "worldReady": false,
+  "screenOffQualified": false,
+  "gameLoginQualified": false,
+  "sameCode32AttemptRetained": true,
+  "newNativeSessionStarted": false,
+  "retainedWorldLogs": {
+    "available": true,
+    "origin": "retained-attempt-logs",
+    "attemptId": "d280294e-62b4-4255-82f1-5ca5c14bb80c",
+    "worldInvocationId": 15,
+    "worldExitCode": 0,
+    "dictionarySha256": "357ff0ef127f33fe6be837b6d95f59fb1dcbe25b19d8fee4211ddf3b97f32459",
+    "prefixBytes": 16,
+    "sourceMessageMatchIsCrashCause": false,
+    "sourceMessageMatchIsHookCompletion": false,
+    "logs": {
+      "world": {
+        "available": true,
+        "completeFileRead": false,
+        "limitReached": true,
+        "bytes": 8535490,
+        "sampledBytes": 8388608,
+        "omittedBytes": 146882,
+        "regions": [
+          {
+            "offsetBytes": 0,
+            "lengthBytes": 4194304,
+            "lineNumbersAreRangeLocal": true,
+            "bytes": 4194304,
+            "sha256": "803fe23ca8eaeea32f7c3c039c4996deb6a0fa39388a2cc5c2e0ef61ab0bd279",
+            "lines": 48368,
+            "oversizedLinesSkipped": 0,
+            "levels": {
+              "INFO": 863,
+              "WARN": 47501,
+              "ERROR": 0,
+              "FATAL": 0
+            },
+            "matchedLines": 21454,
+            "linesAfterLastMatch": 1,
+            "lastSourceMessages": [
+              {
+                "line": 48365,
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0187",
+                  "w0188"
+                ]
+              },
+              {
+                "line": 48367,
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0187",
+                  "w0188"
+                ]
+              }
+            ],
+            "sourceCategoryCounts": [
+              {
+                "level": "WARN",
+                "sourceCategoryIds": [
+                  "c0018"
+                ],
+                "count": 41957
+              },
+              {
+                "level": "WARN",
+                "sourceCategoryIds": [
+                  "c0011"
+                ],
+                "count": 3022
+              },
+              {
+                "level": "WARN",
+                "sourceCategoryIds": [
+                  "c0013"
+                ],
+                "count": 2514
+              },
+              {
+                "level": "INFO",
+                "sourceCategoryIds": [
+                  "c0013"
+                ],
+                "count": 841
+              },
+              {
+                "level": "INFO",
+                "sourceCategoryIds": [
+                  "c0009"
+                ],
+                "count": 22
+              },
+              {
+                "level": "WARN",
+                "sourceCategoryIds": [
+                  "c0001"
+                ],
+                "count": 7
+              },
+              {
+                "level": "WARN",
+                "sourceCategoryIds": [
+                  "c0006"
+                ],
+                "count": 1
+              }
+            ],
+            "sourceCategoryGroupsOmitted": 0,
+            "sourceMessageCounts": [
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0187",
+                  "w0188"
+                ],
+                "count": 20544
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0242",
+                  "w0243"
+                ],
+                "count": 856
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0220",
+                  "w0221",
+                  "w0222"
+                ],
+                "count": 12
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0429",
+                  "w0430",
+                  "w0431",
+                  "w0432"
+                ],
+                "count": 7
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0001",
+                  "w0002",
+                  "w0003"
+                ],
+                "count": 2
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0442"
+                ],
+                "count": 2
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0257",
+                  "w0258",
+                  "w0338",
+                  "w0343"
+                ],
+                "count": 2
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0265",
+                  "w0266"
+                ],
+                "count": 2
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0363",
+                  "w0364"
+                ],
+                "count": 2
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0394",
+                  "w0395"
+                ],
+                "count": 2
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0124"
+                ],
+                "count": 1
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0125"
+                ],
+                "count": 1
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0126"
+                ],
+                "count": 1
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0128"
+                ],
+                "count": 1
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0131"
+                ],
+                "count": 1
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0135"
+                ],
+                "count": 1
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0136"
+                ],
+                "count": 1
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0137"
+                ],
+                "count": 1
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0392"
+                ],
+                "count": 1
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0440"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0232"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0240"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0241"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0261"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0264",
+                  "w0304",
+                  "w0305",
+                  "w0306",
+                  "w0307",
+                  "w0308",
+                  "w0316",
+                  "w0317",
+                  "w0318",
+                  "w0330",
+                  "w0332",
+                  "w0361",
+                  "w0400"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0273",
+                  "w0274",
+                  "w0275"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0288"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0333",
+                  "w0334"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0335",
+                  "w0336"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0337"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0373"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0424"
+                ],
+                "count": 1
+              },
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0440"
+                ],
+                "count": 1
+              }
+            ],
+            "sourceMessageGroupsOmitted": 0,
+            "leadingFragmentBytesSkipped": 0,
+            "trailingFragmentBytesSkipped": 30
+          },
+          {
+            "offsetBytes": 4341186,
+            "lengthBytes": 4194304,
+            "lineNumbersAreRangeLocal": true,
+            "bytes": 4194304,
+            "sha256": "55da3467e65ad9d9cae83c372e7e78c8c482596f4a04616338d856285189ad55",
+            "lines": 67109,
+            "oversizedLinesSkipped": 0,
+            "levels": {
+              "INFO": 1,
+              "WARN": 67108,
+              "ERROR": 0,
+              "FATAL": 0
+            },
+            "matchedLines": 33555,
+            "linesAfterLastMatch": 0,
+            "lastSourceMessages": [
+              {
+                "line": 67108,
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0187",
+                  "w0188"
+                ]
+              },
+              {
+                "line": 67109,
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0132"
+                ]
+              }
+            ],
+            "sourceCategoryCounts": [
+              {
+                "level": "WARN",
+                "sourceCategoryIds": [
+                  "c0018"
+                ],
+                "count": 67108
+              },
+              {
+                "level": "INFO",
+                "sourceCategoryIds": [
+                  "c0009"
+                ],
+                "count": 1
+              }
+            ],
+            "sourceCategoryGroupsOmitted": 0,
+            "sourceMessageCounts": [
+              {
+                "level": "WARN",
+                "sourceMessageIds": [
+                  "w0187",
+                  "w0188"
+                ],
+                "count": 33554
+              },
+              {
+                "level": "INFO",
+                "sourceMessageIds": [
+                  "w0132"
+                ],
+                "count": 1
+              }
+            ],
+            "sourceMessageGroupsOmitted": 0,
+            "leadingFragmentBytesSkipped": 9,
+            "trailingFragmentBytesSkipped": 0
+          }
+        ],
+        "runtimeQualificationEvidence": false
+      },
+      "stdout": {
+        "available": true,
+        "completeFileRead": true,
+        "limitReached": false,
+        "bytes": 1042275,
+        "sha256": "5a88c2801a53cd31b3a589f406349132b7762c3009cbf20ff18749f4babc1154",
+        "lines": 2494,
+        "oversizedLinesSkipped": 0,
+        "levels": {
+          "INFO": 0,
+          "WARN": 0,
+          "ERROR": 0,
+          "FATAL": 0
+        },
+        "matchedLines": 0,
+        "linesAfterLastMatch": 2494,
+        "lastSourceMessages": [],
+        "sourceCategoryCounts": [],
+        "sourceCategoryGroupsOmitted": 0,
+        "sourceMessageCounts": [],
+        "sourceMessageGroupsOmitted": 0,
+        "leadingFragmentBytesSkipped": 0,
+        "trailingFragmentBytesSkipped": 0,
+        "faultWitness": {
+          "installedMarkerObserved": false,
+          "available": false,
+          "rawAddressesExported": false,
+          "memoryContentsExported": false
+        }
+      },
+      "stderr": {
+        "available": true,
+        "completeFileRead": true,
+        "limitReached": false,
+        "bytes": 19,
+        "sha256": "e89781b9095fc1f8d5d820fa92fb390a33b8cbb525a2d2e388b5832f932fc65f",
+        "lines": 1,
+        "oversizedLinesSkipped": 0,
+        "levels": {
+          "INFO": 0,
+          "WARN": 0,
+          "ERROR": 0,
+          "FATAL": 0
+        },
+        "matchedLines": 0,
+        "linesAfterLastMatch": 1,
+        "lastSourceMessages": [],
+        "sourceCategoryCounts": [],
+        "sourceCategoryGroupsOmitted": 0,
+        "sourceMessageCounts": [],
+        "sourceMessageGroupsOmitted": 0,
+        "leadingFragmentBytesSkipped": 0,
+        "trailingFragmentBytesSkipped": 0,
+        "faultWitness": {
+          "installedMarkerObserved": true,
+          "available": false,
+          "rawAddressesExported": false,
+          "memoryContentsExported": false
+        }
+      }
+    }
+  },
+  "interpretation": {
+    "dominantSourceCandidates": [
+      "src/server/database/Database/Field.cpp:254",
+      "src/server/database/Database/Field.cpp:261"
+    ],
+    "prefixDistinguishesAggregateKind": false,
+    "tailWarnLines": 67108,
+    "tailPairedHintMatches": 33554,
+    "haltingSourceMessageObserved": true,
+    "explicitStopQualified": false,
+    "originalAuctionSnapshotWrongGetterReproducedSeparately": true,
+    "auctionSnapshotIsProvenThorCaller": false,
+    "runtimeGuardUnchanged": true
+  },
+  "evidenceCompaction": "Retained only the final two source-message events per sampled region; frequencies and all measured region identities preserved."
+}

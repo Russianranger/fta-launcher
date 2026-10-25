@@ -1,0 +1,11 @@
+--- a/modules/mod-auctionator/src/AuctionatorSeller.cpp
++++ b/modules/mod-auctionator/src/AuctionatorSeller.cpp
+@@ -279,7 +279,7 @@
+         uint32 const itemSubclass = fields[1].Get<uint32>();
+         uint32 const itemId = fields[2].Get<uint32>();
+         uint32 const requiredLevel = fields[3].Get<uint32>();
+-        uint32 const count = fields[4].Get<uint32>();
++        uint32 const count = static_cast<uint32>(fields[4].Get<uint64>());
+         AuctionatorItemOrigin const origin = nator
+             ? nator->ResolveItemOrigin(itemId, requiredLevel)
+             : AuctionatorItemOrigin::Unknown;

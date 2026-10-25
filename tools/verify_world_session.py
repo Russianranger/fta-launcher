@@ -16,12 +16,12 @@ from build_native import read_cache
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME = 'libfta_world_session.so'
-PROFILE = 'android-arm64-world-v14'
-BASE_PROFILE = 'android-arm64-world-v13'
+PROFILE = 'android-arm64-world-v15'
+BASE_PROFILE = 'android-arm64-world-v14'
 BASE_MANIFEST = 'dda46e9555ad3b58acdbb0125fccdc89850de78a56159ee2bfcbfbde8f529c8b'
 BASE_WORLD = '97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766'
 UPDATER = '466c1c6673d7f939b14c4b6f4dc787efa58ac6c8fa91e982c76151a3f1f8c02f'
-MANAGER = 'src/server/game/Scripting/ScriptMgr.cpp'
+CHANGED_SOURCE = 'modules/mod-auctionator/src/AuctionatorSeller.cpp'
 LINK_LIBRARIES = {'MYSQL_LIBRARY': 'libmariadb.so', 'OPENSSL_CRYPTO_LIBRARY': 'libcrypto.so.3',
                   'OPENSSL_SSL_LIBRARY': 'libssl.so.3', 'READLINE_LIBRARY': 'libreadline.so.8',
                   'ZLIB_LIBRARY_RELEASE': 'libz.so.1', 'ANDROID_NCURSES_LIBRARY': 'libncursesw.so.6'}
@@ -36,7 +36,7 @@ def profile_delta(profiles):
     base, current = (profiles['profiles'][name] for name in (BASE_PROFILE, PROFILE))
     require(current['patches'][:-1] == base['patches'], 'Baseline patches differ')
     patch = current['patches'][-1]
-    require(list(patch['files']) == [MANAGER], 'World session repair changes another source file')
+    require(list(patch['files']) == [CHANGED_SOURCE], 'World session repair changes another source file')
     require(current['result_inventory']['modules'] == base['result_inventory']['modules'] and
             len(current['result_inventory']['modules']) == 52, 'Original module inventory differs')
     return patch
@@ -109,7 +109,7 @@ def main():
         return {f.relative_to(root).as_posix(): digest(f) for f in root.rglob('*') if f.is_file()}
     before, after = files(args.baseline_source), files(args.source)
     require(before.keys() == after.keys(), 'World source file inventory changed')
-    require([key for key in before if before[key] != after[key]] == [MANAGER], 'Unexpected source changes')
+    require([key for key in before if before[key] != after[key]] == [CHANGED_SOURCE], 'Unexpected source changes')
     build = args.build_directory.resolve()
     report = json.loads((build / 'fta-build-report.json').read_text())
     require(report['port_profile'] == PROFILE, 'World build has another source profile')
@@ -142,7 +142,8 @@ def main():
         compilerJobs=jobs, compilerSha256=compiler_identity(build),
         retainedLinkLibrariesVerified=linked_libraries,
         moduleCompilationCounts=proof['compiledWorldEvidence']['module_compilation_counts'],
-        onlyChangedSourceFile=MANAGER, sqlAndConfigurationsByteIdentical=True, baselineRuntimeFilesVerified=len(manifest['files']),
+        sourceComparisonProfile=BASE_PROFILE, onlyChangedSourceFile=CHANGED_SOURCE,
+        sqlAndConfigurationsByteIdentical=True, baselineRuntimeFilesVerified=len(manifest['files']),
         baselineRuntimeManifestPreserved=True, runtimeQualified=False, databaseFallbackValidated=False, worldReady=False)
     args.output.write_text(json.dumps(pin, indent=2) + '\n')
     args.evidence.write_text(json.dumps(evidence, indent=2) + '\n')
