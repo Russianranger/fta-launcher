@@ -155,6 +155,18 @@ class ClientStore(private val root: File,
         }
         active(); progress(Progress("validate", files.size, files.size, processed, plan.bytes, resumed))
         demand(ClientPlan(source.identity, source.inventory()).encoded.contentEquals(plan.encoded), "source-changed")
+        val expectedPaths = plan.entries.associateBy { it.path }
+        var actualEntries = 0
+        Files.walk(data.toPath()).use { paths -> paths.forEach { path ->
+            active(); demand(!Files.isSymbolicLink(path), "unsafe-destination")
+            if (path != data.toPath()) {
+                val expected = expectedPaths[data.toPath().relativize(path).toString()]
+                demand(expected != null && expected.directory == Files.isDirectory(path, NOFOLLOW_LINKS), "destination-changed")
+                if (expected?.directory == false) demand(Files.isRegularFile(path, NOFOLLOW_LINKS) && Files.size(path) == expected.bytes, "destination-changed")
+                actualEntries++
+            }
+        } }
+        demand(actualEntries == expectedPaths.size, "destination-changed")
         validate(data); active()
         val encoded = manifest.toByteArray()
         demand(encoded.size <= 16 * 1024 * 1024, "inventory-limit")

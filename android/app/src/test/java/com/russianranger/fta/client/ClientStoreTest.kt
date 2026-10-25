@@ -207,4 +207,11 @@ class ClientStoreTest {
         assertArrayEquals(plan.encoded, ClientPlan.decode(plan.encoded).encoded)
         rejected("invalid-checkpoint") { ClientPlan.decode(plan.encoded + byteArrayOf(0)) }
     }
+    @Test fun unexpectedCandidateFileCannotBePublished() {
+        val root = File(temporary.root, "store"); val source = Source()
+        rejected("destination-changed") { store(root).import(source, progress = {
+            if (it.stage == "validate") File(pending(root), "data/unexpected").writeText("unverified")
+        }, validate = {}) }
+        assertFalse(File(root, "active").exists())
+    }
 }
