@@ -26,7 +26,9 @@ class WorldLogDictionaryTests(unittest.TestCase):
         proof = json.loads(PROOF.read_text())
         asset = ASSET.read_text()
         self.assertEqual(proof['dictionarySha256'], hashlib.sha256(asset.encode()).hexdigest())
-        self.assertEqual(asset, ''.join(f"{e['prefixSha256']}\t{e['id']}\n" for e in proof['events']))
+        self.assertEqual(asset, ''.join(f"{e['prefixSha256']}\t{e['id']}\n" for e in proof['events']) +
+                         ''.join(f"{c['categorySha256']}\t{c['id']}\n" for c in proof['warningCategories']))
+        self.assertEqual(22, len(proof['warningCategories']))
         self.assertEqual(17, len(proof['startupModules']))
         self.assertEqual(447, len(proof['events']))
         self.assertEqual(81, len(proof['warningSources']))
@@ -50,6 +52,9 @@ class WorldLogDictionaryTests(unittest.TestCase):
         self.assertEqual(before['events'], proof['events'][:1])
         self.assertEqual(3, len(proof['events']))
         self.assertEqual(2, len(proof['warningSources']))
+        self.assertEqual(2, len(proof['warningCategories']))
+        core = next(c for c in proof['warningCategories'] if c['categorySha256'] == hashlib.sha256(b'core').hexdigest())
+        self.assertEqual(2, len(core['sourceLocations']))
         self.assertNotIn('private_value', asset + json.dumps(proof))
         self.assertNotIn('warning prefix', asset + json.dumps(proof))
 

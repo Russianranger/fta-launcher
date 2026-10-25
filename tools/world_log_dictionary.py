@@ -19,6 +19,7 @@ ASSET = ROOT / 'android/app/src/main/assets/metadata/world-log-prefixes.tsv'
 PROOF = ROOT / 'docs/evidence/world-log-dictionary.json'
 LOG = re.compile(r'LOG_(?:INFO|WARN|ERROR|FATAL)\s*\(\s*(?:"[^"\n]+"|[A-Z_]+)\s*,\s*((?:"(?:[^"\\]|\\.)*"\s*)+)')
 WARN = re.compile(LOG.pattern.replace('(?:INFO|WARN|ERROR|FATAL)', 'WARN'))
+WARNING_CATEGORY = re.compile(r'LOG_WARN\s*\(\s*("(?:[^"\\]|\\.)*")\s*,')
 LITERAL = re.compile(r'"(?:[^"\\]|\\.)*"')
 
 
@@ -47,11 +48,22 @@ def dictionary(sources):
             events.append({'id': f'w{len(events):04d}', 'source': name,
                            'line': source.count('\n', 0, match.start()) + 1,
                            'prefixSha256': hashlib.sha256(prefix).hexdigest()})
-    if len(events) > 1000:
+    category_sites = {}
+    for name, data in sorted(warnings.items()):
+        source = data.decode('utf-8')
+        for match in WARNING_CATEGORY.finditer(source):
+            category = json.loads(match[1])
+            if re.fullmatch(r'[A-Za-z0-9_.-]{1,80}', category):
+                key = hashlib.sha256(category.encode()).hexdigest()
+                category_sites.setdefault(key, []).append({'source': name, 'line': source.count('\n', 0, match.start()) + 1})
+    categories = [{'id': f'c{index:04d}', 'categorySha256': key, 'sourceLocations': sites}
+                  for index, (key, sites) in enumerate(sorted(category_sites.items()))]
+    if len(events) + len(categories) > 1000:
         raise ValueError('Fingerprint dictionary exceeds the runtime bound')
     asset = ''.join(f"{e['prefixSha256']}\t{e['id']}\n" for e in events)
-    return asset, {'formatVersion': 1, 'prefixBytes': 16, 'startupModules': modules,
-                   'warningSources': sorted(warnings),
+    asset += ''.join(f"{c['categorySha256']}\t{c['id']}\n" for c in categories)
+    return asset, {'formatVersion': 2, 'prefixBytes': 16, 'startupModules': modules,
+                   'warningSources': sorted(warnings), 'warningCategories': categories,
                    'sourceSha256': {name: hashlib.sha256(data).hexdigest() for name, data in sorted((selected | warnings).items())},
                    'events': events, 'dictionarySha256': hashlib.sha256(asset.encode()).hexdigest(),
                    'dynamicValuesExported': False, 'hookCompletionProven': False, 'crashCauseProven': False}

@@ -37,8 +37,11 @@ The exact original source ZIP adds 287 warning-site fingerprints outside the
 startup selection: 447 total, preserving every original ID/hash. Only hashes of
 16 literal ASCII bytes and fixed IDs enter the APK. The source index names the
 original source locations, including NPCBots and all applicable module warnings.
-Dynamic-first messages remain unrecognized. A matched prefix does not prove a
-cause, completed hook or harmless message.
+A further 22 hashed, source-defined logger categories count warnings whose
+messages begin with variable values. Category IDs identify candidate source sites,
+not exact messages. Category names/values remain private, unknown categories stay
+unrecognized, and each range exports at most 64 category count groups. A matched
+prefix or category does not prove a cause, completed hook or harmless message.
 
 Regression fixtures cover a sparse file larger than 1 GiB while reading only
 8 MiB, independent sample hashes, discarded boundary fragments, unchanged bytes/

@@ -15,7 +15,7 @@ internal object WorldLogEvidence {
     const val DICTIONARY = "metadata/world-log-prefixes.tsv"
     private const val MAX_LINE = 4096
     private const val MAX_EVENTS = 64
-    private val header = Regex("^(INFO|WARN|ERROR|FATAL) \\[[A-Za-z0-9_.-]{1,80}\\] (.*)$")
+    private val header = Regex("^(INFO|WARN|ERROR|FATAL) \\[([A-Za-z0-9_.-]{1,80})\\] (.*)$")
     private fun hex(bytes: ByteArray): String {
         val digits = "0123456789abcdef"
         return buildString(bytes.size * 2) {
@@ -23,18 +23,19 @@ internal object WorldLogEvidence {
         }
     }
     private fun hash(bytes: ByteArray) = hex(MessageDigest.getInstance("SHA-256").digest(bytes))
-    data class Dictionary(val sha256: String, val ids: Map<String, List<String>>)
+    data class Dictionary(val sha256: String, val ids: Map<String, List<String>>, val categories: Map<String, List<String>> = emptyMap())
     fun dictionary(input: InputStream): Dictionary {
         val data = input.use { it.readBytesBounded(80_000) }
         val rows = data.toString(Charsets.US_ASCII).trimEnd('\n').split('\n')
         require(rows.size in 1..1000)
         val pairs = rows.map { row ->
             val parts = row.split('\t')
-            require(parts.size == 2 && parts[0].matches(Regex("[a-f0-9]{64}")) && parts[1].matches(Regex("w[0-9]{4}")))
+            require(parts.size == 2 && parts[0].matches(Regex("[a-f0-9]{64}")) && parts[1].matches(Regex("[wc][0-9]{4}")))
             parts[0] to parts[1]
         }
         require(pairs.map { it.second }.distinct().size == pairs.size)
-        return Dictionary(hash(data), pairs.groupBy({ it.first }, { it.second }))
+        return Dictionary(hash(data), pairs.filter { it.second.startsWith("w") }.groupBy({ it.first }, { it.second }),
+            pairs.filter { it.second.startsWith("c") }.groupBy({ it.first }, { it.second }))
     }
     private fun InputStream.readBytesBounded(limit: Int): ByteArray {
         val output = java.io.ByteArrayOutputStream()
@@ -60,6 +61,7 @@ internal object WorldLogEvidence {
         val levels = linkedMapOf("INFO" to 0, "WARN" to 0, "ERROR" to 0, "FATAL" to 0)
         val tail = ArrayDeque<Map<String, Any>>()
         val frequencies = mutableMapOf<Pair<String, List<String>>, Int>()
+        val categories = mutableMapOf<Pair<String, List<String>>, Int>()
         val witness = WorldFaultCapture.Evidence()
         fun accept(complete: Boolean = true) {
             lines++
@@ -69,7 +71,11 @@ internal object WorldLogEvidence {
                 val parsed = header.matchEntire(text)
                 if (parsed != null) {
                     val level = parsed.groupValues[1]; levels[level] = levels.getValue(level) + 1
-                    val payload = parsed.groupValues[2].toByteArray(Charsets.UTF_8)
+                    dictionary.categories[hash(parsed.groupValues[2].toByteArray(Charsets.US_ASCII))]?.let { ids ->
+                        val key = level to ids
+                        categories[key] = (categories[key] ?: 0) + 1
+                    }
+                    val payload = parsed.groupValues[3].toByteArray(Charsets.UTF_8)
                     if (payload.size >= 16 && payload.take(16).all { it in 32..126 }) {
                         val ids = dictionary.ids[hash(payload.copyOf(16))]
                         if (ids != null) {
@@ -102,13 +108,16 @@ internal object WorldLogEvidence {
         if (unterminated) {
             if (sampled) trailingBytes = currentBytes else accept(complete = false)
         }
-        val counts = frequencies.entries.sortedWith(compareByDescending<Map.Entry<Pair<String, List<String>>, Int>> { it.value }
+        fun topCounts(values: Map<Pair<String, List<String>>, Int>, key: String) = values.entries.sortedWith(compareByDescending<Map.Entry<Pair<String, List<String>>, Int>> { it.value }
             .thenBy { it.key.first }.thenBy { it.key.second.joinToString(",") }).take(MAX_EVENTS).map {
-            mapOf("level" to it.key.first, "sourceMessageIds" to it.key.second, "count" to it.value)
+            mapOf("level" to it.key.first, key to it.key.second, "count" to it.value)
         }
+        val counts = topCounts(frequencies, "sourceMessageIds")
+        val categoryCounts = topCounts(categories, "sourceCategoryIds")
         return mapOf("bytes" to bytes, "sha256" to hex(digest.digest()), "lines" to lines,
             "oversizedLinesSkipped" to longLines, "levels" to levels, "matchedLines" to matches,
             "linesAfterLastMatch" to (lines - lastMatch), "lastSourceMessages" to tail.toList(),
+            "sourceCategoryCounts" to categoryCounts, "sourceCategoryGroupsOmitted" to (categories.size - categoryCounts.size),
             "sourceMessageCounts" to counts, "sourceMessageGroupsOmitted" to (frequencies.size - counts.size),
             "leadingFragmentBytesSkipped" to leadingBytes, "trailingFragmentBytesSkipped" to trailingBytes,
             "faultWitness" to witness.export(exitCode))

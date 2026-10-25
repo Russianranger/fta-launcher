@@ -29,7 +29,8 @@ The world-file export is unavailable; stdout 1,042,275 bytes, stderr 19 bytes.
 **Code-33 candidate: `0.12.6-log-evidence`.** Read-only export samples oversized
 retained logs in two bounded 4 MiB regions, with explicit omitted bytes and
 range-specific hashes. Adds capped source-message frequencies and 287 original
-warning-site fingerprints, preserving all 160 earlier IDs. Native bytes, logger
+warning-site fingerprints plus 22 source-category IDs, preserving all 160 earlier
+message IDs. Native bytes, logger
 policy, runtime 8 MiB cap, realm/backup/assets and qualification gates stay unchanged.
 185 Python tests pass; Android CI, private packaging and delivery pending.
 [Recovery design and procedure](world-log-recovery.md).

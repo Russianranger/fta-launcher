@@ -104,6 +104,21 @@ class WorldLogEvidenceTest {
         assertTrue(counts.first().toString().contains("count=10"))
         assertFalse(result.toString().contains("private-content"))
     }
+    @Test fun sourceCategoriesIdentifyDynamicFirstWarningsWithoutExportingCategoryOrValues() = fixture { visit, _, _ ->
+        val category = "private.static-category"
+        val dict = WorldLogEvidence.dictionary((sha(category.toByteArray()) + "\tc0000\n" +
+            sha(prefix.toByteArray()) + "\tw0000\n").byteInputStream())
+        val log = File(visit, "world-session.log")
+        log.writeText("WARN [$category] secret-row-5 has a warning\nWARN [$category] secret-row-6 has a warning\n" +
+            "WARN [unknown-category] secret-row-7 has a warning\n")
+        val result = WorldLogEvidence.scan(log, dict)
+        assertEquals(0, result["matchedLines"])
+        val counts = result["sourceCategoryCounts"] as List<*>
+        assertEquals(1, counts.size)
+        assertTrue(counts.single().toString().contains("sourceCategoryIds=[c0000]"))
+        assertTrue(counts.single().toString().contains("count=2"))
+        for (text in listOf(category, "unknown-category", "secret-row")) assertFalse(result.toString().contains(text))
+    }
     @Test fun hugeSparseLogReadsOnlyBoundedHeadAndTailWithConservativeLineBoundaries() = fixture { visit, _, _ ->
         val log = File(visit, "world-session.log")
         val half = WorldSessionEvidence.MAX_LOG_BYTES / 2

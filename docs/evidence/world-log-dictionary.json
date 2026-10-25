@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "prefixBytes": 16,
   "startupModules": [
     "mod-ale",
@@ -102,6 +102,1424 @@
     "src/server/scripts/Custom/WellOfEternity/instance_fta_well_of_eternity.cpp",
     "src/server/scripts/Outland/CoilfangReservoir/SerpentShrine/boss_lady_vashj.cpp",
     "src/server/scripts/Outland/CoilfangReservoir/SerpentShrine/instance_serpent_shrine.cpp"
+  ],
+  "warningCategories": [
+    {
+      "id": "c0000",
+      "categorySha256": "00b49bbbadedb2b0377a3f1376291741b452af7a27d4a182a1734c4826214fc3",
+      "sourceLocations": [
+        {
+          "source": "src/server/scripts/Custom/WellOfEternity/boss_fta_perotharn.cpp",
+          "line": 592
+        }
+      ]
+    },
+    {
+      "id": "c0001",
+      "categorySha256": "120970d812836f19888625587a4606a5ad23cef31c8684e601771552548fc6b9",
+      "sourceLocations": [
+        {
+          "source": "modules/mod-craftspeed/src/mod_craftspeed.cpp",
+          "line": 290
+        },
+        {
+          "source": "modules/mod-craftspeed/src/mod_craftspeed.cpp",
+          "line": 308
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 199
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 225
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 248
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 256
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 487
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 501
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 507
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 515
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 531
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 597
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 611
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 632
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 639
+        },
+        {
+          "source": "modules/mod-daily-dungeon-rewards/src/mod_daily_dungeon_rewards.cpp",
+          "line": 657
+        },
+        {
+          "source": "modules/mod-junk-to-gold/src/mod_junk_to_gold.cpp",
+          "line": 190
+        },
+        {
+          "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+          "line": 86
+        },
+        {
+          "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+          "line": 92
+        },
+        {
+          "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+          "line": 98
+        },
+        {
+          "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+          "line": 250
+        },
+        {
+          "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+          "line": 259
+        },
+        {
+          "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+          "line": 265
+        },
+        {
+          "source": "modules/mod-map-gold-multiplier/src/mod_map_gold_multiplier.cpp",
+          "line": 272
+        },
+        {
+          "source": "modules/mod-multitrainer/src/mod_multitrainer.cpp",
+          "line": 551
+        },
+        {
+          "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+          "line": 450
+        },
+        {
+          "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+          "line": 499
+        },
+        {
+          "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+          "line": 597
+        },
+        {
+          "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+          "line": 1272
+        },
+        {
+          "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+          "line": 1415
+        },
+        {
+          "source": "modules/mod-reagent-bank-account/src/ReagentBankAccount.cpp",
+          "line": 1442
+        },
+        {
+          "source": "modules/mod-talisman-of-binding-shard/src/mod_talisman_of_binding_shard.cpp",
+          "line": 643
+        },
+        {
+          "source": "modules/mod-talisman-of-binding-shard/src/mod_talisman_of_binding_shard.cpp",
+          "line": 655
+        },
+        {
+          "source": "modules/mod-talisman-of-binding-shard/src/mod_talisman_of_binding_shard.cpp",
+          "line": 810
+        },
+        {
+          "source": "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp",
+          "line": 129
+        },
+        {
+          "source": "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp",
+          "line": 210
+        },
+        {
+          "source": "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp",
+          "line": 220
+        },
+        {
+          "source": "src/server/scripts/Custom/Custom_Area_Auras/CustomAreaAuras.cpp",
+          "line": 261
+        }
+      ]
+    },
+    {
+      "id": "c0002",
+      "categorySha256": "1ac339ae5f224e89b75f76bad3b696995e68d6e236708d288d119a2eef87dd6e",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/AI/SmartScripts/SmartAI.cpp",
+          "line": 1094
+        }
+      ]
+    },
+    {
+      "id": "c0003",
+      "categorySha256": "2000987368cecc4f88364b4416c4e25c4facc3d3501dbb2b577910c2c9e01507",
+      "sourceLocations": [
+        {
+          "source": "src/server/scripts/Custom/Custom_Misc/mod_gm_item_lookup.cpp",
+          "line": 851
+        }
+      ]
+    },
+    {
+      "id": "c0004",
+      "categorySha256": "254db52cb36d9b4822613cf88f99ca7b1892367594d9469be20c3bbe59392e0a",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/Cache/CharacterCache.cpp",
+          "line": 222
+        },
+        {
+          "source": "src/server/game/Handlers/CharacterHandler.cpp",
+          "line": 2549
+        }
+      ]
+    },
+    {
+      "id": "c0005",
+      "categorySha256": "3009be769fb8f956e8413ee9f3e0836e34968bc40457d0a10c549d2edcf00cc1",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/Server/WorldSession.cpp",
+          "line": 1467
+        }
+      ]
+    },
+    {
+      "id": "c0006",
+      "categorySha256": "373b45764ded3924b265d8e6e266d57329ed93e7bf4c0406ad156ca842547c5d",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/Autobroadcast/AutobroadcastMgr.cpp",
+          "line": 44
+        }
+      ]
+    },
+    {
+      "id": "c0007",
+      "categorySha256": "3a1b45d4778cc8a6e07420119952efa34e7ffd44ffe01d3726d501824d5f51b9",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/Handlers/MailHandler.cpp",
+          "line": 52
+        }
+      ]
+    },
+    {
+      "id": "c0008",
+      "categorySha256": "3bb2fec20619a9943e214de891cc9db38e43183a691d83da8bd22b8b7eb057ae",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 1518
+        }
+      ]
+    },
+    {
+      "id": "c0009",
+      "categorySha256": "4728c7da0934f58b92cac0f422679c64d45cde423cb65a997e63a87e85ab5800",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/World/World.cpp",
+          "line": 1619
+        }
+      ]
+    },
+    {
+      "id": "c0010",
+      "categorySha256": "482ec5869087b7c1c94b229be58a11b9322533b706cdbe929f100617610b4e36",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/Entities/Creature/Creature.cpp",
+          "line": 2384
+        }
+      ]
+    },
+    {
+      "id": "c0011",
+      "categorySha256": "54cb4a17f65c37fd0195d8f51fbfa5f4236f6e0b0f1100ef5711c85e1f1fe83e",
+      "sourceLocations": [
+        {
+          "source": "src/server/database/Database/DatabaseLoader.cpp",
+          "line": 176
+        },
+        {
+          "source": "src/server/database/Updater/DBUpdater.cpp",
+          "line": 192
+        },
+        {
+          "source": "src/server/database/Updater/DBUpdater.cpp",
+          "line": 261
+        },
+        {
+          "source": "src/server/database/Updater/UpdateFetcher.cpp",
+          "line": 146
+        },
+        {
+          "source": "src/server/database/Updater/UpdateFetcher.cpp",
+          "line": 318
+        },
+        {
+          "source": "src/server/database/Updater/UpdateFetcher.cpp",
+          "line": 418
+        }
+      ]
+    },
+    {
+      "id": "c0012",
+      "categorySha256": "6515c579815737b71256d533588f73a5a25c05a0392232b823420a89f5a7f1b6",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/AI/NpcBots/bot_ai.cpp",
+          "line": 33848
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/bot_ai.cpp",
+          "line": 33929
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/bot_ai.cpp",
+          "line": 34049
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 2232
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4745
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4865
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4878
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4979
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 5972
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 6015
+        },
+        {
+          "source": "src/server/game/Battlegrounds/BattlegroundQueue.cpp",
+          "line": 289
+        }
+      ]
+    },
+    {
+      "id": "c0013",
+      "categorySha256": "6d77cb6a9d0ff2b62fd6713bc30fefffa673e6e65e2f97389e3dc56b0caffc24",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/AI/NpcBots/botconfig.cpp",
+          "line": 678
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botconfig.cpp",
+          "line": 912
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botconfig.cpp",
+          "line": 923
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 3835
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 3914
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4017
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4246
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4251
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4256
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4261
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4266
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4271
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4276
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4373
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4377
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4385
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4392
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4416
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4438
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4571
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4594
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4596
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4616
+        },
+        {
+          "source": "src/server/game/AI/NpcBots/botdatamgr.cpp",
+          "line": 4618
+        },
+        {
+          "source": "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+          "line": 58
+        },
+        {
+          "source": "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+          "line": 129
+        },
+        {
+          "source": "src/server/game/Achievements/AchievementMgr.cpp",
+          "line": 2676
+        },
+        {
+          "source": "src/server/game/Achievements/AchievementMgr.cpp",
+          "line": 2831
+        },
+        {
+          "source": "src/server/game/Achievements/AchievementMgr.cpp",
+          "line": 2862
+        },
+        {
+          "source": "src/server/game/Achievements/AchievementMgr.cpp",
+          "line": 3004
+        },
+        {
+          "source": "src/server/game/Achievements/AchievementMgr.cpp",
+          "line": 3046
+        },
+        {
+          "source": "src/server/game/Achievements/AchievementMgr.cpp",
+          "line": 3167
+        },
+        {
+          "source": "src/server/game/Addons/AddonMgr.cpp",
+          "line": 46
+        },
+        {
+          "source": "src/server/game/AuctionHouse/AuctionHouseMgr.cpp",
+          "line": 342
+        },
+        {
+          "source": "src/server/game/AuctionHouse/AuctionHouseMgr.cpp",
+          "line": 387
+        },
+        {
+          "source": "src/server/game/Autobroadcast/AutobroadcastMgr.cpp",
+          "line": 83
+        },
+        {
+          "source": "src/server/game/Battlegrounds/ArenaSeason/ArenaSeasonMgr.cpp",
+          "line": 45
+        },
+        {
+          "source": "src/server/game/Battlegrounds/ArenaSeason/ArenaSeasonMgr.cpp",
+          "line": 79
+        },
+        {
+          "source": "src/server/game/Battlegrounds/ArenaTeamMgr.cpp",
+          "line": 182
+        },
+        {
+          "source": "src/server/game/Battlegrounds/BattlegroundMgr.cpp",
+          "line": 822
+        },
+        {
+          "source": "src/server/game/Chat/Channels/ChannelMgr.cpp",
+          "line": 59
+        },
+        {
+          "source": "src/server/game/Chat/Channels/ChannelMgr.cpp",
+          "line": 174
+        },
+        {
+          "source": "src/server/game/Conditions/ConditionMgr.cpp",
+          "line": 1220
+        },
+        {
+          "source": "src/server/game/Conditions/DisableMgr.cpp",
+          "line": 55
+        },
+        {
+          "source": "src/server/game/Entities/Creature/CreatureGroups.cpp",
+          "line": 92
+        },
+        {
+          "source": "src/server/game/Entities/Item/ItemEnchantmentMgr.cpp",
+          "line": 79
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 249
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 337
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 404
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 452
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 505
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 555
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 605
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 664
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 706
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 748
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 792
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 835
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 884
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 924
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 972
+        },
+        {
+          "source": "src/server/game/Events/GameEventMgr.cpp",
+          "line": 1011
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 468
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 550
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 704
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 706
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 708
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 778
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 824
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 870
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 1281
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 1382
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 1499
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 1588
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 1735
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 1947
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 2178
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 2266
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 2352
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 2771
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 2951
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 3370
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4089
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4161
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4217
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4313
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4462
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4548
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4619
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4694
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4752
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4811
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 4866
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 5030
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 5220
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 5262
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 5285
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 5308
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 5333
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 6050
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 6448
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 6577
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 6629
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 6660
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 6710
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 6812
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 6916
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 6992
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 7044
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 7165
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 7205
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 7353
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 7404
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 7490
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 7876
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 8060
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 8138
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 8178
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 8359
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 8546
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 8601
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 8674
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 8943
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9042
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9074
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9145
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9177
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9249
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9491
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9567
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9598
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9659
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9710
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 9929
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10069
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10338
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10384
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10424
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10498
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10712
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10796
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10867
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10932
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10962
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 10998
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 11034
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 11070
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 11106
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 11142
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 11258
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 11303
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 11349
+        },
+        {
+          "source": "src/server/game/Globals/WorldGlobals.cpp",
+          "line": 39
+        },
+        {
+          "source": "src/server/game/Groups/GroupMgr.cpp",
+          "line": 135
+        },
+        {
+          "source": "src/server/game/Groups/GroupMgr.cpp",
+          "line": 175
+        },
+        {
+          "source": "src/server/game/Guilds/GuildMgr.cpp",
+          "line": 109
+        },
+        {
+          "source": "src/server/game/Guilds/GuildMgr.cpp",
+          "line": 149
+        },
+        {
+          "source": "src/server/game/Guilds/GuildMgr.cpp",
+          "line": 190
+        },
+        {
+          "source": "src/server/game/Guilds/GuildMgr.cpp",
+          "line": 226
+        },
+        {
+          "source": "src/server/game/Guilds/GuildMgr.cpp",
+          "line": 260
+        },
+        {
+          "source": "src/server/game/Guilds/GuildMgr.cpp",
+          "line": 295
+        },
+        {
+          "source": "src/server/game/Guilds/GuildMgr.cpp",
+          "line": 330
+        },
+        {
+          "source": "src/server/game/Guilds/GuildMgr.cpp",
+          "line": 367
+        },
+        {
+          "source": "src/server/game/Loot/LootItemStorage.cpp",
+          "line": 48
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 1955
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 1990
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 2015
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 2051
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 2077
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 2108
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 2144
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 2175
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 2201
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 2237
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 2281
+        },
+        {
+          "source": "src/server/game/Loot/LootMgr.cpp",
+          "line": 2300
+        },
+        {
+          "source": "src/server/game/Mails/ServerMailMgr.cpp",
+          "line": 100
+        },
+        {
+          "source": "src/server/game/Mails/ServerMailMgr.cpp",
+          "line": 169
+        },
+        {
+          "source": "src/server/game/Maps/TransportMgr.cpp",
+          "line": 62
+        },
+        {
+          "source": "src/server/game/Misc/GameGraveyard.cpp",
+          "line": 40
+        },
+        {
+          "source": "src/server/game/Misc/GameGraveyard.cpp",
+          "line": 373
+        },
+        {
+          "source": "src/server/game/Movement/Waypoints/WaypointMgr.cpp",
+          "line": 40
+        },
+        {
+          "source": "src/server/game/OutdoorPvP/OutdoorPvPMgr.cpp",
+          "line": 51
+        },
+        {
+          "source": "src/server/game/Petitions/PetitionMgr.cpp",
+          "line": 49
+        },
+        {
+          "source": "src/server/game/Petitions/PetitionMgr.cpp",
+          "line": 85
+        },
+        {
+          "source": "src/server/game/Pools/PoolMgr.cpp",
+          "line": 598
+        },
+        {
+          "source": "src/server/game/Pools/PoolMgr.cpp",
+          "line": 633
+        },
+        {
+          "source": "src/server/game/Pools/PoolMgr.cpp",
+          "line": 701
+        },
+        {
+          "source": "src/server/game/Pools/PoolMgr.cpp",
+          "line": 780
+        },
+        {
+          "source": "src/server/game/Pools/PoolMgr.cpp",
+          "line": 886
+        },
+        {
+          "source": "src/server/game/Scripting/ScriptSystem.cpp",
+          "line": 51
+        },
+        {
+          "source": "src/server/game/Skills/SkillDiscovery.cpp",
+          "line": 57
+        },
+        {
+          "source": "src/server/game/Skills/SkillExtraItems.cpp",
+          "line": 63
+        },
+        {
+          "source": "src/server/game/Skills/SkillExtraItems.cpp",
+          "line": 149
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 1291
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 1402
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 1519
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 1624
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 1711
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 1794
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 2016
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 2305
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 2346
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 2387
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 2445
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 2549
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 2594
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 2825
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 3266
+        },
+        {
+          "source": "src/server/game/Spells/SpellMgr.cpp",
+          "line": 3304
+        },
+        {
+          "source": "src/server/game/Texts/CreatureTextMgr.cpp",
+          "line": 95
+        },
+        {
+          "source": "src/server/game/Texts/CreatureTextMgr.cpp",
+          "line": 212
+        },
+        {
+          "source": "src/server/game/Tickets/TicketMgr.cpp",
+          "line": 317
+        },
+        {
+          "source": "src/server/game/Warden/WardenCheckMgr.cpp",
+          "line": 54
+        },
+        {
+          "source": "src/server/game/Warden/WardenCheckMgr.cpp",
+          "line": 180
+        },
+        {
+          "source": "src/server/game/Weather/WeatherMgr.cpp",
+          "line": 59
+        },
+        {
+          "source": "src/server/game/World/WorldState.cpp",
+          "line": 146
+        },
+        {
+          "source": "src/server/scripts/Custom/Custom_NPC/multi_vendor.cpp",
+          "line": 380
+        },
+        {
+          "source": "src/server/scripts/Custom/Custom_NPC/multi_vendor.cpp",
+          "line": 426
+        },
+        {
+          "source": "src/server/scripts/Custom/Custom_Player_Scripts/mod_glyph_unlocks.cpp",
+          "line": 971
+        }
+      ]
+    },
+    {
+      "id": "c0014",
+      "categorySha256": "803118bb3829b6e628739678674abe3c711c40bb77c4f860368f8fb8f0846fb5",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/DungeonFinding/LFGMgr.cpp",
+          "line": 2644
+        }
+      ]
+    },
+    {
+      "id": "c0015",
+      "categorySha256": "88981f19d344d8a3431599af265c65cd772c7e662eca786ec5f77cfbdeb389b7",
+      "sourceLocations": [
+        {
+          "source": "modules/mod-goblin-glider/src/GoblinGlider.cpp",
+          "line": 710
+        }
+      ]
+    },
+    {
+      "id": "c0016",
+      "categorySha256": "8c5967fd8486f34493710cc39b240aad46536cf4ee421ffd0479e6542db03e36",
+      "sourceLocations": [
+        {
+          "source": "src/server/scripts/Outland/CoilfangReservoir/SerpentShrine/boss_lady_vashj.cpp",
+          "line": 180
+        },
+        {
+          "source": "src/server/scripts/Outland/CoilfangReservoir/SerpentShrine/instance_serpent_shrine.cpp",
+          "line": 247
+        }
+      ]
+    },
+    {
+      "id": "c0017",
+      "categorySha256": "b0c395fa8f2cdd48a54f8d0e245bcef72345485721244dbbd2474e85f55e830c",
+      "sourceLocations": [
+        {
+          "source": "src/server/database/Database/DatabaseWorkerPool.cpp",
+          "line": 488
+        }
+      ]
+    },
+    {
+      "id": "c0018",
+      "categorySha256": "c91ba1c158ef15a63c4220f34982b855c8e00b8eaa64aa7b889b7ea344195013",
+      "sourceLocations": [
+        {
+          "source": "src/server/database/Database/Field.cpp",
+          "line": 185
+        },
+        {
+          "source": "src/server/database/Database/Field.cpp",
+          "line": 254
+        },
+        {
+          "source": "src/server/database/Database/Field.cpp",
+          "line": 261
+        },
+        {
+          "source": "src/server/database/Database/MySQLConnection.cpp",
+          "line": 420
+        },
+        {
+          "source": "src/server/database/Database/MySQLConnection.cpp",
+          "line": 445
+        },
+        {
+          "source": "src/server/database/Database/MySQLPreparedStatement.cpp",
+          "line": 85
+        },
+        {
+          "source": "src/server/database/Database/QueryResult.cpp",
+          "line": 72
+        },
+        {
+          "source": "src/server/database/Database/QueryResult.cpp",
+          "line": 114
+        },
+        {
+          "source": "src/server/database/Database/QueryResult.cpp",
+          "line": 205
+        },
+        {
+          "source": "src/server/database/Database/QueryResult.cpp",
+          "line": 280
+        },
+        {
+          "source": "src/server/database/Database/QueryResult.cpp",
+          "line": 319
+        },
+        {
+          "source": "src/server/database/Database/Transaction.cpp",
+          "line": 118
+        },
+        {
+          "source": "src/server/database/Database/Transaction.cpp",
+          "line": 168
+        },
+        {
+          "source": "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+          "line": 710
+        },
+        {
+          "source": "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+          "line": 918
+        },
+        {
+          "source": "src/server/game/AI/SmartScripts/SmartScriptMgr.cpp",
+          "line": 987
+        },
+        {
+          "source": "src/server/game/Chat/ChatCommands/ChatCommand.cpp",
+          "line": 120
+        },
+        {
+          "source": "src/server/game/Chat/ChatCommands/ChatCommand.cpp",
+          "line": 143
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 3673
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 3959
+        },
+        {
+          "source": "src/server/game/Globals/ObjectMgr.cpp",
+          "line": 8899
+        },
+        {
+          "source": "src/server/game/Mails/ServerMailMgr.cpp",
+          "line": 198
+        }
+      ]
+    },
+    {
+      "id": "c0019",
+      "categorySha256": "d360b219a824f52c50d7791fe0a998f2d06cc4239a04717696faa88354c6a7bc",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/Entities/Player/Player.cpp",
+          "line": 1348
+        },
+        {
+          "source": "src/server/game/Entities/Player/Player.cpp",
+          "line": 1369
+        },
+        {
+          "source": "src/server/game/Entities/Player/PlayerStorage.cpp",
+          "line": 5122
+        },
+        {
+          "source": "src/server/game/Entities/Player/PlayerStorage.cpp",
+          "line": 5127
+        },
+        {
+          "source": "src/server/game/Entities/Player/PlayerStorage.cpp",
+          "line": 6195
+        },
+        {
+          "source": "src/server/game/Entities/Player/PlayerStorage.cpp",
+          "line": 6308
+        }
+      ]
+    },
+    {
+      "id": "c0020",
+      "categorySha256": "e04853fd62805cd5da772ba8cd737ff2e529b98c7c431ca6846330045893fbee",
+      "sourceLocations": [
+        {
+          "source": "src/server/game/Entities/Item/Item.cpp",
+          "line": 489
+        }
+      ]
+    },
+    {
+      "id": "c0021",
+      "categorySha256": "f83e4329e16d2a02528400c040dd5e63151979be847175269b53991af0bc622e",
+      "sourceLocations": [
+        {
+          "source": "src/server/scripts/Custom/WellOfEternity/instance_fta_well_of_eternity.cpp",
+          "line": 438
+        }
+      ]
+    }
   ],
   "sourceSha256": {
     "modules/mod-ale/src/ALE_SC.cpp": "bbbde21d580845c5aeedc5b82bcb30cb1ac45fcc0d8a05e03485ba9f1f40d896",
@@ -2941,7 +4359,7 @@
       "prefixSha256": "b904cdfa8f56f29f4ca4b85f94d13a0644463dac99239b2a6d582f6979778fb5"
     }
   ],
-  "dictionarySha256": "bcb8c4d552f995158ae4ab3b7505e789f96d11066fbc1abacc00f838e13f7dbe",
+  "dictionarySha256": "357ff0ef127f33fe6be837b6d95f59fb1dcbe25b19d8fee4211ddf3b97f32459",
   "dynamicValuesExported": false,
   "hookCompletionProven": false,
   "crashCauseProven": false,
