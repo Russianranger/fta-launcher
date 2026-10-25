@@ -1,0 +1,25 @@
+{
+  "file": "FTA-Launcher-0.12.6-corresponding-source.zip",
+  "bytes": 540090184,
+  "sha256": "c929ce36a13a73389eb8ad182b52393cf9a81811343cd1a00b3f31fe2db59db6",
+  "parts": [
+    {
+      "file": "FTA-Launcher-0.12.6-corresponding-source.zip.part1",
+      "bytes": 419430400,
+      "sha256": "5b4e5fae3a59f78effb5561732f7bdd8a74a40ee065cc99e2df05434b77c60b6",
+      "libraryFileId": "libfile_8e7cec68b6d48191b98555a5b6035892",
+      "libraryVersion": 0
+    },
+    {
+      "file": "FTA-Launcher-0.12.6-corresponding-source.zip.part2",
+      "bytes": 120659784,
+      "sha256": "cedb3e544cd9120bea9d6c77dbc78118efe6bfe01d12f19108364c1edbf93f2e",
+      "libraryFileId": "libfile_c8ff19ec00308191ab9db193834cf95e",
+      "libraryVersion": 0
+    }
+  ],
+  "status": "private_corresponding_source_saved",
+  "applicationCommit": "9155fd76009b2ff613f8d2975a7784d1d7ccc477",
+  "originalMembersPreserved": 178,
+  "reconstruction": "Concatenate parts in numeric order and verify complete SHA256 before opening."
+}

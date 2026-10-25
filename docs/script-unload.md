@@ -78,4 +78,8 @@ All 52 modules / 224 module translation units, static scripts and Lua 5.2, C++20
 actual link inputs and 16 KiB ELF alignment passed independent verification.
 [Build evidence](evidence/android-2026-10-25-world-session-build.json).
 [Additive integration](world-session-repair.md) preserves retained identities.
-Physical repair validation remains pending; compilation does not qualify Stop.
+Code 32 subsequently ran through 651,866 ms healthy screen-off and exited zero
+during log-limit failure cleanup, with no fatal capture. This is physical progress
+for the repair; explicit user Stop and database postconditions remain unqualified.
+[Code-32 evidence](evidence/android-2026-10-25-thor-code32-runtime.json).
+Recover its [retained log evidence](world-log-recovery.md) before another session.

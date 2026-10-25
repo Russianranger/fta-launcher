@@ -48,13 +48,17 @@ Regression fixtures cover a sparse file larger than 1 GiB while reading only
 mtime, symlink/active/stale-attempt rejection, capped occurrence groups and exact
 runtime-limit rejection. The original complete fatal-witness behavior remains.
 
-## Next device action after verified private delivery
+## Verified delivery and next device action
+
+[Code-33 private APK and source](code33-recovery.md) passed 185 tooling tests,
+382 Android tests (one existing private-fixture skip), lint/assembly, 225 packaged
+checks, persistent signing and 16 KiB alignment. All 21 native payloads are unchanged.
 
 Install code 33 in place, reopen, and select **Export diagnostic report**. Do not
 start another world session or import/verify data first: the existing failed
 attempt contains the evidence needed to diagnose the log pressure. No native
 rebuild, asset reimport, seed replay, storage clear or old database/auth test is
-needed. The updated APK identity must be independently verified before delivery.
+needed. [Measured APK identity](evidence/android-2026-10-25-private-log-evidence-apk.json).
 
 After receiving the report, resolve measured warning IDs against the exact source,
 then implement and qualify any source-backed correction. The complete combined

@@ -1,19 +1,20 @@
 # Private native diagnostic builds
 
-## Current private delivery — code 32
+## Current private delivery — code 33
 
-`FTA-Launcher-0.12.5-world-stop.apk` is signed with the persistent certificate.
-SHA256: `abaa6cbc199817cecd016db8b542642b9561da86819a824b3887ddf3ca7e0fda`;
-58,987,731 bytes. It passed 184 tooling tests, 378 Android tests (one existing
+`FTA-Launcher-0.12.6-log-evidence.apk` is signed with the persistent certificate.
+SHA256 `c1b6f5434f1a43852ba7948f69232a7da51e53e56848eb872cdfda0f43fc1553`;
+59,000,019 bytes. It passed 185 tooling tests, 382 Android tests (one existing
 private database-fixture test skipped), lint/assembly, 225 packaged-input checks,
-v2 signing and 16 KiB alignment. All 19 donor native payloads remain byte-identical;
-the separately pinned repaired world and v2 fault witness bring the total to 21.
-[Measured APK evidence](evidence/android-2026-10-25-private-world-stop-apk.json).
-[Private APK, matching source and build-cache recovery](code32-recovery.md).
+v2 signing and 16 KiB alignment. All 21 native payloads are identical to code 32.
+[APK evidence](evidence/android-2026-10-25-private-log-evidence-apk.json),
+[private APK and matching source](code33-recovery.md).
+
 Physical code 32 passed 651.9 seconds healthy screen-off and world exit zero during
 failure cleanup. The 8 MiB log limit stopped the session before postchecks. Code 33
-is being qualified to recover bounded evidence from this retained log, preserving
-all 21 native payloads. See [the read-only recovery action](world-log-recovery.md).
+recovers bounded source-message and category counts from this retained log without
+changing native binaries, runtime logging limits or qualification flags. See
+[the read-only recovery action](world-log-recovery.md).
 
 Code 30 was withdrawn before physical testing because its new helper refused
 Android's preinstalled crash handler. Its saved file is marked **DO NOT INSTALL**.
@@ -29,8 +30,8 @@ helper is added. No validation limit or source module is removed.
 
 See the [current handoff](SHORT-HANDOFF.md) for the exact delivery state and
 [shutdown diagnostic](world-shutdown-diagnostic.md) for measured evidence and scope.
-The next action is **Export diagnostic report only** after the private code-33
-update is delivered. Do not start another test before recovering the retained
+The next action is **Export diagnostic report only** after installing the verified private code-33
+update in place. Do not start another test before recovering the retained
 attempt. Historical milestones below are not instructions to repeat passed work.
 
 For recovery packaging, `python3 tools/package_private_update.py --help` documents
