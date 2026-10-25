@@ -63,7 +63,7 @@ class FtaApplication : Application() {
         // The nonexported runtime service must not initialize or clean UI import generations.
         val processName = if (android.os.Build.VERSION.SDK_INT >= 28) getProcessName()
             else runCatching { File("/proc/self/cmdline").readText().trimEnd('\u0000') }.getOrDefault("")
-        if (processName.endsWith(":runtime")) return
+        if (processName.endsWith(":runtime") || processName.endsWith(":client")) return
         logFile = File(filesDir, "setup.log")
         if (logFile.isFile && logFile.length() <= 32 * 1024) {
             logFile.readLines().takeLast(30).forEach { events.addLast(it) }

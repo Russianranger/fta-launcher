@@ -26,28 +26,32 @@ temporary role removed, retained metadata/GT postchecks passed. No seed imported
 World log 1,626,489 bytes, no ERROR/FATAL, two exact COUNT hints, no log-limit hit.
 Game login remains false. Do not repeat passed server or standalone DB/auth tests.
 
-## Current work — code 35 client inspection
+## Current work — code 36 managed client import
 
-`0.13.0-client-inspection` adds read-only SAF folder inventory and bounded PE
-architecture/version checks. [Scope and next action](client-inspection.md).
-Select the complete extracted client folder containing Wow.exe, keep the launcher
-visible, export the report. No source writes/copies/config edits or native launches;
-the successful world receipt remains separate. Source-derived root proxy/DLL and
-embedded DXVK roles, anonymous auxiliary EXEs for x64 host discovery, metadata-only
-MPQ counts. Client import, exact host pairing, Wine/translator IPC, WarcraftXL and
-playable login remain unqualified. Actual complete client files are not present
-in this workspace; obtain measured inventory before deciding the managed import.
-Application commit **66529c938ea6c4ed8c5b9a3363b40a730a54ee11**; all three jobs
-in [CI 40160920921](https://github.com/Russianranger/fta-launcher/actions/runs/40160920921)
-passed. 186 tooling tests; Android 405 passed/one existing private-fixture skip
-(22 new client regressions), lint, assembly and cache-helper checks passed.
-Private APK **59,020,557 bytes**, SHA256
-`a4fc4d4b177a40c61ed7a6bc145914a93af0b543590c49a4b684c8eaa4448b8b`.
-[Verified APK, corresponding source and procedure](code35-recovery.md). Persistent
-v2 signer, 16 KiB alignment and 225 packaged checks pass. All 21 native payloads
-and 148 runtime entries are identical to passed code 34. No native rebuild.
-**Next: install code 35 in place, Inspect client folder once, Export diagnostic
-report.** The client inspection is not yet physically qualified.
+Recovered remote **f0df995c35de5c4a8d380346d23af58cfa47cda4** and exact
+[CI 40161313683](https://github.com/Russianranger/fta-launcher/actions/runs/40161313683):
+all three jobs passed. Physical **code 35 inspection passed** in 10,161 ms.
+Report SHA256 `5307e28695edd7dffeb2723dd1241433cbaf41c2071cd6a8cd51c9dffd91f932`.
+[Measured inspection](evidence/android-2026-10-25-thor-code35-client-inspection.json):
+10,476 files, 1,175 directories, 60,243,212,332 bytes, 33 MPQs, zero unknown sizes;
+matching x86 Wow.exe 3.3.5.12340, x86 proxy/WarcraftXL/DXVK and two x64 executable
+candidates. Exact host identity and pairing remain open. The native world receipt
+still qualifies. No repeat inspection/server/imported-game-data test is needed.
+
+`0.13.1-client-import`, code 36, implements [resumable managed import](client-import.md):
+read-only source, 256 KiB buffers, verified 16 MiB checkpoints, space reserve,
+separate foreground worker, explicit Stop, atomic generation publication and full
+retained rehash. Source configurations/MPQs stay unchanged. New candidate failures
+retain the active generation. All native/server inputs remain unchanged.
+Application/packaging qualification is in progress; do not install an unverified APK.
+
+Next physical gate after delivery: import the same complete client folder once,
+keep visible, reopen and Verify imported client, then Export diagnostic report.
+Export before retrying on failure. Roughly 61.32 GB free internal storage is needed
+for the initial copy; no duplicate full-client staging copy is created. Actual
+managed SAF import/retained rehash, WarcraftXL host pairing, Wine/translator IPC,
+client execution and playable login remain unqualified. Keep both originals and
+retained server data. No source-backed rule is loosened to make import pass.
 
 ## Recovery and safety
 

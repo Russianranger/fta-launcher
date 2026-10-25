@@ -20,9 +20,10 @@ GT fallback, all 113 DBC stores, 30 healthy samples, 259.2 seconds healthy
 screen-off, user Stop, clean world/auth/database exits and strict retained
 metadata/GT postchecks. All 22,817 game-data files were rehashed unchanged.
 [Measured physical proof](docs/evidence/android-2026-10-25-thor-code34-world-pass.json).
-Code 35 adds a read-only inspection of the owner's extracted client folder.
-Client import, WarcraftXL execution and playable login remain unqualified.
-See [client inspection scope](docs/client-inspection.md).
+Code 35 physically inspected the complete 60.24 GB client and confirmed the
+matching x86 build. Code 36 adds [resumable managed client import](docs/client-import.md),
+with chunk readback verification and retained full rehash. Physical copy, WarcraftXL
+execution and playable login remain unqualified.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.

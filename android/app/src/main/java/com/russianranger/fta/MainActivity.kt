@@ -11,6 +11,8 @@ import android.os.SystemClock
 import android.widget.Toast
 import com.russianranger.fta.runtime.RuntimeDiagnosticService
 import com.russianranger.fta.runtime.RuntimeRecoveryService
+import com.russianranger.fta.client.ClientImportService
+import com.russianranger.fta.client.ClientImportReport
 import java.io.File
 import android.content.Intent
 import android.content.ComponentName
@@ -41,6 +43,21 @@ class MainActivity : Activity() {
     private lateinit var clientInspectButton: Button
     private lateinit var clientCancelButton: Button
     private lateinit var clientStatus: TextView
+    private lateinit var clientImportButton: Button
+    private lateinit var clientVerifyButton: Button
+    private lateinit var clientStopButton: Button
+    private lateinit var clientImportStatus: TextView
+    private var clientRequestedAt = 0L
+    private var clientBound = false
+    private val clientConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) = Unit
+        override fun onServiceDisconnected(name: ComponentName?) { releaseClientBinding() }
+        override fun onBindingDied(name: ComponentName?) { releaseClientBinding() }
+        override fun onNullBinding(name: ComponentName?) { releaseClientBinding() }
+    }
+    private fun releaseClientBinding() {
+        if (clientBound) { clientBound = false; runCatching { unbindService(clientConnection) } }
+    }
     private var pendingGameData = false
     private var pendingGameDataUri: android.net.Uri? = null
     private lateinit var sourceButton: Button
@@ -247,6 +264,21 @@ class MainActivity : Activity() {
         status.addView(clientCancelButton)
         clientStatus = label("", 13, muted)
         status.addView(clientStatus)
+        clientImportButton = action("Import / resume client folder") {
+            startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            }, 108)
+        }
+        status.addView(clientImportButton)
+        clientVerifyButton = action("Verify imported client") { startClientImport(null) }
+        status.addView(clientVerifyButton)
+        clientStopButton = action("Stop client import / verification") {
+            startService(Intent(this, ClientImportService::class.java).setAction(ClientImportService.STOP))
+        }
+        status.addView(clientStopButton)
+        clientImportStatus = label("", 13, muted)
+        status.addView(clientImportStatus)
+        status.addView(label("Import copies the complete client into private internal storage and verifies every byte. Keep at least the client's size plus 1 GiB free. Keep this screen visible. Stop preserves checkpoints; select the same unchanged folder to resume. Your original files and settings remain unchanged. Client launch comes later.", 13, muted))
         status.addView(label("Select your complete extracted client folder containing Wow.exe. Keep this screen open, then export the diagnostic report. This read-only check counts files and inspects executable metadata; full import and client launch come later.", 13, muted))
         progressLabel = label("", 14, ink)
         status.addView(progressLabel)
@@ -286,6 +318,7 @@ class MainActivity : Activity() {
     override fun onStop() {
         activityVisible = false
         gameDataBinding.release()
+        releaseClientBinding()
         app.observer = null
         refresh.removeCallbacks(refresher)
         super.onStop()
@@ -298,7 +331,10 @@ class MainActivity : Activity() {
         databaseStatus.text = "${if (database) "✓" else "○"}  Database seed ${if (database) "verified" else "ZIP"}"
         countText.text = "${listOf(source, database).count { it }} verified inputs · server qualification pending"
         providerStatus.text = app.providerMessage
-        val testing = databaseCheckRunning()
+        val runtimeTesting = databaseCheckRunning()
+        val clientRunning = ClientImportService.running(this)
+        val clientRequested = clientRequestedAt != 0L && SystemClock.elapsedRealtime() - clientRequestedAt < 3000
+        val testing = runtimeTesting || clientRunning || clientRequested
         val requested = requestedAt != 0L && SystemClock.elapsedRealtime() - requestedAt < 3000
         diagnosticButton.isEnabled = app.packagedRuntime?.manifest?.bootstrap != null && !app.busy && !testing && !requested
         lifecycleDiagnosticButton.isEnabled = diagnosticButton.isEnabled
@@ -331,6 +367,26 @@ class MainActivity : Activity() {
         exportBackupButton.isEnabled = File(filesDir, "realm-backups/latest.json").isFile && !app.busy && !testing && !requested
         gameDataButton.isEnabled = !app.busy && !testing && !requested
         clientInspectButton.isEnabled = gameDataButton.isEnabled
+        clientImportButton.isEnabled = gameDataButton.isEnabled && !File(filesDir, "client-store/active").isFile
+        clientVerifyButton.isEnabled = gameDataButton.isEnabled && File(filesDir, "client-store/active").isFile
+        clientStopButton.isEnabled = clientRunning || clientRequested
+        if (activityVisible && clientRunning && !clientBound) {
+            clientBound = true
+            try {
+                if (!bindService(Intent(this, ClientImportService::class.java).setAction(ClientImportService.BIND),
+                    clientConnection, BIND_IMPORTANT or BIND_ADJUST_WITH_ACTIVITY)) releaseClientBinding()
+            } catch (_: Exception) { releaseClientBinding() }
+        } else if (!activityVisible || !clientRunning) releaseClientBinding()
+        val managed = ClientImportReport.export(this)
+        val managedState = managed.optString("state")
+        clientImportStatus.text = when {
+            clientRequested && !clientRunning -> "Starting client worker…"
+            managedState == "complete" -> "Client ${managed.optString("operation")} complete: ${managed.optInt("files")} files verified. Export the report. Client execution remains unqualified."
+            managedState == "failed" || managedState == "stopped" -> "Client operation ${managedState}: ${managed.optString("reason")}. Checkpoints retained; export the report."
+            clientRunning -> "${managedState}: ${managed.optLong("bytes") / (1024 * 1024)} / ${managed.optLong("totalBytes") / (1024 * 1024)} MiB verified."
+            managed.optBoolean("available") -> "Client operation interrupted. Checkpoints retained; export the report before resuming."
+            else -> "No managed client import has completed."
+        }
         clientCancelButton.isEnabled = app.inspectingClient
         val client = com.russianranger.fta.client.ClientInspection.export(this)
         clientStatus.text = when (client.optString("state")) {
@@ -341,7 +397,7 @@ class MainActivity : Activity() {
         }
         gameDataVerifyButton.isEnabled = gameDataButton.isEnabled && File(filesDir, "game-data/active").isFile
         gameDataStatus.text = if (File(filesDir, "game-data/active").isFile) "Game-data candidate stored. Verify hashes before native world qualification." else "Matching extracted game data is needed for world startup."
-        diagnosticStopButton.isEnabled = testing || requested
+        diagnosticStopButton.isEnabled = runtimeTesting || requested
         exportReportButton.isEnabled = !app.busy
         runtimeBundleButton.isEnabled = app.runtimeBundles != null && !app.busy && !testing
         val bundle = app.runtimeBundles?.active()
@@ -362,7 +418,7 @@ class MainActivity : Activity() {
             diagnosticLines.firstOrNull() !in setOf("GAME_DATA_PREFLIGHT_PASSED", "GAME_DATA_REJECTED")) {
             diagnosticStatus.text = "The game-data operation did not finish. Export the diagnostic report before retrying. Your retained database is unchanged."
         }
-        if (testing) diagnosticStatus.text = "Runtime active.\n${diagnosticStatus.text}"
+        if (runtimeTesting) diagnosticStatus.text = "Runtime active.\n${diagnosticStatus.text}"
         if (requested && !testing) diagnosticStatus.text = "Starting the isolated database test…"
         sourceButton.isEnabled = !app.busy && !testing && app.store != null
         databaseButton.isEnabled = !app.busy && !testing && app.store != null
@@ -431,6 +487,7 @@ class MainActivity : Activity() {
     }
 
     private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false, includeGameData: Boolean = false, includeWorldService: Boolean = false) {
+        if (ClientImportService.running(this) || app.busy) return
         try {
             if (includeGameData) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java)
                 .setAction(if (pendingGameDataUri == null) RuntimeDiagnosticService.ACTION_VERIFY_GAME_DATA else RuntimeDiagnosticService.ACTION_IMPORT_GAME_DATA)
@@ -461,8 +518,9 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) return
+        if (requestCode == 108) { data?.data?.let { startClientImport(it) }; return }
         if (requestCode == 107) {
-            if (!databaseCheckRunning()) data?.data?.let { app.inspectClient(it) }
+            if (!databaseCheckRunning() && !ClientImportService.running(this)) data?.data?.let { app.inspectClient(it) }
             return
         }
         if (requestCode == 106) { data?.data?.let { pendingGameDataUri = it; requestDatabaseCheck(includeGameData = true) }; return }
@@ -471,6 +529,19 @@ class MainActivity : Activity() {
         if (requestCode == 103) { data?.data?.let { app.importRuntimeBundle(it) }; return }
         val spec = when (requestCode) { 101 -> Inputs.source; 102 -> Inputs.database; else -> return }
         data?.data?.let { app.importArchive(spec, it) }
+    }
+
+    private fun startClientImport(uri: android.net.Uri?) {
+        if (app.busy || databaseCheckRunning() || ClientImportService.running(this)) return
+        try {
+            if (uri != null) contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            startForegroundService(Intent(this, ClientImportService::class.java)
+                .setAction(if (uri == null) ClientImportService.VERIFY else ClientImportService.IMPORT)
+                .setData(uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+            clientRequestedAt = SystemClock.elapsedRealtime(); update()
+        } catch (_: Exception) {
+            Toast.makeText(this, "Client worker could not start. Select a local folder with persistent read access.", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun label(value: String, size: Int, color: Int, bold: Boolean = false) = TextView(this).apply {

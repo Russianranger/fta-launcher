@@ -1,0 +1,99 @@
+{
+  "reportSha256": "5307e28695edd7dffeb2723dd1241433cbaf41c2071cd6a8cd51c9dffd91f932",
+  "reportBytes": 96735,
+  "appVersionCode": 35,
+  "apkSha256": "a4fc4d4b177a40c61ed7a6bc145914a93af0b543590c49a4b684c8eaa4448b8b",
+  "nativeWorldRuntimeQualified": true,
+  "retainedWorldAttemptId": "9e7570a8-23db-4a23-ab82-c44cbf360a02",
+  "inspectionElapsedMs": 10161,
+  "clientInspection": {
+    "available": true,
+    "readOnly": true,
+    "clientImported": false,
+    "fullClientIntegrityValidated": false,
+    "warcraftXLCompatible": false,
+    "gameLoginQualified": false,
+    "state": "complete",
+    "startedAtEpochMs": 1792941473144,
+    "completedAtEpochMs": 1792941483305,
+    "files": 10476,
+    "directories": 1175,
+    "knownBytes": 60243212332,
+    "unknownSizes": 0,
+    "mpqFiles": 33,
+    "presentRoles": [
+      "dxvk",
+      "auxiliary-executable-1",
+      "wow-config",
+      "warcraftxl-config",
+      "proxy",
+      "auxiliary-executable-2",
+      "warcraftxl",
+      "wow",
+      "auxiliary-executable-3"
+    ],
+    "components": [
+      {
+        "role": "dxvk",
+        "state": "observed",
+        "architecture": "x86",
+        "sha256": "00ecd422b3b12e9d3b309785f3f19431405389d80eb4a37018ebc63e2d87d900",
+        "fileVersion": "10.0.17763.1",
+        "bytes": 4493326,
+        "dll": true
+      },
+      {
+        "role": "auxiliary-executable-1",
+        "state": "observed",
+        "architecture": "x64",
+        "sha256": "6349752018efba461a2ac4bf19a98d1293aa7c21f98cb90f50615f33a7701955",
+        "bytes": 1071104,
+        "dll": false
+      },
+      {
+        "role": "proxy",
+        "state": "observed",
+        "architecture": "x86",
+        "sha256": "4c3522dd17e2ef09cbe13ac82c1e4360c7beb98cbe7af7675d751d1f5bc330e8",
+        "bytes": 202240,
+        "dll": true
+      },
+      {
+        "role": "auxiliary-executable-2",
+        "state": "observed",
+        "architecture": "x64",
+        "sha256": "773a73824dbdb3b909b4d9120080483be316c6451d71938fd11010a68a56c497",
+        "fileVersion": "1.8.34.0",
+        "bytes": 801792,
+        "dll": false
+      },
+      {
+        "role": "warcraftxl",
+        "state": "observed",
+        "architecture": "x86",
+        "sha256": "9c935e27679a8161dbbdc3390bbb908d0ad444a5fe114ed0624c3db52656eedd",
+        "bytes": 2259968,
+        "dll": true
+      },
+      {
+        "role": "wow",
+        "state": "observed",
+        "architecture": "x86",
+        "sha256": "c4ea8503112878fa47d06580de9d936b184f9bb6b452f6931dfe793fe2f0a47e",
+        "fileVersion": "3.3.5.12340",
+        "bytes": 7702016,
+        "dll": false,
+        "build12340": true
+      },
+      {
+        "role": "auxiliary-executable-3",
+        "state": "observed",
+        "architecture": "x86",
+        "sha256": "964eb9ed647c4614f3a3ecf977955750223ecbc8ff0a3bb4078e4dff779244f8",
+        "bytes": 350360,
+        "dll": false
+      }
+    ]
+  },
+  "assetHostIdentityQualified": false
+}

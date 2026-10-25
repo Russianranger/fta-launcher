@@ -1,5 +1,10 @@
 # Read-only client folder inspection
 
+Code 35 passed on Thor: 10,476 files / 60,243,212,332 bytes, correct x86 client
+build, required DLLs and two x64 executable candidates.
+[Measured proof](evidence/android-2026-10-25-thor-code35-client-inspection.json).
+The next gate is [managed client import](client-import.md); do not repeat inspection.
+
 Code 35 begins the client milestone after the complete code-34 native world pass.
 It does not import or run the client. Select the already extracted **complete
 client folder containing Wow.exe**, keep the launcher visible, then export the
