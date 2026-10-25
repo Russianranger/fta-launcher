@@ -9,7 +9,7 @@ import warnings
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_private_update import CERTIFICATE, METADATA, LEGACY, FAULT, check_helper_sources, compare_output, inventory, overlay, sha, verify_signature, verify_legacy, verify_fault
+from package_private_update import CERTIFICATE, METADATA, LEGACY, FAULT, WORLD, check_helper_sources, compare_output, inventory, overlay, sha, verify_signature, verify_legacy, verify_fault
 
 
 class PrivateUpdateTests(unittest.TestCase):
@@ -186,6 +186,37 @@ class PrivateUpdateTests(unittest.TestCase):
         with zipfile.ZipFile(output) as archive:
             self.assertEqual(fault.read_bytes(), archive.read(FAULT))
             self.assertEqual(self.old['assets/fta-runtime-manifest.json'], archive.read('assets/fta-runtime-manifest.json'))
+
+    def test_world_addition_preserves_baseline_world_and_receipt_identity(self):
+        world = self.root / 'world.so'; world.write_bytes(b'synthetic repaired world')
+        pin = {'synthetic': 'module validation is separately tested'}
+        (self.root / 'manifests/world-session.json').write_text(json.dumps(pin))
+        self.base['assets/metadata/world-session.json'] = json.dumps(pin).encode()
+        assembly = self.archive('base.apk', self.base); donor = self.archive('old.apk', self.old); output = self.root / 'final.apk'
+        with patch('package_private_update.verify_world_module') as verify:
+            overlay(assembly, donor, output, self.root / 'stage', self.root, self.proof, world=world)
+            verify.assert_called_once_with(world, pin, self.root)
+        compare_output(output, assembly, donor, world=world)
+        with zipfile.ZipFile(output) as archive:
+            self.assertEqual(world.read_bytes(), archive.read(WORLD))
+            for name in self.old:
+                if name.startswith(('lib/', 'assets/runtime/')) or name == 'assets/fta-runtime-manifest.json':
+                    self.assertEqual(self.old[name], archive.read(name))
+        self.base['assets/metadata/world-session.json'] = b'changed'
+        assembly = self.archive('changed.apk', self.base)
+        with patch('package_private_update.verify_world_module'):
+            with self.assertRaisesRegex(ValueError, 'Assembled world session metadata'):
+                overlay(assembly, donor, self.root / 'refused.apk', self.root / 'refused-stage', self.root, self.proof, world=world)
+
+    def test_existing_world_addon_cannot_be_silently_overwritten(self):
+        world = self.root / 'world.so'; world.write_bytes(b'repaired world')
+        (self.root / 'manifests/world-session.json').write_text('{}')
+        self.base['assets/metadata/world-session.json'] = b'{}'
+        self.old[WORLD] = b'different existing world'; self.proof['nativePayloadSha256'][WORLD] = sha(self.old[WORLD])
+        with patch('package_private_update.verify_world_module'):
+            with self.assertRaisesRegex(ValueError, 'must not be silently replaced'):
+                overlay(self.archive('base.apk', self.base), self.archive('old.apk', self.old), self.root / 'refused.apk',
+                        self.root / 'stage', self.root, self.proof, world=world)
 
 
 if __name__ == '__main__':

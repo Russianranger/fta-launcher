@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path, PurePosixPath
+import re
 import subprocess
 import zipfile
 
@@ -14,6 +15,8 @@ from stage_android_provider import digest
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_SHA = '5e2532f8e78f1de0453e73f59c9d07fc4353cfdd393e355f3c22e0e443a334f1'
+BASE_SUMS_SHA = 'fe386a4c654bc6041a67ed3d956985ec0758eaa281d2cd64bc1effa3f4069c0f'
+BASE_PREFIX = 'fta-corresponding-source/'
 PREFIX = 'world-session-v14/'
 INDEX = PREFIX + 'CONTENTS.json'
 
@@ -44,14 +47,31 @@ def inventory(archive):
     return names
 
 
+def verify_baseline(archive, actual):
+    sums_name = BASE_PREFIX + 'SHA256SUMS'
+    sums = archive.read(sums_name)
+    require(hashlib.sha256(sums).hexdigest() == BASE_SUMS_SHA, 'Original source checksum inventory differs')
+    expected = {sums_name}
+    for line in sums.decode('utf-8').splitlines():
+        match = re.fullmatch(r'([a-f0-9]{64})  (.+)', line)
+        require(match is not None, 'Malformed original checksum record')
+        name = BASE_PREFIX + match[2]
+        require(name not in expected and actual.get(name, {}).get('sha256') == match[1],
+                'Original corresponding-source member differs')
+        expected.add(name)
+    require({name for name in actual if not name.startswith(PREFIX)} == expected,
+            'Original corresponding-source inventory differs')
+
+
 def verify_companion(path, root=ROOT):
     with zipfile.ZipFile(path) as archive:
         names = inventory(archive)
         index = json.loads(archive.read(INDEX))
         require(index['baselineCompanionSha256'] == BASE_SHA, 'Corresponding-source baseline differs')
         require(set(names) == set(index['files']) | {INDEX}, 'Source companion inventory differs')
-        for name, pin in index['files'].items():
-            require(record(archive.read(name)) == pin, 'Source companion member differs')
+        actual = {name: record(archive.read(name)) for name in index['files']}
+        require(actual == index['files'], 'Source companion member differs')
+        verify_baseline(archive, actual)
         expected = source_files(root)
         require(index['repositoryFiles'] == expected, 'Public reproduction source inventory differs')
         for name in expected:

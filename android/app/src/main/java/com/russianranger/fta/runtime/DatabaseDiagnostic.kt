@@ -36,6 +36,7 @@ class DatabaseDiagnostic(
     private var worldInspectorQueue: File? = null
     private var worldCryptoModules: File? = null
     private var worldFaultLibrary: File? = null
+    private var worldSessionExecutable: File? = null
     private var realmLogDirectory: File? = null
     private var realmServerHandle = 0L
     private lateinit var socket: File
@@ -63,6 +64,10 @@ class DatabaseDiagnostic(
         if (worldSession != null) worldCryptoModules = OpenSslLegacyProvider.prepare(
             File(context.filesDir, "runtime/openssl-providers"), runtime.nativeDirectory, runtime.manifest.files)
         if (worldSession != null) worldFaultLibrary = WorldFaultCapture.prepare(runtime.nativeDirectory)
+        if (worldSession != null) {
+            worldSessionExecutable = WorldSessionExecutable.prepare(runtime)
+            worldSession.observe("worldExecutableVerified", true)
+        }
         if (recoveryPhase == RecoveryPhase.RESUME) return runRecoveryResume(recoveryStore!!)
         if (realm != null && !realm.preparing) return runRealmReopen(realm)
         val parent = if (realm == null) File(context.filesDir, "runtime/database-diagnostics").apply { check(mkdirs() || isDirectory) }
@@ -980,7 +985,7 @@ class DatabaseDiagnostic(
 
     private fun launch(role: String, args: List<String>, stdin: File?, label: String, timeoutMs: Long? = null): Long {
         checkCancelled()
-        val executable = runtime.executables.getValue(role)
+        val executable = WorldSessionExecutable.select(role, runtime.executables, worldSession != null, worldSessionExecutable)
         check(executable.canonicalFile.parentFile == runtime.nativeDirectory)
         val evidence = invocationJournal?.begin(label, role, currentStage, timeoutMs)
         if (realm != null && role == "database-server") realm.launching()

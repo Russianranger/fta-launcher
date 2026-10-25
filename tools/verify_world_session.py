@@ -6,10 +6,13 @@ Compilation and source evidence only. Never execute a server or qualify Thor.
 import argparse
 import json
 from pathlib import Path
+import shlex
+import re
 
 from fta_source import verify_source_tree
 from stage_android_provider import digest, inspect_elf
 from stage_world_runtime import verify_build_report, verified_file
+from build_native import read_cache
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME = 'libfta_world_session.so'
@@ -19,6 +22,9 @@ BASE_MANIFEST = 'dda46e9555ad3b58acdbb0125fccdc89850de78a56159ee2bfcbfbde8f529c8
 BASE_WORLD = '97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766'
 UPDATER = '466c1c6673d7f939b14c4b6f4dc787efa58ac6c8fa91e982c76151a3f1f8c02f'
 MANAGER = 'src/server/game/Scripting/ScriptMgr.cpp'
+LINK_LIBRARIES = {'MYSQL_LIBRARY': 'libmariadb.so', 'OPENSSL_CRYPTO_LIBRARY': 'libcrypto.so.3',
+                  'OPENSSL_SSL_LIBRARY': 'libssl.so.3', 'READLINE_LIBRARY': 'libreadline.so.8',
+                  'ZLIB_LIBRARY_RELEASE': 'libz.so.1', 'ANDROID_NCURSES_LIBRARY': 'libncursesw.so.6'}
 
 
 def require(ok, message):
@@ -49,6 +55,42 @@ def verify_module(module, pin, root=ROOT):
     require(pin['elf']['interpreter'] == '/system/bin/linker64' and
             pin['elf']['minimumLoadAlignment'] >= 16384 and not pin['elf']['sonames'], 'World session executable ABI differs')
     return pin
+
+
+def verify_link_libraries(build, manifest):
+    cache = read_cache(build / 'CMakeCache.txt')
+    reply = build / '.cmake/api/v1/reply'
+    index = json.loads(max(reply.glob('index-*.json'), key=lambda p: p.stat().st_mtime_ns).read_text())
+    model = json.loads((reply / index['reply']['codemodel-v2']['jsonFile']).read_text())
+    entry = next(t for t in model['configurations'][0]['targets'] if t['name'] == 'worldserver')
+    target = json.loads((reply / entry['jsonFile']).read_text())
+    tokens = [token for part in target['link']['commandFragments'] for token in shlex.split(part['fragment'])]
+    linked = {(Path(token) if Path(token).is_absolute() else build / token).resolve()
+              for token in tokens if not token.startswith('-')}
+    result = {}
+    for key, logical in LINK_LIBRARIES.items():
+        path = Path(cache[key]).resolve()
+        require(path in linked, 'Retained library is absent from the actual world link: ' + logical)
+        pin = next(e for e in manifest['files'] if e.get('logicalName') == logical)
+        verified_file(path, pin)
+        result[logical] = {'sha256': pin['sha256'], 'size': pin['size']}
+    return result
+
+
+def compiler_identity(build):
+    # Android's CMake toolchain does not necessarily cache CMAKE_CXX_COMPILER.
+    # Bind the actual generated language configuration, not a guessed NDK path.
+    records = list((build / 'CMakeFiles').glob('*/CMakeCXXCompiler.cmake'))
+    require(len(records) == 1, 'Missing or ambiguous CMake compiler configuration')
+    content = records[0].read_text()
+    match = re.search(r'^set\(CMAKE_CXX_COMPILER "([^"\n]+)"\)$', content, re.M)
+    require(match is not None and 'set(CMAKE_CXX_COMPILER_ID "Clang")' in content and
+            'set(CMAKE_CXX_COMPILER_VERSION "19.0.1")' in content, 'World compiler identity differs')
+    path = Path(match[1]).resolve(strict=True)
+    actual = digest(path)
+    require(actual == '6156dd4e5e466333197a00b8d20bca72c292186643b749dcaaa3aa9164afb1de',
+            'World compiler bytes differ from pinned NDK r28c')
+    return actual
 
 
 def main():
@@ -90,17 +132,20 @@ def main():
         path = (args.provider_stage / 'jniLibs/arm64-v8a' / Path(entry['path']).name if entry['path'].startswith('native/')
                 else args.provider_stage / 'assets/runtime' / entry['path'])
         verified_file(path, entry)
+    linked_libraries = verify_link_libraries(build, manifest)
     pin = dict(moduleName=NAME, moduleBytes=world.stat().st_size, moduleSha256=digest(world), elf=elf,
                sourceProfile=PROFILE, sourceTreeSha256=report['source_tree_sha256'], patchSha256=patch['sha256'],
                baselineManifestSha256=BASE_MANIFEST, baselineWorldSha256=BASE_WORLD, compiledUpdaterLockSha256=UPDATER)
     verify_module(world, pin)
-    args.output.write_text(json.dumps(pin, indent=2) + '\n')
-    args.evidence.write_text(json.dumps(dict(status='compiled-world-session-qualified', **pin,
+    evidence = dict(status='compiled-world-session-qualified', **pin,
         requiredModuleCount=52, cxxStandard=20, staticModules=True, staticScripts=True, luaVersion='lua52', luaStatic=True,
-        compilerJobs=jobs, compilerSha256=digest(Path(report['configuration']['CMAKE_CXX_COMPILER']).resolve()),
+        compilerJobs=jobs, compilerSha256=compiler_identity(build),
+        retainedLinkLibrariesVerified=linked_libraries,
         moduleCompilationCounts=proof['compiledWorldEvidence']['module_compilation_counts'],
         onlyChangedSourceFile=MANAGER, sqlAndConfigurationsByteIdentical=True, baselineRuntimeFilesVerified=len(manifest['files']),
-        baselineRuntimeManifestPreserved=True, runtimeQualified=False, databaseFallbackValidated=False, worldReady=False), indent=2) + '\n')
+        baselineRuntimeManifestPreserved=True, runtimeQualified=False, databaseFallbackValidated=False, worldReady=False)
+    args.output.write_text(json.dumps(pin, indent=2) + '\n')
+    args.evidence.write_text(json.dumps(evidence, indent=2) + '\n')
     print(json.dumps({'worldserverSha256': pin['moduleSha256'], 'bytes': pin['moduleBytes'], 'modules': 52}))
 
 

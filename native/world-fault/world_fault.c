@@ -23,9 +23,9 @@ static struct sigaction previous[2];
 static unsigned image_id(const char* path) {
     const char* name = strrchr(path, '/');
     name = name ? name + 1 : path;
-    if (!*name || !strcmp(name, "libfta_worldserver.so")) return 1;
+    if (!*name || !strcmp(name, "libfta_worldserver.so") || !strcmp(name, "libfta_world_session.so")) return 1;
     if (!strcmp(name, "libfta_db_libcrypto_so_3_4122f5c950.so") || !strcmp(name, "libcrypto.so.3")) return 2;
-    if (!strcmp(name, "libfta_world_fault.so")) return 3;
+    if (!strcmp(name, "libfta_world_fault.so") || !strcmp(name, "libfta_world_fault_v2.so")) return 3;
     static const char* aliases[][2] = {
         {"libfta_authdep_libmariadb_so_a7306c9150.so", "libmariadb.so"},
         {"libfta_db_libssl_so_3_9bf626fadf.so", "libssl.so.3"},

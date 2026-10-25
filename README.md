@@ -15,16 +15,14 @@ install a persistent realm or open player saves.
 
 ## Current measured checkpoint
 
-Code 31 passed sustained native health and 144.9 seconds healthy screen-off.
-Stop still fails at script-hook dispatch; a source-backed lifetime repair is in
-qualification. See [the repair evidence](docs/script-unload.md).
+Code 31 passed sustained world/auth/database health, a full retained asset rehash,
+and 144.9 seconds of healthy screen-off operation. Stop still exits 139 during
+script-hook dispatch. The narrow source repair passes the original-code host
+regression and is undergoing full ARM64 qualification; see the
+[repair evidence](docs/script-unload.md) and [retained-identity integration](docs/world-session-repair.md).
 
-Physical private code 29 reaches the original world challenge and early health.
-The combined runtime gate remains incomplete: log volume ended the attempt and
-world cleanup crashed. Code 31 adds bounded logging and executable-offset crash
-evidence while preserving the original worldserver and retained data. See the
-[current handoff](docs/SHORT-HANDOFF.md) for the qualified private APK and next
-Thor gate. Public CI APKs are development previews, not private native updates.
+The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
+Thor gates. Public CI APKs are foundation previews, not private native updates.
 
 ## Current implementation
 
@@ -86,9 +84,8 @@ code from the installed APK.
 The optional auth stage is for a private diagnostic APK, not a public release.
 See [`docs/auth-runtime.md`](docs/auth-runtime.md) for the measured build/stage
 identities and [`docs/private-diagnostics.md`](docs/private-diagnostics.md) for
-signing and validation. Private version **0.12.2-world-crypto** (code **29**) is
-the current implementation; see the [short handoff](docs/SHORT-HANDOFF.md) for its
-exact CI, private delivery and physical status. The public development APK is not
+signing and validation. See the [short handoff](docs/SHORT-HANDOFF.md) for the
+current private version, exact CI, delivery identity and physical status. The public development APK is not
 the private diagnostic update.
 
 Physical game-data import and full retained rehash now pass: all 22,817 files /
@@ -102,8 +99,9 @@ native payloads, all 52 world modules and the retained realm/backup identities.
 See [diagnosis and reproduction](docs/world-crypto-provider.md) and
 [game-data import](docs/game-data-import.md).
 
-Native GT fallback, persistent world health, clean Stop and at least 120,000 ms
-of healthy screen-off runtime still require the next physical world gate.
+Code 31 subsequently passed sustained health and the screen-off duration
+observation. Clean Stop, final metadata/GT postconditions and aggregate native
+runtime qualification remain blocked by the teardown crash.
 Client import, WarcraftXL and playable login remain later milestones.
 
 Physical code **17 passed user-controlled service Stop and retained restart**:

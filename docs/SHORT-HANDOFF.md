@@ -39,46 +39,51 @@ EnabledHooks pointing at them. The original-code host fixture reproduces late
 and reentrant heap-use-after-free; the narrow fix passes Release and ASan/UBSan.
 [Diagnosis, limits and reproduction](script-unload.md).
 
-**Source repair implemented: `android-arm64-world-v14`.** It retains all v13
-patches and adds `0018`, clearing every inner enabled-hook list before deleting
-any script. Indexed outer slots, deletion order, active callbacks, all 52 modules,
-C++20, NPCBots, SQL and source defaults remain. Tree:
+**Code-32 repair candidate: `0.12.5-world-stop`.** Full ARM64/Bionic world build
+and verification passed: all 52 modules / 224 module translation units, C++20,
+static scripts/modules/Lua 5.2, six exact retained link libraries and 16 KiB ELF
+alignment. Only `ScriptMgr.cpp` differs from the verified v13 source tree. SQL,
+configurations and source defaults are byte-identical. Profile v14 tree:
 `c85f87ebc192e78263fa14789223628c9df6e225bc0a632e67f3a1a720db11f5`.
-177 tooling tests and private original-code host probes pass. Full native rebuild,
-private update packaging, Android CI and physical repair validation remain pending.
-The Boost dependency driver also corrects B2's failing `--version` probe to `-v`.
+World ELF: **62,665,968 bytes**, SHA256
+`a7f7d3f2018703f931da68031972d1468a0c120d8f815608fcaf0e153322b20e`.
+[Measured build proof](evidence/android-2026-10-25-world-session-build.json).
+184 tooling tests pass. The verifier now reads CMake's generated compiler config
+when Android's toolchain omits the compiler path from its cache. Native builds
+used one job initially, then two after a conservative ~5 GiB memory check; one
+build graph throughout. Full compiler output remains private.
 
-Additive-build verification and corresponding-source packaging tools are prepared:
-`verify_world_session.py`, `create_world_session_source.py`. They enforce exact
-baseline/v14 identities, the one-file source delta, complete actual module/link
-proof and unchanged source archives/notices. These tools do not qualify an
-unfinished build or an Android session. Source/profile and companion corruption
-regressions pass. The full native rebuild continues; dependency/header recovery
-and auth prerequisite passed. Two compiler jobs were enabled only after a
-conservative memory check showed about 5 GiB available; no concurrent native build.
-Code-32 Android selection/packaging integration is still local work in progress.
-The new world must be additive: preserve the original updater/world and every
-baseline manifest byte. No private code-32 APK is yet qualified.
+The new `libfta_world_session.so` is additive and selected only for retained world
+sessions. Exact old manifest/world/updater pins remain the realm/backup identity;
+no migration or seed replay. Session receipts bind the new world hash/profile.
+The separately pinned v2 fault witness recognizes both world image names and
+preserves the original signal behavior. Existing donor payloads stay unchanged.
+[Integration and next physical gate](world-session-repair.md).
 
-## Next independent actions
+Verification-tool checkpoint **fba8b0b1c6e55b3edbcbf21b3fde499b51870b7c** passed
+all three jobs in [40144052450](https://github.com/Russianranger/fta-launcher/actions/runs/40144052450).
+Code-32 Android CI and private APK packaging/delivery are pending. **Do not infer
+a delivered code-32 APK from the native build.** Next independent action: push
+and verify the exact application CI, create the matching private source companion,
+package with the persistent key, verify every byte/signature/alignment, and save
+the APK/source/cache before requesting one Thor Stop gate.
 
-Complete the memory-checked Android dependency/world rebuild, using the pinned
-NDK r28c, all 52 static modules/scripts and C++20. Do not ship a partial build.
-Preserve all retained realm/backup identities and original provider payloads when
-integrating the new world executable. Qualify exact build/link/source/ELF evidence,
-Android tests/lint/assembly, private signer and 16 KiB alignment before the next
-substantial Thor test. No new APK has been delivered for the shutdown repair.
-Do not reimport assets, replay seed/updater SQL, uninstall or clear storage.
+## Recovery inputs
 
-Workspace maintenance removed earlier scratch builds. Source companion v8 was
-recovered and verified: SHA256
+Code-31 donor APK private ID `libfile_e74c3496085881919ae5ba93097d0b00` (hash above).
+Original source companion v8 was recovered and verified: SHA256
 `5e2532f8e78f1de0453e73f59c9d07fc4353cfdd393e355f3c22e0e443a334f1`,
-private ID `libfile_1c77e9d472fc8191a91ab7fc4b23ff0a`.
-It includes the unchanged original source ZIP and exact dependency sources.
+private ID `libfile_1c77e9d472fc8191a91ab7fc4b23ff0a`. It contains the unchanged
+original source ZIP and exact dependency sources. The new companion tool preserves
+all 178 original members against the pinned original checksum inventory, then adds
+the repair sources and actual build evidence. No binary or credential goes in Git.
 Original world ELF SHA256:
 `97e578f7e3013715c2d9254dc29dd87d4a33598583093110eaad24157ee67766`.
-Recover `FTA-Launcher-Development-Signing.zip` for delivery; never regenerate it.
-Persistent certificate:
+
+Persistent signing capsule was securely recovered:
+`FTA-Launcher-Development-Signing.zip`, private ID
+`libfile_7f9c88258f0c8191a09ab071e7447d30`. Never regenerate or print its contents.
+Code-31 donor's persistent v2 certificate was independently verified:
 `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 
 ## Preserved evidence and boundaries

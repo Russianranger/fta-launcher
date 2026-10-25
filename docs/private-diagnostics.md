@@ -34,9 +34,15 @@ native/runtime/notice bytes, requires unchanged application/native/manifest sour
 and helper source identities, and signs only with the persistent private capsule.
 Passwords stay in child-process environment variables. It rejects an existing
 output path, stale metadata, a version downgrade, wrong certificate or altered
-application payload. The original native source companion remains unchanged. Supply the pinned legacy
-provider and fault witness explicitly; the new helper source is public MIT code
-and `assets/metadata/launcher-LICENSE.txt` must match the repository license.
+application payload. For the additive code-32 repair, supply `--legacy-provider`,
+`--fault-witness` (v2), `--world-session` and `--world-source-companion` explicitly.
+The new corresponding-source companion preserves every original source/notices
+member and adds the reviewed repair sources and full build evidence. The helper
+source is public MIT code; `assets/metadata/launcher-LICENSE.txt` must match the
+repository license. The repaired world is selected only for retained sessions;
+original updater and realm/backup identities remain unchanged. See
+[the integration and next gate](world-session-repair.md). No code-32 APK is
+qualified until its measured private delivery evidence is recorded.
 
 
 Public CI snapshots package the database provider. A source-matching authserver

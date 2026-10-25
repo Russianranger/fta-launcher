@@ -17,12 +17,14 @@ import zipfile
 
 from verify_android_apk import verify
 from stage_android_provider import inspect_elf
+from verify_world_session import verify_module as verify_world_module
 
 ROOT = Path(__file__).resolve().parents[1]
 CERTIFICATE = '3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6'
 HELPERS = {'lib/arm64-v8a/libfta_process.so', 'lib/arm64-v8a/libfta_game_io.so'}
 LEGACY = 'lib/arm64-v8a/libfta_openssl_legacy.so'
-FAULT = 'lib/arm64-v8a/libfta_world_fault.so'
+FAULT = 'lib/arm64-v8a/libfta_world_fault_v2.so'
+WORLD = 'lib/arm64-v8a/libfta_world_session.so'
 METADATA = {'assets/metadata/full-seed-lock.json': 'manifests/full-seed-lock.json',
             'assets/metadata/game-data-policy.properties': 'manifests/game-data-policy.properties'}
 
@@ -84,17 +86,22 @@ def verify_fault(module, root=ROOT):
     return pin
 
 
-def overlay(assembly, donor, output, stage, root, proof, module=None, fault=None):
+def overlay(assembly, donor, output, stage, root, proof, module=None, fault=None, world=None):
     if module is not None:
         verify_legacy(module, root)
     if fault is not None:
         verify_fault(fault, root)
-    additions = {name: file for name, file in ((LEGACY, module), (FAULT, fault)) if file is not None}
+    if world is not None:
+        verify_world_module(world, json.loads((root / 'manifests/world-session.json').read_text()), root)
+    additions = {name: file for name, file in ((LEGACY, module), (FAULT, fault), (WORLD, world)) if file is not None}
     with zipfile.ZipFile(assembly) as base, zipfile.ZipFile(donor) as old:
         inventory(base); old_names = inventory(old)
         if fault is not None:
             require(base.read('assets/metadata/launcher-LICENSE.txt') == (root / 'LICENSE').read_bytes(),
                     'Native helper license differs')
+        if world is not None:
+            require(base.read('assets/metadata/world-session.json') == (root / 'manifests/world-session.json').read_bytes(),
+                    'Assembled world session metadata differs')
         require({n: sha(old.read(n)) for n in old_names if n.startswith('lib/')} == proof['nativePayloadSha256'],
                 'Donor native payload inventory differs')
         for member, source in METADATA.items():
@@ -139,11 +146,11 @@ def overlay(assembly, donor, output, stage, root, proof, module=None, fault=None
         return len(manifest['files'])
 
 
-def compare_output(output, assembly, donor, module=None, fault=None):
+def compare_output(output, assembly, donor, module=None, fault=None, world=None):
     with zipfile.ZipFile(output) as final, zipfile.ZipFile(assembly) as base, zipfile.ZipFile(donor) as old:
         inventory(final)
         expected = {n for n in base.namelist() if not retained(n) and not signature(n)} | {n for n in old.namelist() if retained(n)}
-        for name, file in ((LEGACY, module), (FAULT, fault)):
+        for name, file in ((LEGACY, module), (FAULT, fault), (WORLD, world)):
             if file is not None:
                 expected.add(name)
                 require(final.read(name) == file.read_bytes(), 'Final separate native module changed')
@@ -172,6 +179,8 @@ def main():
     parser.add_argument('--version-name', required=True)
     parser.add_argument('--legacy-provider', type=Path, required=True)
     parser.add_argument('--fault-witness', type=Path, required=True)
+    parser.add_argument('--world-session', type=Path, required=True)
+    parser.add_argument('--world-source-companion', type=Path, required=True)
     args = parser.parse_args()
     proof = json.loads(args.donor_evidence.read_text())
     require(not args.output.exists() and not args.evidence.exists(), 'Do not overwrite a delivered artifact')
@@ -182,6 +191,8 @@ def main():
     require(proof['signerCertificateSha256'] == CERTIFICATE, 'Donor certificate evidence differs')
     subprocess.run(['git', 'diff', '--exit-code', args.assembly_commit, '--', 'android', 'native', 'manifests'], cwd=ROOT, check=True)
     check_helper_sources(ROOT, proof)
+    from create_world_session_source import verify_companion
+    companion_sha = verify_companion(args.world_source_companion, ROOT)
     apksigner = args.build_tools.resolve() / 'apksigner'
     zipalign = args.build_tools.resolve() / 'zipalign'
     verify_signature(apksigner, args.donor.resolve())
@@ -190,7 +201,7 @@ def main():
             'Assembly application/version identity differs')
     with tempfile.TemporaryDirectory(prefix='fta-private-update-') as temporary:
         work = Path(temporary); stage = work / 'provider'
-        members = overlay(args.assembly, args.donor, work / 'unsigned.apk', stage, ROOT, proof, args.legacy_provider, args.fault_witness)
+        members = overlay(args.assembly, args.donor, work / 'unsigned.apk', stage, ROOT, proof, args.legacy_provider, args.fault_witness, args.world_session)
         subprocess.run([str(zipalign), '-P', '16', '-f', '4', str(work / 'unsigned.apk'), str(work / 'aligned.apk')], check=True)
         with zipfile.ZipFile(args.signing_capsule) as capsule:
             require(capsule.getinfo('signing.json').file_size <= 4096, 'Oversized signing capsule metadata')
@@ -207,9 +218,9 @@ def main():
             '--v4-signing-enabled', 'false', '--out', str(work / 'signed.apk'), str(work / 'aligned.apk')], env=environment, check=True)
         verify_signature(apksigner, work / 'signed.apk')
         subprocess.run([str(zipalign), '-c', '-P', '16', '4', str(work / 'signed.apk')], check=True)
-        compare_output(work / 'signed.apk', args.assembly, args.donor, args.legacy_provider, args.fault_witness)
+        compare_output(work / 'signed.apk', args.assembly, args.donor, args.legacy_provider, args.fault_witness, args.world_session)
         result = verify(work / 'signed.apk', stage)
-        added = sum(name not in proof['nativePayloadSha256'] for name in (LEGACY, FAULT))
+        added = sum(name not in proof['nativePayloadSha256'] for name in (LEGACY, FAULT, WORLD))
         require(result['provider_and_notice_files_verified'] == proof['provider_and_notice_files_verified'] + added, 'Provider/notice count differs')
         for key in ('nativePayloadSha256', 'processSupervisorSourceSha256', 'cacheHelperSourceSha256',
                     'nativeSourceCompanionSha256', 'runtimeManifestSha256', 'gameDataPolicySha256', 'compiledUpdaterLockSha256'):
@@ -225,11 +236,14 @@ def main():
             allNonPrivateAssemblyEntriesPreserved=True, nativeRecompiledForDelivery=False,
             finalPackaging='Qualified CI assembly with unchanged donor inputs and separately pinned native modules, aligned and persistently signed',
             physicalVersionExecuted=False, nativeDatabaseFallbackValidated=False, worldReady=False, gameLoginQualified=False)
-        result['nativePayloadSha256'] = dict(proof['nativePayloadSha256'], **{LEGACY: file_sha(args.legacy_provider), FAULT: file_sha(args.fault_witness)})
+        result['nativePayloadSha256'] = dict(proof['nativePayloadSha256'], **{LEGACY: file_sha(args.legacy_provider), FAULT: file_sha(args.fault_witness), WORLD: file_sha(args.world_session)})
         result['opensslLegacyProvider'] = verify_legacy(args.legacy_provider)
         result['worldFaultWitness'] = verify_fault(args.fault_witness)
         result['nativeRecompiledForDelivery'] = bool(added)
-        result['nativeWorldRecompiledForDelivery'] = False
+        result['nativeWorldRecompiledForDelivery'] = True
+        result['worldSessionExecutable'] = verify_world_module(args.world_session, json.loads((ROOT / 'manifests/world-session.json').read_text()))
+        result['baselineSourceCompanionSha256'] = proof['nativeSourceCompanionSha256']
+        result['nativeSourceCompanionSha256'] = companion_sha
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with args.output.open('xb') as out, (work / 'signed.apk').open('rb') as source:
             while data := source.read(1024 * 1024):

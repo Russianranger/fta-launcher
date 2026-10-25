@@ -12,7 +12,8 @@ data class PackagedRuntime(
     val manifest: RuntimeManifest,
     val nativeDirectory: File,
     val executables: Map<String, File>,
-    val libraryDirectory: File
+    val libraryDirectory: File,
+    val manifestSha256: String = ""
 ) {
     /** Copy only hash-declared provider data from the APK into a fresh private workspace. */
     fun stageData(context: Context, directory: File, checkCancelled: () -> Unit): File {
@@ -99,7 +100,8 @@ data class PackagedRuntime(
             // Every symlink resolves to the integrity-checked, immutable extracted APK library.
             val directory = NativeDependencyLinks.prepare(File(context.filesDir, "runtime/provider-libs"),
                 json, nativeDirectory, byLogical)
-            return PackagedRuntime(manifest, nativeDirectory, executables, directory)
+            return PackagedRuntime(manifest, nativeDirectory, executables, directory,
+                sha256(json.byteInputStream(Charsets.UTF_8)))
         }
 
         private fun sha256(input: InputStream): String {

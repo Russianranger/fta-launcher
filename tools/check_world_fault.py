@@ -30,11 +30,17 @@ def main():
         raise ValueError('NDK and output module must be supplied together')
     check_jobs(1)
     with tempfile.TemporaryDirectory(prefix='fta-world-fault-') as temporary, args.build_log.open('w') as log:
-        root = Path(temporary); module = root / 'libfta_world_fault.so'; driver = root / 'driver'
+        root = Path(temporary); module = root / 'libfta_world_fault_v2.so'; driver = root / 'driver'
         def build(command):
             subprocess.run(command, check=True, stdout=log, stderr=log)
         flags = ['-std=c11', '-O2', '-fPIC', '-shared', '-Wall', '-Wextra', '-Werror', '-Wl,-z,defs']
         build(['gcc'] + flags + [str(SOURCE), '-ldl', '-o', str(module)])
+        aliases = root / 'aliases'
+        build(['gcc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
+               str(ROOT / 'tests/fixtures/world_fault_alias_host.c'), '-ldl', '-o', str(aliases)])
+        alias_result = subprocess.run([str(aliases)], capture_output=True, timeout=5)
+        if alias_result.returncode != 0 or alias_result.stdout or alias_result.stderr != READY:
+            raise ValueError('Retained and additive world/witness image aliases differ')
         build(['gcc', '-O0', '-fPIE', '-pie', '-Wall', '-Wextra', '-Werror',
                str(ROOT / 'tests/fixtures/world_fault_host.c'), '-o', str(driver)])
         env = dict(os.environ, LD_PRELOAD=str(module))
@@ -80,7 +86,7 @@ def main():
             rawAddressesExported=False, memoryContentsExported=False, nativeWorldRecompiled=False,
             compilerJobs=1, androidExecutionQualified=False, preinstalledHandlersChained=True,
             originalSiginfoContextMaskAndAlternateStackPreserved=True, oneShotHandlerPreserved=True,
-            ignoredFatalSignalRefused=True)
+            ignoredFatalSignalRefused=True, retainedAndAdditiveImageAliasesVerified=True)
         if args.ndk:
             props = (args.ndk / 'source.properties').read_text()
             if 'Pkg.Revision = 28.2.13676358' not in props:
@@ -89,7 +95,7 @@ def main():
             if args.module.exists():
                 raise ValueError('Do not overwrite a measured module')
             build([str(compiler)] + flags + [str(SOURCE), '-ldl', '-Wl,-z,max-page-size=16384',
-                                          '-Wl,-soname,libfta_world_fault.so', '-o', str(args.module)])
+                                          '-Wl,-soname,libfta_world_fault_v2.so', '-o', str(args.module)])
             elf = inspect_elf(args.module, reject_search_paths=True)
             if set(elf['needed']) != {'libc.so', 'libdl.so'} or elf['minimumLoadAlignment'] < 16384:
                 raise ValueError('Fault module dependency or alignment differs')

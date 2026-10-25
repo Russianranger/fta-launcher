@@ -3,11 +3,11 @@ package com.russianranger.fta.runtime
 import java.io.File
 import java.nio.file.Files
 
-/** Separate pinned diagnostic module: the original world ELF and realm identity stay unchanged. */
+/** Separate pinned diagnostic module for both retained and repaired world image names. */
 internal object WorldFaultCapture {
-    const val NAME = "libfta_world_fault.so"
-    const val SHA256 = "7c6705da298c4d2d7288b2f895fe447be5d7c6fe03e064610e677fabfa3d73ec"
-    const val BYTES = 13760L
+    const val NAME = "libfta_world_fault_v2.so"
+    const val SHA256 = "db8de877220bad24e9d7967d0b6c4ff0f084e986c447248cabb0115e70f718ca"
+    const val BYTES = 13856L
     const val READY = "FTA_FAULT_READY_V1"
     fun ready(file: File): Boolean = runCatching {
         val expected = "$READY\n".toByteArray(Charsets.US_ASCII)

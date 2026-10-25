@@ -24,7 +24,7 @@ internal object WorldSessionEvidence {
         }
         return Scan(found, true)
     }
-    val fields = listOf("assetsRehashed", "gtCoverageBefore", "dbcStoresLoaded", "nativeReadyMarker", "freezeGuardStarted",
+    val fields = listOf("worldExecutableVerified", "assetsRehashed", "gtCoverageBefore", "dbcStoresLoaded", "nativeReadyMarker", "freezeGuardStarted",
         "worldChallenge", "worldHalted", "worldCleanStop", "worldListenerClosed", "gtCoverageAfter")
     val faults = mapOf(
         "missingStartingMaps" to "Failed to find map files for starting areas",

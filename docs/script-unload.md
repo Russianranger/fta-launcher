@@ -69,3 +69,13 @@ returned 1. Its supported `-v` returned 0. The dependency driver now uses `-v`,
 with a composition regression. Completed earlier build steps were retained and
 the exact recorded final Boost build/install command resumed; no source, library
 or version check was bypassed.
+
+## Completed ARM64 repair build
+
+The v14 world executable is 62,665,968 bytes, SHA256
+`a7f7d3f2018703f931da68031972d1468a0c120d8f815608fcaf0e153322b20e`.
+All 52 modules / 224 module translation units, static scripts and Lua 5.2, C++20,
+actual link inputs and 16 KiB ELF alignment passed independent verification.
+[Build evidence](evidence/android-2026-10-25-world-session-build.json).
+[Additive integration](world-session-repair.md) preserves retained identities.
+Physical repair validation remains pending; compilation does not qualify Stop.

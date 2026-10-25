@@ -1,0 +1,37 @@
+{
+  "status": "host_fault_witness_passed",
+  "sourceSha256": "38682847ee4aed2e125ff709cf2944d339b2102727f669e80bb859ade440fb7c",
+  "normalExitPreserved": true,
+  "sigsegvPreserved": true,
+  "sigbusPreserved": true,
+  "sigtermUntouched": true,
+  "sigabrtUntouched": true,
+  "repeatedFaultOffsetsStable": true,
+  "faultOffsetMatchesSymbol": true,
+  "rawAddressesExported": false,
+  "memoryContentsExported": false,
+  "nativeWorldRecompiled": false,
+  "compilerJobs": 1,
+  "androidExecutionQualified": false,
+  "preinstalledHandlersChained": true,
+  "originalSiginfoContextMaskAndAlternateStackPreserved": true,
+  "oneShotHandlerPreserved": true,
+  "ignoredFatalSignalRefused": true,
+  "retainedAndAdditiveImageAliasesVerified": true,
+  "moduleBytes": 13856,
+  "moduleSha256": "db8de877220bad24e9d7967d0b6c4ff0f084e986c447248cabb0115e70f718ca",
+  "elf": {
+    "needed": [
+      "libc.so",
+      "libdl.so"
+    ],
+    "sonames": [
+      "libfta_world_fault_v2.so"
+    ],
+    "interpreter": null,
+    "minimumLoadAlignment": 16384
+  },
+  "ndkVersion": "28.2.13676358",
+  "androidApi": 33,
+  "compilerSha256": "6156dd4e5e466333197a00b8d20bca72c292186643b749dcaaa3aa9164afb1de"
+}

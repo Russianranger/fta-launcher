@@ -20,6 +20,7 @@ object WorldServiceRuntime {
         val identity = RealmStorageDiagnostic.identity(context)
         val store = RealmStorageDiagnostic.store(context, identity)
         val receipt = JSONObject().put("formatVersion", 1).put("attemptId", attempt).put("identity", JSONObject(identity))
+            .put("worldExecutableSha256", WorldSessionExecutable.SHA256).put("worldSourceProfile", WorldSessionExecutable.PROFILE)
             .put("completed", false).put("healthySamples", 0).put("elapsedMs", 0).put("screenOffHealthyMs", 0).put("stopReason", "running")
         (fields + WorldSessionEvidence.diagnosticFields).forEach { receipt.put(it, false) }
         fun save() = RuntimeRecoveryService.atomic(file(context), receipt.toString())
@@ -112,6 +113,12 @@ object WorldServiceRuntime {
             result["checks"] = fields.associateWith { r.opt(it) == true }
             result["failureMarkers"] = WorldSessionEvidence.diagnosticFields.associateWith { r.opt(it) == true }
             result["attemptId"] = attempt
+            val executableMatches = WorldSessionExecutable.receiptMatches(r.optString("worldExecutableSha256"), r.optString("worldSourceProfile"))
+            result["worldExecutableMatches"] = executableMatches
+            if (executableMatches) {
+                result["worldExecutableSha256"] = WorldSessionExecutable.SHA256
+                result["worldSourceProfile"] = WorldSessionExecutable.PROFILE
+            }
             val assets = GameDataImport.store(context).active()
             val assetsMatch = assets != null && assets.generation == r.optString("assetGeneration") &&
                 assets.archiveSha256 == r.optString("archiveSha256") && assets.catalogSha256 == r.optString("catalogSha256") &&
@@ -132,7 +139,7 @@ object WorldServiceRuntime {
                 result["nativeEvidence"] = native
                 result["retainedWorldLogs"] = WorldLogEvidence.export(File(realm.directory, "visits/$attempt-1"), attempt,
                     state in setOf("FAILED", "STOPPED", STOPPED), WorldLogEvidence.dictionary(context.assets.open(WorldLogEvidence.DICTIONARY)))
-                val completed = state == STOPPED && r.opt("completed") == true && fields.all { r.opt(it) == true } &&
+                val completed = executableMatches && state == STOPPED && r.opt("completed") == true && fields.all { r.opt(it) == true } &&
                     WorldSessionEvidence.diagnosticFields.none { r.opt(it) == true } &&
                     assetsMatch && store.active() == realm && native["qualified"] == true && native["healthySamples"] == samples && samples > 0 &&
                     reason in setOf("user", "session_limit")

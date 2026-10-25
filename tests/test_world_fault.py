@@ -14,14 +14,16 @@ class WorldFaultTests(unittest.TestCase):
     def test_real_signal_fixture_preserves_exit_and_emits_only_stable_executable_offsets(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            subprocess.run([sys.executable, str(ROOT / 'tools/check_world_fault.py'), '--output', str(root / 'proof.json'),
-                            '--build-log', str(root / 'build.log')], check=True, capture_output=True, timeout=30)
+            result = subprocess.run([sys.executable, str(ROOT / 'tools/check_world_fault.py'), '--output', str(root / 'proof.json'),
+                                    '--build-log', str(root / 'build.log')], capture_output=True, timeout=30)
+            self.assertEqual(0, result.returncode, result.stderr.decode(errors='replace'))
             proof = json.loads((root / 'proof.json').read_text())
             self.assertTrue(proof['normalExitPreserved'] and proof['sigsegvPreserved'] and proof['sigbusPreserved'])
             self.assertTrue(proof['sigtermUntouched'] and proof['sigabrtUntouched'] and proof['faultOffsetMatchesSymbol'])
             self.assertTrue(proof['repeatedFaultOffsetsStable'])
             self.assertTrue(proof['preinstalledHandlersChained'] and proof['originalSiginfoContextMaskAndAlternateStackPreserved'])
             self.assertTrue(proof['oneShotHandlerPreserved'] and proof['ignoredFatalSignalRefused'])
+            self.assertTrue(proof['retainedAndAdditiveImageAliasesVerified'])
             self.assertFalse(proof['rawAddressesExported'] or proof['memoryContentsExported'])
 
     def test_runtime_and_packager_pin_same_capture_module(self):

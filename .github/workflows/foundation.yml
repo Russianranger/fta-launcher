@@ -56,6 +56,22 @@ jobs:
       - name: Test, lint and compile foundation
         working-directory: android
         run: ./gradlew --no-daemon --max-workers=2 -PftaProviderDir="$RUNNER_TEMP/fta-provider" testDebugUnitTest lintDebug assembleDebug
+      - name: Summarize measured Android unit results
+        working-directory: android
+        run: |
+          python3 - <<'PYTHON'
+          import json, pathlib, xml.etree.ElementTree as ET
+          reports = list(pathlib.Path('app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))
+          assert reports, 'Android JUnit reports are missing'
+          totals = dict(tests=0, failures=0, errors=0, skipped=0)
+          for path in reports:
+              suite = ET.parse(path).getroot()
+              assert int(suite.attrib['tests']) == len(suite.findall('testcase'))
+              for key in totals:
+                  totals[key] += int(suite.attrib.get(key, 0))
+          print(json.dumps(dict(androidUnitResults=totals, suites=len(reports)), sort_keys=True))
+          assert totals['failures'] == totals['errors'] == 0
+          PYTHON
       - name: Check game-data cache helper and host JNI
         run: |
           python3 - <<'PYTHON'

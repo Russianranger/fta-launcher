@@ -6,6 +6,7 @@ val fullSeedAssetDirectory = layout.buildDirectory.dir("generated/fullSeedAssets
 val prepareFullSeedMetadata by tasks.registering(Copy::class) {
     from(rootProject.file("../manifests/full-seed-lock.json"))
     from(rootProject.file("../manifests/game-data-policy.properties"))
+    from(rootProject.file("../manifests/world-session.json"))
     from(rootProject.file("../LICENSE")) { rename { "launcher-LICENSE.txt" } }
     into(fullSeedAssetDirectory.map { it.dir("metadata") })
 }
@@ -20,10 +21,10 @@ android {
         targetSdk = 35
         versionCode = providers.gradleProperty("ftaVersionCode").orNull?.toInt()?.also {
             require(it in 1..2_100_000_000) { "ftaVersionCode is outside the Android version range" }
-        } ?: 31
+        } ?: 32
         versionName = providers.gradleProperty("ftaVersionName").orNull?.also {
             require(it.matches(Regex("[A-Za-z0-9._+-]{1,100}"))) { "Invalid ftaVersionName" }
-        } ?: "0.12.4-world-signals"
+        } ?: "0.12.5-world-stop"
         ndk { abiFilters += "arm64-v8a" }
         externalNativeBuild { cmake { arguments += "-DANDROID_STL=c++_static" } }
     }
