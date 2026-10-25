@@ -105,7 +105,8 @@ reads, mid-file interruption/resume, partial/tampered checkpoints, changed sourc
 destination corruption, shrinking/growing files, quota loss, lease contention,
 symlink escape, failed validation/publication and preservation of a previous active
 generation. The new throttle/backpressure, 1 MiB sync bounds and old-checkpoint compatibility
-are tested independently. Actual 60 GB SAF copy, Android survival under pressure
+are [tested independently](client-memory-host.md), including a 5 GiB-plus copy and
+full rehash after an unchanged code-36 hard exit under a 64 MiB Java heap. Actual 60 GB SAF copy, Android survival under pressure
 and physical retained rehash remain pending until the owner returns the new report.
 
 Install the verified private update in place. Choose **Import / resume client

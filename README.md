@@ -21,8 +21,10 @@ screen-off, user Stop, clean world/auth/database exits and strict retained
 metadata/GT postchecks. All 22,817 game-data files were rehashed unchanged.
 [Measured physical proof](docs/evidence/android-2026-10-25-thor-code34-world-pass.json).
 Code 35 physically inspected the complete 60.24 GB client and confirmed the
-matching x86 build. Code 36 adds [resumable managed client import](docs/client-import.md),
-with chunk readback verification and retained full rehash. Physical copy, WarcraftXL
+matching x86 build. Code 36 was interrupted after 4.87 GB during client import.
+Code 37 adds [governed resumable import](docs/client-import.md): smaller sync/readback
+windows, a conservative I/O rate limit, memory-pressure pauses and client-specific
+exit evidence. Existing code-36 checkpoints are retained. Physical copy, WarcraftXL
 execution and playable login remain unqualified.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and

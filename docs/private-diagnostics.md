@@ -1,6 +1,6 @@
 # Private native diagnostic builds
 
-## Current private delivery — code 36 managed client import
+## Current private delivery — code 37 client memory backpressure
 
 Physical code 34 passed the complete native world gate, including original GT
 fallback, all 113 DBC stores, 259.2 seconds healthy screen-off, user Stop, clean
@@ -9,10 +9,11 @@ exits and retained metadata/GT postchecks.
 Physical code 35 passed the complete 60.24 GB client folder inspection and exact
 x86 build observation. [Inspection proof](evidence/android-2026-10-25-thor-code35-client-inspection.json).
 
-[Verified private code 36](code36-recovery.md) adds [resumable managed client import](client-import.md) with the same
-21 native payloads and 148 runtime entries. Follow the [current handoff](SHORT-HANDOFF.md)
+[Code 37](code37-recovery.md) adds [memory backpressure](client-import.md) after the
+code-36 client copy was interrupted at 4.87 GB. It retains code-36 checkpoints and
+the same 21 native payloads / 148 runtime entries. Follow the [current handoff](SHORT-HANDOFF.md)
 for exact CI, artifact identity and availability. The next physical action is
-full client import, retained verification and report export. Do not repeat the
+resuming the same client folder, retained verification and report export. Do not repeat the
 passed inspection, server, screen-off, database/auth or game-data import tests.
 WarcraftXL execution, exact x64 host pairing and playable login remain open.
 

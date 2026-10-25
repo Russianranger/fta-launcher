@@ -1,5 +1,9 @@
 # Code 36 private managed client import update
 
+**Historical build:** the physical copy was interrupted at 4.87 GB. Use
+[code 37](code37-recovery.md) for the qualified memory-backpressure update and
+resume the retained checkpoints. Do not repeat the old code-36 run.
+
 [FTA-Launcher-0.13.1-client-import.apk](https://chatgpt.com/library?file_id=libfile_07e3d6c61ed88191be1ea56e13ec5e76&account_id=personal)
 
 **Version 0.13.1-client-import / code 36**, 59,061,517 bytes. SHA256:

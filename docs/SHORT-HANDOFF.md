@@ -46,9 +46,20 @@ aggregate payload I/O (about 8 MiB/s new copy), 1 MiB sync/readback/cache window
 pressure pause with hysteresis and a two-minute safe-stop limit, and attempt-bound
 client exit/memory observations. Old 16 MiB checkpoints are unchanged and resumable.
 Full integrity, source files, all native payloads and existing world receipts stay
-unchanged. Application CI and private APK delivery are being qualified; no new APK
-identity is claimed yet. Original donor/signing/source artifacts recovered and
-measured against code-36/34 evidence; no native rebuild needed.
+unchanged. Application commit **39516bb1b0a499d84279ef9eefea0c5c9e9abcf4**; all three
+jobs in [CI 40216989093](https://github.com/Russianranger/fta-launcher/actions/runs/40216989093)
+passed: **457 Android tests passed / one existing skip**, 186 tooling tests, lint,
+assembly and native cache-helper checks. 20 new regressions. A separate 64 MiB-heap
+host run resumed 4,865,392,640 bytes from the unchanged code-36 store, copied and
+fully rehashed 5,368,719,624 bytes / 10,476 synthetic files, and exercised pressure
+pause/recovery with a virtual clock. [Host proof](evidence/host-2026-10-25-client-memory.json).
+
+[Verified private APK and procedure](code37-recovery.md): **59,073,805 bytes**,
+SHA256 `105bf65924ebabedb7dde71c2e3f880e463180a45ccf1fd4f7a6fe14b061cf0b`.
+Persistent signer, v2 signing, 16 KiB alignment, all 225 packaged checks pass.
+All 21 native payloads, 148 runtime entries and runtime manifest remain identical
+with code 36 and the passed native code 34. Original donor/signing/source artifacts
+were securely recovered and measured; no native rebuild or new signing key.
 
 Next physical gate after qualified delivery: install in place, choose **Import /
 resume client folder** with the SAME original tree, keep visible, allow prefix
