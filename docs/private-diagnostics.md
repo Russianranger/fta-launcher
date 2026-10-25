@@ -1,19 +1,20 @@
 # Private native diagnostic builds
 
-## Current private delivery — code 35; complete code-34 world gate passed
+## Current private delivery — code 36 managed client import
 
-The verified code-34 APK passed the complete physical Thor world gate, including
-original GT fallback, all 113 DBC stores, sustained health, 259.2 seconds healthy
-screen-off, user Stop, clean exits and strict retained metadata/GT postchecks.
-[Measured proof](evidence/android-2026-10-25-thor-code34-world-pass.json).
-[Code-34 APK and source](code34-recovery.md). Native world qualification now passes
-for that exact build; client execution and playable login remain open.
+Physical code 34 passed the complete native world gate, including original GT
+fallback, all 113 DBC stores, 259.2 seconds healthy screen-off, user Stop, clean
+exits and retained metadata/GT postchecks.
+[World proof](evidence/android-2026-10-25-thor-code34-world-pass.json).
+Physical code 35 passed the complete 60.24 GB client folder inspection and exact
+x86 build observation. [Inspection proof](evidence/android-2026-10-25-thor-code35-client-inspection.json).
 
-[Verified private code 35](code35-recovery.md) adds [read-only client-folder inspection](client-inspection.md) with the
-same 21 native payloads and 148 runtime entries. Follow the [current handoff](SHORT-HANDOFF.md) for its exact
-CI, artifact identity and availability. The next physical action is client folder
-inspection and report export. Do not repeat the passed server, screen-off,
-standalone database/auth, game-data import or rehash tests.
+[Verified private code 36](code36-recovery.md) adds [resumable managed client import](client-import.md) with the same
+21 native payloads and 148 runtime entries. Follow the [current handoff](SHORT-HANDOFF.md)
+for exact CI, artifact identity and availability. The next physical action is
+full client import, retained verification and report export. Do not repeat the
+passed inspection, server, screen-off, database/auth or game-data import tests.
+WarcraftXL execution, exact x64 host pairing and playable login remain open.
 
 Historical milestones below are evidence, not instructions to repeat passed work.
 Code 30 was withdrawn before physical testing; do not install it.

@@ -53,7 +53,7 @@ Microsoft specifications: [PE/COFF](https://learn.microsoft.com/en-us/windows/wi
 [VS_VERSIONINFO](https://learn.microsoft.com/en-us/windows/win32/menurc/vs-versioninfo),
 [VS_FIXEDFILEINFO](https://learn.microsoft.com/en-us/windows/win32/api/verrsrc/ns-verrsrc-vs_fixedfileinfo).
 
-Next: examine the physical inventory, resolve the exact matching client/host
-layout, then implement transactional resumable managed import. Wine/translator,
+Next: qualify the implemented [resumable managed import](client-import.md).
+Exact x64 host identity/pairing remains unresolved. Wine/translator,
 32-bit client to 64-bit host IPC, renderer, controllers and playable login remain
 later gates. Never overwrite the original folder or provision an account silently.

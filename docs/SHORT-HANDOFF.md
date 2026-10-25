@@ -43,7 +43,16 @@ read-only source, 256 KiB buffers, verified 16 MiB checkpoints, space reserve,
 separate foreground worker, explicit Stop, atomic generation publication and full
 retained rehash. Source configurations/MPQs stay unchanged. New candidate failures
 retain the active generation. All native/server inputs remain unchanged.
-Application/packaging qualification is in progress; do not install an unverified APK.
+Application commit **7f2c59df3579044f70777f7d2f5382f088257e46**; all three jobs in
+[CI 40208480192](https://github.com/Russianranger/fta-launcher/actions/runs/40208480192)
+passed. 186 tooling tests; Android 437 passed/one existing private-fixture skip,
+including 32 new import regressions; lint, assembly and cache-helper checks pass.
+Private APK **59,061,517 bytes**, SHA256
+`8feb0cff4bf08ae740be0a038c991e80ce3d9c04eb749a0af60968366baeca8a`.
+[Verified APK, source and test procedure](code36-recovery.md). Persistent signer,
+v2 signing, 16 KiB alignment and all 225 packaged checks pass. All 21 native
+payloads and 148 runtime entries remain byte-identical to code 35 / passed code 34.
+No native rebuild; saved donor/signing/source artifacts were securely recovered.
 
 Next physical gate after delivery: import the same complete client folder once,
 keep visible, reopen and Verify imported client, then Export diagnostic report.

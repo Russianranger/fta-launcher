@@ -23,20 +23,14 @@ remain an exact match to the current native reproduction inputs; verified SHA256
 `02695902ac274ad33feb881b1d2f53f9933c7a2a6db08fe164fa27edc1a8c98c`.
 The Android launcher changes are public at the application commit above.
 
-## Next physical action
+## Physical inspection passed
 
-1. Install this private update **in place** over code 34.
-2. Select **Inspect client folder**, then choose the complete already extracted
-   WarcraftXL client folder containing **Wow.exe**. Keep the launcher visible.
-3. When inspection ends, select **Export diagnostic report** and return the JSON.
-   If it fails or is interrupted, export before another attempt.
+The exact code-35 APK completed the read-only Thor inventory in 10,161 ms:
+10,476 files / 60,243,212,332 bytes, 33 MPQs, matching x86 WoW build and observed
+WarcraftXL/proxy/DXVK metadata. [Physical proof](evidence/android-2026-10-25-thor-code35-client-inspection.json).
+The two x64 candidates do not yet establish exact asset-host identity or pairing.
+The prior native world qualification remains intact. Do not repeat inspection.
 
-This is a read-only inventory and executable-metadata check. It does not copy,
-import, launch or modify the client. Folder names, document URIs, configuration
-contents, account data and raw executable strings are not exported. MPQ counts
-are metadata, not full asset hashes. See [bounds and scope](client-inspection.md).
-
-Preserve the realm, backups and imported assets. The complete native world gate,
-including screen-off and clean Stop, already passed; **do not repeat it** for this
-milestone. Managed client import, exact WarcraftXL/host pairing, Wine/translator
-IPC and playable login remain unqualified pending actual client evidence.
+Continue with the [current handoff](SHORT-HANDOFF.md) and [managed client import](client-import.md).
+Preserve the realm, backups, imported server assets and original client folder.
+Wine/translator IPC, WarcraftXL execution and playable login remain unqualified.
