@@ -26,31 +26,28 @@ still match every native reproduction input; full archive SHA256
 No native rebuild or signing-key regeneration. Public CI APKs are foundation
 previews and cannot replace this private signed update.
 
-## Resume the interrupted client copy
+## Current physical status and next action
 
-1. Install this APK **in place** over code 36. Keep the partial copy, original
-   client folder, realm, server imports and backups. Do not uninstall or clear storage.
-2. Choose **Import / resume client folder** and select the **same original folder
-   containing Wow.exe**. Keep the launcher visible. The already-checkpointed prefix
-   is rechecked first, then the copy continues without rewriting verified chunks.
-3. Allow a slower copy: the aggregate I/O limit corresponds to roughly 8 MiB/s
-   for new data before storage/hash overhead; the complete 60.24 GB client can
-   take more than two hours. The three-hour operation deadline remains bounded.
-   Memory pressure automatically pauses work and can safely stop it after two
-   minutes. Stop remains available; no automatic restart/retry occurs.
-4. After completion, reopen and choose **Verify imported client**, then **Export
-   diagnostic report** and return the JSON. If either operation stops or fails,
+Physical code 37 completed all **10,476 files / 60,243,212,332 bytes** in 2h40m05s,
+resuming 4,898,874,959 bytes. Peak RSS 186,548 KiB; no pressure pause or attempt-matched
+exit. [Measured pass](evidence/android-2026-10-25-thor-code37-client-import-pass.json).
+The native world receipt remains qualified. No copy or server test needs repeating.
+
+1. Keep the already-installed code 37 and reopen the launcher.
+2. Choose **Verify imported client** and keep the app visible until complete.
+3. Choose **Export diagnostic report** and return the JSON. On failure or interruption,
    export immediately before another attempt.
 
-Only remaining bytes plus the existing 1 GiB reserve are required; no second full
-staging copy is created. Never delete the original folder to gain space. This
-update preserves the 16 MiB checkpoint format and uses 1 MiB sync/readback/cache
-windows plus memory/PSI backpressure. [Behavior and limits](client-import.md).
+Do not select Import again, uninstall or clear storage. Original source files,
+managed client files, realm, imported server assets and backups must remain intact.
+No new private APK is required for the report-assessment tooling increment.
 
-The owner-reported code-36 low-memory interruption is recorded honestly: its report
-does not contain client exit or pressure evidence, so the exact kernel/provider
-cause is not proven. Code 37 adds client-specific attempt matching and pressure
-observations. **Physical low-memory survival and full client import/rehash remain
-pending.** WarcraftXL execution, x64 host pairing, Wine/translator IPC and playable
-login remain later gates. No repeat inspection, native-world, screen-off, DB/auth
-or imported-server-data test is needed.
+The report's `operation=import` and `retainedRehashValidated=false` mean the later
+full rehash remains pending. Its catalog is
+`fe49bee4d96be084cfda4740112f1a73a10b87ab222e51ccb8730be38c300f13`.
+The next agent must [bind the verification report to this import](client-report-qualification.md).
+
+The 24 MiB/s aggregate governor and 1 MiB sync/readback/cache windows remain active
+for retained verification. Successful copying does not measure actual cache eviction
+or exercise forced-pressure backoff (zero pauses occurred). WarcraftXL execution,
+exact x64 host pairing, Wine/translator IPC and playable login remain later gates.

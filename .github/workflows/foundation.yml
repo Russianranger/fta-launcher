@@ -27,6 +27,8 @@ jobs:
         run: python tools/check_repository.py
       - name: Test tooling with synthetic fixtures
         run: python -m unittest discover -s tests -v
+      - name: Check client receipt qualification boundaries
+        run: python -m unittest discover -s android/qualification -p 'test_*.py' -v
       - name: Test native process ownership
         run: |
           g++ -std=c++17 -Wall -Wextra -Werror -pthread native/process-supervisor/process_owner.cpp native/process-supervisor/process_owner_test.cpp -o "$RUNNER_TEMP/fta-process-owner-test"

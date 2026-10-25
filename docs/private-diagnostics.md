@@ -13,7 +13,8 @@ x86 build observation. [Inspection proof](evidence/android-2026-10-25-thor-code3
 code-36 client copy was interrupted at 4.87 GB. It retains code-36 checkpoints and
 the same 21 native payloads / 148 runtime entries. Follow the [current handoff](SHORT-HANDOFF.md)
 for exact CI, artifact identity and availability. The next physical action is
-resuming the same client folder, retained verification and report export. Do not repeat the
+**Verify imported client** on the installed code 37, then report export.
+The full 10,476-file import/readback/publication has now passed; do not import again. Do not repeat the
 passed inspection, server, screen-off, database/auth or game-data import tests.
 WarcraftXL execution, exact x64 host pairing and playable login remain open.
 

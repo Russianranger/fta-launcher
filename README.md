@@ -21,11 +21,12 @@ screen-off, user Stop, clean world/auth/database exits and strict retained
 metadata/GT postchecks. All 22,817 game-data files were rehashed unchanged.
 [Measured physical proof](docs/evidence/android-2026-10-25-thor-code34-world-pass.json).
 Code 35 physically inspected the complete 60.24 GB client and confirmed the
-matching x86 build. Code 36 was interrupted after 4.87 GB during client import.
-Code 37 adds [governed resumable import](docs/client-import.md): smaller sync/readback
-windows, a conservative I/O rate limit, memory-pressure pauses and client-specific
-exit evidence. Existing code-36 checkpoints are retained. Physical copy, WarcraftXL
-execution and playable login remain unqualified.
+matching x86 build. Code 37 then **passed the full 60.24 GB resumable client import**
+with all 10,476 files read back and published, no matching kill and zero memory
+pressure pauses. [Physical client proof](docs/evidence/android-2026-10-25-thor-code37-client-import-pass.json).
+The next device action is **Verify imported client**, then export the report;
+no repeated copy or new APK is needed. Retained client rehash, WarcraftXL execution
+and playable login remain unqualified.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.

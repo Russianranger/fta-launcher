@@ -100,20 +100,31 @@ or original server asset policies change.
 
 ## Qualification and next physical gate
 
-Synthetic host tests cover exact copy/reopen, empty files/directories, bounded
-reads, mid-file interruption/resume, partial/tampered checkpoints, changed sources,
-destination corruption, shrinking/growing files, quota loss, lease contention,
-symlink escape, failed validation/publication and preservation of a previous active
-generation. The new throttle/backpressure, 1 MiB sync bounds and old-checkpoint compatibility
-are [tested independently](client-memory-host.md), including a 5 GiB-plus copy and
-full rehash after an unchanged code-36 hard exit under a 64 MiB Java heap. Actual 60 GB SAF copy, Android survival under pressure
-and physical retained rehash remain pending until the owner returns the new report.
+Physical code 37 **passed import/readback/publication** of all 10,476 files /
+60,243,212,332 bytes in 9,604,969 ms (2h40m05s), resuming 4,898,874,959 bytes.
+The report matches the delivered private APK. Peak RSS was 186,548 KiB, no pressure
+pause occurred, and no Android exit matches this attempt. One older unmatched
+client low-memory exit is historical. Both cache-advice counters report 67,521
+accepted requests; actual eviction remains unmeasured. Native-world qualification
+is unchanged. [Measured pass](evidence/android-2026-10-25-thor-code37-client-import-pass.json).
 
-Install the verified private update in place. Choose **Import / resume client
-folder**, select the same complete extracted folder, and keep the launcher visible. The partial code-36 copy is retained and verified first.
-When complete, reopen the app, select **Verify imported client**, then **Export
-diagnostic report**. On any failure or interruption, export before resuming; do
-not delete originals or clear app storage. No repeated server/game-data test.
+The published catalog is
+`fe49bee4d96be084cfda4740112f1a73a10b87ab222e51ccb8730be38c300f13`.
+The report is for **import**, not a later retained rehash. `retainedRehashValidated`
+is false. This workload's successful survival does not prove forced-pressure
+pause/recovery behavior or general immunity to Android process termination.
+
+Synthetic host tests additionally cover exact copy/reopen, empty files/directories,
+bounded reads, interruption/resume, tampered checkpoints, changed sources, quota
+loss, lease contention, unsafe links and atomic publication. The governor and old
+checkpoint format also [pass a 5 GiB host recovery test](client-memory-host.md).
+[Report assessment](client-report-qualification.md) automatically distinguishes
+these gates and binds the later verification receipt to the observed import.
+
+**Do not import again.** Reopen the installed code 37, select **Verify imported
+client**, keep visible until complete, then **Export diagnostic report**. If it
+fails or stops, export before another attempt. Keep the original folder and all
+retained data. No new APK, repeated inspection or server/game-data test is needed.
 
 Android references: [SAF grants](https://developer.android.com/training/data-storage/shared/documents-files),
 [foreground data sync](https://developer.android.com/develop/background-work/services/fgs/service-types#data-sync).
