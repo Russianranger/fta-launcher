@@ -51,26 +51,35 @@ The tracer is ARM64 PIE using `/system/bin/linker64`, with only `libc.so` and
 ET_EXEC, has no interpreter/dynamic dependencies, requires a file-backed executable
 entry, non-writable executable segments, and a non-executable stack. Its separate
 validator does not weaken the existing PIE requirement for server payloads.
-Eleven synthetic regressions cover architecture/type, program-table/segment bounds,
+Fourteen synthetic regressions cover architecture/type, program-table/segment bounds,
 4 KiB and incongruent mappings, dynamic linkage, entry, stack, source identity,
-duplicate source members and recipe drift.
+duplicate source members, recipe drift, and exact process-image/mapping identity.
 
 ## Tracer-death regression
 
 `tools/check_client_bridge_ownership.py` builds the original and patched PRoot
 on native Linux, one job, from the same pinned sources/compatibility patches.
 Its fixture creates three processes, including two descendants in separate
-sessions. An independent subreaper holds pidfds, verifies fixture identities,
+sessions. An independent subreaper verifies the known loader plus the exact executable
+fixture mapping before retaining pidfds for signals,
 kills only its tracer and observes descendant lifetimes. The negative control
 requires all three original tracees to survive; the fixed case requires all
 three to die. A normal three-process exit must still return zero. Fixture alarms,
 readiness deadlines and pidfd cleanup bound failure paths; no client is loaded.
 
-Local Linux compilation succeeds, but this workspace denies PTRACE_TRACEME with
-EPERM, so local execution is **not qualified**. The ARM64 runtime workflow now
-runs this regression before its Wine tests and retains source/build/run evidence.
-Inspect that exact CI result before claiming tracer-death qualification. Even
-an ARM64 Linux pass does not replace Android process-death/Stop observation.
+**Passed on native ARM64 Linux** at commit
+`969660f0d9c028537d1be53e735bedf1ed50e655`,
+[CI 40400465375](https://github.com/Russianranger/fta-launcher/actions/runs/40400465375),
+[exact proof](evidence/host-2026-10-26-proot-ownership-pass.json).
+Normal tree exit is zero; original tracer death leaves all three tracees alive;
+patched tracer death terminates all three, including both detached session leaders.
+The same run repeats the full x86/x64 Wine process/IPC/owner-loss gate successfully.
+
+The Linux fixture builds only its native ELF64 loader and uses PROOT_LOADER;
+the optional ARM32 loader make dependency is disabled because ARM64 GCC has no
+`-m32`. Original arch.h and the Android build are unchanged by this fixture option.
+The local workspace denies PTRACE_TRACEME, so live qualification comes from this
+ARM64 CI artifact. This does not replace Android process-death/Stop observation.
 
 ## Distribution and next gate
 

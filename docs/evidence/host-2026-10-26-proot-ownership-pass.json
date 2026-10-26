@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "scope": "native-linux-proot-ownership",
+  "sourceArchiveSha256": "492043660b1370e1910c8b8ca2b93be1f637f4929034f575591f14e67e015243",
+  "sourceComponents": {
+    "proot-source.tar.gz": "d43ad342bb2e8f4d2afe6119b5ec3a1d8bb912d5897e2db7d2ddf928548c1c84",
+    "talloc-2.4.3.tar.gz": "dc46c40b9f46bb34dd97fe41f548b0e8b247b77a918576733c528e83abd854dd",
+    "build-proot.sh": "7ddcee055714f27c2a53fea816c8d43171efc54b655771e979735a30ba343319",
+    "native/proot-sysvipc.patch": "e8e3cb956bdb8b1bcbdf72a23b67ad86fc33fa51430f3a1ee37e1a053f5f0330",
+    "native/proot-acceleration.patch": "46ab8e6f80260044bccbd831e22a7fc3a376e45ef945772cac790485ab70306f"
+  },
+  "ownershipPatchSha256": "509160bd6ec3663d525fa0e795a7bb45b8ccc283a6de8e1398e8cd6624fe86de",
+  "buildJobs": 1,
+  "machine": "aarch64",
+  "linuxGuestScope": "native ELF64 only",
+  "normalTreeExit": 0,
+  "baseline": {
+    "detachedSessionLeaders": 2,
+    "tracees": 3,
+    "terminatedAfterTracerKill": 0
+  },
+  "fixed": {
+    "detachedSessionLeaders": 2,
+    "tracees": 3,
+    "terminatedAfterTracerKill": 3
+  },
+  "fixtureSha256": "b05ee00b73fb0f746c79872bf5ab4e88cb4998ff3e8f2089ec6a54dbf9b3d515",
+  "loaderSha256": "ac2009081fc0ccc6b3629e38738a562257335f7be560fd49f4388f43febe5615",
+  "baselineProotSha256": "15a4877538d8024741a3a9b4205f559138d6085040540556ddab268b4c6e9dc3",
+  "ownedProotSha256": "cb539415b7740a44ce44f96505caa5fee19a9fc19762152fa9ee3c71136ab7fe",
+  "linuxTracerDeathOwnershipQualified": true,
+  "androidBridgeExecuted": false,
+  "androidRuntimeQualified": false,
+  "originalHostExecuted": false,
+  "warcraftXLCompatible": false,
+  "gameLoginQualified": false,
+  "commit": "969660f0d9c028537d1be53e735bedf1ed50e655",
+  "runId": 40400465375,
+  "jobId": 121844638406,
+  "artifactId": 12687778865,
+  "artifactBytes": 21746,
+  "artifactSha256": "50c4f0b94d73aef5b10894fa7fecb8d53d4910df2af690b67080ce59cefedddb",
+  "syntheticWineRerunValidated": true,
+  "mixedWineFixtureSha256": {
+    "probe32.exe": "731931c453bc08fe194e9919edd5b8d9b25a35ba962983469fa42c5b5eefbc5d",
+    "probe64.exe": "33fa148a4dc8bc3da11f207da969410b9cbdb16833365ecad0d6e4c2c87a94fa"
+  }
+}

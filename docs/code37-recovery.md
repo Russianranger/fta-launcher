@@ -46,5 +46,6 @@ is source-only; its new helpers are not in the installed code-37 artifact.
 
 The 24 MiB/s aggregate governor and 1 MiB sync/readback/cache windows remain active
 for retained verification. Successful copying does not measure actual cache eviction
-or exercise forced-pressure backoff (zero pauses occurred). WarcraftXL execution,
-exact x64 host pairing, Wine/translator IPC and playable login remain later gates.
+or exercise forced-pressure backoff (zero pauses occurred). Original x64 host identity and isolated header compatibility are now pinned;
+[synthetic ARM64 Linux Wine IPC](client-mixed-runtime.md) also passed.
+Android Wine/WarcraftXL execution, graphics and playable login remain later gates.

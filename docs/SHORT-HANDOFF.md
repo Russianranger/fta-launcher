@@ -1,206 +1,126 @@
 # From the Ashes Android — current handoff
 
-Only **Russianranger/fta-launcher/main**. Owner authorizes qualified commits and
-pushes. AYN Thor, Android 13, ARM64. Read `AGENTS.md`, `game-data-import.md`,
-`private-diagnostics.md`, `native-world-gate.md`. Earlier history:
+Work only in **Russianranger/fta-launcher/main**. Owner authorizes qualified
+implementation, commits and pushes. AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
+[game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
+and [native gate](native-world-gate.md). Historical detail:
 [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Complete native world gate passed — physical code 34
+## Installed private build and passed physical gates
 
-Recovered remote/delivery commit **92b483507c20051b604ccbeda33f334283ec6929**;
-all three jobs in [CI 40155924517](https://github.com/Russianranger/fta-launcher/actions/runs/40155924517)
-passed. Application commit **0885153f71061751bb7e189ed8d8e52479badfcb**, all three
-jobs [CI 40155455259](https://github.com/Russianranger/fta-launcher/actions/runs/40155455259).
-Private `0.12.7-auction-count`, code 34, APK SHA256
-`45ade0fd1cb78c52527f46bfe0c0ac338c40d8948debb838d1bb0db85a6431a8`.
-[APK/source recovery](code34-recovery.md).
-
-New [physical proof](evidence/android-2026-10-25-thor-code34-world-pass.json):
-report SHA256 `382cf547ae370fc2f012c40528e84ad865e488953f784cc090db41ea16fd485d`,
-attempt `9e7570a8-23db-4a23-ab82-c44cbf360a02`. All 23 checks true; all five failure
-markers false. Native runtime, original database fallback, world readiness and
-screen-off gates are **qualified for this exact build**. 30 healthy receipt/native
-samples, 307,424 ms session, **259,192 ms healthy screen-off**. User Stop completed;
-owned world/auth/database all exited zero, SQL shutdown observed, listeners closed,
-temporary role removed, retained metadata/GT postchecks passed. No seed imported.
-World log 1,626,489 bytes, no ERROR/FATAL, two exact COUNT hints, no log-limit hit.
-Game login remains false. Do not repeat passed server or standalone DB/auth tests.
-
-## Current work — code 37 client integrity passed; runtime preparation
-
-Runtime-preparation implementation **d5382d5312e7ba5150adfffa397de57aa6045e8b**;
-all three jobs in [CI 40254380310](https://github.com/Russianranger/fta-launcher/actions/runs/40254380310)
-passed: **473 Android tests / one existing skip**, 41 suites, no errors/failures,
-lint/assembly/cache-helper checks, **186 tooling + 24 report tests**. Recovered
-remote before this increment was `30e79a7fb734b66d05dc9d15a64a16827e1160f6`.
-[Exact qualification](evidence/android-2026-10-25-client-runtime-preparation-ci.json).
-Latest installed private APK remains **37 / 0.13.2-client-memory**,
-59,073,805 bytes, SHA256
+Latest installed APK: **37 / 0.13.2-client-memory**, 59,073,805 bytes, SHA256
 `105bf65924ebabedb7dde71c2e3f880e463180a45ccf1fd4f7a6fe14b061cf0b`.
 [Verified APK/source recovery](code37-recovery.md). Application commit
-**39516bb1b0a499d84279ef9eefea0c5c9e9abcf4**. All 21 native payloads, 148 runtime
-entries and native source companion remain those of the passed native build.
+`39516bb1b0a499d84279ef9eefea0c5c9e9abcf4`, all three jobs in CI 40216989093 passed.
+All 21 native payloads and 148 runtime entries remain the passed native code-34 set.
+No new private APK is built for the preparation work below.
 
-[Import proof](evidence/android-2026-10-25-thor-code37-client-import-pass.json):
-report `04f6e4b88c6c8dcf8763e4fa606b37eccb1858efa79ea28109e2abbae040c3e9`,
-attempt `cb1d364a-4c5e-4ce0-9a4a-0e7c25fe3e3a`, all **10,476 files /
-60,243,212,332 bytes**, copied/read back/published in 9,604,969 ms (2h40m05s),
-4,898,874,959 bytes resumed. No matching exit; zero pressure pauses.
-
-New [retained proof](evidence/android-2026-10-25-thor-code37-client-retained-pass.json):
-report **98,093 bytes**, SHA256
-`8d8ee246c69891ac57d3c03f5bc75e5daeca77fdadf3b98e681aae23f5dfd09c`,
-attempt `a8fdcc27-89b7-4fbf-9cc2-a9dd3f8a2c90`, **3,309,796 ms (55m10s)**.
-Complete `operation=verify`, full counts/bytes, retainedRehashValidated=true.
-[Automated assessment](client-report-qualification.md) matched the import baseline;
-**clientIntegrityGateQualified=true**. Same catalog:
+**Client integrity fully passed on 37.**
+[Import](evidence/android-2026-10-25-thor-code37-client-import-pass.json):
+10,476 files / 60,243,212,332 bytes, 2h40m05s, 4,898,874,959 bytes resumed.
+[Retained full rehash](evidence/android-2026-10-25-thor-code37-client-retained-pass.json):
+same complete counts and catalog, 55m10s, peak reported RSS 186,548 KiB.
+Neither attempt has a matching Android exit. Catalog
 `fe49bee4d96be084cfda4740112f1a73a10b87ab222e51ccb8730be38c300f13`.
-No matching exit, peak reported RSS 186,548 KiB, zero pressure pauses. The older
-unmatched low-memory exit remains historical. Cache eviction and forced-pressure
-backoff are not measured. Native-world attempt/qualification remains intact.
+Old unmatched low-memory exits remain historical. Zero pressure pauses means
+forced-pressure backoff and actual cache eviction remain unmeasured.
 
-[Runtime preparation](client-runtime-preparation.md) now adds a fresh-rehash store
-lease for future readers and the original Wine DLL-override transformation.
-16 new Android regressions; 52 focused JVM tests passed under 64 MiB heap.
-An unchanged-original C++20 probe matches Kotlin across **1,038 cases**. No native
-payload, imported file, config, account or installed APK is changed. These helpers
-are source-only and not yet called by an executable runtime path. The next private
-APK must increase the version code; do not relabel a rebuild as the old artifact.
+**Complete native world gate passed on 34.**
+[Physical proof](evidence/android-2026-10-25-thor-code34-world-pass.json), attempt
+`9e7570a8-23db-4a23-ab82-c44cbf360a02`: all 23 checks true; original native database
+fallback, 113 DBC/8,922 GT rows, world readiness, 307,424 ms healthy session,
+259,192 ms healthy screen-off, controlled world/auth/database Stop with exit zero,
+SQL shutdown, closed listeners and retained metadata postchecks. No seed imported.
+All 52 source modules, C++20 and NPCBots preserved. Game login remains unqualified.
+[Private code-34 recovery](code34-recovery.md) contains exact APK/source identities.
 
-## Latest increment — exact host/proxy supplied; runtime stack next
-
-Recovered remote **ff50819e8591f6fb9e29543e05994c89b7a97681**, all three jobs in
-[CI 40257723937](https://github.com/Russianranger/fta-launcher/actions/runs/40257723937)
-passed: **486 Android tests / one existing skip**, 42 suites, lint/assembly/cache
-checks, 186 tooling + 43 qualification tests. Installed private APK remains 37.
-
-All three supplied binaries exactly match the imported Thor observations:
-WarcraftXL.dll SHA `9c935e27679a8161dbbdc3390bbb908d0ad444a5fe114ed0624c3db52656eedd`;
-root d3d9.dll SHA `4c3522dd17e2ef09cbe13ac82c1e4360c7beb98cbe7af7675d751d1f5bc330e8`;
-Utils/WarcraftXLHost.exe SHA `6349752018efba461a2ac4bf19a98d1293aa7c21f98cb90f50615f33a7701955`.
-[Host contract and reproduction](warcraftxl-host.md): host is the 1,071,104-byte
-x64 executable; other anonymous x64 candidate remains unassigned. Proxy supplies
-all six named imports. Host has 151 static imports from KERNEL32/USER32/WININET,
-matching five IPC name templates and protocol-4 headers. Its client-exit watcher
-is conditional on OpenProcess success; owned cleanup remains required.
-
-The DLL owns host launch from Utils with its Windows PID. Preserve one Wine
-prefix/session across x86 and x64; never substitute Android PID or prelaunch a
-separate host. Unchanged x64 channel/header instructions produce **1,140 headers
-across 104 synthetic initializations**, all matching the original x86 validator
-and Kotlin (855 accepted / 285 zero-PID negatives). Only bounded fragments run
-in Unicorn; no original host entry point, Windows API or live transport executes.
-[Static proof](evidence/host-2026-10-26-warcraftxl-host-contract.json),
-[isolated comparison](evidence/host-2026-10-26-warcraftxl-host-headers.json).
-Nine new qualification regressions; 52 qualification + 186 tooling tests pass
-locally. All live Wine/host/WarcraftXL/gameplay flags stay false.
-
-Host/header implementation **8516d8ff8abe8133a752179d25ce6817861cd83b** passed
-all three foundation jobs in [CI 40392773633](https://github.com/Russianranger/fta-launcher/actions/runs/40392773633).
-486 Android tests / one existing skip, lint/assembly/cache checks, 186 tooling and
-52 qualification tests. [Host comparison](warcraftxl-host.md) remains isolated.
-
-## Latest completed runtime gate; Android bridge build
-
-**eddd5be4de75b427660e3489e6bc4d85f3497780** passes
-[ARM64 runtime CI 40396385255](https://github.com/Russianranger/fta-launcher/actions/runs/40396385255).
-[Exact evidence](evidence/host-2026-10-26-mixed-wine-runtime-pass.json): original
-pinned Wine/FEX archive unchanged; x86 and x64 entry exit zero; x86 parent creates
-x64 child, 64/512 IPC round trips for 2/16 channels; explicit Stop child exit 37;
-parent loss child exit 38. Original client/host files never enter CI. Linux
-synthetic gate only; Android runtime/WarcraftXL/gameplay remain unqualified.
-[Foundation CI 40396385180](https://github.com/Russianranger/fta-launcher/actions/runs/40396385180)
-passed all three jobs for the same implementation: 486 Android tests / one
-existing skip, lint/assembly/cache checks, 186 tooling and 62 qualification tests.
-
-Earlier entry failures were a test-environment defect: chroot omitted sysfs,
-Wine did not create `CentralProcessor\0`, both FEX DLLs asserted "Couldn't detect
-CPU features". Corrected CI binds real sysfs read-only and preflights topology/
-registry; no invented CPU values or runtime patches. [Diagnosis and scope](client-mixed-runtime.md).
-Archive audit: 14,092 entries / 2,637,799,241 file bytes, 12 critical identities;
-all three source archives recovered with measured matching hashes; 62 qualification
-tests. All original source/metadata rules preserved.
-
-Bridge implementation **4d58963feb930ac6d97bc824f38dcfe7608d55f6** passed all three
-jobs in [CI 40397497203](https://github.com/Russianranger/fta-launcher/actions/runs/40397497203):
-197 tooling, 62 qualification, 486 Android tests / one existing skip, lint/assembly.
-
-New [Android bridge build](client-android-bridge.md) uses pinned PRoot/talloc,
-original patches, NDK r28c/API26, one job with memory check. Both output ELF load
-alignments are 16 KiB; main Android PIE depends only on libc/libdl, loader is static
-ARM64 ET_EXEC with checked entry/stack/segments. [Build proof](evidence/host-2026-10-26-android-client-bridge-build.json).
-`tools/build_client_bridge.py` reproduces the build from the public corresponding
-source archive and pinned NDK in a new private directory. Eleven new regressions
-(197 tooling total). No output binary is staged in Git or an APK; Android execution
-is false. The old public loader had only 4 KiB alignment and is not reused.
-
-Follow-up closes a PRoot ownership gap: `native/client-bridge/proot-exitkill.patch`
-adds mandatory PTRACE_O_EXITKILL to both default option attempts, so kernel
-cleanup covers tracer SIGKILL and detached descendants. Updated Android build
-proof pins tracer SHA `46dcafabc77b386a7127f6cb7c71bdac03c372ff6bb4db0e1e9493ee29332adb`;
-loader unchanged. Native Linux original/fixed builds succeed locally, but this
-workspace denies ptrace(TRACEME), so runtime ownership is pending the new ARM64 CI
-step. It tests a normal tree exit and tracer SIGKILL with three tracees/two
-independent sessions, retains pidfds, and requires baseline survivors=3/fixed=0.
-Do not infer Android survival/cleanup from a static build or Linux fixture.
-
-First ownership CI on **65f1b28bdae8bea347900bf84626b1060053fffb**,
-[run 40398769251](https://github.com/Russianranger/fta-launcher/actions/runs/40398769251),
-stopped during the host build: its bundled-loader target invoked unsupported
-`gcc -m32` on ARM64. The regression now matches Android's existing unbundled
-native-loader mode and supplies the exact native loader through PROOT_LOADER.
-No ARM32 Linux execution is needed for the ARM64 Wine/FEX guest. Inspect the
-follow-up CI before claiming ownership qualified; the prior Wine gate stays passed.
-The native test also explicitly clears the makefile's optional
-`HAS_LOADER_32BIT` build dependency: unbundling alone still selected `-m32` in
-[CI 40399293217](https://github.com/Russianranger/fta-launcher/actions/runs/40399293217).
-This scopes only the Linux ELF64 fixture build; original arch.h, Android builds
-and Wine's Windows x86/FEX path remain unchanged.
-Native-only build/normal tree exit pass in
-[CI 40399897060](https://github.com/Russianranger/fta-launcher/actions/runs/40399897060).
-Its kill test then stops at the fixture identity guard: original PRoot execs its
-loader, so kernel `/proc/PID/exe` is not the requested program. The follow-up
-requires the known entry image plus the fixture's exact executable mapping,
-with three regressions rejecting unrelated/deleted/read-only/oversized inputs.
-Only verified pidfds enter the cleanup signal set. Ownership pass remains pending.
-
-**Next:** complete exact distribution source/notice companion, then the owned
-Android diagnostic service, bounded runtime installer and disposable prefix to
-qualify synthetic mixed processes on Thor. Continue using the existing native
-process bridge for parent death and Stop. Later create a separate writable client
-view under the verified-client lease; no writable hard links or unbounded 60 GB
-copy. The full 1.1 GB client source is not currently required. Installed private
-APK remains 37; do not change its identity or repeat passed gates.
-
-**No physical retest requested.** Keep installed 37. Do not repeat client import,
-retained rehash, native world, DB/auth, screen-off or game-data gates. Preserve
-all source files, configs, managed client, realm, native dependencies and backups.
-
-## Recovery and safety
-
-[Code-32 cache/source recovery](code32-recovery.md) remains the v14 build baseline.
-Restore its pinned NDK and timestamps before Ninja. Apply reviewed 0019 to the
-source and rebuild one seller object plus relinks for v15; do not rebuild the
-whole graph unnecessarily. The local cached path may still be named world-v14;
-verify its actual v15 source inventory and build report, never infer profile from
-its directory name. One job by default/max two after memory check; no concurrent
-heavy native builds. Preserve all native link dependencies and old updater pins.
-
-Persistent signing capsule: `FTA-Launcher-Development-Signing.zip`,
-`libfile_7f9c88258f0c8191a09ab071e7447d30`. Never regenerate or expose credentials.
-Certificate `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
-Private source, compiled binaries, database archives/configurations and assets
-stay outside public Git. Public CI APKs are foundation previews only.
-
-## Preserved milestones
-
-Code 26 passed import/preflight/publication; later sessions fully rehashed all
-files. Archive `407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`;
+All 22,817 server assets / 7,625,943,031 bytes passed import and full rehash.
+Original Data.zip SHA
+`407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`;
 catalog `0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff`.
-Host original DBC loaders and restored exact MariaDB loaded all 8,922 GT floats
-bit-for-bit, with empty-table negatives and ASan. Physical database/updater, realm
-reuse, backup/restore, process-death recovery, local auth and Stop/restart already
-passed. Client import and retained rehash passed; Wine/WarcraftXL execution and playable
-login remain pending.
-Deferred Attriboost Settings field 8 vs 9 bug remains gameplay work. No private
-binaries, assets, SQL, credentials or player data may enter Git.
+Database/updater, realm reuse, backup/restore, process-death recovery and local
+auth/Stop/restart already passed. **Do not repeat these physical gates.**
+
+## Current client-runtime preparation
+
+[Host/DLL/proxy contract](warcraftxl-host.md) pins the supplied original binaries
+against Thor's imported observations. The original x64 host is 1,071,104 bytes,
+SHA `6349752018efba461a2ac4bf19a98d1293aa7c21f98cb90f50615f33a7701955`.
+Original host instructions generated 1,140 header comparisons (855 accepted /
+285 zero-PID negatives), all matching the original x86 DLL validator and Kotlin.
+This is isolated fragment/static evidence, not original-host execution or graphics.
+The DLL must launch Utils/WarcraftXLHost.exe with its **Windows** PID in the same
+Wine prefix/session. Never substitute Android PID or prelaunch a separate host.
+The original host's exit watcher is conditional; independent owned cleanup is needed.
+The full 1.1 GB client source is not currently required.
+
+[Verified-client lease and original Wine override transformation](client-runtime-preparation.md)
+are source helpers; imported files/configs remain unchanged. Runtime candidate
+[lock/audit](client-mixed-runtime.md) pins the public Wine/FEX archive, all
+14,092 entries / 2,637,799,241 file bytes, 12 critical component identities and
+three recovered source archives. All original runtime binaries remain unchanged.
+
+**Synthetic native ARM64 Linux Wine gate passed:** implementation
+`eddd5be4de75b427660e3489e6bc4d85f3497780`,
+[CI 40396385255](https://github.com/Russianranger/fta-launcher/actions/runs/40396385255),
+[exact proof](evidence/host-2026-10-26-mixed-wine-runtime-pass.json).
+x86/x64 entry exit zero; x86 parent creates x64 child; 64/512 IPC round trips at
+2/16 channels; explicit child Stop exit 37; parent loss child exit 38.
+The initial FEX assertion was missing sysfs/CPU registry in the disposable chroot;
+real read-only sysfs fixes it without invented CPU values or binary patches.
+No original client/host binary enters CI. Android runtime, graphics, original
+WarcraftXL transport and gameplay remain unqualified.
+
+[Android PRoot bridge build](client-android-bridge.md) uses pinned PRoot/talloc,
+original compatibility patches, NDK r28c/API26 and one compiler job. Both load
+alignments are 16 KiB. Android PIE tracer depends only on libc/libdl; its static
+ARM64 ET_EXEC loader has checked entry, segment bounds and non-executable stack.
+[Exact build proof](evidence/host-2026-10-26-android-client-bridge-build.json).
+Tracer SHA `46dcafabc77b386a7127f6cb7c71bdac03c372ff6bb4db0e1e9493ee29332adb`;
+loader SHA `614591192bb34c98cc6cef528fb74ecfc1c97d0fabf4e352df1f16873c71d447`.
+The old public 4 KiB loader is not reused. Outputs stay outside Git and are not
+staged in an APK. `tools/build_client_bridge.py` rebuilds from the pinned archives
+in a new private directory; rebuilt identities must be measured afresh.
+
+**Tracer-death ownership passed on native ARM64 Linux:** implementation
+`969660f0d9c028537d1be53e735bedf1ed50e655`,
+[CI 40400465375](https://github.com/Russianranger/fta-launcher/actions/runs/40400465375),
+[exact evidence](evidence/host-2026-10-26-proot-ownership-pass.json).
+Mandatory PTRACE_O_EXITKILL closes the original tracer-SIGKILL gap: baseline
+survivors=3, patched survivors=0, including two detached session leaders; normal
+exit remains zero. Exact entry/mapping identities are checked before retaining
+cleanup pidfds. The native ELF64 regression uses the separate native loader;
+it does not qualify ARM32 Linux or Android execution. The same CI reran the
+complete Windows x86/x64 process/IPC gate successfully.
+
+All three [foundation jobs 40400465293](https://github.com/Russianranger/fta-launcher/actions/runs/40400465293)
+passed for **969660f0d9c028537d1be53e735bedf1ed50e655**: 200 tooling tests,
+62 qualification tests, 486 Android tests / one existing skip, lint/assembly,
+cache-helper/JNI and packaged-input checks. This checkpoint adds only evidence
+and documentation after that implementation. Inspect remote main on recovery;
+never infer the installed private APK from public CI output.
+
+## Next concrete gate and recovery rules
+
+Complete the exact distribution source/notice companion, then implement the
+owned Android diagnostic service, bounded runtime installation and disposable
+Wine prefix. Qualify synthetic mixed processes on Thor before original host/
+graphics claims. Use the existing native process bridge and the new PRoot
+ownership requirement for parent death/Stop; Linux evidence does not qualify
+Android cleanup. Later create a separate writable client view under the verified
+lease: no writable hard links, mutations of imported originals or unbounded
+60 GB copy. Preserve all realm/accounts/backups and never replay a fresh seed.
+Deferred Attriboost Settings field 8 vs 9 remains gameplay work.
+
+Keep installed 37; **no physical retest requested now**. A new private APK must
+use version code >=38 and the original signing capsule
+`FTA-Launcher-Development-Signing.zip`, `libfile_7f9c88258f0c8191a09ab071e7447d30`.
+Certificate `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
+Never regenerate keys, expose credentials or label public foundation CI APKs as
+private diagnostics. No private binaries/assets/configs/SQL/player data enter Git.
+
+Native cache/source recovery: [code32 baseline](code32-recovery.md), followed by
+reviewed 0019 seller-count patch/v15 relinks from [code34](code34-recovery.md).
+Restore pinned NDK/timestamps and inspect actual source/build inventory before
+Ninja; a cache directory name is not evidence of its version. Native builds use
+one job by default/max two after memory checks; never concurrent heavy builds.
