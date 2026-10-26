@@ -105,6 +105,17 @@ class ClientInspectionTest {
     @Test fun genericExecutableNamesAreNeverExportedAsRoles() {
         assertEquals("auxiliary-executable-1", ClientInventory().add("Private Name/asset-host.exe", false, 64))
     }
+    @Test fun originalDllHostPathGetsAFixedBinaryRole() {
+        val inventory = ClientInventory()
+        assertEquals("asset-host", inventory.add("Utils/WarcraftXLHost.exe", false, 64))
+        assertTrue(ClientInventory.isBinary("asset-host"))
+        assertEquals(0, inventory.executableCandidates)
+        assertEquals("asset-host", ClientInventory().add("UTILS/WARCRAFTXLHOST.EXE", false, 64))
+    }
+    @Test fun hostNameInOtherLocationStaysAnonymous() {
+        assertEquals("auxiliary-executable-1", ClientInventory().add("WarcraftXLHost.exe", false, 64))
+        assertEquals("auxiliary-executable-1", ClientInventory().add("Other/WarcraftXLHost.exe", false, 64))
+    }
     @Test fun executableCountBounded() {
         val inventory = ClientInventory(); repeat(32) { inventory.add("$it.exe", false, 64) }
         rejected { inventory.add("33.exe", false, 64) }

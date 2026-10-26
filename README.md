@@ -211,12 +211,13 @@ tables. Validation uses the measured archive inventory.
 | Retained native world/auth/database session | Physical code 34 passed controlled startup, 259.2 s healthy screen-off, clean Stop and retained postconditions |
 | Supervised persistent server APK and local account provisioning | Open |
 | Complete client import and retained full rehash | Physical code 37 passed all 10,476 files / 60,243,212,332 bytes, same catalog |
-| Exact WarcraftXL x64 asset-host pairing and Wine runtime | Open; original runtime bundle/source needed |
+| Exact WarcraftXL x64 asset-host pairing and Wine runtime | Open; matching DLL identifies Utils/WarcraftXLHost.exe and protocol 4; host EXE/root proxy needed |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
 No repeat of the passed import, retained rehash, server or screen-off gates is
-needed. The next input is the original WarcraftXL runtime bundle/source matching
-the inspected client, to establish the x64 asset host and IPC contract. Keep the
+needed. The [matching DLL now identifies the host path and protocol](docs/warcraftxl-contract.md).
+The next input is Utils/WarcraftXLHost.exe and the root d3d9.dll proxy from the
+same client; the full source archive can wait. Keep the
 installed private code 37 until a qualified runtime update is delivered. Preserve
 C++20, all 52 modules, static Lua 5.2, source identities and strict server checks.
 

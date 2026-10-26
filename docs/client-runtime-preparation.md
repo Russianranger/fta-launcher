@@ -86,17 +86,17 @@ The report contains two anonymous x64 executables:
 | 1,071,104 | `6349752018efba461a2ac4bf19a98d1293aa7c21f98cb90f50615f33a7701955` | Absent |
 | 801,792 | `773a73824dbdb3b909b4d9120080483be316c6451d71938fd11010a68a56c497` | 1.8.34.0 |
 
-Neither architecture, size, version nor presence identifies the matched asset
-host or proves its IPC contract. The recovered launcher source does not name or
-spawn that host directly. The matching WarcraftXL runtime/source package is not
-available in the recovered inputs; Library searches did not locate it. Public
-WarcraftXL development sources cannot establish this customized binary's identity.
+Neither architecture, size, version nor presence alone assigns either binary to
+the host role. The owner has now supplied the exact matching WarcraftXL.dll.
+[Static inspection and original-code comparison](warcraftxl-contract.md) establish
+**Utils/WarcraftXLHost.exe**, automatic `--client-pid` launch by the DLL, protocol 4,
+and six custom root-proxy imports. The DLL's 71-byte header validator matches the
+new Kotlin snapshot checker across 1,456 isolated emulation cases.
 
-Obtain the **original WarcraftXL runtime bundle/source matching this client**,
-including its proxy, WarcraftXL.dll, x64 host and adjacent runtime dependencies.
-The 60 GB MPQ/game-data set, realm database, accounts and private settings are not
-needed for this source/binary inspection. Match the already recorded component
-hashes before selecting a host path or adapting its behavior.
+The next input is now only **Utils/WarcraftXLHost.exe and root d3d9.dll** from this
+same client. Match their hashes and export/import contract before host pairing.
+The full source archive, 60 GB MPQs and private configs are unnecessary for that
+inspection. The supplied configuration files remain unchanged and outside Git.
 
 Then pin the ARM64 Wine/translator/display stack and notices, implement a writable
 client view without changing the preserved import, supervise the complete process

@@ -37,9 +37,10 @@ class ClientInventory {
 
     companion object {
         val roles = mapOf("wow.exe" to "wow", "d3d9.dll" to "proxy", "warcraftxl.dll" to "warcraftxl",
+            "utils/warcraftxlhost.exe" to "asset-host",
             "utils/warcraftxl/backends/dxvk/d3d9.dll" to "dxvk", "warcraftxl.cfg" to "warcraftxl-config",
             "wtf/config.wtf" to "wow-config")
-        fun isBinary(role: String) = role in setOf("wow", "proxy", "warcraftxl", "dxvk") || role.startsWith("auxiliary-executable-")
+        fun isBinary(role: String) = role in setOf("wow", "proxy", "warcraftxl", "dxvk", "asset-host") || role.startsWith("auxiliary-executable-")
         fun matchesWow(info: PeMetadata.Info?) = info?.architecture == "x86" && !info.dll && info.fileVersion == "3.3.5.12340"
     }
 }

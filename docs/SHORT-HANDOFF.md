@@ -67,14 +67,35 @@ payload, imported file, config, account or installed APK is changed. These helpe
 are source-only and not yet called by an executable runtime path. The next private
 APK must increase the version code; do not relabel a rebuild as the old artifact.
 
-**Next input:** original WarcraftXL runtime bundle/source matching the inspected
-client, including x64 host. The recovered Launcher.zip establishes proxy/config
-behavior, but not exact host path/launch/IPC. Two x64 hashes are recorded; do not
-infer identity from version 1.8.34.0. No matching bundle was found in recovered
-inputs/Library searches. The full 60 GB assets and private configs are unnecessary
-for this inspection. Next agent: match supplied component hashes, establish host
-pairing, then prepare pinned Wine/translator and a separate writable runtime view
-with owned process cleanup. WarcraftXL compatibility and gameplay remain false.
+## Latest increment — matched DLL narrows the runtime inputs
+
+Recovered remote **831c19983a71c90743adedc1777a8b259df0b329**; all jobs in
+[CI 40254785782](https://github.com/Russianranger/fta-launcher/actions/runs/40254785782)
+passed. The owner supplied WarcraftXL.dll, WarcraftXL.cfg and WarcraftXL Control.ini.
+The DLL's **2,259,968 bytes / SHA256
+`9c935e27679a8161dbbdc3390bbb908d0ad444a5fe114ed0624c3db52656eedd`** match Thor.
+[Exact contract and reproduction](warcraftxl-contract.md): DLL-relative
+**Utils/WarcraftXLHost.exe**, DLL-owned CreateProcessA with `--client-pid`,
+Utils working directory, inherited environment, six custom root d3d9 exports.
+Do not separately launch a guessed host or pass an Android PID in place of the
+client's Windows PID. The complete 1.1 GB source archive is unnecessary for this step.
+
+The original 71-byte x86 header validator requires magic 0x4c585857, protocol 4,
+2..16 channels and a nonzero host process word in a 64-byte snapshot. The unchanged
+leaf was emulated in isolation: **1,456 cases** match Kotlin exactly; no full DLL,
+Wine or client was executed. 12 new Android regressions and 19 new Python PE-reader
+regressions pass; 86 focused JVM tests, 43 report/linkage tests and 186 tooling tests
+pass locally. Host pairing, live IPC, Wine/WarcraftXL and gameplay remain false.
+Only the exact Utils host path receives a fixed future inspection role; import
+requirements, plans, checkpoints, original files and installed code 37 are unchanged.
+
+**Next minimal input:** `Utils/WarcraftXLHost.exe` and **root `d3d9.dll` beside
+Wow.exe**, from this same client. Root proxy expected 202,240 bytes / SHA256
+`4c3522dd17e2ef09cbe13ac82c1e4360c7beb98cbe7af7675d751d1f5bc330e8`.
+Do not substitute the nested DXVK DLL. Next agent: run the static checker with
+`--proxy`, match host hash to the two anonymous x64 observations, inspect the host
+protocol/imports, then continue pinned Wine/translator and a separate writable
+runtime view with owned cleanup. Configs remain private; no config/hash export.
 
 **No physical retest is requested.** Keep installed code 37. Do not repeat import,
 retained client rehash, server, DB/auth, screen-off or game-data gates. Preserve
