@@ -105,6 +105,15 @@ native ARM64 Linux synthetic x86-parent/x64-child process/IPC/owner-exit CI gate
 regressions pass (62 qualification total). New mixed-runtime execution is pending
 its exact CI result; no original client binary enters CI or new APK.
 
+Mixed-runtime implementation **06c7df159c67f4e940bc3008f3ad57d21c15d28e** exposed
+an x86 startup blocker in [ARM64 CI 40394208422](https://github.com/Russianranger/fta-launcher/actions/runs/40394208422):
+both fixtures compile, runtime audit/prefix complete, then the x86 fixture reports
+a Wine stack overflow before IPC. Do not count this as a mixed-runtime pass or
+an original-client failure. The follow-up records independent x86/x64 entry probes,
+loaded modules, page size and the two translator registry keys in the disposable
+prefix to localize the cause. Exact Wine source already contains both FEX defaults;
+do not assume a missing translator selection without the measured registry/logs.
+
 **Next:** inspect the exact mixed-runtime CI, resolve any measured failures, then
 pin Android PRoot/loader/source inputs and prepare the owned service plus a separate
 writable runtime view; never mutate/hard-link

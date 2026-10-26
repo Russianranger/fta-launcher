@@ -122,6 +122,10 @@ done:
 }
 
 int main(int argc, char **argv) {
+    if (argc == 2 && strcmp(argv[1], "--self-test") == 0) {
+        if (sizeof(void *) != 4) return 13;
+        puts("FTA_SYNTHETIC_X86_ENTRY_OK"); return 0;
+    }
     if (argc == 2 && strcmp(argv[1], "--abandon") == 0) return parent(2, 1);
     if (argc == 2 && strcmp(argv[1], "2") == 0) return parent(2, 0);
     if (argc == 2 && strcmp(argv[1], "16") == 0) return parent(16, 0);
@@ -209,6 +213,10 @@ static int word(const char *input, DWORD *out) {
 }
 
 int main(int argc, char **argv) {
+    if (argc == 2 && strcmp(argv[1], "--self-test") == 0) {
+        if (sizeof(void *) != 8) return 33;
+        puts("FTA_SYNTHETIC_X64_ENTRY_OK"); return 0;
+    }
     if (argc == 2 && strcmp(argv[1], "--observe-owner-exit") == 0) return observer();
     DWORD pid = 0, channels = 0;
     if (argc == 5 && strcmp(argv[1], "--client-pid") == 0 && strcmp(argv[3], "--channels") == 0 &&
