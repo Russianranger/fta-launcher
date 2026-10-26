@@ -5,6 +5,8 @@ export PATH=/opt/wine/bin:/usr/bin:/bin HOME=/root LANG=C.UTF-8
 export WINEPREFIX=/fta-ci-prefix WINEARCH=win64 DISPLAY=:8
 export WINEDEBUG=-all,err+all WINEDLLOVERRIDES='winemenubuilder,mshtml,mscoree='
 export WINEESYNC=0 WINEFSYNC=0 FEX_DISABLETELEMETRY=1
+# FEX defaults to silent logging; retain its original assertion text in CI.
+export FEX_SILENTLOG=0
 test ! -e "$WINEPREFIX"
 mkdir -p /probe/logs /tmp
 chmod 1777 /tmp
@@ -35,10 +37,11 @@ timeout 180 wine wineboot.exe -u > /probe/logs/prefix.log 2>&1
 getconf PAGESIZE > /probe/logs/page-size.log
 timeout 30 wine reg.exe query 'HKLM\Software\Microsoft\Wow64\x86' /ve /reg:64 > /probe/logs/x86-translator.log 2>&1 || true
 timeout 30 wine reg.exe query 'HKLM\Software\Microsoft\Wow64\amd64' /ve /reg:64 > /probe/logs/x64-translator.log 2>&1 || true
+timeout 30 wine reg.exe query 'HKLM\Hardware\Description\System\CentralProcessor\0' /reg:64 > /probe/logs/cpu-features.log 2>&1 || true
 set +e
 WINEDEBUG=-all,err+all,trace+loaddll,trace+seh timeout 90 wine /probe/probe32.exe --self-test > /probe/logs/x86-entry.log 2>&1
 FTA_X86_RESULT=$?
-WINEDEBUG=-all,err+all,trace+loaddll timeout 90 wine /probe/probe64.exe --self-test > /probe/logs/x64-entry.log 2>&1
+WINEDEBUG=-all,err+all,trace+loaddll,trace+seh timeout 90 wine /probe/probe64.exe --self-test > /probe/logs/x64-entry.log 2>&1
 FTA_X64_RESULT=$?
 set -e
 printf 'x86Exit=%s x64Exit=%s\n' "$FTA_X86_RESULT" "$FTA_X64_RESULT" > /probe/logs/entry-status.log

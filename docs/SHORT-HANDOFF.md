@@ -114,6 +114,17 @@ loaded modules, page size and the two translator registry keys in the disposable
 prefix to localize the cause. Exact Wine source already contains both FEX defaults;
 do not assume a missing translator selection without the measured registry/logs.
 
+Diagnostic commit **93621ec23991d5bc20c07485c3581e923c527163** passed all three
+foundation jobs in [CI 40394773697](https://github.com/Russianranger/fta-launcher/actions/runs/40394773697).
+[Runtime CI 40394773739](https://github.com/Russianranger/fta-launcher/actions/runs/40394773739)
+measures 4 KiB pages and both correct FEX registry selections. Independent entry
+probes fail before fixture code: x86 stack overflow (exit 1), x64 FEX
+`ForcedAssert` at module RVA `0x169ff4` (exit 29). The latter is an intentional
+assertion trap, not evidence of an unsupported CPU instruction. Exact FEX source
+defaults `SilentLog=true`; the follow-up enables its supported `FEX_SILENTLOG=0`
+diagnostics and captures the synthetic prefix's CPU feature registry and x64 SEH.
+Do not bypass the assertion or alter original binaries without identifying it.
+
 **Next:** inspect the exact mixed-runtime CI, resolve any measured failures, then
 pin Android PRoot/loader/source inputs and prepare the owned service plus a separate
 writable runtime view; never mutate/hard-link
