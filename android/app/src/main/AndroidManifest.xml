@@ -35,6 +35,8 @@
         </service>
         <service android:name=".client.ClientImportService" android:process=":client"
             android:exported="false" android:stopWithTask="false" android:foregroundServiceType="dataSync" />
+        <service android:name=".client.ClientRuntimeService" android:process=":clientruntime"
+            android:exported="false" android:stopWithTask="false" android:foregroundServiceType="dataSync" />
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

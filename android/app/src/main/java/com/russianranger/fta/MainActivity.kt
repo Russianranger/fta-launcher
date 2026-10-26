@@ -13,6 +13,8 @@ import com.russianranger.fta.runtime.RuntimeDiagnosticService
 import com.russianranger.fta.runtime.RuntimeRecoveryService
 import com.russianranger.fta.client.ClientImportService
 import com.russianranger.fta.client.ClientImportReport
+import com.russianranger.fta.client.ClientRuntimeService
+import com.russianranger.fta.client.ClientRuntimeReport
 import java.io.File
 import android.content.Intent
 import android.content.ComponentName
@@ -47,6 +49,21 @@ class MainActivity : Activity() {
     private lateinit var clientVerifyButton: Button
     private lateinit var clientStopButton: Button
     private lateinit var clientImportStatus: TextView
+    private lateinit var runtimePrepareButton: Button
+    private lateinit var runtimeVerifyButton: Button
+    private lateinit var runtimeStopButton: Button
+    private lateinit var clientRuntimeStatus: TextView
+    private var runtimeRequestedAt = 0L
+    private var runtimeBound = false
+    private val runtimeConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: android.os.IBinder?) { }
+        override fun onServiceDisconnected(name: ComponentName?) { releaseRuntimeBinding() }
+        override fun onBindingDied(name: ComponentName?) { releaseRuntimeBinding() }
+        override fun onNullBinding(name: ComponentName?) { releaseRuntimeBinding() }
+    }
+    private fun releaseRuntimeBinding() {
+        if (runtimeBound) { runtimeBound = false; runCatching { unbindService(runtimeConnection) } }
+    }
     private var clientRequestedAt = 0L
     private var clientBound = false
     private val clientConnection = object : ServiceConnection {
@@ -278,6 +295,14 @@ class MainActivity : Activity() {
         status.addView(clientStopButton)
         clientImportStatus = label("", 13, muted)
         status.addView(clientImportStatus)
+        runtimePrepareButton = action("Prepare client runtime") { startClientRuntime(false) }
+        runtimeVerifyButton = action("Verify client runtime") { startClientRuntime(true) }
+        runtimeStopButton = action("Stop client runtime preparation") {
+            startService(Intent(this, ClientRuntimeService::class.java).setAction(ClientRuntimeService.STOP))
+        }
+        status.addView(runtimePrepareButton); status.addView(runtimeVerifyButton); status.addView(runtimeStopButton)
+        clientRuntimeStatus = label("", 13, muted); status.addView(clientRuntimeStatus)
+        status.addView(label("Downloads the verified 613 MB Wine/FEX runtime into separate private storage. Allow 5 GiB free and keep this screen visible. Preparation does not start the client or repeat its import.", 13, muted))
         status.addView(label("Import copies the complete client into private internal storage and verifies every byte. Keep at least the client's size plus 1 GiB free. Keep this screen visible. Stop preserves checkpoints; select the same unchanged folder to resume. Your original files and settings remain unchanged. Client launch comes later.", 13, muted))
         status.addView(label("Select your complete extracted client folder containing Wow.exe. Keep this screen open, then export the diagnostic report. This read-only check counts files and inspects executable metadata; full import and client launch come later.", 13, muted))
         progressLabel = label("", 14, ink)
@@ -319,6 +344,7 @@ class MainActivity : Activity() {
         activityVisible = false
         gameDataBinding.release()
         releaseClientBinding()
+        releaseRuntimeBinding()
         app.observer = null
         refresh.removeCallbacks(refresher)
         super.onStop()
@@ -334,7 +360,9 @@ class MainActivity : Activity() {
         val runtimeTesting = databaseCheckRunning()
         val clientRunning = ClientImportService.running(this)
         val clientRequested = clientRequestedAt != 0L && SystemClock.elapsedRealtime() - clientRequestedAt < 3000
-        val testing = runtimeTesting || clientRunning || clientRequested
+        val clientRuntimeRunning = ClientRuntimeService.running(this)
+        val runtimeRequested = runtimeRequestedAt != 0L && SystemClock.elapsedRealtime() - runtimeRequestedAt < 3000
+        val testing = runtimeTesting || clientRunning || clientRequested || clientRuntimeRunning || runtimeRequested
         val requested = requestedAt != 0L && SystemClock.elapsedRealtime() - requestedAt < 3000
         diagnosticButton.isEnabled = app.packagedRuntime?.manifest?.bootstrap != null && !app.busy && !testing && !requested
         lifecycleDiagnosticButton.isEnabled = diagnosticButton.isEnabled
@@ -370,6 +398,26 @@ class MainActivity : Activity() {
         clientImportButton.isEnabled = gameDataButton.isEnabled && !File(filesDir, "client-store/active").isFile
         clientVerifyButton.isEnabled = gameDataButton.isEnabled && File(filesDir, "client-store/active").isFile
         clientStopButton.isEnabled = clientRunning || clientRequested
+        runtimePrepareButton.isEnabled = gameDataButton.isEnabled && !File(filesDir, "client-runtime-store/ready").isDirectory
+        runtimeVerifyButton.isEnabled = gameDataButton.isEnabled && File(filesDir, "client-runtime-store/ready").isDirectory
+        runtimeStopButton.isEnabled = clientRuntimeRunning || runtimeRequested
+        if (activityVisible && clientRuntimeRunning && !runtimeBound) {
+            runtimeBound = true
+            try {
+                if (!bindService(Intent(this, ClientRuntimeService::class.java).setAction(ClientRuntimeService.BIND),
+                    runtimeConnection, BIND_IMPORTANT or BIND_ADJUST_WITH_ACTIVITY)) releaseRuntimeBinding()
+            } catch (_: Exception) { releaseRuntimeBinding() }
+        } else if (!activityVisible || !clientRuntimeRunning) releaseRuntimeBinding()
+        val runtimeReport = ClientRuntimeReport.export(this, includeExitHistory = false)
+        clientRuntimeStatus.text = when {
+            runtimeRequested && !clientRuntimeRunning -> "Starting runtime worker…"
+            clientRuntimeRunning && runtimeReport.optBoolean("memoryPaused") -> "Runtime preparation paused for memory pressure. Stop is available."
+            clientRuntimeRunning -> "${runtimeReport.optString("state")}: ${runtimeReport.optLong("bytes") / 1048576} / ${runtimeReport.optLong("totalBytes") / 1048576} MiB."
+            runtimeReport.optString("state") == "complete" -> "Runtime files verified. Native client execution remains unqualified."
+            runtimeReport.optString("state") in setOf("failed", "stopped") -> "Runtime operation ${runtimeReport.optString("state")}: ${runtimeReport.optString("reason")}. Export the report."
+            runtimeReport.optBoolean("available") -> "Runtime preparation interrupted. Export the report before retrying."
+            else -> "Client runtime is not prepared."
+        }
         if (activityVisible && clientRunning && !clientBound) {
             clientBound = true
             try {
@@ -488,7 +536,7 @@ class MainActivity : Activity() {
     }
 
     private fun startDatabaseCheck(includeAuth: Boolean = false, includeFullSeed: Boolean = false, includeWorldUpdater: Boolean = false, includeLifecycle: Boolean = false, includeRecovery: Boolean = false, includeRealm: Boolean = false, includeBackup: Boolean = false, includeLocalAuth: Boolean = false, includeLocalService: Boolean = false, includeGameData: Boolean = false, includeWorldService: Boolean = false) {
-        if (ClientImportService.running(this) || app.busy) return
+        if (ClientImportService.running(this) || ClientRuntimeService.running(this) || app.busy) return
         try {
             if (includeGameData) startForegroundService(Intent(this, RuntimeDiagnosticService::class.java)
                 .setAction(if (pendingGameDataUri == null) RuntimeDiagnosticService.ACTION_VERIFY_GAME_DATA else RuntimeDiagnosticService.ACTION_IMPORT_GAME_DATA)
@@ -521,7 +569,7 @@ class MainActivity : Activity() {
         if (resultCode != RESULT_OK) return
         if (requestCode == 108) { data?.data?.let { startClientImport(it) }; return }
         if (requestCode == 107) {
-            if (!databaseCheckRunning() && !ClientImportService.running(this)) data?.data?.let { app.inspectClient(it) }
+            if (!databaseCheckRunning() && !ClientImportService.running(this) && !ClientRuntimeService.running(this)) data?.data?.let { app.inspectClient(it) }
             return
         }
         if (requestCode == 106) { data?.data?.let { pendingGameDataUri = it; requestDatabaseCheck(includeGameData = true) }; return }
@@ -532,8 +580,19 @@ class MainActivity : Activity() {
         data?.data?.let { app.importArchive(spec, it) }
     }
 
+    private fun startClientRuntime(verify: Boolean) {
+        if (app.busy || databaseCheckRunning() || ClientImportService.running(this) || ClientRuntimeService.running(this)) return
+        try {
+            startForegroundService(Intent(this, ClientRuntimeService::class.java)
+                .setAction(if (verify) ClientRuntimeService.VERIFY else ClientRuntimeService.PREPARE))
+            runtimeRequestedAt = SystemClock.elapsedRealtime(); update()
+        } catch (_: Exception) {
+            Toast.makeText(this, "Runtime worker could not start. Keep the launcher visible and try again.", Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun startClientImport(uri: android.net.Uri?) {
-        if (app.busy || databaseCheckRunning() || ClientImportService.running(this)) return
+        if (app.busy || databaseCheckRunning() || ClientImportService.running(this) || ClientRuntimeService.running(this)) return
         try {
             if (uri != null) contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             startForegroundService(Intent(this, ClientImportService::class.java)

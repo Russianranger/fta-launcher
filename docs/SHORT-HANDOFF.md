@@ -105,12 +105,19 @@ never infer the installed private APK from public CI output.
 The [bounded runtime installer](client-runtime-installation.md) is implemented:
 authenticated extraction ranges, <=1 MiB sync/readback windows, delayed links,
 OS lease, atomic publication and full retained rehash. Seventeen new JVM tests
-and four catalog-generation tests pass locally. Full public runtime installation
-and both rehashes pass with a 96 MiB JVM heap; CI now repeats this qualification.
-No Android service/execution action or new private APK is enabled yet.
+and four catalog-generation tests pass. Installer commit
+`00f040412915b989b1a716b59a45cabd8d68e8b0`: all foundation jobs 40420915737 and
+ARM64 Wine/ownership 40420915731 passed. Foundation: 200 tooling, 66 qualification,
+503 Android passed / one existing skip, lint/assembly, cache/JNI, packaged checks.
+Full 14,092-entry runtime installation and both rehashes pass with a 96 MiB JVM
+heap. The Android foreground preparation worker is now wired with existing
+memory/I/O guards, Stop, 90-minute deadline and redacted exit-aware reporting.
+Six download regressions pass. The new bounded guest diagnostic program has five
+host regressions and an ARM64 CI gate. No Android native execution action or new
+private APK is issued yet; do not repeat the original client import.
 
 Complete the exact distribution source/notice companion and wire the owned
-Android diagnostic service, installer and disposable Wine prefix.
+native diagnostic, fresh disposable Wine prefix and synthetic fixtures.
 Qualify synthetic mixed processes on Thor before original host/
 graphics claims. Use the existing native process bridge and the new PRoot
 ownership requirement for parent death/Stop; Linux evidence does not qualify

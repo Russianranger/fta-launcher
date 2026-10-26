@@ -104,7 +104,7 @@ class ClientImportService : Service() {
                 write(true); governor.check()
                 @Suppress("DEPRECATION")
                 demand(getSystemService(ActivityManager::class.java).getRunningServices(30).none {
-                    it.service.className in setOf("com.russianranger.fta.runtime.RuntimeDiagnosticService", "com.russianranger.fta.runtime.RuntimeRecoveryService")
+                    it.service.className in setOf("com.russianranger.fta.runtime.RuntimeDiagnosticService", "com.russianranger.fta.runtime.RuntimeRecoveryService", ClientRuntimeService::class.java.name)
                 }, "busy")
                 val store = ClientStore(File(filesDir, "client-store"), releaseCache = cache::release, beforeIo = governor::beforeIo)
                 val progress: (ClientStore.Progress) -> Unit = { p ->

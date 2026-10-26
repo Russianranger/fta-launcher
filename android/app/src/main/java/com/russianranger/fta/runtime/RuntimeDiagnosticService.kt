@@ -119,6 +119,7 @@ class RuntimeDiagnosticService : Service() {
             .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "fta:databaseDiagnostic").apply { acquire(if (worldService) 6_360_000L else if (includeGameData) 3_660_000L else if (localService) 2_160_000L else if (includeBackup) 1_980_000L else if (includeRealm) 3_180_000L else if (includeWorldUpdater) 2_580_000L else if (includeFullSeed) 1_980_000L else if (includeAuth) 480_000L else 360_000L) }
         worker.execute {
             try {
+                check(!com.russianranger.fta.client.ClientRuntimeService.running(this)) { "Client runtime preparation is active" }
                 writeStatus("CHECKING", "Verifying immutable packaged provider files.")
                 if (includeGameData) {
                     require(intent?.action != ACTION_IMPORT_GAME_DATA || gameDataUri != null)

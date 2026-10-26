@@ -45,7 +45,8 @@ class RuntimeRecoveryService : Service() {
             try {
                 @Suppress("DEPRECATION")
                 check(getSystemService(ActivityManager::class.java).getRunningServices(20)
-                    .none { it.service.className == RuntimeDiagnosticService::class.java.name }) { "Another diagnostic is active" }
+                    .none { it.service.className in setOf(RuntimeDiagnosticService::class.java.name,
+                        com.russianranger.fta.client.ClientRuntimeService::class.java.name) }) { "Another diagnostic is active" }
                 val scope = File(filesDir, "runtime").apply { check(mkdirs() || isDirectory) }
                 val id = UUID.randomUUID().toString().also { attemptId = it }
                 atomic(File(scope, "diagnostic-attempt.id"), id)
