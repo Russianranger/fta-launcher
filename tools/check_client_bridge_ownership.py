@@ -30,6 +30,18 @@ print('const ssize_t offset_to_pokedata_workaround=%d;' % (symbols['pokedata_wor
 '''
 
 
+def fixture_identity(executable, maps, fixture, loader):
+    # PRoot executes its freestanding loader instead of the requested image
+    # (original translate_execve_enter). Check both kernel entry and mapped code.
+    if executable not in (fixture, loader) or len(maps) > 128 * 1024:
+        return False
+    for line in maps.splitlines():
+        fields = line.split(maxsplit=5)
+        if len(fields) == 6 and 'x' in fields[1] and fields[5] == str(fixture):
+            return True
+    return False
+
+
 def run_case(proot, fixture, directory, owned):
     handles = []; tracer = None; tracer_fd = None
     with (directory / ('owned.log' if owned else 'baseline.log')).open('wb') as log:
@@ -52,8 +64,17 @@ def run_case(proot, fixture, directory, owned):
             pids = [int(line.split()[1]) for line in lines]
             require(len(set(pids)) == 3, 'Duplicate fixture PIDs')
             for pid in pids:
-                fd = os.pidfd_open(pid); handles.append(fd)
-                require(Path(f'/proc/{pid}/exe').resolve() == fixture, 'PID does not belong to our fixture')
+                fd = os.pidfd_open(pid)
+                try:
+                    with Path(f'/proc/{pid}/maps').open() as incoming:
+                        maps = incoming.read(128 * 1024 + 1)
+                    require(fixture_identity(Path(f'/proc/{pid}/exe').resolve(strict=True), maps,
+                        fixture, directory / 'loader'), 'PID does not belong to our fixture')
+                except BaseException:
+                    os.close(fd)
+                    raise
+                # Never put an unverified PID in the cleanup signal set.
+                handles.append(fd)
             require(sum(os.getsid(pid) == pid for pid in pids) >= 2, 'Fixture descendants did not detach sessions')
             signal.pidfd_send_signal(tracer_fd, signal.SIGKILL)
             require(tracer.wait(timeout=5) == -signal.SIGKILL, 'Tracer did not receive forced kill')

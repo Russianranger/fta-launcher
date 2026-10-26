@@ -156,6 +156,13 @@ The native test also explicitly clears the makefile's optional
 [CI 40399293217](https://github.com/Russianranger/fta-launcher/actions/runs/40399293217).
 This scopes only the Linux ELF64 fixture build; original arch.h, Android builds
 and Wine's Windows x86/FEX path remain unchanged.
+Native-only build/normal tree exit pass in
+[CI 40399897060](https://github.com/Russianranger/fta-launcher/actions/runs/40399897060).
+Its kill test then stops at the fixture identity guard: original PRoot execs its
+loader, so kernel `/proc/PID/exe` is not the requested program. The follow-up
+requires the known entry image plus the fixture's exact executable mapping,
+with three regressions rejecting unrelated/deleted/read-only/oversized inputs.
+Only verified pidfds enter the cleanup signal set. Ownership pass remains pending.
 
 **Next:** complete exact distribution source/notice companion, then the owned
 Android diagnostic service, bounded runtime installer and disposable prefix to

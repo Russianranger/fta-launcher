@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 import build_client_bridge as bridge
+from check_client_bridge_ownership import fixture_identity
 
 
 def loader():
@@ -70,6 +71,24 @@ class ClientBridgeTest(unittest.TestCase):
         self.assertEqual(bridge.replace_exact('a-a', 'a', 'b', 2), 'b-b')
         with self.assertRaisesRegex(ValueError, 'recipe differs'):
             bridge.replace_exact('a-a', 'a', 'b')
+
+    def test_loader_identity_requires_our_exact_executable_fixture_mapping(self):
+        fixture = Path('/private/fixture'); loader = Path('/private/loader')
+        maps = '1000-2000 r-xp 00000000 08:01 123 /private/fixture\n'
+        self.assertTrue(fixture_identity(loader, maps, fixture, loader))
+        self.assertTrue(fixture_identity(fixture, maps, fixture, loader))
+        self.assertFalse(fixture_identity(Path('/unrelated'), maps, fixture, loader))
+
+    def test_unrelated_readonly_deleted_and_prefix_maps_are_rejected(self):
+        fixture = Path('/private/fixture'); loader = Path('/private/loader')
+        for flags, path in [('r--p', '/private/fixture'), ('r-xp', '/private/fixture.evil'),
+                            ('r-xp', '/private/fixture (deleted)'), ('r-xp', '/elsewhere')]:
+            self.assertFalse(fixture_identity(loader, f'1000-2000 {flags} 0 08:01 123 {path}', fixture, loader))
+
+    def test_process_mapping_input_is_bounded_and_requires_a_complete_line(self):
+        fixture = Path('/private/fixture'); loader = Path('/private/loader')
+        for maps in ['', 'malformed', 'a' * (128 * 1024 + 1)]:
+            self.assertFalse(fixture_identity(loader, maps, fixture, loader))
 
     def test_source_recovery_requires_exact_regular_unique_members(self):
         data = b'synthetic source'
