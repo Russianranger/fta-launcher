@@ -28,7 +28,7 @@ class ClientInventory {
         }
         if (lower.startsWith("data/") && lower.endsWith(".mpq")) mpqFiles++
         val role = roles[lower] ?: if (lower.endsWith(".exe")) {
-            executableCandidates++; require(executableCandidates <= 32)
+            executableCandidates++; require(executableCandidates <= MAX_AUXILIARY_EXECUTABLES)
             "auxiliary-executable-$executableCandidates"
         } else null
         if (role != null) presentRoles += role
@@ -36,11 +36,14 @@ class ClientInventory {
     }
 
     companion object {
+        const val MAX_AUXILIARY_EXECUTABLES = 32
         val roles = mapOf("wow.exe" to "wow", "d3d9.dll" to "proxy", "warcraftxl.dll" to "warcraftxl",
             "utils/warcraftxlhost.exe" to "asset-host",
             "utils/warcraftxl/backends/dxvk/d3d9.dll" to "dxvk", "warcraftxl.cfg" to "warcraftxl-config",
             "wtf/config.wtf" to "wow-config")
         fun isBinary(role: String) = role in setOf("wow", "proxy", "warcraftxl", "dxvk", "asset-host") || role.startsWith("auxiliary-executable-")
+        val reportRoleLimit get() = roles.values.toSet().size + MAX_AUXILIARY_EXECUTABLES
+        val reportComponentLimit get() = roles.values.count(::isBinary) + MAX_AUXILIARY_EXECUTABLES
         fun matchesWow(info: PeMetadata.Info?) = info?.architecture == "x86" && !info.dll && info.fileVersion == "3.3.5.12340"
     }
 }

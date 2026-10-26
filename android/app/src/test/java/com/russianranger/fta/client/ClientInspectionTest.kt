@@ -116,6 +116,16 @@ class ClientInspectionTest {
         assertEquals("auxiliary-executable-1", ClientInventory().add("WarcraftXLHost.exe", false, 64))
         assertEquals("auxiliary-executable-1", ClientInventory().add("Other/WarcraftXLHost.exe", false, 64))
     }
+    @Test fun namedHostAndAllAnonymousCandidatesFitTheBoundedExport() {
+        val inventory = ClientInventory()
+        for (path in ClientInventory.roles.keys) inventory.add(path, false, 64)
+        repeat(32) { inventory.add("other-$it.exe", false, 64) }
+        assertEquals(39, inventory.presentRoles.size)
+        assertEquals(37, inventory.presentRoles.count(ClientInventory::isBinary))
+        assertEquals(inventory.presentRoles.size, inventory.presentRoles.take(ClientInventory.reportRoleLimit).size)
+        assertEquals(37, inventory.presentRoles.filter(ClientInventory::isBinary).take(ClientInventory.reportComponentLimit).size)
+        rejected { inventory.add("one-too-many.exe", false, 64) }
+    }
     @Test fun executableCountBounded() {
         val inventory = ClientInventory(); repeat(32) { inventory.add("$it.exe", false, 64) }
         rejected { inventory.add("33.exe", false, 64) }

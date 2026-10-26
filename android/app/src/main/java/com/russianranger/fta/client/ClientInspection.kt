@@ -153,9 +153,9 @@ class ClientInspection(private val context: Context) {
             }
             fun safeRole(role: String) = role in ClientInventory.roles.values || role.matches(Regex("auxiliary-executable-([1-9]|[12][0-9]|3[0-2])"))
             val present = raw.optJSONArray("presentRoles") ?: JSONArray()
-            result.put("presentRoles", JSONArray((0 until minOf(present.length(), 38)).mapNotNull { present.optString(it).takeIf(::safeRole) }))
+            result.put("presentRoles", JSONArray((0 until minOf(present.length(), ClientInventory.reportRoleLimit)).mapNotNull { present.optString(it).takeIf(::safeRole) }))
             val safe = JSONArray(); val components = raw.optJSONArray("components") ?: JSONArray()
-            for (index in 0 until minOf(components.length(), 36)) {
+            for (index in 0 until minOf(components.length(), ClientInventory.reportComponentLimit)) {
                 val item = components.optJSONObject(index) ?: continue
                 val role = item.optString("role"); if (!safeRole(role)) continue
                 val value = JSONObject().put("role", role)

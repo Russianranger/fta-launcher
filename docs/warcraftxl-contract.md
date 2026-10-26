@@ -107,11 +107,19 @@ python3 android/qualification/check_warcraftxl_header.py \
   --output /private/new-header-evidence.json
 ```
 
-Ten Android unit tests cover the snapshot checker; two more cover the now-known
-host inventory role. Future inspection identifies only the exact Utils path as
+Ten Android unit tests cover the snapshot checker; three more cover the now-known
+host inventory role and full report capacity. Export limits derive from the fixed
+roles plus the existing 32 anonymous candidates: 39 roles / 37 binary components.
+The required protocol and original client files are unchanged. Future inspection identifies only the exact Utils path as
 `asset-host`; other executable filenames remain anonymous. This does not add a
 host requirement to the already-passed importer or rewrite its plan/checkpoints.
 The app remains on private code 37; these preparation changes need no device test.
+
+Implementation `0416392fbed9bc4e04e24ddcab1f5e438185488a` passed all three jobs in
+[CI 40257122497](https://github.com/Russianranger/fta-launcher/actions/runs/40257122497),
+with 485 Android tests passed / one existing skip, lint/assembly/cache-helper checks,
+186 tooling and 43 qualification tests. The report-capacity follow-up adds one
+regression; it does not change the emulated validator or the private APK.
 
 ## Next minimal input
 

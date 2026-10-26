@@ -1,0 +1,46 @@
+{
+  "formatVersion": 1,
+  "scope": "warcraftxl-contract-source-qualification",
+  "commit": "0416392fbed9bc4e04e24ddcab1f5e438185488a",
+  "tree": "7b7ff6a620d4c82fa9f2c2d6811b55b047bb5209",
+  "ciRun": 40257122497,
+  "jobs": [
+    {
+      "id": 121361247723,
+      "name": "Archive and database safety tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 121361248018,
+      "name": "Android foundation APK",
+      "conclusion": "success"
+    },
+    {
+      "id": 121362163552,
+      "name": "Direct APK download",
+      "conclusion": "success"
+    }
+  ],
+  "androidUnitResults": {
+    "tests": 486,
+    "passed": 485,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "suites": 42
+  },
+  "newAndroidTests": 12,
+  "toolingTests": 186,
+  "qualificationTests": 43,
+  "newPythonTests": 19,
+  "originalMachineCodeComparisonCases": 1456,
+  "lintPassed": true,
+  "assemblyPassed": true,
+  "cacheHelperChecksPassed": true,
+  "nativeReproductionInputsChanged": false,
+  "newPrivateApkBuilt": false,
+  "installedPrivateVersionCode": 37,
+  "hostPairingQualified": false,
+  "liveIpcQualified": false,
+  "clientOrWineExecuted": false
+}

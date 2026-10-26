@@ -83,11 +83,18 @@ client's Windows PID. The complete 1.1 GB source archive is unnecessary for this
 The original 71-byte x86 header validator requires magic 0x4c585857, protocol 4,
 2..16 channels and a nonzero host process word in a 64-byte snapshot. The unchanged
 leaf was emulated in isolation: **1,456 cases** match Kotlin exactly; no full DLL,
-Wine or client was executed. 12 new Android regressions and 19 new Python PE-reader
-regressions pass; 86 focused JVM tests, 43 report/linkage tests and 186 tooling tests
+Wine or client was executed. 13 new Android regressions and 19 new Python PE-reader
+regressions pass; 87 focused JVM tests, 43 report/linkage tests and 186 tooling tests
 pass locally. Host pairing, live IPC, Wine/WarcraftXL and gameplay remain false.
 Only the exact Utils host path receives a fixed future inspection role; import
 requirements, plans, checkpoints, original files and installed code 37 are unchanged.
+
+Contract implementation **0416392fbed9bc4e04e24ddcab1f5e438185488a** passed all three
+jobs in [CI 40257122497](https://github.com/Russianranger/fta-launcher/actions/runs/40257122497):
+485 Android tests / one existing skip, 42 suites, lint/assembly/cache checks,
+186 tooling and 43 qualification tests. The follow-up derives export bounds from
+the fixed roles plus 32 anonymous candidates (39 roles / 37 binary components),
+so adding the named host cannot truncate the final allowed report item.
 
 **Next minimal input:** `Utils/WarcraftXLHost.exe` and **root `d3d9.dll` beside
 Wow.exe**, from this same client. Root proxy expected 202,240 bytes / SHA256
