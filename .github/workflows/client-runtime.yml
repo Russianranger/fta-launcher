@@ -46,13 +46,14 @@ jobs:
           FTA_ROOT="$RUNNER_TEMP/fta-runtime-root"
           mkdir "$FTA_ROOT"
           tar --no-same-owner --no-same-permissions -xzf "$RUNNER_TEMP/fta-runtime-inputs/client-runtime-arm64.tar.gz" -C "$FTA_ROOT"
-          mkdir -p "$FTA_ROOT/probe" "$FTA_ROOT/dev" "$FTA_ROOT/proc"
+          mkdir -p "$FTA_ROOT/probe" "$FTA_ROOT/dev" "$FTA_ROOT/proc" "$FTA_ROOT/sys"
           cp "$RUNNER_TEMP/fta-probe/"*.exe "$FTA_ROOT/probe/"
           cp android/qualification/run_client_runtime.sh "$FTA_ROOT/probe/run.sh"
           cleanup() {
             result=$?
             trap - EXIT
             sudo cp -a "$FTA_ROOT/probe/logs" "$RUNNER_TEMP/fta-runtime-evidence/" 2>/dev/null || true
+            sudo umount "$FTA_ROOT/sys" 2>/dev/null || true
             sudo umount "$FTA_ROOT/proc" 2>/dev/null || true
             sudo umount "$FTA_ROOT/dev" 2>/dev/null || true
             exit "$result"
@@ -60,6 +61,10 @@ jobs:
           trap cleanup EXIT
           sudo mount --bind /dev "$FTA_ROOT/dev"
           sudo mount --bind /proc "$FTA_ROOT/proc"
+          # Wine derives processor topology/SMBIOS from sysfs before FEX reads
+          # the corresponding CPU registry keys. Expose real data read-only.
+          sudo mount --bind /sys "$FTA_ROOT/sys"
+          sudo mount -o remount,bind,ro "$FTA_ROOT/sys"
           sudo timeout --kill-after=45 600 chroot "$FTA_ROOT" /usr/bin/env -i /bin/sh /probe/run.sh > "$RUNNER_TEMP/fta-runtime-evidence/runtime-result.log" 2>&1
           cat "$RUNNER_TEMP/fta-runtime-evidence/runtime-result.log"
       - uses: actions/upload-artifact@v4

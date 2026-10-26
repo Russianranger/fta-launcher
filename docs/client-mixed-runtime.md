@@ -19,9 +19,9 @@ Wine arm64ec/aarch64/i386 and both FEX translation DLLs.
 
 The [lock](../android/qualification/client-runtime-lock.json) pins the manifest,
 archive, marker, 12 critical component identities and three source archive
-identities. Source archive hashes here come from published release metadata;
-those archives have not yet been downloaded or license/source closure audited
-for a new Android distribution. The runtime is a candidate, not an APK payload.
+identities. All three source archives have now been downloaded and their measured
+hashes match the lock. Full license/source closure for a new Android distribution
+remains pending. The runtime is a candidate, not an APK payload.
 The AMD64 PE machine field in libarm64ecfex.dll is recorded literally; it is not
 independently treated as proof of that translator's execution architecture.
 
@@ -59,6 +59,21 @@ playable login from a Linux ARM64 fixture pass. The installed private APK stays 
 Ten synthetic archive regressions join the qualification suite (62 total).
 CI execution evidence for the new mixed-runtime workflow is pending until its
 exact pushed commit completes; archive presence alone does not pass that gate.
+
+The first disposable chroot omitted sysfs. Diagnostic commit
+`d0fdc021f5e5aa1f9e872c7c5ef3af53ab635c28`,
+[CI 40395945980](https://github.com/Russianranger/fta-launcher/actions/runs/40395945980),
+records both correct translator selections, a missing `CentralProcessor\\0` key,
+and the original FEX assertion `Couldn't detect CPU features` in both entry probes.
+The x86 exception handler then overflows; x64 exits at `ForcedAssert`.
+This is a fixture-environment failure before client code. The original Wine
+`dlls/ntdll/unix/system.c:create_logical_proc_info` requires
+`/sys/devices/system/cpu/online`; its SMBIOS feeds
+`programs/wineboot/wineboot.c:create_bios_processor_values`. Original FEX
+`Source/Windows/Common/CPUFeatures.cpp` requires the resulting registry key.
+The corrected workflow binds real sysfs read-only and checks topology/key presence
+before the entry/IPC probes. No synthetic CPU feature values, runtime binary
+patches or assertion bypasses are used. Success still requires every live fixture.
 
 Next after this gate: recover and pin the Android PRoot/loader bridge and its
 source/license closure, prepare an owned service and writable runtime view,

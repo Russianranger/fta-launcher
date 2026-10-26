@@ -31,13 +31,20 @@ for attempt in 1 2 3 4 5 6 7 8 9 10; do
     sleep 1
 done
 test -S /tmp/.X11-unix/X8
+# Wine's original create_logical_proc_info requires sysfs; absent topology
+# leaves CentralProcessor\\0 missing and both original FEX DLLs assert.
+if ! test -r /sys/devices/system/cpu/online; then
+    printf '%s\n' 'Missing CPU topology: bind sysfs read-only before Wine startup.' >&2
+    exit 1
+fi
+cat /sys/devices/system/cpu/online > /probe/logs/cpu-online.log
 timeout 180 wine wineboot.exe -u > /probe/logs/prefix.log 2>&1
 # Diagnose the exact fresh-prefix translator choice before any IPC probe.
 # Read only these synthetic-prefix registry keys; never export a real user prefix.
 getconf PAGESIZE > /probe/logs/page-size.log
 timeout 30 wine reg.exe query 'HKLM\Software\Microsoft\Wow64\x86' /ve /reg:64 > /probe/logs/x86-translator.log 2>&1 || true
 timeout 30 wine reg.exe query 'HKLM\Software\Microsoft\Wow64\amd64' /ve /reg:64 > /probe/logs/x64-translator.log 2>&1 || true
-timeout 30 wine reg.exe query 'HKLM\Hardware\Description\System\CentralProcessor\0' /reg:64 > /probe/logs/cpu-features.log 2>&1 || true
+timeout 30 wine reg.exe query 'HKLM\Hardware\Description\System\CentralProcessor\0' /reg:64 > /probe/logs/cpu-features.log 2>&1
 set +e
 WINEDEBUG=-all,err+all,trace+loaddll,trace+seh timeout 90 wine /probe/probe32.exe --self-test > /probe/logs/x86-entry.log 2>&1
 FTA_X86_RESULT=$?

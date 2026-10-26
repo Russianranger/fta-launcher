@@ -125,6 +125,15 @@ defaults `SilentLog=true`; the follow-up enables its supported `FEX_SILENTLOG=0`
 diagnostics and captures the synthetic prefix's CPU feature registry and x64 SEH.
 Do not bypass the assertion or alter original binaries without identifying it.
 
+Follow-up **d0fdc021f5e5aa1f9e872c7c5ef3af53ab635c28**,
+[runtime CI 40395945980](https://github.com/Russianranger/fta-launcher/actions/runs/40395945980),
+identifies the exact assertion in both probes: `Couldn't detect CPU features`;
+the synthetic registry lacks `CentralProcessor\\0`. The chroot omitted sysfs,
+which original Wine requires to construct processor topology/SMBIOS/registry.
+The next fix binds real sysfs read-only, checks topology and the CPU key before
+execution, and preserves original runtime binaries/assertions/CPU metadata.
+All three source archives are now recovered and measured against the lock.
+
 **Next:** inspect the exact mixed-runtime CI, resolve any measured failures, then
 pin Android PRoot/loader/source inputs and prepare the owned service plus a separate
 writable runtime view; never mutate/hard-link
