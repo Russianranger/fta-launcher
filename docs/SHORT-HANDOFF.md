@@ -95,50 +95,48 @@ in Unicorn; no original host entry point, Windows API or live transport executes
 Nine new qualification regressions; 52 qualification + 186 tooling tests pass
 locally. All live Wine/host/WarcraftXL/gameplay flags stay false.
 
-Implementation **8516d8ff8abe8133a752179d25ce6817861cd83b** passed all three jobs
-in [CI 40392773633](https://github.com/Russianranger/fta-launcher/actions/runs/40392773633):
-486 Android tests / one existing skip, lint/assembly/cache checks, 186 tooling
-and 52 qualification tests. The next increment pins/audits the public UO v0.2.0
-Wine/FEX archive (14,092 entries / 2.64 GB; 12 critical hashes) and adds a separate
-native ARM64 Linux synthetic x86-parent/x64-child process/IPC/owner-exit CI gate.
-[Scope and exact candidate](client-mixed-runtime.md). Ten additional archive
-regressions pass (62 qualification total). New mixed-runtime execution is pending
-its exact CI result; no original client binary enters CI or new APK.
+Host/header implementation **8516d8ff8abe8133a752179d25ce6817861cd83b** passed
+all three foundation jobs in [CI 40392773633](https://github.com/Russianranger/fta-launcher/actions/runs/40392773633).
+486 Android tests / one existing skip, lint/assembly/cache checks, 186 tooling and
+52 qualification tests. [Host comparison](warcraftxl-host.md) remains isolated.
 
-Mixed-runtime implementation **06c7df159c67f4e940bc3008f3ad57d21c15d28e** exposed
-an x86 startup blocker in [ARM64 CI 40394208422](https://github.com/Russianranger/fta-launcher/actions/runs/40394208422):
-both fixtures compile, runtime audit/prefix complete, then the x86 fixture reports
-a Wine stack overflow before IPC. Do not count this as a mixed-runtime pass or
-an original-client failure. The follow-up records independent x86/x64 entry probes,
-loaded modules, page size and the two translator registry keys in the disposable
-prefix to localize the cause. Exact Wine source already contains both FEX defaults;
-do not assume a missing translator selection without the measured registry/logs.
+## Latest completed runtime gate; Android bridge build
 
-Diagnostic commit **93621ec23991d5bc20c07485c3581e923c527163** passed all three
-foundation jobs in [CI 40394773697](https://github.com/Russianranger/fta-launcher/actions/runs/40394773697).
-[Runtime CI 40394773739](https://github.com/Russianranger/fta-launcher/actions/runs/40394773739)
-measures 4 KiB pages and both correct FEX registry selections. Independent entry
-probes fail before fixture code: x86 stack overflow (exit 1), x64 FEX
-`ForcedAssert` at module RVA `0x169ff4` (exit 29). The latter is an intentional
-assertion trap, not evidence of an unsupported CPU instruction. Exact FEX source
-defaults `SilentLog=true`; the follow-up enables its supported `FEX_SILENTLOG=0`
-diagnostics and captures the synthetic prefix's CPU feature registry and x64 SEH.
-Do not bypass the assertion or alter original binaries without identifying it.
+**eddd5be4de75b427660e3489e6bc4d85f3497780** passes
+[ARM64 runtime CI 40396385255](https://github.com/Russianranger/fta-launcher/actions/runs/40396385255).
+[Exact evidence](evidence/host-2026-10-26-mixed-wine-runtime-pass.json): original
+pinned Wine/FEX archive unchanged; x86 and x64 entry exit zero; x86 parent creates
+x64 child, 64/512 IPC round trips for 2/16 channels; explicit Stop child exit 37;
+parent loss child exit 38. Original client/host files never enter CI. Linux
+synthetic gate only; Android runtime/WarcraftXL/gameplay remain unqualified.
+[Foundation CI 40396385180](https://github.com/Russianranger/fta-launcher/actions/runs/40396385180)
+passed all three jobs for the same implementation: 486 Android tests / one
+existing skip, lint/assembly/cache checks, 186 tooling and 62 qualification tests.
 
-Follow-up **d0fdc021f5e5aa1f9e872c7c5ef3af53ab635c28**,
-[runtime CI 40395945980](https://github.com/Russianranger/fta-launcher/actions/runs/40395945980),
-identifies the exact assertion in both probes: `Couldn't detect CPU features`;
-the synthetic registry lacks `CentralProcessor\\0`. The chroot omitted sysfs,
-which original Wine requires to construct processor topology/SMBIOS/registry.
-The next fix binds real sysfs read-only, checks topology and the CPU key before
-execution, and preserves original runtime binaries/assertions/CPU metadata.
-All three source archives are now recovered and measured against the lock.
+Earlier entry failures were a test-environment defect: chroot omitted sysfs,
+Wine did not create `CentralProcessor\0`, both FEX DLLs asserted "Couldn't detect
+CPU features". Corrected CI binds real sysfs read-only and preflights topology/
+registry; no invented CPU values or runtime patches. [Diagnosis and scope](client-mixed-runtime.md).
+Archive audit: 14,092 entries / 2,637,799,241 file bytes, 12 critical identities;
+all three source archives recovered with measured matching hashes; 62 qualification
+tests. All original source/metadata rules preserved.
 
-**Next:** inspect the exact mixed-runtime CI, resolve any measured failures, then
-pin Android PRoot/loader/source inputs and prepare the owned service plus a separate
-writable runtime view; never mutate/hard-link
-original imported files or create another unbounded full-client copy. The full
-1.1 GB source and additional private files are not currently required.
+New [Android bridge build](client-android-bridge.md) uses pinned PRoot/talloc,
+original patches, NDK r28c/API26, one job with memory check. Both output ELF load
+alignments are 16 KiB; main Android PIE depends only on libc/libdl, loader is static
+ARM64 ET_EXEC with checked entry/stack/segments. [Build proof](evidence/host-2026-10-26-android-client-bridge-build.json).
+`tools/build_client_bridge.py` reproduces the build from the public corresponding
+source archive and pinned NDK in a new private directory. Eleven new regressions
+(197 tooling total). No output binary is staged in Git or an APK; Android execution
+is false. The old public loader had only 4 KiB alignment and is not reused.
+
+**Next:** complete exact distribution source/notice companion, then the owned
+Android diagnostic service, bounded runtime installer and disposable prefix to
+qualify synthetic mixed processes on Thor. Continue using the existing native
+process bridge for parent death and Stop. Later create a separate writable client
+view under the verified-client lease; no writable hard links or unbounded 60 GB
+copy. The full 1.1 GB client source is not currently required. Installed private
+APK remains 37; do not change its identity or repeat passed gates.
 
 **No physical retest requested.** Keep installed 37. Do not repeat client import,
 retained rehash, native world, DB/auth, screen-off or game-data gates. Preserve

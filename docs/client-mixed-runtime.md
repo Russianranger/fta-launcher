@@ -57,8 +57,12 @@ Do not infer Android process ownership, native display, original-host IPC or
 playable login from a Linux ARM64 fixture pass. The installed private APK stays 37.
 
 Ten synthetic archive regressions join the qualification suite (62 total).
-CI execution evidence for the new mixed-runtime workflow is pending until its
-exact pushed commit completes; archive presence alone does not pass that gate.
+Commit **eddd5be4de75b427660e3489e6bc4d85f3497780** passed
+[ARM64 CI 40396385255](https://github.com/Russianranger/fta-launcher/actions/runs/40396385255).
+[Measured proof](evidence/host-2026-10-26-mixed-wine-runtime-pass.json) pins the
+artifact, fixture and runtime hashes: x86/x64 entry exit zero, 64/512 round trips,
+explicit child Stop exit 37, and parent-loss exit 38. This qualifies only the
+synthetic Linux mixed-runtime gate. The original binaries remain unchanged.
 
 The first disposable chroot omitted sysfs. Diagnostic commit
 `d0fdc021f5e5aa1f9e872c7c5ef3af53ab635c28`,
@@ -75,7 +79,8 @@ The corrected workflow binds real sysfs read-only and checks topology/key presen
 before the entry/IPC probes. No synthetic CPU feature values, runtime binary
 patches or assertion bypasses are used. Success still requires every live fixture.
 
-Next after this gate: recover and pin the Android PRoot/loader bridge and its
-source/license closure, prepare an owned service and writable runtime view,
+The [Android bridge build](client-android-bridge.md) now passes its static ABI and
+16 KiB checks from pinned sources. Next complete distribution source/notice closure
+and prepare the owned service, bounded installer and writable runtime view,
 then one substantial Thor mixed-runtime/original-host test. No repeat of the
 passed client import, retained rehash or native server gates is requested.

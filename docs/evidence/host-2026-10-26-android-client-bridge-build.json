@@ -1,0 +1,56 @@
+{
+  "formatVersion": 1,
+  "scope": "android-client-bridge-build-only",
+  "sourceArchiveSha256": "492043660b1370e1910c8b8ca2b93be1f637f4929034f575591f14e67e015243",
+  "sourceComponents": {
+    "proot-source.tar.gz": "d43ad342bb2e8f4d2afe6119b5ec3a1d8bb912d5897e2db7d2ddf928548c1c84",
+    "talloc-2.4.3.tar.gz": "dc46c40b9f46bb34dd97fe41f548b0e8b247b77a918576733c528e83abd854dd",
+    "build-proot.sh": "7ddcee055714f27c2a53fea816c8d43171efc54b655771e979735a30ba343319",
+    "native/proot-sysvipc.patch": "e8e3cb956bdb8b1bcbdf72a23b67ad86fc33fa51430f3a1ee37e1a053f5f0330",
+    "native/proot-acceleration.patch": "46ab8e6f80260044bccbd831e22a7fc3a376e45ef945772cac790485ab70306f"
+  },
+  "ndkArchiveSha256": "dfb20d396df28ca02a8c708314b814a4d961dc9074f9a161932746f815aa552f",
+  "ndkVersion": "28.2.13676358",
+  "androidApi": 26,
+  "buildJobs": 1,
+  "sourceRecipe": "Russianranger/uo-android-launcher v0.2.0 corresponding sources",
+  "changes": [
+    "pinned local sources instead of Git fetch",
+    "NDK r28c",
+    "one compiler job",
+    "explicit loader 16 KiB link alignment"
+  ],
+  "payloads": {
+    "libproot.so": {
+      "bytes": 263696,
+      "sha256": "5f9ec53745d720e23fffc2b7f824c85877910001d2eb489322bffe2c48ff01ad",
+      "elf": {
+        "needed": [
+          "libc.so",
+          "libdl.so"
+        ],
+        "sonames": [],
+        "interpreter": "/system/bin/linker64",
+        "minimumLoadAlignment": 16384
+      }
+    },
+    "libproot-loader.so": {
+      "bytes": 18296,
+      "sha256": "614591192bb34c98cc6cef528fb74ecfc1c97d0fabf4e352df1f16873c71d447",
+      "elf": {
+        "type": "EXEC",
+        "machine": "AArch64",
+        "interpreter": null,
+        "needed": [],
+        "minimumLoadAlignment": 16384,
+        "executableStack": false
+      }
+    }
+  },
+  "androidBridgeBuilt": true,
+  "androidBridgeExecuted": false,
+  "androidRuntimeQualified": false,
+  "originalHostExecuted": false,
+  "warcraftXLCompatible": false,
+  "gameLoginQualified": false
+}

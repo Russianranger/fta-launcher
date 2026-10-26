@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "scope": "synthetic-linux-arm64-mixed-wine-runtime",
+  "commit": "eddd5be4de75b427660e3489e6bc4d85f3497780",
+  "runId": 40396385255,
+  "jobId": 121830420223,
+  "conclusion": "success",
+  "artifactId": 12686657048,
+  "artifactBytes": 9797,
+  "artifactSha256": "923334a9150b2a4cec00897a28b02444cc713b2d943d9a0f27d7d94b32c402eb",
+  "runtimeArchiveSha256": "f036c00a290abb953bec26be80c4d8fe492fd986e7a589c51008124432c8641e",
+  "fixtureSha256": {
+    "probe32.exe": "17717c9348f7ad12dad217a972ec2ae35b97fabac89e5260bf3f570f06ba25f5",
+    "probe64.exe": "61f513b1a70d76d5d45df5ec734fdbcb2695c49d30adb9aa701d70a1a59efa86"
+  },
+  "pageSize": 4096,
+  "x86EntryExit": 0,
+  "x64EntryExit": 0,
+  "explicitStopCases": [
+    {
+      "channels": 2,
+      "roundTrips": 64,
+      "childExit": 37
+    },
+    {
+      "channels": 16,
+      "roundTrips": 512,
+      "childExit": 37
+    }
+  ],
+  "ownerLoss": {
+    "parentExit": 0,
+    "childExit": 38
+  },
+  "originalRuntimeBinariesUnchanged": true,
+  "cpuTopology": "real read-only sysfs; Wine-generated registry",
+  "syntheticLinuxMixedRuntimeQualified": true,
+  "androidRuntimeQualified": false,
+  "originalHostExecuted": false,
+  "warcraftXLCompatible": false,
+  "gameLoginQualified": false
+}
