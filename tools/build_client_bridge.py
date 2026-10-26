@@ -102,6 +102,9 @@ def main():
     proot = source / 'proot'; proot.mkdir()
     with tarfile.open(original / 'proot-source.tar.gz') as archive:
         archive.extractall(proot, filter='data')
+    ownership_patch = ROOT / 'native/client-bridge/proot-exitkill.patch'
+    subprocess.run(['git', 'apply', '--check', str(ownership_patch)], cwd=proot, check=True)
+    subprocess.run(['git', 'apply', str(ownership_patch)], cwd=proot, check=True)
     makefile = proot / 'src/GNUmakefile'
     makefile.write_text(replace_exact(makefile.read_text(),
         '$(ROSEGMENT),-z,noexecstack', '$(ROSEGMENT),-z,noexecstack,-z,max-page-size=16384'))
@@ -123,10 +126,11 @@ def main():
             not tracer_meta['sonames'] and tracer_meta['minimumLoadAlignment'] >= 16384, 'Unexpected Android tracer metadata')
     loader_meta = loader_elf(loader.read_bytes())
     evidence = dict(formatVersion=1, scope='android-client-bridge-build-only',
-        sourceArchiveSha256=SOURCE_SHA, sourceComponents=INPUTS, ndkArchiveSha256=ndk_pin['sha256'],
+        sourceArchiveSha256=SOURCE_SHA, sourceComponents=INPUTS, ownershipPatchSha256=digest(ownership_patch),
+        ndkArchiveSha256=ndk_pin['sha256'],
         ndkVersion=ndk_pin['version'], androidApi=26, buildJobs=1,
         sourceRecipe='Russianranger/uo-android-launcher v0.2.0 corresponding sources',
-        changes=['pinned local sources instead of Git fetch', 'NDK r28c', 'one compiler job', 'explicit loader 16 KiB link alignment'],
+        changes=['pinned local sources instead of Git fetch', 'NDK r28c', 'one compiler job', 'explicit loader 16 KiB link alignment', 'require PTRACE_O_EXITKILL for all traced descendants'],
         payloads={p.name: dict(bytes=p.stat().st_size, sha256=digest(p), elf=m) for p, m in ((tracer,tracer_meta),(loader,loader_meta))},
         androidBridgeBuilt=True, androidBridgeExecuted=False, androidRuntimeQualified=False,
         originalHostExecuted=False, warcraftXLCompatible=False, gameLoginQualified=False)

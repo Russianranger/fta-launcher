@@ -9,6 +9,7 @@
     "native/proot-sysvipc.patch": "e8e3cb956bdb8b1bcbdf72a23b67ad86fc33fa51430f3a1ee37e1a053f5f0330",
     "native/proot-acceleration.patch": "46ab8e6f80260044bccbd831e22a7fc3a376e45ef945772cac790485ab70306f"
   },
+  "ownershipPatchSha256": "509160bd6ec3663d525fa0e795a7bb45b8ccc283a6de8e1398e8cd6624fe86de",
   "ndkArchiveSha256": "dfb20d396df28ca02a8c708314b814a4d961dc9074f9a161932746f815aa552f",
   "ndkVersion": "28.2.13676358",
   "androidApi": 26,
@@ -18,12 +19,13 @@
     "pinned local sources instead of Git fetch",
     "NDK r28c",
     "one compiler job",
-    "explicit loader 16 KiB link alignment"
+    "explicit loader 16 KiB link alignment",
+    "require PTRACE_O_EXITKILL for all traced descendants"
   ],
   "payloads": {
     "libproot.so": {
-      "bytes": 263696,
-      "sha256": "5f9ec53745d720e23fffc2b7f824c85877910001d2eb489322bffe2c48ff01ad",
+      "bytes": 263712,
+      "sha256": "46dcafabc77b386a7127f6cb7c71bdac03c372ff6bb4db0e1e9493ee29332adb",
       "elf": {
         "needed": [
           "libc.so",

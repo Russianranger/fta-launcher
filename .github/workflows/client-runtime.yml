@@ -9,6 +9,9 @@ on:
       - 'android/qualification/check_client_runtime.py'
       - 'android/qualification/runtime_probe.c'
       - 'android/qualification/run_client_runtime.sh'
+      - 'tools/build_client_bridge.py'
+      - 'tools/check_client_bridge_ownership.py'
+      - 'native/client-bridge/**'
   workflow_dispatch:
 
 permissions:
@@ -26,14 +29,28 @@ jobs:
       - name: Install fixture cross-compilers
         run: |
           sudo apt-get update -qq > "$RUNNER_TEMP/fixture-toolchain.log" 2>&1
-          sudo apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64 gcc-mingw-w64-i686 >> "$RUNNER_TEMP/fixture-toolchain.log" 2>&1
+          sudo apt-get install -y --no-install-recommends gcc make binutils gcc-mingw-w64-x86-64 gcc-mingw-w64-i686 >> "$RUNNER_TEMP/fixture-toolchain.log" 2>&1
       - name: Recover and audit pinned public runtime
         run: |
           mkdir "$RUNNER_TEMP/fta-runtime-inputs" "$RUNNER_TEMP/fta-runtime-evidence"
-          for name in client-runtime-arm64.tar.gz client-runtime-manifest.json; do
+          for name in client-runtime-arm64.tar.gz client-runtime-manifest.json runtime-corresponding-sources.tar.gz; do
             curl -fLsS --max-time 300 --retry 2 "https://github.com/Russianranger/uo-android-launcher/releases/download/v0.2.0/$name" -o "$RUNNER_TEMP/fta-runtime-inputs/$name"
           done
           python3 android/qualification/check_client_runtime.py --archive "$RUNNER_TEMP/fta-runtime-inputs/client-runtime-arm64.tar.gz" --manifest "$RUNNER_TEMP/fta-runtime-inputs/client-runtime-manifest.json" --output "$RUNNER_TEMP/fta-runtime-evidence/runtime-audit.json"
+      - name: Qualify tracer death with detached native descendants
+        run: |
+          cleanup() {
+            result=$?
+            trap - EXIT
+            for name in build.log normal.log baseline.log owned.log ownership-evidence.json; do
+              if [ -f "$RUNNER_TEMP/fta-ownership/$name" ]; then
+                cp "$RUNNER_TEMP/fta-ownership/$name" "$RUNNER_TEMP/fta-runtime-evidence/ownership-$name"
+              fi
+            done
+            exit "$result"
+          }
+          trap cleanup EXIT
+          python3 tools/check_client_bridge_ownership.py --sources "$RUNNER_TEMP/fta-runtime-inputs/runtime-corresponding-sources.tar.gz" --work "$RUNNER_TEMP/fta-ownership" > "$RUNNER_TEMP/fta-runtime-evidence/ownership-result.log" 2>&1
       - name: Compile two synthetic Windows architectures sequentially
         run: |
           mkdir "$RUNNER_TEMP/fta-probe"

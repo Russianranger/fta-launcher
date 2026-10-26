@@ -121,6 +121,10 @@ Archive audit: 14,092 entries / 2,637,799,241 file bytes, 12 critical identities
 all three source archives recovered with measured matching hashes; 62 qualification
 tests. All original source/metadata rules preserved.
 
+Bridge implementation **4d58963feb930ac6d97bc824f38dcfe7608d55f6** passed all three
+jobs in [CI 40397497203](https://github.com/Russianranger/fta-launcher/actions/runs/40397497203):
+197 tooling, 62 qualification, 486 Android tests / one existing skip, lint/assembly.
+
 New [Android bridge build](client-android-bridge.md) uses pinned PRoot/talloc,
 original patches, NDK r28c/API26, one job with memory check. Both output ELF load
 alignments are 16 KiB; main Android PIE depends only on libc/libdl, loader is static
@@ -129,6 +133,16 @@ ARM64 ET_EXEC with checked entry/stack/segments. [Build proof](evidence/host-202
 source archive and pinned NDK in a new private directory. Eleven new regressions
 (197 tooling total). No output binary is staged in Git or an APK; Android execution
 is false. The old public loader had only 4 KiB alignment and is not reused.
+
+Follow-up closes a PRoot ownership gap: `native/client-bridge/proot-exitkill.patch`
+adds mandatory PTRACE_O_EXITKILL to both default option attempts, so kernel
+cleanup covers tracer SIGKILL and detached descendants. Updated Android build
+proof pins tracer SHA `46dcafabc77b386a7127f6cb7c71bdac03c372ff6bb4db0e1e9493ee29332adb`;
+loader unchanged. Native Linux original/fixed builds succeed locally, but this
+workspace denies ptrace(TRACEME), so runtime ownership is pending the new ARM64 CI
+step. It tests a normal tree exit and tracer SIGKILL with three tracees/two
+independent sessions, retains pidfds, and requires baseline survivors=3/fixed=0.
+Do not infer Android survival/cleanup from a static build or Linux fixture.
 
 **Next:** complete exact distribution source/notice companion, then the owned
 Android diagnostic service, bounded runtime installer and disposable prefix to
