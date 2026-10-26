@@ -68,7 +68,7 @@ class ClientStore(private val root: File,
         var generation = pointer("pending")
         if (generation != null && generation == pointer("active") &&
             bounded(File(File(root, generation), "plan.bin"), 16L * 1024 * 1024).contentEquals(plan.encoded))
-            return@exclusive verifyLocked(active, progress, validate)
+            return@exclusive verifyLocked(active, progress, validate).result
         if (generation == null || generation == pointer("active")) {
             generation = "g-${UUID.randomUUID()}"
             val folder = File(root, generation); directory(folder)
@@ -194,9 +194,28 @@ class ClientStore(private val root: File,
     }
 
     fun verify(active: () -> Unit = {}, progress: (Progress) -> Unit = {}, validate: (File) -> Unit): Result =
-        exclusive { verifyLocked(active, progress, validate) }
+        exclusive { verifyLocked(active, progress, validate).result }
 
-    private fun verifyLocked(active: () -> Unit, progress: (Progress) -> Unit, validate: (File) -> Unit): Result {
+    /**
+     * Bind a fresh full rehash to the exact directory while retaining the store lease.
+     * The caller must finish all readers/children inside action, including failure cleanup.
+     * This is cooperative ownership, not a filesystem sandbox: action must not write to
+     * the imported generation or retain the path for use after the callback returns.
+     * Runtime config, caches and logs need a separate writable view before client launch.
+     */
+    fun <T> withVerifiedClient(expectedCatalogSha256: String, active: () -> Unit = {},
+        progress: (Progress) -> Unit = {}, validate: (File) -> Unit,
+        action: (File, Result) -> T): T = exclusive {
+        demand(expectedCatalogSha256.matches(Regex("[a-f0-9]{64}")), "invalid-checkpoint")
+        val verified = verifyLocked(active, progress, validate)
+        demand(verified.result.catalogSha256 == expectedCatalogSha256, "client-catalog-mismatch")
+        active()
+        action(verified.data, verified.result)
+    }
+
+    private data class VerifiedClient(val data: File, val result: Result)
+
+    private fun verifyLocked(active: () -> Unit, progress: (Progress) -> Unit, validate: (File) -> Unit): VerifiedClient {
         val generation = pointer("active") ?: throw ClientImportFailure("no-client")
         val folder = File(root, generation); demand(Files.isDirectory(folder.toPath(), NOFOLLOW_LINKS), "unsafe-destination")
         val encoded = bounded(File(folder, "catalog.bin"), 16L * 1024 * 1024)
@@ -250,7 +269,7 @@ class ClientStore(private val root: File,
                 }
             } }
             demand(actual == count, "destination-changed")
-            validate(data); active(); return Result(count, total, sha, 0)
+            validate(data); active(); return VerifiedClient(data, Result(count, total, sha, 0))
         }
     }
     companion object {

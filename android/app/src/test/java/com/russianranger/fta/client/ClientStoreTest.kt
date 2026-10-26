@@ -261,4 +261,87 @@ class ClientStoreTest {
         assertEquals(result.catalogSha256, store(root).verify(validate = {}).catalogSha256)
     }
 
+    @Test fun verifiedLeaseBindsExactDirectoryAndBlocksReplacementUntilReturn() {
+        val root = File(temporary.root, "store"); val source = Source()
+        val result = store(root).import(source, validate = {})
+        val before = File(root, "active").readText()
+        val value = store(root).withVerifiedClient(result.catalogSha256, validate = {}) { data, verified ->
+            assertEquals(File(active(root), "data"), data)
+            assertEquals(result.catalogSha256, verified.catalogSha256)
+            assertEquals(0L, verified.resumedBytes)
+            assertArrayEquals(source.contents.getValue("Wow.exe"), File(data, "Wow.exe").readBytes())
+            rejected("busy") { store(root).verify(validate = {}) }
+            source.identity = "replacement"
+            rejected("busy") { store(root).import(source, validate = {}) }
+            rejected("busy") { store(root).withVerifiedClient(result.catalogSha256, validate = {}) { _, _ -> fail() } }
+            "finished"
+        }
+        assertEquals("finished", value); assertEquals(before, File(root, "active").readText())
+        store(root).import(source, validate = {})
+        assertNotEquals(before, File(root, "active").readText())
+    }
+    @Test fun priorVerificationDoesNotHideLaterSameSizeCorruptionFromLease() {
+        val root = File(temporary.root, "store"); val result = store(root).import(Source(), validate = {})
+        store(root).verify(validate = {})
+        RandomAccessFile(File(active(root), "data/Data/a.mpq"), "rw").use { it.writeByte(99) }
+        rejected("destination-changed") {
+            store(root).withVerifiedClient(result.catalogSha256, validate = {}) { _, _ -> fail("corrupt data reached callback") }
+        }
+    }
+    @Test fun replacementCatalogCannotUsePriorQualification() {
+        val root = File(temporary.root, "store"); val source = Source()
+        val old = store(root).import(source, validate = {})
+        source.identity = "replacement"; source.contents.getValue("Data/a.mpq")[0] = 99
+        val replacement = store(root).import(source, validate = {})
+        assertNotEquals(old.catalogSha256, replacement.catalogSha256)
+        rejected("client-catalog-mismatch") {
+            store(root).withVerifiedClient(old.catalogSha256, validate = {}) { _, _ -> fail("stale catalog reached callback") }
+        }
+        store(root).withVerifiedClient(replacement.catalogSha256, validate = {}) { _, result ->
+            assertEquals(replacement.catalogSha256, result.catalogSha256)
+        }
+    }
+    @Test fun callbackFailureReleasesLeaseAndPreservesImportedBytes() {
+        val root = File(temporary.root, "store"); val result = store(root).import(Source(), validate = {})
+        val expected = IOException("synthetic cleanup result")
+        try {
+            store(root).withVerifiedClient(result.catalogSha256, validate = {}) { _, _ -> throw expected }
+            fail()
+        } catch (error: IOException) { assertSame(expected, error) }
+        assertEquals(result.catalogSha256, store(root).verify(validate = {}).catalogSha256)
+    }
+    @Test fun memoryPressureDuringLeaseRehashNeverEntersCallback() {
+        val root = File(temporary.root, "store"); val result = store(root).import(Source(), validate = {})
+        rejected("memory-pressure") {
+            ClientStore(root, beforeIo = { throw ClientImportFailure("memory-pressure") })
+                .withVerifiedClient(result.catalogSha256, validate = {}) { _, _ -> fail("paused rehash reached callback") }
+        }
+        assertEquals(result.catalogSha256, store(root).verify(validate = {}).catalogSha256)
+    }
+    @Test fun candidateRejectionNeverEntersLeaseCallback() {
+        val root = File(temporary.root, "store"); val result = store(root).import(Source(), validate = {})
+        rejected("client-build-mismatch") {
+            store(root).withVerifiedClient(result.catalogSha256,
+                validate = { throw ClientImportFailure("client-build-mismatch") }) { _, _ -> fail("invalid build reached callback") }
+        }
+        store(root).verify(validate = {})
+    }
+    @Test fun cancellationAfterValidationNeverEntersCallback() {
+        val root = File(temporary.root, "store"); val result = store(root).import(Source(), validate = {})
+        var cancelled = false
+        rejected("cancelled") {
+            store(root).withVerifiedClient(result.catalogSha256,
+                active = { if (cancelled) throw ClientImportFailure("cancelled") },
+                validate = { cancelled = true }) { _, _ -> fail("cancelled operation reached callback") }
+        }
+        store(root).verify(validate = {})
+    }
+    @Test fun leaseRequiresPublishedClientAndWellFormedCatalog() {
+        val root = File(temporary.root, "store")
+        rejected("invalid-checkpoint") {
+            store(root).withVerifiedClient("private invalid input", validate = {}) { _, _ -> fail() }
+        }
+        rejected("no-client") { store(root).withVerifiedClient("a".repeat(64), validate = {}) { _, _ -> fail() } }
+    }
+
 }

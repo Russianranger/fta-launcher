@@ -24,9 +24,12 @@ Code 35 physically inspected the complete 60.24 GB client and confirmed the
 matching x86 build. Code 37 then **passed the full 60.24 GB resumable client import**
 with all 10,476 files read back and published, no matching kill and zero memory
 pressure pauses. [Physical client proof](docs/evidence/android-2026-10-25-thor-code37-client-import-pass.json).
-The next device action is **Verify imported client**, then export the report;
-no repeated copy or new APK is needed. Retained client rehash, WarcraftXL execution
-and playable login remain unqualified.
+Code 37 also **passed the full retained rehash** of the same catalog in 55m10s,
+with no matching kill. [Retained proof](docs/evidence/android-2026-10-25-thor-code37-client-retained-pass.json).
+No further import or verification is requested. [Runtime preparation](docs/client-runtime-preparation.md)
+adds a fresh-verification lease and source-checked Wine DLL selection; it does not
+launch a client. Exact x64 host pairing, Wine/WarcraftXL execution and playable
+login remain unqualified.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.
@@ -110,7 +113,8 @@ See [diagnosis and reproduction](docs/world-crypto-provider.md) and
 Code 31 subsequently passed sustained health and the screen-off duration
 observation. The later shutdown and COUNT corrections resolved its blockers;
 code 34 passed clean Stop, final metadata/GT postconditions and the complete gate.
-Client import, WarcraftXL and playable login remain later milestones.
+Client import and retained integrity have since passed on code 37. WarcraftXL
+execution and playable login remain later milestones.
 
 Physical code **17 passed user-controlled service Stop and retained restart**:
 all ten checks in both sessions, all 54 native exits zero and all 24 metadata
@@ -195,28 +199,26 @@ tables. Validation uses the measured archive inventory.
 | Packaged Android database bootstrap/health/shutdown | Passed on Thor, including observed SQL shutdown and exit 0 |
 | Optional private auth-only updater diagnostic | Passed on physical Thor: original updater/dry-run exit 0, 27 auth imports and clean SQL shutdown |
 | Full seed import on pinned Android MariaDB provider | Passed on physical Thor: 563 tables, one trigger, exact three-schema/receipt baselines and clean SQL shutdown |
-| Android ARM64 worldserver and all 52 required modules | Build and private staging passed; world readiness remains open |
+| Android ARM64 worldserver and all 52 required modules | Build, private staging and complete physical code-34 world gate passed |
 | Original compiled three-database updater | Passed on physical Thor: 24/24 strict checks and exact before/after host snapshots |
 | Disposable database cancellation/restart/crash recovery and screen-off health | Passed on physical Thor code 11: all ten observations, 85 complete records |
 | Android Stop action and runtime service-process death/recovery | Passed on physical Thor code 12; all seven observations and 24 complete records |
 | Fresh-only persistent realm storage and reuse without seed replay | Passed on physical Thor code 13: same active generation, no reimport, two clean reopens |
 | Cold realm backup and isolated restore | Physical code 14 passed; uploaded ZIP independently verified; earlier JSON lacks SAF readback receipt |
 | Retained local auth listener/restart | Passed on physical Thor code 16: all 15 flags, 39 successful native records and clean shutdown |
-| User-controlled retained database/auth foreground sessions | Physical code 17 Stop/restart passed; 112,127 /120,000 ms screen-off health recorded |
+| User-controlled retained database/auth foreground sessions | Physical code 17 Stop/restart passed; deferred screen-off gate passed during code-34 native world qualification |
 | Extracted game-data import and format preflight | Physical code 26 passed import/preflight/publication; later retained sessions, including code 31, fully rehashed all 22,817 files |
-| Retained native world/auth/database session | Code 32 passed 651.9 s healthy screen-off and world exit zero during failure cleanup; log cap blocked completion. Recover retained evidence before retrying |
+| Retained native world/auth/database session | Physical code 34 passed controlled startup, 259.2 s healthy screen-off, clean Stop and retained postconditions |
 | Supervised persistent server APK and local account provisioning | Open |
-| WarcraftXL full-client import, 3.3.5 extraction and Wine/x64 host integration | Open |
+| Complete client import and retained full rehash | Physical code 37 passed all 10,476 files / 60,243,212,332 bytes, same catalog |
+| Exact WarcraftXL x64 asset-host pairing and Wine runtime | Open; original runtime bundle/source needed |
 | Physical Thor startup, world entry, shutdown and thermal qualification | Open |
 
-The next device action is [read-only export of the retained code-32 attempt](docs/world-log-recovery.md).
-Do not repeat import, database/auth checks or world startup before recovering this
-evidence. Clean shutdown and retained postconditions still need their complete gate.
-The ARM64 world build and original compiled updater have passing evidence;
-preserve their C++20, all 52 modules, static Lua 5.2, source hashes and strict
-[updater protocol](docs/world-updater-gate.md). Android service-process death is now qualified for the isolated runtime.
-Persistent world readiness requires clean shutdown and retained database/GT
-postconditions. Matching DBC/maps/vmaps/mmaps are already imported and verified.
+No repeat of the passed import, retained rehash, server or screen-off gates is
+needed. The next input is the original WarcraftXL runtime bundle/source matching
+the inspected client, to establish the x64 asset host and IPC contract. Keep the
+installed private code 37 until a qualified runtime update is delivered. Preserve
+C++20, all 52 modules, static Lua 5.2, source identities and strict server checks.
 
 Preserve the original SQL/update
 receipts; never restore the populated fresh-install seed over live saves.

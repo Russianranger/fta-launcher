@@ -33,19 +33,16 @@ resuming 4,898,874,959 bytes. Peak RSS 186,548 KiB; no pressure pause or attempt
 exit. [Measured pass](evidence/android-2026-10-25-thor-code37-client-import-pass.json).
 The native world receipt remains qualified. No copy or server test needs repeating.
 
-1. Keep the already-installed code 37 and reopen the launcher.
-2. Choose **Verify imported client** and keep the app visible until complete.
-3. Choose **Export diagnostic report** and return the JSON. On failure or interruption,
-   export immediately before another attempt.
-
-Do not select Import again, uninstall or clear storage. Original source files,
-managed client files, realm, imported server assets and backups must remain intact.
-No new private APK is required for the report-assessment tooling increment.
-
-The report's `operation=import` and `retainedRehashValidated=false` mean the later
-full rehash remains pending. Its catalog is
+The later retained verification also **passed** all 10,476 files / 60,243,212,332
+bytes in 55m10s, with no attempt-matched exit. [Retained proof](evidence/android-2026-10-25-thor-code37-client-retained-pass.json).
+Its catalog matches the published import:
 `fe49bee4d96be084cfda4740112f1a73a10b87ab222e51ccb8730be38c300f13`.
-The next agent must [bind the verification report to this import](client-report-qualification.md).
+The [automated assessment](client-report-qualification.md) binds both attempts.
+
+Keep installed code 37. No new APK, repeated import, verification or server test
+is requested. Original source files, managed client, realm, imported server assets
+and backups must remain intact. [Runtime preparation](client-runtime-preparation.md)
+is source-only; its new helpers are not in the installed code-37 artifact.
 
 The 24 MiB/s aggregate governor and 1 MiB sync/readback/cache windows remain active
 for retained verification. Successful copying does not measure actual cache eviction

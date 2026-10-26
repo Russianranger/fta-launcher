@@ -1,0 +1,20 @@
+{
+  "formatVersion": 1,
+  "scope": "original-launcher-wine-override-comparison",
+  "launcherZipSha256": "b1ab843535307a5a384b30ed29ef80733abf5e45b7967250408a80f79a6380f0",
+  "sourceMember": "Launcher/src/main_linux.cpp",
+  "sourceMemberSha256": "7664bcb8f60f4b41e0c4f856bcb6fb2c819b1877b2bf670d9656e82fed0f95b6",
+  "unchangedFunctionSliceSha256": "8c550b5cb6ee636b777812f10da0c2a82f96e79d32644727a65971f88e4bb27a",
+  "kotlinImplementationSha256": "aae062ead6976c0ee107b4125867f10fb50fd91f40a6636d7c56a21fd84df26a",
+  "cases": 1038,
+  "corpusSha256": "d9fb89208f9a9598aaa5741bd9189d1a393f520c358e0d6510bd9a2a3a56532b",
+  "outputSha256": "19ac54f22dc0723d5911f4b34a40b75772765bdfa1816a798ffea89d70c2e346",
+  "exactSourceComparisonPassed": true,
+  "originalFunctionModified": false,
+  "clientOrWineExecuted": false,
+  "originalClientFilesModified": false,
+  "assetHostIdentityQualified": false,
+  "wineRuntimeQualified": false,
+  "warcraftXLCompatible": false,
+  "gameLoginQualified": false
+}

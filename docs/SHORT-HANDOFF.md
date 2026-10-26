@@ -26,46 +26,56 @@ temporary role removed, retained metadata/GT postchecks passed. No seed imported
 World log 1,626,489 bytes, no ERROR/FATAL, two exact COUNT hints, no log-limit hit.
 Game login remains false. Do not repeat passed server or standalone DB/auth tests.
 
-## Current work — physical code 37 client import passed
+## Current work — code 37 client integrity passed; runtime preparation
 
-Recovered actual remote **9f1c95042ef734175a06712d31538667b6ac526c**; all three jobs
-in [CI 40217676223](https://github.com/Russianranger/fta-launcher/actions/runs/40217676223)
-passed (457 Android tests / one existing skip, 186 tooling tests, lint/assembly).
-Latest private APK remains **code 37 / 0.13.2-client-memory**, 59,073,805 bytes,
-SHA256 `105bf65924ebabedb7dde71c2e3f880e463180a45ccf1fd4f7a6fe14b061cf0b`.
-[Verified APK/source recovery](code37-recovery.md). All 21 native payloads, 148
-runtime entries and the native source companion remain unchanged from the passed
-native build. Application commit **39516bb1b0a499d84279ef9eefea0c5c9e9abcf4**.
+Recovered actual remote **30e79a7fb734b66d05dc9d15a64a16827e1160f6**; all three jobs
+in [CI 40245205956](https://github.com/Russianranger/fta-launcher/actions/runs/40245205956)
+passed (457 Android tests / one existing skip, 186 tooling + 24 report tests,
+lint/assembly). Latest installed private APK remains **37 / 0.13.2-client-memory**,
+59,073,805 bytes, SHA256
+`105bf65924ebabedb7dde71c2e3f880e463180a45ccf1fd4f7a6fe14b061cf0b`.
+[Verified APK/source recovery](code37-recovery.md). Application commit
+**39516bb1b0a499d84279ef9eefea0c5c9e9abcf4**. All 21 native payloads, 148 runtime
+entries and native source companion remain those of the passed native build.
 
-New [physical import proof](evidence/android-2026-10-25-thor-code37-client-import-pass.json):
-report SHA256 `04f6e4b88c6c8dcf8763e4fa606b37eccb1858efa79ea28109e2abbae040c3e9`,
-98,172 bytes; attempt `cb1d364a-4c5e-4ce0-9a4a-0e7c25fe3e3a`. All **10,476 files /
-60,243,212,332 bytes** copied, independently read back and published; **4,898,874,959
-bytes** resumed. **9,604,969 ms** (2h40m05s), peak RSS **186,548 KiB**, zero pressure
-pauses, no attempt-matched exit. One older unmatched client low-memory exit remains
-historical evidence. Source/destination advice both 67,521 accepted requests;
-actual eviction is not measured. The native-world qualification/attempt remains
-intact. Code-36 interruption history is retained; do not repeat the completed copy.
+[Import proof](evidence/android-2026-10-25-thor-code37-client-import-pass.json):
+report `04f6e4b88c6c8dcf8763e4fa606b37eccb1858efa79ea28109e2abbae040c3e9`,
+attempt `cb1d364a-4c5e-4ce0-9a4a-0e7c25fe3e3a`, all **10,476 files /
+60,243,212,332 bytes**, copied/read back/published in 9,604,969 ms (2h40m05s),
+4,898,874,959 bytes resumed. No matching exit; zero pressure pauses.
 
-Published catalog:
+New [retained proof](evidence/android-2026-10-25-thor-code37-client-retained-pass.json):
+report **98,093 bytes**, SHA256
+`8d8ee246c69891ac57d3c03f5bc75e5daeca77fdadf3b98e681aae23f5dfd09c`,
+attempt `a8fdcc27-89b7-4fbf-9cc2-a9dd3f8a2c90`, **3,309,796 ms (55m10s)**.
+Complete `operation=verify`, full counts/bytes, retainedRehashValidated=true.
+[Automated assessment](client-report-qualification.md) matched the import baseline;
+**clientIntegrityGateQualified=true**. Same catalog:
 `fe49bee4d96be084cfda4740112f1a73a10b87ab222e51ccb8730be38c300f13`.
-`operation=import`, `copyReadbackValidated=true`, **retainedRehashValidated=false**.
-This run qualifies the large-copy path and its survival, not forced-pressure
-backoff, cache eviction, host pairing or client execution.
+No matching exit, peak reported RSS 186,548 KiB, zero pressure pauses. The older
+unmatched low-memory exit remains historical. Cache eviction and forced-pressure
+backoff are not measured. Native-world attempt/qualification remains intact.
 
-Independent continuation adds [automated report assessment](client-report-qualification.md)
-with 24 regression cases and a CI step. It binds reports to the exact private APK,
-keeps import/retained/runtime gates separate, rejects contradictory or incomplete
-receipts, and binds a subsequent rehash to this import's catalog/counts/chronology.
-No application or native runtime change; no new private APK is needed.
+[Runtime preparation](client-runtime-preparation.md) now adds a fresh-rehash store
+lease for future readers and the original Wine DLL-override transformation.
+16 new Android regressions; 52 focused JVM tests passed under 64 MiB heap.
+An unchanged-original C++20 probe matches Kotlin across **1,038 cases**. No native
+payload, imported file, config, account or installed APK is changed. These helpers
+are source-only and not yet called by an executable runtime path. The next private
+APK must increase the version code; do not relabel a rebuild as the old artifact.
 
-**Next physical action:** reopen the installed code 37, select **Verify imported
-client**, keep visible until complete, then **Export diagnostic report**. On failure
-export before another attempt. Do not select Import again, uninstall, clear storage,
-or repeat server/DB/auth/screen-off/game-data tests. Next agent: assess that report
-against the private APK proof and this import baseline with the documented command.
-After retained integrity passes, resolve exact x64 asset-host identity/pairing and
-qualify Wine/translator IPC before execution. WarcraftXL and gameplay remain open.
+**Next input:** original WarcraftXL runtime bundle/source matching the inspected
+client, including x64 host. The recovered Launcher.zip establishes proxy/config
+behavior, but not exact host path/launch/IPC. Two x64 hashes are recorded; do not
+infer identity from version 1.8.34.0. No matching bundle was found in recovered
+inputs/Library searches. The full 60 GB assets and private configs are unnecessary
+for this inspection. Next agent: match supplied component hashes, establish host
+pairing, then prepare pinned Wine/translator and a separate writable runtime view
+with owned process cleanup. WarcraftXL compatibility and gameplay remain false.
+
+**No physical retest is requested.** Keep installed code 37. Do not repeat import,
+retained client rehash, server, DB/auth, screen-off or game-data gates. Preserve
+all source files, managed client, realm, native dependencies and backups.
 
 ## Recovery and safety
 
@@ -91,7 +101,7 @@ catalog `0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff`.
 Host original DBC loaders and restored exact MariaDB loaded all 8,922 GT floats
 bit-for-bit, with empty-table negatives and ASan. Physical database/updater, realm
 reuse, backup/restore, process-death recovery, local auth and Stop/restart already
-passed. Client import now passed; retained client rehash, WarcraftXL and playable
+passed. Client import and retained rehash passed; Wine/WarcraftXL execution and playable
 login remain pending.
 Deferred Attriboost Settings field 8 vs 9 bug remains gameplay work. No private
 binaries, assets, SQL, credentials or player data may enter Git.

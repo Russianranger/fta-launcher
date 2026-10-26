@@ -14,11 +14,14 @@ The physical code-37 import passed. Its assessment is
 later retained rehash. Neither copy nor retained rehash proves host pairing,
 WarcraftXL/Wine execution or gameplay.
 
-## Next report
+## Retained verification passed
 
-The owner should run **Verify imported client** on the already-installed code 37,
-then export. Do not request a repeated import or server gate. Assess the new private
-JSON from the repository root, choosing a new output filename:
+The subsequent report also passed, with `clientIntegrityGateQualified=true`:
+[retained assessment](evidence/android-2026-10-25-thor-code37-client-retained-pass.json).
+Attempt `a8fdcc27-89b7-4fbf-9cc2-a9dd3f8a2c90`, 3,309,796 ms, exact same catalog
+and totals; no matching exit. Do not request another import, verify or server gate.
+The following command reproduces the assessment from the private report, choosing
+a new output filename:
 
 ```sh
 python3 android/qualification/client_report.py \

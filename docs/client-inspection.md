@@ -3,8 +3,8 @@
 Code 35 passed on Thor: 10,476 files / 60,243,212,332 bytes, correct x86 client
 build, required DLLs and two x64 executable candidates.
 [Measured proof](evidence/android-2026-10-25-thor-code35-client-inspection.json).
-Code 37 also passed [managed client import](client-import.md). The next action is
-**Verify imported client**; do not repeat inspection or import.
+Code 37 also passed [managed client import and retained full rehash](client-import.md).
+Do not repeat inspection, import or verification. Continue [runtime preparation](client-runtime-preparation.md).
 
 Code 35 begins the client milestone after the complete code-34 native world pass.
 It does not import or run the client. Select the already extracted **complete
@@ -54,7 +54,7 @@ Microsoft specifications: [PE/COFF](https://learn.microsoft.com/en-us/windows/wi
 [VS_VERSIONINFO](https://learn.microsoft.com/en-us/windows/win32/menurc/vs-versioninfo),
 [VS_FIXEDFILEINFO](https://learn.microsoft.com/en-us/windows/win32/api/verrsrc/ns-verrsrc-vs_fixedfileinfo).
 
-Next: qualify the retained full rehash after the passed [managed import](client-import.md).
+The retained full rehash has now passed after the [managed import](client-import.md).
 Exact x64 host identity/pairing remains unresolved. Wine/translator,
 32-bit client to 64-bit host IPC, renderer, controllers and playable login remain
 later gates. Never overwrite the original folder or provision an account silently.

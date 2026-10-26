@@ -98,7 +98,7 @@ at 1 TiB. Unknown file sizes, case collisions, invalid parent types, duplicate
 source identities and unsafe destination links are rejected. No source schemas
 or original server asset policies change.
 
-## Qualification and next physical gate
+## Physical import and retained-integrity gates passed
 
 Physical code 37 **passed import/readback/publication** of all 10,476 files /
 60,243,212,332 bytes in 9,604,969 ms (2h40m05s), resuming 4,898,874,959 bytes.
@@ -110,9 +110,12 @@ is unchanged. [Measured pass](evidence/android-2026-10-25-thor-code37-client-imp
 
 The published catalog is
 `fe49bee4d96be084cfda4740112f1a73a10b87ab222e51ccb8730be38c300f13`.
-The report is for **import**, not a later retained rehash. `retainedRehashValidated`
-is false. This workload's successful survival does not prove forced-pressure
-pause/recovery behavior or general immunity to Android process termination.
+That first report is for **import**. The subsequent [retained verification](evidence/android-2026-10-25-thor-code37-client-retained-pass.json)
+passed all files and bytes against the same catalog in **3,309,796 ms (55m10s)**.
+Its distinct later attempt is `a8fdcc27-89b7-4fbf-9cc2-a9dd3f8a2c90`, with
+`retainedRehashValidated=true`, no matching exit and zero pressure pauses. The
+combined managed-client integrity gate is complete. Successful survival does not
+prove forced-pressure pause/recovery behavior or general immunity to termination.
 
 Synthetic host tests additionally cover exact copy/reopen, empty files/directories,
 bounded reads, interruption/resume, tampered checkpoints, changed sources, quota
@@ -121,10 +124,9 @@ checkpoint format also [pass a 5 GiB host recovery test](client-memory-host.md).
 [Report assessment](client-report-qualification.md) automatically distinguishes
 these gates and binds the later verification receipt to the observed import.
 
-**Do not import again.** Reopen the installed code 37, select **Verify imported
-client**, keep visible until complete, then **Export diagnostic report**. If it
-fails or stops, export before another attempt. Keep the original folder and all
-retained data. No new APK, repeated inspection or server/game-data test is needed.
+**No repeated import or verification is needed.** Keep installed code 37, the
+original folder, managed client, realm and backups. Continue [runtime preparation](client-runtime-preparation.md);
+exact host pairing and executable compatibility remain separate gates.
 
 Android references: [SAF grants](https://developer.android.com/training/data-storage/shared/documents-files),
 [foreground data sync](https://developer.android.com/develop/background-work/services/fgs/service-types#data-sync).
