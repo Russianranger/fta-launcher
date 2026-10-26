@@ -72,6 +72,10 @@ python3 android/qualification/check_client_wine_source.py \
 The archive identity is mandatory. Generated original-source harness, executable
 and logs remain outside Git. The normal Android suite runs all 16 new regressions;
 the private original-source comparison cannot run in public CI without its input.
+Implementation `d5382d5312e7ba5150adfffa397de57aa6045e8b` passed all three jobs in
+[CI 40254380310](https://github.com/Russianranger/fta-launcher/actions/runs/40254380310):
+473 Android tests passed / one existing skip, lint/assembly, cache-helper checks,
+186 tooling and 24 report tests. [Exact qualification](evidence/android-2026-10-25-client-runtime-preparation-ci.json).
 
 ## Remaining input and runtime gates
 

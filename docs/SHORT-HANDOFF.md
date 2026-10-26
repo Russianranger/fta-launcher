@@ -28,10 +28,13 @@ Game login remains false. Do not repeat passed server or standalone DB/auth test
 
 ## Current work — code 37 client integrity passed; runtime preparation
 
-Recovered actual remote **30e79a7fb734b66d05dc9d15a64a16827e1160f6**; all three jobs
-in [CI 40245205956](https://github.com/Russianranger/fta-launcher/actions/runs/40245205956)
-passed (457 Android tests / one existing skip, 186 tooling + 24 report tests,
-lint/assembly). Latest installed private APK remains **37 / 0.13.2-client-memory**,
+Runtime-preparation implementation **d5382d5312e7ba5150adfffa397de57aa6045e8b**;
+all three jobs in [CI 40254380310](https://github.com/Russianranger/fta-launcher/actions/runs/40254380310)
+passed: **473 Android tests / one existing skip**, 41 suites, no errors/failures,
+lint/assembly/cache-helper checks, **186 tooling + 24 report tests**. Recovered
+remote before this increment was `30e79a7fb734b66d05dc9d15a64a16827e1160f6`.
+[Exact qualification](evidence/android-2026-10-25-client-runtime-preparation-ci.json).
+Latest installed private APK remains **37 / 0.13.2-client-memory**,
 59,073,805 bytes, SHA256
 `105bf65924ebabedb7dde71c2e3f880e463180a45ccf1fd4f7a6fe14b061cf0b`.
 [Verified APK/source recovery](code37-recovery.md). Application commit

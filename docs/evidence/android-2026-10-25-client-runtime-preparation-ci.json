@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "scope": "client-runtime-preparation-source-qualification",
+  "commit": "d5382d5312e7ba5150adfffa397de57aa6045e8b",
+  "tree": "e31ed04eae2a444794411dbcd6d83cd92fac1528",
+  "ciRun": 40254380310,
+  "ciUrl": "https://github.com/Russianranger/fta-launcher/actions/runs/40254380310",
+  "jobs": [
+    {
+      "id": 121352971464,
+      "name": "Archive and database safety tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 121352971695,
+      "name": "Android foundation APK",
+      "conclusion": "success"
+    },
+    {
+      "id": 121353881834,
+      "name": "Direct APK download",
+      "conclusion": "success"
+    }
+  ],
+  "androidUnitResults": {
+    "tests": 474,
+    "passed": 473,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "suites": 41
+  },
+  "newAndroidTests": 16,
+  "hostFocusedJvmTests": 52,
+  "hostJvmHeapLimitMiB": 64,
+  "toolingTests": 186,
+  "reportTests": 24,
+  "originalSourceComparisonCases": 1038,
+  "lintPassed": true,
+  "assemblyPassed": true,
+  "cacheHelperChecksPassed": true,
+  "nativeReproductionInputsChanged": false,
+  "newPrivateApkBuilt": false,
+  "installedPrivateVersionCode": 37,
+  "installedPrivateApkSha256": "105bf65924ebabedb7dde71c2e3f880e463180a45ccf1fd4f7a6fe14b061cf0b",
+  "clientOrWineExecuted": false,
+  "assetHostIdentityQualified": false,
+  "warcraftXLCompatible": false,
+  "gameLoginQualified": false
+}
