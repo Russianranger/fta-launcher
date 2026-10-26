@@ -30,6 +30,10 @@ No further import or verification is requested. [Runtime preparation](docs/clien
 adds a fresh-verification lease and source-checked Wine DLL selection; it does not
 launch a client. Exact x64 host pairing, Wine/WarcraftXL execution and playable
 login remain unqualified.
+The supplied [host and root proxy](docs/warcraftxl-host.md) now match Thor, with
+1,140 isolated original x64-to-x86 header comparisons. A separate
+[synthetic mixed Wine/FEX gate](docs/client-mixed-runtime.md) prepares process/IPC
+qualification before original-client execution; the installed APK is unchanged.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.

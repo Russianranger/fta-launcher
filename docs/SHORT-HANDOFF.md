@@ -95,9 +95,19 @@ in Unicorn; no original host entry point, Windows API or live transport executes
 Nine new qualification regressions; 52 qualification + 186 tooling tests pass
 locally. All live Wine/host/WarcraftXL/gameplay flags stay false.
 
-**Next:** inspect and pin mixed Wine/FEX runtime inputs; implement synthetic x86
-parent/x64 child shared mapping/event and cleanup gate before original-host
-execution. Then prepare a separate writable runtime view; never mutate/hard-link
+Implementation **8516d8ff8abe8133a752179d25ce6817861cd83b** passed all three jobs
+in [CI 40392773633](https://github.com/Russianranger/fta-launcher/actions/runs/40392773633):
+486 Android tests / one existing skip, lint/assembly/cache checks, 186 tooling
+and 52 qualification tests. The next increment pins/audits the public UO v0.2.0
+Wine/FEX archive (14,092 entries / 2.64 GB; 12 critical hashes) and adds a separate
+native ARM64 Linux synthetic x86-parent/x64-child process/IPC/owner-exit CI gate.
+[Scope and exact candidate](client-mixed-runtime.md). Ten additional archive
+regressions pass (62 qualification total). New mixed-runtime execution is pending
+its exact CI result; no original client binary enters CI or new APK.
+
+**Next:** inspect the exact mixed-runtime CI, resolve any measured failures, then
+pin Android PRoot/loader/source inputs and prepare the owned service plus a separate
+writable runtime view; never mutate/hard-link
 original imported files or create another unbounded full-client copy. The full
 1.1 GB source and additional private files are not currently required.
 

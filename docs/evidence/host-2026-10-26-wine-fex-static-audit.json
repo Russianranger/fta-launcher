@@ -1,0 +1,82 @@
+{
+  "entries": 14092,
+  "fileBytes": 2637799241,
+  "linkCount": 1033,
+  "components": {
+    "opt/wine/bin/wine": {
+      "bytes": 87152,
+      "sha256": "1164f99112773125c3a627a8c2ac874904394ea719b0ca77f83f2c73a8418669",
+      "elfMachine": 183,
+      "elfClass": 2
+    },
+    "opt/wine/bin/wineserver": {
+      "bytes": 4777352,
+      "sha256": "7167231900b0d10ad966224afa67342fe4e765a748b9df209a90544b76cc24b4",
+      "elfMachine": 183,
+      "elfClass": 2
+    },
+    "opt/wine/lib/wine/aarch64-windows/kernel32.dll": {
+      "bytes": 3538944,
+      "sha256": "ed8105ca1482393003821e9559c31b529a432fab6815f2f41a32bf895db288e8",
+      "peMachine": "0xaa64"
+    },
+    "opt/wine/lib/wine/aarch64-windows/libarm64ecfex.dll": {
+      "bytes": 5533696,
+      "sha256": "5040f73c2e3b5a0edc1c358421de70d719143862c8ddd5fe0870601499cb87dd",
+      "peMachine": "0x8664"
+    },
+    "opt/wine/lib/wine/aarch64-windows/libwow64fex.dll": {
+      "bytes": 4943872,
+      "sha256": "e0e05e7e8420c7b5357c1a49532441b1a475e448b181dc99bc5eacab77479f03",
+      "peMachine": "0xaa64"
+    },
+    "opt/wine/lib/wine/aarch64-windows/ntdll.dll": {
+      "bytes": 6946816,
+      "sha256": "b877d511cdbc5c0ae6667d3a3bb0656de1a1d3dde2c5913f21c61856341ecfb1",
+      "peMachine": "0xaa64"
+    },
+    "opt/wine/lib/wine/aarch64-windows/wininet.dll": {
+      "bytes": 3604480,
+      "sha256": "e9128dc91587f8cf52b25a95696a9853852427bd61cd57089882fb1f6da6ad54",
+      "peMachine": "0xaa64"
+    },
+    "opt/wine/lib/wine/aarch64-windows/wow64.dll": {
+      "bytes": 1310720,
+      "sha256": "3d72da6e8efd68ecb726e23395dcecd3b371a621b361739a24b24a2885e81e43",
+      "peMachine": "0xaa64"
+    },
+    "opt/wine/lib/wine/aarch64-windows/wow64win.dll": {
+      "bytes": 1245184,
+      "sha256": "6437058bc10811ae74961a88e9e624fa961b0d577d4771723f0aebc1d82d7bce",
+      "peMachine": "0xaa64"
+    },
+    "opt/wine/lib/wine/i386-windows/kernel32.dll": {
+      "bytes": 1318912,
+      "sha256": "6469211ce609f9ac8b4510bfaede42d700fed56b8bd772b4e8220073b89b6cf9",
+      "peMachine": "0x14c"
+    },
+    "opt/wine/lib/wine/i386-windows/ntdll.dll": {
+      "bytes": 2494464,
+      "sha256": "1708cfa458d1f5f69658731bae7ec655b2fa0d633a3cce742e0677cbfa0f9942",
+      "peMachine": "0x14c"
+    },
+    "opt/wine/lib/wine/i386-windows/wininet.dll": {
+      "bytes": 1150976,
+      "sha256": "28b4dca3ae2e16c2acb9cd01601d5230ee5c3ee90c555727135fa791c33cdbd8",
+      "peMachine": "0x14c"
+    }
+  },
+  "formatVersion": 1,
+  "scope": "pinned-public-wine-fex-static-audit",
+  "archiveSha256": "f036c00a290abb953bec26be80c4d8fe492fd986e7a589c51008124432c8641e",
+  "manifestSha256": "d375adf23b621f83ef7b5fff95365312377399704abb486fd8d4164a1fe29a13",
+  "archiveIdentityValidated": true,
+  "archiveStructureValidated": true,
+  "componentIdentitiesValidated": true,
+  "archiveExtracted": false,
+  "wineExecuted": false,
+  "androidRuntimeQualified": false,
+  "originalHostExecuted": false,
+  "warcraftXLCompatible": false,
+  "gameLoginQualified": false
+}
