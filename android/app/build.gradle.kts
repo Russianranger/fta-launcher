@@ -7,6 +7,10 @@ val prepareFullSeedMetadata by tasks.registering(Copy::class) {
     from(rootProject.file("../manifests/full-seed-lock.json"))
     from(rootProject.file("../manifests/game-data-policy.properties"))
     from(rootProject.file("../manifests/world-session.json"))
+    from(rootProject.file("qualification/client-runtime-lock.json"))
+    providers.gradleProperty("ftaClientRuntimeCatalog").orNull?.let { catalog ->
+        from(file(catalog)) { rename { "client-runtime-catalog.tsv" } }
+    }
     from(rootProject.file("../LICENSE")) { rename { "launcher-LICENSE.txt" } }
     into(fullSeedAssetDirectory.map { it.dir("metadata") })
 }

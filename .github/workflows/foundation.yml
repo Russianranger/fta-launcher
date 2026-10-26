@@ -55,9 +55,13 @@ jobs:
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
       - name: Stage exact ARM64 database provider and notices
         run: python3 tools/stage_android_provider.py --fetch-apk "$RUNNER_TEMP/provider-source.apk" --output "$RUNNER_TEMP/fta-provider" > "$RUNNER_TEMP/provider-stage.json"
+      - name: Derive exact public runtime extraction catalog
+        run: |
+          curl --fail --location --retry 2 --max-time 300 https://github.com/Russianranger/uo-android-launcher/releases/download/v0.2.0/client-runtime-arm64.tar.gz -o "$RUNNER_TEMP/client-runtime.tar.gz"
+          python3 android/qualification/build_runtime_catalog.py --archive "$RUNNER_TEMP/client-runtime.tar.gz" --output "$RUNNER_TEMP/client-runtime-catalog.tsv"
       - name: Test, lint and compile foundation
         working-directory: android
-        run: ./gradlew --no-daemon --max-workers=2 -PftaProviderDir="$RUNNER_TEMP/fta-provider" testDebugUnitTest lintDebug assembleDebug
+        run: ./gradlew --no-daemon --max-workers=2 -PftaProviderDir="$RUNNER_TEMP/fta-provider" -PftaClientRuntimeCatalog="$RUNNER_TEMP/client-runtime-catalog.tsv" testDebugUnitTest lintDebug assembleDebug
       - name: Summarize measured Android unit results
         working-directory: android
         run: |
@@ -85,6 +89,19 @@ jobs:
           subprocess.run(['python3', 'tools/check_game_data_cache.py', '--kotlin-classpath', cp,
                           '--jdk', os.environ['JAVA_HOME'], '--library-dir', str(temporary / 'fta-cache-helper'),
                           '--output', str(temporary / 'fta-cache-evidence.json')], check=True)
+          PYTHON
+      - name: Install and fully reverify public runtime with 96 MiB JVM heap
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, pathlib, subprocess
+          temporary = pathlib.Path(os.environ['RUNNER_TEMP'])
+          cache = pathlib.Path(os.environ.get('GRADLE_USER_HOME', str(pathlib.Path.home() / '.gradle')))
+          stdlib = next(cache.rglob('kotlin-stdlib-2.0.21.jar'))
+          cp = 'android/app/build/tmp/kotlin-classes/debug:android/app/build/tmp/kotlin-classes/debugUnitTest:' + str(stdlib)
+          pin = json.loads(pathlib.Path('android/qualification/client-runtime-lock.json').read_text())
+          subprocess.run(['java', '-Xmx96m', '-cp', cp, 'com.russianranger.fta.client.RuntimeStoreQualification',
+                          str(temporary / 'client-runtime-catalog.tsv'), str(temporary / 'client-runtime.tar.gz'),
+                          str(temporary / 'installed-client-runtime'), pin['catalog']['sha256']], check=True)
           PYTHON
       - name: Record exact APK digest
         working-directory: android/app/build/outputs/apk/debug

@@ -102,9 +102,16 @@ never infer the installed private APK from public CI output.
 
 ## Next concrete gate and recovery rules
 
-Complete the exact distribution source/notice companion, then implement the
-owned Android diagnostic service, bounded runtime installation and disposable
-Wine prefix. Qualify synthetic mixed processes on Thor before original host/
+The [bounded runtime installer](client-runtime-installation.md) is implemented:
+authenticated extraction ranges, <=1 MiB sync/readback windows, delayed links,
+OS lease, atomic publication and full retained rehash. Seventeen new JVM tests
+and four catalog-generation tests pass locally. Full public runtime installation
+and both rehashes pass with a 96 MiB JVM heap; CI now repeats this qualification.
+No Android service/execution action or new private APK is enabled yet.
+
+Complete the exact distribution source/notice companion and wire the owned
+Android diagnostic service, installer and disposable Wine prefix.
+Qualify synthetic mixed processes on Thor before original host/
 graphics claims. Use the existing native process bridge and the new PRoot
 ownership requirement for parent death/Stop; Linux evidence does not qualify
 Android cleanup. Later create a separate writable client view under the verified

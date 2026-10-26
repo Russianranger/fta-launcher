@@ -1,5 +1,9 @@
 {
   "formatVersion": 1,
+  "catalog": {
+    "bytes": 1722721,
+    "sha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0"
+  },
   "scope": "synthetic-client-runtime-candidate",
   "release": "https://github.com/Russianranger/uo-android-launcher/releases/tag/v0.2.0",
   "archive": {
