@@ -126,7 +126,11 @@ def main():
         (source / 'src/loader/loader-info.py').write_text(HELPER)
         command = ['make', '-C', 'src', '-j1', 'CC=gcc', 'LD=gcc',
             'CPPFLAGS=-D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -I. -I' + str(source / 'src') + ' -I' + str(prefix / 'include'),
-            'LDFLAGS=-L' + str(prefix / 'lib') + ' -ltalloc -Wl,-z,noexecstack', 'PROOT_UNBUNDLE_LOADER=/unused']
+            # This fixture runs native ELF64 only. GCC on AArch64 has no -m32;
+            # suppress the makefile's optional ARM32 loader build dependency.
+            # Keep the tracer's original arch.h and both Android loaders intact.
+            'LDFLAGS=-L' + str(prefix / 'lib') + ' -ltalloc -Wl,-z,noexecstack',
+            'PROOT_UNBUNDLE_LOADER=/unused', 'HAS_LOADER_32BIT=']
         run(command, source)
         baseline = work / 'proot-baseline'; shutil.copyfile(source / 'src/proot', baseline); baseline.chmod(0o755)
         run(['git', 'apply', '--check', str(patch)], source); run(['git', 'apply', str(patch)], source)
@@ -145,7 +149,8 @@ def main():
     positive = run_case(owned, fixture, work, True)
     evidence = dict(formatVersion=1, scope='native-linux-proot-ownership', sourceArchiveSha256=SOURCE_SHA,
         sourceComponents=INPUTS, ownershipPatchSha256=digest(patch), buildJobs=1,
-        machine=os.uname().machine, normalTreeExit=0, baseline=negative, fixed=positive,
+        machine=os.uname().machine, linuxGuestScope='native ELF64 only',
+        normalTreeExit=0, baseline=negative, fixed=positive,
         fixtureSha256=digest(fixture), loaderSha256=digest(loader),
         baselineProotSha256=digest(baseline), ownedProotSha256=digest(owned),
         linuxTracerDeathOwnershipQualified=True, androidBridgeExecuted=False, androidRuntimeQualified=False,

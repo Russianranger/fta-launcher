@@ -151,6 +151,11 @@ stopped during the host build: its bundled-loader target invoked unsupported
 native-loader mode and supplies the exact native loader through PROOT_LOADER.
 No ARM32 Linux execution is needed for the ARM64 Wine/FEX guest. Inspect the
 follow-up CI before claiming ownership qualified; the prior Wine gate stays passed.
+The native test also explicitly clears the makefile's optional
+`HAS_LOADER_32BIT` build dependency: unbundling alone still selected `-m32` in
+[CI 40399293217](https://github.com/Russianranger/fta-launcher/actions/runs/40399293217).
+This scopes only the Linux ELF64 fixture build; original arch.h, Android builds
+and Wine's Windows x86/FEX path remain unchanged.
 
 **Next:** complete exact distribution source/notice companion, then the owned
 Android diagnostic service, bounded runtime installer and disposable prefix to
