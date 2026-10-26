@@ -86,21 +86,19 @@ The report contains two anonymous x64 executables:
 | 1,071,104 | `6349752018efba461a2ac4bf19a98d1293aa7c21f98cb90f50615f33a7701955` | Absent |
 | 801,792 | `773a73824dbdb3b909b4d9120080483be316c6451d71938fd11010a68a56c497` | 1.8.34.0 |
 
-Neither architecture, size, version nor presence alone assigns either binary to
-the host role. The owner has now supplied the exact matching WarcraftXL.dll.
-[Static inspection and original-code comparison](warcraftxl-contract.md) establish
-**Utils/WarcraftXLHost.exe**, automatic `--client-pid` launch by the DLL, protocol 4,
-and six custom root-proxy imports. The DLL's 71-byte header validator matches the
-new Kotlin snapshot checker across 1,456 isolated emulation cases.
+Exact supplied hashes now assign the 1,071,104-byte executable to
+**Utils/WarcraftXLHost.exe**, and confirm the original root proxy's six required
+exports. The 801,792-byte executable remains unassigned. [Measured host inspection
+and original producer/consumer comparison](warcraftxl-host.md) add 104 isolated
+host initializations / 1,140 headers accepted or rejected identically by the
+original x86 validator and Kotlin. The original DLL still launches the host using
+its own Windows PID; do not start a separate host or substitute an Android PID.
 
-The next input is now only **Utils/WarcraftXLHost.exe and root d3d9.dll** from this
-same client. Match their hashes and export/import contract before host pairing.
-The full source archive, 60 GB MPQs and private configs are unnecessary for that
-inspection. The supplied configuration files remain unchanged and outside Git.
-
-Then pin the ARM64 Wine/translator/display stack and notices, implement a writable
-client view without changing the preserved import, supervise the complete process
-tree, and qualify x86 client to x64 host startup/IPC/Stop on Thor. Renderer,
-controller, account/login, world entry and sustained thermal/runtime gates follow.
-No Wine/client execution, asset-host pairing, WarcraftXL compatibility or gameplay
-qualification follows from these preparation helpers.
+Pin the ARM64 Wine/FEX/display stack and notices, qualify synthetic mixed-bitness
+creation/IPC/cleanup, implement a writable client view without changing the
+preserved import, then qualify original client-to-host startup/IPC/Stop on Thor.
+Renderer, controller, account/login, world entry and sustained thermal/runtime
+gates follow. The complete 1.1 GB source and private configurations remain
+unnecessary for the current binary/runtime boundary; all supplied files are
+unchanged. No Wine/client execution, asset-host pairing, WarcraftXL compatibility
+or gameplay qualification follows from these preparation helpers.

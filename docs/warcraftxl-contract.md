@@ -29,10 +29,10 @@ Read-only disassembly locations, expressed as RVAs in the exact DLL:
 | Read a 64-byte header from the client-specific shared mapping | `0x238e0` |
 | Validate the copied header | `0x219e0`, 71 bytes |
 
-This is static evidence of the DLL's intended path and behavior. The host EXE has
-not been supplied or inspected. The earlier report's two anonymous x64 hashes
-cannot yet be assigned to this path merely from their sizes or version labels.
-Original request/channel layouts and live IPC still require qualification.
+This is static evidence of the DLL's intended path and behavior. The host and
+root proxy have since been supplied and matched by exact hash; see the
+[host comparison](warcraftxl-host.md). Original request/channel semantics and
+live IPC still require qualification.
 
 The import directory also requires these **six named exports from root d3d9.dll**:
 `WxlGetControlOption`, `WxlGetControlSettings`, `WxlGetSsaaFactor`,
@@ -121,16 +121,14 @@ with 485 Android tests passed / one existing skip, lint/assembly/cache-helper ch
 186 tooling and 43 qualification tests. The report-capacity follow-up adds one
 regression; it does not change the emulated validator or the private APK.
 
-## Next minimal input
+## Supplied host and proxy; next runtime gate
 
-Supply **`Utils/WarcraftXLHost.exe`** and **`d3d9.dll` beside Wow.exe** from this
-same client. The recorded root proxy is 202,240 bytes with SHA256
-`4c3522dd17e2ef09cbe13ac82c1e4360c7beb98cbe7af7675d751d1f5bc330e8`.
-Do not substitute `Utils/WarcraftXL/backends/dxvk/d3d9.dll`. The 60 GB game data,
-database, private configs and complete 1.1 GB source archive are unnecessary for
-this next inspection. Match host identity to the earlier x64 observations,
-inspect its imports/protocol, then continue the shared Wine environment and
-owned-process runtime gate. No repeated import or retained verification is needed.
+Both exact files are now available. [The host comparison](warcraftxl-host.md)
+records the assigned x64 identity, six matching proxy exports, static imports,
+and 1,140 original x64-to-x86 header comparisons. The full source archive and
+client data are unnecessary for that inspection. Next qualify the pinned mixed
+Wine/FEX runtime and synthetic process/IPC ownership before original-host execution.
+No repeated import or retained verification is needed.
 
 References: [Microsoft PE/COFF](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format),
 [CreateProcessA](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessa),
