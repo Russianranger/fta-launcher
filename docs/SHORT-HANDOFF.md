@@ -116,6 +116,14 @@ Six download regressions pass. The new bounded guest diagnostic program has five
 host regressions and an ARM64 CI gate. No Android native execution action or new
 private APK is issued yet; do not repeat the original client import.
 
+Preparation worker `1c3321508934b8d95b4a8d4e6c77e6119c7c61e3` passed foundation
+CI 40421996504. The new guest-program run 40421996385 failed fresh-prefix setup;
+original Wine still passed. CI now assigns only the empty disposable prefix to
+the chroot owner, preserving original Wine's UID check. A handle-owned protocol
+and guest normal/Stop/tracer-SIGKILL tree fixtures precede Wine; five JVM tests
+pass, and ARM64 CI qualifies the exact guest ownership program. Platform driver,
+packaged fixtures/source companion and a new private APK are still pending.
+
 Complete the exact distribution source/notice companion and wire the owned
 native diagnostic, fresh disposable Wine prefix and synthetic fixtures.
 Qualify synthetic mixed processes on Thor before original host/

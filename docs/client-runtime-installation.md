@@ -63,5 +63,23 @@ cover markers, output limits, timeouts and redaction; ARM64 CI runs the complete
 program alongside the previous original-runtime fixture. Android native execution
 must still be integrated and qualified separately.
 
+Preparation worker commit `1c3321508934b8d95b4a8d4e6c77e6119c7c61e3` passed all
+foundation jobs (40421996504). Its first new guest-program CI reached display and
+failed prefix setup: the runner owns the extracted empty `/prefix`, while chroot
+runs as root. The original pinned Wine source rejects a prefix owned by another
+UID. CI now checks that this disposable directory is empty and gives it to the
+actual chroot owner. No original Wine ownership rule or runtime archive changes.
+
+`ClientProbeProtocol` adds three gates before Wine: normal tree exit, owned Stop,
+then SIGKILL of the tracer with three observed tracees (two detached session
+leaders). Identities include start ticks and initial parent/session relationships;
+reparenting cannot count as death. The initial tracee signals only its own captured
+tracer parent after a private handle-bound control request. All fixture processes
+also have a 20-second alarm. Every handle is stopped in `finally`, and all three
+tracees must end within three seconds. Five JVM regressions cover ordering,
+deadline, cleanup, unrelated trees, survival and incomplete or contradictory
+success markers. The same guest program has a native ARM64 PRoot CI gate.
+Android execution remains pending the platform driver and packaged fixtures.
+
 Next wire the disposable prefix and synthetic Wine/PRoot diagnostic. Finish source/notice closure before issuing
 a new private APK. Preserve installed code 37 and all passed physical gates.

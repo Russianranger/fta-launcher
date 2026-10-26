@@ -73,7 +73,8 @@ def run(stage, args, seconds, env=None):
             status = 125
         # Known diagnostic categories only; raw runtime text remains private.
         for text, category in ((b"Couldn't detect CPU features", 'cpu-features-missing'),
-                               (b'Forced Assert', 'translator-assertion')):
+                               (b'Forced Assert', 'translator-assertion'),
+                               (b'is not owned by you', 'prefix-owner-mismatch')):
             if text in retained:
                 print('FTA_ANDROID_DIAGNOSTIC ' + category, flush=True)
         record(stage, status)
@@ -131,5 +132,41 @@ def main():
     return 0 if passed else 1
 
 
+def ownership(normal):
+    """Three traced processes, including two session leaders, with a 20s failsafe.
+
+    Only the initial direct tracee can kill its own captured tracer parent, and
+    only after Android's handle owner writes that exact parent to the control
+    file. No PID from arguments, external files or an unowned process is used.
+    """
+    tracer = os.getppid()
+    child = os.fork()
+    initial = child > 0
+    if child == 0:
+        os.setsid()
+        child = os.fork()
+        if child == 0:
+            os.setsid()
+    signal.alarm(20)
+    print(f'FTA_ANDROID_OWNED {os.getpid()}', flush=True)
+    if normal:
+        if child > 0:
+            waited, status = os.waitpid(child, 0)
+            return 0 if waited == child and os.waitstatus_to_exitcode(status) == 0 else 2
+        return 0
+    while True:
+        if initial:
+            try:
+                with open('/session/ownership-control', 'rb') as control:
+                    command = control.read(65)
+            except FileNotFoundError:
+                command = b''
+            if command == f'kill {tracer}\n'.encode() and os.getppid() == tracer and tracer > 1:
+                os.kill(tracer, signal.SIGKILL)
+        time.sleep(0.02)
+
+
 if __name__ == '__main__':
+    if sys.argv[1:] in (['--ownership-normal'], ['--ownership-hold']):
+        sys.exit(ownership(sys.argv[1] == '--ownership-normal'))
     sys.exit(main())

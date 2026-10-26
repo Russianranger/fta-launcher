@@ -10,6 +10,7 @@ on:
       - 'android/qualification/runtime_probe.c'
       - 'android/qualification/run_client_runtime.sh'
       - 'android/qualification/android_runtime_probe.py'
+      - 'android/qualification/check_android_probe_ownership.py'
       - 'tools/build_client_bridge.py'
       - 'tools/check_client_bridge_ownership.py'
       - 'native/client-bridge/**'
@@ -86,6 +87,10 @@ jobs:
           sudo mount -o remount,bind,ro "$FTA_ROOT/sys"
           sudo timeout --kill-after=45 600 chroot "$FTA_ROOT" /usr/bin/env -i /bin/sh /probe/run.sh > "$RUNNER_TEMP/fta-runtime-evidence/runtime-result.log" 2>&1
           cat "$RUNNER_TEMP/fta-runtime-evidence/runtime-result.log"
+          python3 android/qualification/check_android_probe_ownership.py --proot "$RUNNER_TEMP/fta-ownership/proot-owned" --loader "$RUNNER_TEMP/fta-ownership/loader" --root "$FTA_ROOT" --work "$RUNNER_TEMP/android-probe-ownership" > "$RUNNER_TEMP/fta-runtime-evidence/android-program-ownership.json"
+          # The archive was extracted by the runner, but this isolated chroot runs
+          # as root. Wine requires its fresh prefix to belong to its actual owner.
+          sudo python3 -c 'import os,sys; p=sys.argv[1]; assert not os.listdir(p); print("freshPrefixUidBefore="+str(os.stat(p).st_uid)); os.chown(p,0,0)' "$FTA_ROOT/prefix"
           sudo timeout --kill-after=30 900 chroot "$FTA_ROOT" /usr/bin/env -i /usr/bin/python3 /probe/android_probe.py > "$RUNNER_TEMP/fta-runtime-evidence/android-program-host-result.log" 2>&1
           cat "$RUNNER_TEMP/fta-runtime-evidence/android-program-host-result.log"
       - uses: actions/upload-artifact@v4
