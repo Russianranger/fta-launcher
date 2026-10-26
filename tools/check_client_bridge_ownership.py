@@ -35,7 +35,8 @@ def run_case(proot, fixture, directory, owned):
     with (directory / ('owned.log' if owned else 'baseline.log')).open('wb') as log:
         try:
             tracer = subprocess.Popen([str(proot), '-r', '/', '-w', str(directory), str(fixture)],
-                stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=log, start_new_session=True)
+                stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=log, start_new_session=True,
+                env=dict(os.environ, PROOT_LOADER=str(directory / 'loader')))
             tracer_fd = os.pidfd_open(tracer.pid)
             with selectors.DefaultSelector() as ready:
                 ready.register(tracer.stdout, selectors.EVENT_READ)
@@ -70,7 +71,8 @@ def run_case(proot, fixture, directory, owned):
                 # Before the intentional kill, let PRoot's normal failure cleanup
                 # handle any tree that did not reach the bounded PID handshake.
                 if tracer.poll() is None:
-                    signal.pidfd_send_signal(tracer_fd, signal.SIGTERM)
+                    try: signal.pidfd_send_signal(tracer_fd, signal.SIGTERM)
+                    except ProcessLookupError: pass
                     try: tracer.wait(timeout=2)
                     except subprocess.TimeoutExpired: pass
                 try: signal.pidfd_send_signal(tracer_fd, signal.SIGKILL)
@@ -124,17 +126,19 @@ def main():
         (source / 'src/loader/loader-info.py').write_text(HELPER)
         command = ['make', '-C', 'src', '-j1', 'CC=gcc', 'LD=gcc',
             'CPPFLAGS=-D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -I. -I' + str(source / 'src') + ' -I' + str(prefix / 'include'),
-            'LDFLAGS=-L' + str(prefix / 'lib') + ' -ltalloc -Wl,-z,noexecstack']
+            'LDFLAGS=-L' + str(prefix / 'lib') + ' -ltalloc -Wl,-z,noexecstack', 'PROOT_UNBUNDLE_LOADER=/unused']
         run(command, source)
         baseline = work / 'proot-baseline'; shutil.copyfile(source / 'src/proot', baseline); baseline.chmod(0o755)
         run(['git', 'apply', '--check', str(patch)], source); run(['git', 'apply', str(patch)], source)
         run(command, source)
         owned = work / 'proot-owned'; shutil.copyfile(source / 'src/proot', owned); owned.chmod(0o755)
+        loader = work / 'loader'; shutil.copyfile(source / 'src/loader/loader', loader); loader.chmod(0o755)
         fixture = work / 'fixture'
         run(['gcc', '-std=c11', '-D_POSIX_C_SOURCE=200809L', '-O2', '-Wall', '-Wextra', '-Werror',
              str(ROOT / 'native/client-bridge/ownership_fixture.c'), '-o', str(fixture)], work)
     normal = subprocess.run([str(owned), '-r', '/', '-w', str(work), str(fixture), '--normal'],
-        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=15)
+        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=15,
+        env=dict(os.environ, PROOT_LOADER=str(loader)))
     (work / 'normal.log').write_bytes(normal.stdout + normal.stderr)
     require(normal.returncode == 0 and normal.stdout.count(b'FTA_PROOT_FIXTURE_PID ') == 3, 'Normal tree exit failed')
     negative = run_case(baseline, fixture, work, False)
@@ -142,7 +146,8 @@ def main():
     evidence = dict(formatVersion=1, scope='native-linux-proot-ownership', sourceArchiveSha256=SOURCE_SHA,
         sourceComponents=INPUTS, ownershipPatchSha256=digest(patch), buildJobs=1,
         machine=os.uname().machine, normalTreeExit=0, baseline=negative, fixed=positive,
-        fixtureSha256=digest(fixture), baselineProotSha256=digest(baseline), ownedProotSha256=digest(owned),
+        fixtureSha256=digest(fixture), loaderSha256=digest(loader),
+        baselineProotSha256=digest(baseline), ownedProotSha256=digest(owned),
         linuxTracerDeathOwnershipQualified=True, androidBridgeExecuted=False, androidRuntimeQualified=False,
         originalHostExecuted=False, warcraftXLCompatible=False, gameLoginQualified=False)
     (work / 'ownership-evidence.json').write_text(json.dumps(evidence, indent=2) + '\n')

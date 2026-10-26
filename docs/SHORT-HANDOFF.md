@@ -144,6 +144,14 @@ step. It tests a normal tree exit and tracer SIGKILL with three tracees/two
 independent sessions, retains pidfds, and requires baseline survivors=3/fixed=0.
 Do not infer Android survival/cleanup from a static build or Linux fixture.
 
+First ownership CI on **65f1b28bdae8bea347900bf84626b1060053fffb**,
+[run 40398769251](https://github.com/Russianranger/fta-launcher/actions/runs/40398769251),
+stopped during the host build: its bundled-loader target invoked unsupported
+`gcc -m32` on ARM64. The regression now matches Android's existing unbundled
+native-loader mode and supplies the exact native loader through PROOT_LOADER.
+No ARM32 Linux execution is needed for the ARM64 Wine/FEX guest. Inspect the
+follow-up CI before claiming ownership qualified; the prior Wine gate stays passed.
+
 **Next:** complete exact distribution source/notice companion, then the owned
 Android diagnostic service, bounded runtime installer and disposable prefix to
 qualify synthetic mixed processes on Thor. Continue using the existing native
