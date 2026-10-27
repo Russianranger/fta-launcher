@@ -116,7 +116,7 @@ class ClientRuntimeService : Service() {
                 var nextMemory = 0L
                 val result = store.withVerified(governor::check, progress, reverifyAfter = true) { runtime ->
                     report.put("runtimePreRehashValidated", true); write(true)
-                    val deadline = SystemClock.elapsedRealtime() + 960000
+                    val deadline = SystemClock.elapsedRealtime() + ClientProbeProtocol.WINE_TIMEOUT_MS + 60_000
                     ClientNativeProbe.run(this, runtime, report.getString("attemptId"), {
                         active(); val now = SystemClock.elapsedRealtime()
                         runtimeRequire(now < deadline, "probe-timeout")
@@ -131,6 +131,7 @@ class ClientRuntimeService : Service() {
                     }, { stage, output ->
                         report.put("state", stage)
                         val observed = ClientProbeEvidence.parse(output)
+                        for ((key, value) in observed.prefixProgress) report.put(key, value)
                         if (observed.stages.isNotEmpty()) report.put("probeStages", JSONObject(observed.stages))
                         if (observed.diagnostics.isNotEmpty()) report.put("probeDiagnostics", JSONArray(observed.diagnostics.toList()))
                         observed.displayEvent?.let { report.put("displayEvent", it) }

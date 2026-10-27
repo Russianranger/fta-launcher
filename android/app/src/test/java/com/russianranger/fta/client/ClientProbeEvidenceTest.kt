@@ -38,4 +38,17 @@ class ClientProbeEvidenceTest {
         try { ClientProbeEvidence.parse("x".repeat(65537)); fail() }
         catch (e: RuntimeInstallFailure) { assertEquals("probe-failed", e.reason) }
     }
+    @Test fun prefixProgressIsAllowlistedBoundedAndCannotGrantAStagePass() {
+        val valid = "FTA_ANDROID_PREFIX_PROGRESS 195000 1200 1000 131072 1\n"
+        val result = ClientProbeEvidence.parse(valid + "FTA_ANDROID_DIAGNOSTIC wineboot-event-timeout\n")
+        assertEquals(195000L, result.prefixProgress["prefixElapsedMs"])
+        assertEquals(131072L, result.prefixProgress["prefixRegistryBytes"])
+        assertEquals(setOf("wineboot-event-timeout"), result.diagnostics)
+        assertTrue(result.stages.isEmpty())
+        for (bad in listOf("-1 0 0 0 0", "600001 0 0 0 0", "0 4097 0 0 0", "0 0 0 201326593 0",
+            "0 0 0 0 2", "private path 0 0 0", "0 0 0 0", "0 0 0 0 0 extra")) {
+            assertTrue(ClientProbeEvidence.parse("FTA_ANDROID_PREFIX_PROGRESS $bad\n").prefixProgress.isEmpty())
+            assertEquals(result.prefixProgress, ClientProbeEvidence.parse(valid + "FTA_ANDROID_PREFIX_PROGRESS $bad\n").prefixProgress)
+        }
+    }
 }

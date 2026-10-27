@@ -23,7 +23,7 @@ permissions:
 jobs:
   mixed-runtime:
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -104,7 +104,7 @@ jobs:
           # The archive was extracted by the runner, but this isolated chroot runs
           # as root. Wine requires its fresh prefix to belong to its actual owner.
           sudo python3 -c 'import os,sys; p=sys.argv[1]; assert not os.listdir(p); print("freshPrefixUidBefore="+str(os.stat(p).st_uid)); os.chown(p,0,0)' "$FTA_ROOT/prefix"
-          sudo timeout --kill-after=30 900 chroot "$FTA_ROOT" /usr/bin/env -i PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 -B /probe/android_probe.py > "$RUNNER_TEMP/fta-runtime-evidence/android-program-host-result.log" 2>&1
+          sudo timeout --kill-after=30 1230 chroot "$FTA_ROOT" /usr/bin/env -i PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 -B /probe/android_probe.py > "$RUNNER_TEMP/fta-runtime-evidence/android-program-host-result.log" 2>&1
           cat "$RUNNER_TEMP/fta-runtime-evidence/android-program-host-result.log"
       - uses: actions/upload-artifact@v4
         if: always()

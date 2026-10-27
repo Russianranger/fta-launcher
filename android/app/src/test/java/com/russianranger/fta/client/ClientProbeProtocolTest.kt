@@ -7,13 +7,14 @@ class ClientProbeProtocolTest {
     private class Driver : ClientProbeProtocol.Driver {
         var time = 0L; var next = 0L; var killed = 0L; var corruptTree = false; var survivor = false
         var killExit = 137; var neverReady = false; var cancelled = false; var wineExit = 0
+        var wineDelay = 0L; var wineStart = 0L
         val evidence = linkedMapOf<String, Int>()
         override fun recordOwnership(key: String, value: Int) { evidence[key] = value }
         val modes = linkedMapOf<Long, String>(); val stopped = mutableSetOf<Long>()
         override fun now() = time
         override fun pause(ms: Long) { time += ms }
         override fun active() { if (cancelled) throw RuntimeInstallFailure("cancelled") }
-        override fun start(mode: String): Long { val id = ++next; modes[id] = mode; return id }
+        override fun start(mode: String): Long { val id = ++next; modes[id] = mode; if (mode == "--wine") wineStart = time; return id }
         override fun tracer(handle: Long) = 10
         override fun output(handle: Long) = if (modes[handle] == "--wine") success() else if (neverReady) "" else
             "FTA_ANDROID_OWNED 20\nFTA_ANDROID_OWNED 21\nFTA_ANDROID_OWNED 22\n"
@@ -22,7 +23,9 @@ class ClientProbeProtocolTest {
         override fun ended(identity: ClientProbeProtocol.Identity) = !survivor
         override fun waitFor(handle: Long, ms: Long): Int {
             time += ms
-            return if (handle == killed) killExit else if (modes[handle] == "--wine") wineExit else if (modes[handle] != "--ownership-hold") 0 else ClientProbeProtocol.RUNNING
+            return if (handle == killed) killExit else if (modes[handle] == "--wine") {
+                if (time - wineStart < wineDelay) ClientProbeProtocol.RUNNING else wineExit
+            } else if (modes[handle] != "--ownership-hold") 0 else ClientProbeProtocol.RUNNING
         }
         override fun stop(handle: Long, graceMs: Long): Int { stopped.add(handle); return 143 }
         override fun requestTracerDeath(handle: Long) { killed = handle }
@@ -56,6 +59,16 @@ class ClientProbeProtocolTest {
         assertEquals(mapOf("ownershipNormalExit" to 0, "ownershipStopExit" to 143,
             "ownershipKilledExit" to 137, "stoppedTracees" to 3, "killedTracees" to 3), driver.evidence)
         assertEquals(driver.modes.keys, driver.stopped)
+    }
+    @Test fun coldInitializationCanExceedOldOuterBudgetButAStalledSuiteStillStops() {
+        val slow = Driver().apply { wineDelay = 1_000_000 }
+        assertEquals(ClientProbeProtocol.stages.toSet(), ClientProbeProtocol.run(slow).stages.keys)
+        assertEquals(slow.modes.keys, slow.stopped)
+        val stalled = Driver().apply { wineDelay = Long.MAX_VALUE }
+        try { ClientProbeProtocol.run(stalled); fail() }
+        catch (e: RuntimeInstallFailure) { assertEquals("probe-timeout", e.reason) }
+        assertEquals(stalled.modes.keys, stalled.stopped)
+        assertTrue(stalled.time <= 1_201_000)
     }
     @Test fun partialDuplicateOutOfOrderNonzeroAndMissingPassEvidenceRejected() {
         val valid = success()

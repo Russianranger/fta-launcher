@@ -416,6 +416,9 @@ class MainActivity : Activity() {
         clientRuntimeStatus.text = when {
             runtimeRequested && !clientRuntimeRunning -> "Starting runtime worker…"
             clientRuntimeRunning && runtimeReport.optBoolean("memoryPaused") -> "Runtime preparation paused for memory pressure. Stop is available."
+            clientRuntimeRunning && runtimeReport.has("prefixElapsedMs") &&
+                runtimeReport.optJSONObject("probeStages")?.has("prefix") != true ->
+                "Initializing the Windows environment: ${runtimeReport.optLong("prefixElapsedMs") / 1000}s of up to 10 minutes. Keep the launcher visible. Stop is available."
             clientRuntimeRunning -> "${runtimeReport.optString("state")}: ${runtimeReport.optLong("bytes") / 1048576} / ${runtimeReport.optLong("totalBytes") / 1048576} MiB."
             runtimeReport.optBoolean("syntheticMixedRuntimeValidated") -> "Runtime process and compatibility tests passed. Export the report. Original client execution remains unqualified."
             runtimeReport.optString("state") == "complete" -> "Runtime files verified. Native client execution remains unqualified."

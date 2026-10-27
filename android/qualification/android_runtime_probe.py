@@ -9,6 +9,7 @@ from pathlib import Path
 import selectors
 import signal
 import socket
+import stat
 import subprocess
 import sys
 import threading
@@ -24,6 +25,8 @@ MARKERS = {
     'owner-exit': b'FTA_SYNTHETIC_OWNER_EXIT_OK parentExit=0 childExit=38',
 }
 OUTPUT_LIMIT = 256 * 1024
+PREFIX_SECONDS = 600
+PROGRESS_SECONDS = 15
 DIAGNOSTICS = (
     (b"Couldn't detect CPU features", 'cpu-features-missing'),
     (b'Forced Assert', 'translator-assertion'),
@@ -33,12 +36,66 @@ DIAGNOSTICS = (
     (b'Permission denied', 'permission-denied'),
     (b'File name too long', 'socket-path-too-long'),
     (b'Invalid argument', 'invalid-argument'),
+    (b'boot event wait timed out', 'wineboot-event-timeout'),
+    (b'failed to start wineboot', 'wineboot-start-failed'),
+    (b'could not load kernel32.dll', 'kernel32-load-failed'),
+    (b'failed to load', 'module-load-failed'),
+    (b'Failed to open RpcSs service', 'rpcss-unavailable'),
+    (b'No space left on device', 'storage-full'),
+    (b'configuration in ', 'prefix-update-observed'),
+    (b'Operation done', 'wineboot-operation-done'),
 )
 
 
 def diagnose(data):
     for category in sorted({category for text, category in DIAGNOSTICS if text in data}):
         print('FTA_ANDROID_DIAGNOSTIC ' + category, flush=True)
+
+
+class OutputCapture:
+    """Keep marker validation bounded; classify later diagnostics without raw output."""
+    def __init__(self):
+        self.data = bytearray()
+        self.tail = b''
+        self.categories = set()
+
+    def append(self, data):
+        self.data.extend(data[:max(0, OUTPUT_LIMIT - len(self.data))])
+        joined = self.tail + data
+        self.categories.update(category for text, category in DIAGNOSTICS if text in joined)
+        self.tail = joined[-256:]
+
+    def report(self):
+        for category in sorted(self.categories):
+            print('FTA_ANDROID_DIAGNOSTIC ' + category, flush=True)
+
+
+def prefix_progress(elapsed, root=Path('/prefix')):
+    """Metadata only from this disposable prefix; no paths, registry data or recursion."""
+    def regular_size(name):
+        try:
+            info = (root / name).lstat()
+            return info.st_size if stat.S_ISREG(info.st_mode) and 0 <= info.st_size <= 64 * 1024 * 1024 else 0
+        except OSError:
+            return 0
+    def count(name):
+        try:
+            path = root / name
+            if not stat.S_ISDIR(path.lstat().st_mode):
+                return 0
+            with os.scandir(path) as entries:
+                total = 0
+                for entry in entries:
+                    total += 1
+                    if total == 4096:
+                        break
+                return total
+        except OSError:
+            return 0
+    sizes = sum(regular_size(name) for name in ('system.reg', 'user.reg', 'userdef.reg'))
+    values = (min(600000, max(0, int(elapsed * 1000))), count('drive_c/windows/system32'),
+              count('drive_c/windows/syswow64'), sizes, int(regular_size('.update-timestamp') > 0))
+    print('FTA_ANDROID_PREFIX_PROGRESS ' + ' '.join(map(str, values)), flush=True)
 
 
 class DisplayCapture:
@@ -134,40 +191,51 @@ def stop(child):
             child.wait(5)
 
 
-def run(stage, args, seconds, env=None):
+def run(stage, args, seconds, env=None, progress=None):
     child = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                              stdin=subprocess.DEVNULL, start_new_session=True, env=env)
-    retained = bytearray(); deadline = time.monotonic() + seconds
+    capture = OutputCapture(); began = time.monotonic(); deadline = began + seconds
+    next_progress = began
     selector = selectors.DefaultSelector(); selector.register(child.stdout, selectors.EVENT_READ)
     try:
-        eof = False
-        while not eof:
-            if time.monotonic() >= deadline:
+        while True:
+            now = time.monotonic()
+            if progress is not None and now >= next_progress:
+                progress(now - began); next_progress = now + PROGRESS_SECONDS
+            # Daemon descendants can inherit stdout and keep producing output.
+            # A reaped command has finished: drain only a fixed final budget, never
+            # wait for an unrelated pipe lifetime or its writer's silence.
+            if child.poll() is not None:
+                remaining = OUTPUT_LIMIT
+                while remaining and selector.select(0):
+                    data = os.read(child.stdout.fileno(), min(16384, remaining))
+                    if not data:
+                        break
+                    capture.append(data); remaining -= len(data)
+                break
+            if now >= deadline:
                 raise TimeoutError(stage)
             for key, mask in selector.select(min(0.1, max(0, deadline - time.monotonic()))):
                 data = os.read(key.fd, 16384)
                 if not data:
-                    eof = True; break
-                room = OUTPUT_LIMIT - len(retained)
-                if room:
-                    retained.extend(data[:room])
-            # Inherited output pipes cannot keep a completed stage alive indefinitely.
-            if child.poll() is not None and not selector.select(0):
-                break
+                    selector.unregister(key.fileobj); break
+                capture.append(data)
         status = child.wait(max(0.01, deadline - time.monotonic()))
         expected = MARKERS.get(stage)
-        if status == 0 and expected is not None and expected not in retained.replace(b'\r', b'').splitlines():
+        if status == 0 and expected is not None and expected not in capture.data.replace(b'\r', b'').splitlines():
             status = 125
         # Known diagnostic categories only; raw runtime text remains private.
-        diagnose(retained)
+        capture.report()
         record(stage, status)
         if status:
             raise RuntimeError(stage)
     except (TimeoutError, subprocess.TimeoutExpired):
-        diagnose(retained)
+        capture.report()
         record(stage, 124); raise
     finally:
         selector.close(); child.stdout.close(); stop(child)
+        if progress is not None:
+            progress(time.monotonic() - began)
 
 
 def main():
@@ -192,7 +260,13 @@ def main():
             record('display', status)
             raise RuntimeError('display socket')
         display, capture = start_display()
-        run('prefix', ['wine', 'wineboot.exe', '-u'], 180)
+        # This prefix is always new. Use Wine's first-instance initialization,
+        # not a forced update of an existing prefix. Thor exceeded the former
+        # 180-second host deadline; keep a finite cold-start allowance and emit
+        # metadata progress plus narrowly scoped original Wine diagnostics.
+        boot_env = dict(os.environ, WINEDEBUG='-all,err+all,trace+wineboot')
+        run('prefix', ['wine', 'wineboot.exe', '-i'], PREFIX_SECONDS,
+            env=boot_env, progress=prefix_progress)
         run('cpu-registry', ['wine', 'reg.exe', 'query', r'HKLM\Hardware\Description\System\CentralProcessor\0', '/reg:64'], 30)
         run('x86-entry', ['wine', str(probes / 'probe32.exe'), '--self-test'], 90)
         run('x64-entry', ['wine', str(probes / 'probe64.exe'), '--self-test'], 90)

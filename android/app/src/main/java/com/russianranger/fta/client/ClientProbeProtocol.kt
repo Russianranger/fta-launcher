@@ -23,6 +23,7 @@ object ClientProbeProtocol {
     val stages = listOf("cpu-topology", "display", "prefix", "cpu-registry", "x86-entry", "x64-entry",
         "two-channels", "sixteen-channels", "owner-exit", "wine-stop")
     const val RUNNING = Int.MIN_VALUE
+    const val WINE_TIMEOUT_MS = 1_200_000L
     fun parseStages(output: String, exit: Int): Map<String, Int> {
         runtimeRequire(exit == 0 && output.length <= 64 * 1024, "probe-failed")
         val seen = linkedMapOf<String, Int>(); var passed = 0
@@ -38,10 +39,15 @@ object ClientProbeProtocol {
     }
     private fun awaitExit(driver: Driver, handle: Long, ms: Long): Int {
         val end = driver.now() + ms
+        var nextObservation = driver.now()
         while (true) {
             driver.active(); val status = driver.waitFor(handle, 100)
             if (status != RUNNING) return status
             runtimeRequire(driver.now() < end, "probe-timeout")
+            if (driver.now() >= nextObservation) {
+                driver.output(handle)
+                nextObservation = driver.now() + 1000
+            }
         }
     }
     private fun children(driver: Driver, handle: Long): List<Identity> {
@@ -107,7 +113,7 @@ object ClientProbeProtocol {
         return Result(normal, stopped, killed, 3, 3, results)
     }
     private fun Driver.outputAfterExit(handle: Long): String {
-        val status = awaitExit(this, handle, 900000)
+        val status = awaitExit(this, handle, WINE_TIMEOUT_MS)
         runtimeRequire(status == 0, "probe-failed"); return output(handle)
     }
 }

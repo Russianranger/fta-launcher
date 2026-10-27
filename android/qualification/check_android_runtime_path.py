@@ -68,7 +68,7 @@ def main():
         command += ['-w', '/session', '/usr/bin/env', '-i', 'PYTHONDONTWRITEBYTECODE=1', '/usr/bin/python3', '-B', '/client/android_probe.py', mode]
         with log.open('wb') as output:
             return subprocess.run(command, stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.STDOUT,
-                env=dict(os.environ, PROOT_LOADER=str(args.loader.resolve()), PROOT_TMP_DIR=str(tmp), PROOT_NO_SECCOMP='1'), timeout=930)
+                env=dict(os.environ, PROOT_LOADER=str(args.loader.resolve()), PROOT_TMP_DIR=str(tmp), PROOT_NO_SECCOMP='1'), timeout=1230)
     # Match both actual Android pathname budgets, not merely the guest bind names.
     # The old /tmp bind is 105 bytes; X8 and PRoot's fallback both exceed 108.
     with tempfile.TemporaryDirectory(prefix='fta-socket-') as temporary:

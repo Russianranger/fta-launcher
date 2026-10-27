@@ -42,6 +42,10 @@ object ClientRuntimeReport {
         }
         for (key in listOf("memoryPaused", "activityBound", "systemLowMemory", "cacheEvictionMeasured"))
             if (raw.opt(key) is Boolean) result.put(key, raw.getBoolean(key))
+        for ((key, max) in ClientProbeEvidence.prefixBounds) {
+            val value = raw.opt(key)
+            if ((value is Int || value is Long) && (value as Number).toLong() in 0..max) result.put(key, value)
+        }
         for (key in listOf("archiveSha256", "catalogSha256"))
             raw.optString(key).takeIf { it.matches(Regex("[0-9a-f]{64}")) }?.let { result.put(key, it) }
         val stages = JSONObject()

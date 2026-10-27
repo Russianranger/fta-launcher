@@ -38,9 +38,10 @@ Last passed client-import APK: **37 / 0.13.2-client-memory**, 59,073,805 bytes, 
 [Verified APK/source recovery](code37-recovery.md). Application commit
 `39516bb1b0a499d84279ef9eefea0c5c9e9abcf4`, all three jobs in CI 40216989093 passed.
 All 21 native payloads and 148 runtime entries remain the passed native code-34 set.
-**38 / 0.14.0-client-probe** is installed. Its first runtime probe failed at
+**38 / 0.14.0-client-probe** first failed at
 display startup with status 124, without an attempt-matched Android exit.
-[Measured failure and code-39 repair](client-socket-repair.md). **39 / 0.14.1-client-sockets** is delivered; its physical repeat is pending.
+[Measured failure and code-39 repair](client-socket-repair.md). **39 / 0.14.1-client-sockets** is installed. Its repeat passed sockets/display and ownership,
+then timed out at the 180-second Wine prefix stage. [Measured failure and code-40 candidate](client-prefix-initialization.md).
 [Verified APK, source companions and procedure](code39-recovery.md). [APK, SHA256, source companions and test procedure](code38-recovery.md).
 
 **Client integrity fully passed on 37.**
@@ -92,7 +93,8 @@ cache/JNI, packaged checks and full runtime install/rehash under a 96 MiB heap.
 ARM64 **40444054525** passed the old-path failure control (118-byte socket,
 EINVAL 22), short-path success, all ten synthetic stages, process ownership and
 complete runtime pre/post rehash. [Exact proof](evidence/host-2026-10-26-client-socket-repair-pass.json).
-These are Linux results; the corrected Android display remains pending.
+These are Linux results. The corrected display and ownership now pass on Thor;
+the complete mixed-runtime gate remains blocked at prefix initialization.
 
 Code 38's physical probe reached CPU topology 0 and display 124 after 196,339 ms,
 including 130,011 ms deliberate pacing, about 9 GB available and no runtime exit.
@@ -114,16 +116,17 @@ v15 native source companion from code 38 remains valid. [All recovery links](cod
 
 ## Next concrete gate and recovery rules
 
-**Await the code-39 report: repeat only Test client runtime.** The code-38
-runtime already reached the native probe; retain its verified installation. Keep
-the launcher visible, run Test client runtime once and export immediately on
-failure before retrying. No Prepare/download, client or Data.zip reimport, or
-completed database/auth/world/screen-off tests. Do not uninstall or clear storage.
-Code 39 shortens private socket paths and raises aggregate client I/O from 24 to
-48 MiB/s, preserving buffers, dirty windows, memory/PSI/trim backpressure and all
-original runtime bytes. It exports partial ownership/pre-rehash evidence and
-bounded display error categories. Linux socket negative/positive controls, full synthetic CI and Android assembly
-have passed; only the physical code-39 repeat remains.
+**Qualify and deliver code 40 / 0.14.2-client-prefix.** [The implementation](client-prefix-initialization.md)
+uses fresh-prefix initialization with a 600-second cold-start budget, bounded
+progress and late diagnostic categories, and fixes waiting on a completed
+command's inherited output pipe. The full synthetic success criteria, prepared
+runtime, I/O/memory controls and all original native bytes remain unchanged.
+Exact-commit CI and private packaging are pending. After qualified delivery,
+repeat only **Test client runtime**, keeping the launcher visible, then export
+immediately on failure before retrying. No Prepare/download, client or Data.zip
+reimport, or completed database/auth/world/screen-off tests. Do not uninstall or
+clear storage. A longer deadline is a candidate mitigation; slow initialization
+versus a persistent Wine hang was not distinguishable in the code-39 report.
 
 Original WarcraftXL/client execution requires a later separate writable view
 under the verified client lease: no writable hard links, original mutations or
