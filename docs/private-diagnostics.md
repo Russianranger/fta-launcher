@@ -1,12 +1,13 @@
-Current delivery: **39 / 0.14.1-client-sockets**. [Verified APK and sources](code39-recovery.md).
-Code 38 reached the runtime display and failed; see [measured repair](client-socket-repair.md).
+Current delivery: **40 / 0.14.2-client-prefix**. [Verified APK and sources](code40-recovery.md).
+Code 39 passed sockets/display and ownership, then timed out during Wine
+initialization; see [the measured failure and new candidate](client-prefix-initialization.md).
 Install in place and repeat **Test client runtime** only. Retain the prepared
-runtime and all completed client/server/database gates. Code 39 is not yet
+runtime and all completed client/server/database gates. Code 40 is not yet
 physically qualified. The code-38 delivery details below remain recovery history.
 
 # Private native diagnostic builds
 
-## Current private delivery — code 38 client runtime probe
+## Historical private delivery — code 38 client runtime probe
 
 [Code 38 private APK and source recovery](code38-recovery.md) is available for
 in-place installation with the original persistent certificate. Its Android and

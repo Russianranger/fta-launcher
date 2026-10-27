@@ -55,3 +55,10 @@ followed by **Export diagnostic report** on either outcome. Keep the launcher
 visible and allow up to ten minutes for initialization. No preparation download,
 client/Data.zip import or completed server gate needs repeating. The previous
 attempts stay intact under the existing three-attempt limit.
+
+Application commit `fdf7eb5fedaaa0beaac0a239e1b3b6949bef47c9` passed foundation
+CI 40587205325 and ARM64 CI 40587205346. All ten live guest stages and runtime
+pre/post rehash passed; prefix metadata progressed on native Linux PRoot until
+initialization completed in 38.831 seconds. [Exact proof](evidence/host-2026-10-27-client-prefix-pass.json).
+The persistently signed [code-40 APK and source companion](code40-recovery.md)
+are delivered. The physical Android repeat remains pending.

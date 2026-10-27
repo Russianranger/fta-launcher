@@ -1,145 +1,110 @@
 # From the Ashes Android — current handoff
 
-Work only in **Russianranger/fta-launcher/main**. Owner authorizes qualified
-implementation, commits and pushes. AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
+Work only in **Russianranger/fta-launcher/main**. The owner authorizes autonomous
+development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
-and [native gate](native-world-gate.md). Historical detail:
-[DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
+and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Recovery checkpoint — 2026-10-27
+## Current delivery and next test
 
-Recovered at 14:06 UTC (09:06 CDT). GitHub reports zero running and zero queued
-workflow runs. Code-39 application CI **40444054488** and ARM64 runtime CI
-**40444054525** completed successfully. The documentation-only head `b989c06`
-also passed all three foundation jobs in **40445176642**, attempt 2; no test
-needs resuming. Exact job logs confirm 207 tooling and 77 qualification tests,
-521 Android tests with 520 passed / one existing skip, and both ARM64 synthetic
-success markers.
+**40 / 0.14.2-client-prefix** is delivered, with the original persistent signer.
+[APK, exact sources and test procedure](code40-recovery.md). APK: 60,152,013 bytes,
+SHA256 `434b067ff2fa12781fe186814a1baf894f2a818a51b755fa07c48f210a096dae`.
+[Packaging proof](evidence/android-2026-10-27-private-client-prefix-apk.json).
+All 23 native payloads and 148 retained runtime entries are byte-identical to 39;
+235 packaged checks, v2 signature and 16 KiB alignment passed.
 
-Recovered the original [code-39 APK and bridge source](code39-recovery.md), checked
-their complete SHA256/size identities and ZIP integrity, and independently
-matched all 23 packaged native payload hashes to the measured APK proof. This
-recovery changes documentation only; it does not rebuild, resign or increment
-the APK. The previous signing/alignment evidence remains applicable to these
-byte-identical APK bytes. See [recovery evidence](evidence/recovery-2026-10-27-code39.json).
+Application commit **fdf7eb5fedaaa0beaac0a239e1b3b6949bef47c9** passed foundation
+**40587205325**, all three jobs, and ARM64 **40587205346**. Results: 207 tooling,
+82 qualification (no skips), 522 Android tests passed / one existing skip,
+lint/assembly, cache/JNI and complete runtime installation/rehash with a 96 MiB
+heap. All ten live ARM64 guest stages, socket controls, owned-process cleanup
+and full runtime pre/post rehash passed. [Exact host proof](evidence/host-2026-10-27-client-prefix-pass.json).
+These are Linux results; code 40 has not yet run on Thor.
 
-The owner has renewed permission to continue development and push to `main`.
-The next physical gate remains the single code-39 runtime probe below. On receipt,
-check exact APK identity, inactive completed worker, socket/display stages, all
-ten synthetic stages, owned-process cleanup, full pre/post runtime rehash and
-attempt-matched exits. A failure should drive the next targeted repair; a pass
-advances to the isolated writable client view and original WarcraftXL launch.
-Do not infer original client execution or game login from the synthetic pass.
+**Await one code-40 report.** Install in place; retain all storage, keep the
+launcher visible and allow at least 2 GiB free. Run **Test client runtime** once,
+then **Export diagnostic report** on either outcome. Initialization can take up
+to ten minutes; subsequent checks/rehash are automatic. Export immediately on
+failure before retrying. Do not uninstall, clear storage, prepare/download again,
+reimport the client/Data.zip or repeat completed database/auth/world tests.
+The synthetic test does not open the game. Existing failed attempts remain
+intact under the three-attempt limit.
 
-## Installed private build and passed physical gates
+## Latest physical failure and repair limits
 
-Last passed client-import APK: **37 / 0.13.2-client-memory**, 59,073,805 bytes, SHA256
-`105bf65924ebabedb7dde71c2e3f880e463180a45ccf1fd4f7a6fe14b061cf0b`.
-[Verified APK/source recovery](code37-recovery.md). Application commit
-`39516bb1b0a499d84279ef9eefea0c5c9e9abcf4`, all three jobs in CI 40216989093 passed.
-All 21 native payloads and 148 runtime entries remain the passed native code-34 set.
-**38 / 0.14.0-client-probe** first failed at
-display startup with status 124, without an attempt-matched Android exit.
-[Measured failure and code-39 repair](client-socket-repair.md). **39 / 0.14.1-client-sockets** is installed. Its repeat passed sockets/display and ownership,
-then timed out at the 180-second Wine prefix stage. [Measured failure and code-40 candidate](client-prefix-initialization.md).
-[Verified APK, source companions and procedure](code39-recovery.md). [APK, SHA256, source companions and test procedure](code38-recovery.md).
+**39 / 0.14.1-client-sockets** is the last measured installed version.
+[Physical result](evidence/android-2026-10-27-thor-code39-prefix-timeout.json):
+socket errno 0, display ready, normal/Stop/forced tracer-death ownership and
+full 2,637,799,241-byte runtime pre-rehash passed. Prefix initialization timed out
+at the fixed 180-second deadline; total elapsed 305,961 ms, deliberate pacing
+80,171 ms. Available memory 11,095,248,896 bytes, zero pressure pauses and no
+attempt-matched Android exit. Do not call this a low-memory kill.
 
-**Client integrity fully passed on 37.**
-[Import](evidence/android-2026-10-25-thor-code37-client-import-pass.json):
-10,476 files / 60,243,212,332 bytes, 2h40m05s, 4,898,874,959 bytes resumed.
-[Retained full rehash](evidence/android-2026-10-25-thor-code37-client-retained-pass.json):
-same complete counts and catalog, 55m10s, peak reported RSS 186,548 KiB.
-Neither attempt has a matching Android exit. Catalog
+[Code 40](client-prefix-initialization.md) uses Wine's original first-instance
+`-i` mode for the always-fresh disposable prefix, a 600-second prefix allowance
+and 1,200-second guest ceiling, bounded 15-second progress, narrowly scoped
+Wine diagnostics and a corrected command monitor that cannot wait indefinitely
+on a finished command's noisy inherited pipe. Stop and memory safeguards remain.
+The prior report did not distinguish slow initialization from a persistent Wine
+hang; Android success is not established by the new deadline or Linux pass.
+
+On the next report, match exact APK identity and inspect inactive completed
+worker, socket/display, all ten stages, owned cleanup, full pre/post rehash and
+attempt-matched exits. Prefix counts/marker presence are diagnostics, never proof
+of successful initialization. If failed, use the new metadata/categories for a
+targeted repair. A pass advances to the isolated writable client view and original
+WarcraftXL launch. Original client, graphics and game login remain unqualified.
+
+## Passed physical gates — preserve, do not repeat
+
+**Client integrity passed on 37.** [Import](evidence/android-2026-10-25-thor-code37-client-import-pass.json)
+and [retained full rehash](evidence/android-2026-10-25-thor-code37-client-retained-pass.json):
+10,476 files / 60,243,212,332 bytes, catalog
 `fe49bee4d96be084cfda4740112f1a73a10b87ab222e51ccb8730be38c300f13`.
-Old unmatched low-memory exits remain historical. Zero pressure pauses means
-forced-pressure backoff and actual cache eviction remain unmeasured.
+Import 2h40m05s with 4,898,874,959 resumed bytes; rehash 55m10s, peak reported
+RSS 186,548 KiB. No matching exit. [Code-37 recovery](code37-recovery.md).
+Actual cache eviction and forced-pressure backoff remain unmeasured.
 
 **Complete native world gate passed on 34.**
 [Physical proof](evidence/android-2026-10-25-thor-code34-world-pass.json), attempt
-`9e7570a8-23db-4a23-ab82-c44cbf360a02`: all 23 checks true; original native database
-fallback, 113 DBC/8,922 GT rows, world readiness, 307,424 ms healthy session,
+`9e7570a8-23db-4a23-ab82-c44cbf360a02`: all 23 checks true, original database
+fallback, 113 DBC/8,922 GT rows, world readiness, 307,424 ms healthy session and
 259,192 ms healthy screen-off, controlled world/auth/database Stop with exit zero,
 SQL shutdown, closed listeners and retained metadata postchecks. No seed imported.
-All 52 source modules, C++20 and NPCBots preserved. Game login remains unqualified.
-[Private code-34 recovery](code34-recovery.md) contains exact APK/source identities.
+All 52 source modules, C++20 and NPCBots preserved. [Code-34 recovery](code34-recovery.md).
 
 All 22,817 server assets / 7,625,943,031 bytes passed import and full rehash.
-Original Data.zip SHA
-`407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`;
+Original Data.zip SHA `407337836b15348dc21c360c60ddee7df5c67519ae735083b4fb952477273225`;
 catalog `0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff`.
 Database/updater, realm reuse, backup/restore, process-death recovery and local
-auth/Stop/restart already passed. **Do not repeat these physical gates.**
+auth/Stop/restart already passed. Never reseed the retained realm.
 
-## Current client-runtime development
+## Recovery and following development
 
-Original host/DLL/proxy identities and the isolated original header contract are
-pinned in [warcraftxl-host.md](warcraftxl-host.md). The full 1.1 GB client source
-is not needed for this synthetic gate. Preserve the original Windows-PID launch
-contract; original client/host execution, graphics and gameplay remain unqualified.
+The pinned public Wine/FEX runtime has 14,092 entries / 2,637,799,241 file bytes.
+Its verified installation is retained. [Installer](client-runtime-installation.md):
+authenticated extraction ranges, <=1 MiB sync/readback windows, delayed links,
+exclusive lease, atomic publication and complete rehash. Aggregate client I/O
+remains 48 MiB/s with unchanged buffers and memory/PSI/trim backpressure.
 
-The unchanged public Wine/FEX archive is pinned in
-`android/qualification/client-runtime-lock.json`: 14,092 entries / 2,637,799,241
-file bytes. [Installation](client-runtime-installation.md) now has authenticated
-extraction ranges, <=1 MiB sync/readback windows, delayed links, OS lease, atomic
-publication and complete retained rehash. Full-candidate host installation and
-both rehashes pass with a 96 MiB JVM heap. The separate Android foreground worker
-uses the 48 MiB/s and unchanged memory-pressure governor, Stop, a 90-minute limit,
-visible-activity binding and redacted attempt-matched exit reporting.
-
-Latest delivered application commit: **51358069f8d958c5e05b343cd6bf1d22be4f13f9**.
-Foundation **40444054488** passed all three jobs: 207 tooling, 77 qualification
-(no skips), 520 Android tests passed / one existing skip, lint/assembly,
-cache/JNI, packaged checks and full runtime install/rehash under a 96 MiB heap.
-ARM64 **40444054525** passed the old-path failure control (118-byte socket,
-EINVAL 22), short-path success, all ten synthetic stages, process ownership and
-complete runtime pre/post rehash. [Exact proof](evidence/host-2026-10-26-client-socket-repair-pass.json).
-These are Linux results. The corrected display and ownership now pass on Thor;
-the complete mixed-runtime gate remains blocked at prefix initialization.
-
-Code 38's physical probe reached CPU topology 0 and display 124 after 196,339 ms,
-including 130,011 ms deliberate pacing, about 9 GB available and no runtime exit.
-Its old long directory also makes PRoot's original socket fallback too long.
-Code 39 uses the short `files/cr/<UUID hex>/tmp` path, checks both pathname byte
-budgets, preserves/counts legacy attempts, and exports a real socket preflight,
-display exit/timeout categories and completed ownership/pre-rehash evidence.
-Aggregate client I/O is now 48 MiB/s; buffers, dirty windows and memory/PSI/trim
-backpressure remain unchanged. Faster throughput/pressure behavior is not yet
-physically qualified. [Repair and evidence limits](client-socket-repair.md).
-
-**Private APK 39:** 60,147,917 bytes, SHA256
-`63b42422a083f3a0e866c6d9df7be1e0048a111b21637ea3dd63a81022d8b0f5`.
-Original certificate, v2/16 KiB alignment and 235 packaged checks passed.
-All 23 donor native payloads and 148 runtime entries are unchanged. The new
-bridge source companion matches this exact application commit; the unchanged
-v15 native source companion from code 38 remains valid. [All recovery links](code39-recovery.md).
-[APK proof](evidence/android-2026-10-26-private-client-sockets-apk.json).
-
-## Next concrete gate and recovery rules
-
-**Qualify and deliver code 40 / 0.14.2-client-prefix.** [The implementation](client-prefix-initialization.md)
-uses fresh-prefix initialization with a 600-second cold-start budget, bounded
-progress and late diagnostic categories, and fixes waiting on a completed
-command's inherited output pipe. The full synthetic success criteria, prepared
-runtime, I/O/memory controls and all original native bytes remain unchanged.
-Exact-commit CI and private packaging are pending. After qualified delivery,
-repeat only **Test client runtime**, keeping the launcher visible, then export
-immediately on failure before retrying. No Prepare/download, client or Data.zip
-reimport, or completed database/auth/world/screen-off tests. Do not uninstall or
-clear storage. A longer deadline is a candidate mitigation; slow initialization
-versus a persistent Wine hang was not distinguishable in the code-39 report.
-
-Original WarcraftXL/client execution requires a later separate writable view
-under the verified client lease: no writable hard links, original mutations or
-unbounded 60 GB copy. Deferred Attriboost Settings field 8 vs 9 remains gameplay work.
+Original host/DLL/proxy identities and the isolated header contract are pinned
+in [warcraftxl-host.md](warcraftxl-host.md). Preserve the original Windows-PID
+launch contract. Original execution needs a separate writable view held under
+the verified client lease: no writable hard links, original mutations or
+unbounded 60 GB copy. Deferred Attriboost Settings field 8 vs 9 is later gameplay
+work. The full 1.1 GB source is not needed for the synthetic gate.
 
 Private updates must retain the signing capsule
 `FTA-Launcher-Development-Signing.zip`, `libfile_7f9c88258f0c8191a09ab071e7447d30`.
 Certificate `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Never regenerate keys, expose credentials or substitute the public CI APK.
-Future updates must use code >=40 after this delivered code 39.
+Future updates must use code >=41. [Code-40 recovery](code40-recovery.md) identifies
+the new exact bridge source and unchanged v15 server source companion; the
+strict packaging verifier accepts both.
 
-Native cache/source recovery: [code32 baseline](code32-recovery.md), followed by
+Native cache/source recovery: [code32 baseline](code32-recovery.md), then the
 reviewed 0019 seller-count patch/v15 relinks from [code34](code34-recovery.md).
 Restore pinned NDK/timestamps and inspect actual source/build inventory before
-Ninja; a cache directory name is not evidence of its version. Native builds use
-one job by default/max two after memory checks; never concurrent heavy builds.
+Ninja; cache directory names do not prove version. Native builds use one job
+by default/max two after memory checks; never concurrent heavyweight builds.
