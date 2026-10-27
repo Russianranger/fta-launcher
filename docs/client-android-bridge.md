@@ -3,7 +3,9 @@
 The synthetic ARM64 Linux Wine/FEX process and IPC gate
 [passed](evidence/host-2026-10-26-mixed-wine-runtime-pass.json). Android execution
 needs a PRoot tracer/loader launched through the existing owned native process
-bridge. No new service, APK payload or original client execution is enabled yet.
+bridge. The [owned Android worker and synthetic driver](client-runtime-installation.md)
+are now implemented; first physical execution is pending a qualified private APK.
+Original client execution is not enabled.
 
 ## Exact sources and build
 
@@ -87,12 +89,16 @@ PRoot source files specify GPL-2.0-or-later; talloc specifies LGPL-3.0-or-later.
 Their original archives and notices are recovered. Before distributing a new APK,
 assemble its exact corresponding source companion, including the original archives,
 patches, this build driver/helpers, generated recipe and complete license notices.
-Full runtime Debian/Wine/FEX source/notice closure remains separate work. No bridge
-binary is committed or currently bundled in the application.
+`tools/stage_client_probe.py` now produces and verifies this exact companion and
+stages both checked bridge outputs plus synthetic probes in the CI APK. Public
+releases carry the companion; private packaging requires it and the unchanged
+server source companion. Wine/FEX remains a direct upstream runtime download with
+all bundled package notices and pinned source archive links retained. No bridge
+binary is committed to Git.
 
-Next implement the owned Android diagnostic service, bounded runtime installation,
-and disposable Wine prefix. Preserve native parent-death/Stop supervision and
-verify CPU topology through Android's actual PRoot path. Synthetic Windows fixtures
+The owned Android service, bounded installer, disposable Wine prefix and fixtures
+are implemented. The next private APK must verify native parent-death/Stop
+supervision and CPU topology through Android's actual PRoot path. Synthetic Windows fixtures
 must pass on Thor before original host/graphics/client claims. The later client
 view must preserve imported files: no writable hard links or unbounded 60 GB copy.
 Installed private code 37 and all passed import/server gates remain unchanged.

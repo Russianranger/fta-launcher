@@ -12,10 +12,10 @@ import java.io.File
 /** Explicit allowlist: never exports URLs, exception text, paths, command lines or raw logs. */
 object ClientRuntimeReport {
     private fun file(context: Context) = AtomicFile(File(context.filesDir, "client-runtime-report.json"))
-    val states = setOf("preparing", "archive-verify", "download", "extract", "verify-runtime", "complete", "stopped", "failed")
+    val states = setOf("preparing", "archive-verify", "download", "extract", "verify-runtime", "probe-ownership", "probe-wine", "complete", "stopped", "failed")
     val reasons = setOf("cancelled", "timeout", "busy", "invalid-catalog", "archive-changed", "runtime-changed",
         "unsafe-runtime-store", "storage-unavailable", "insufficient-space", "runtime-unavailable", "download-failed",
-        "memory-pressure", "memory-observation-unavailable", "io-failed")
+        "memory-pressure", "memory-observation-unavailable", "io-failed", "ownership-failed", "probe-failed", "probe-timeout", "probe-unavailable")
     fun write(context: Context, report: JSONObject) {
         val atomic = file(context); val output = atomic.startWrite()
         try { val bytes = report.toString().toByteArray(); require(bytes.size <= 8192); output.write(bytes); atomic.finishWrite(output) }
@@ -30,12 +30,13 @@ object ClientRuntimeReport {
             require(count <= 8192); JSONObject(String(bytes, 0, count, Charsets.UTF_8))
         } }.getOrNull() ?: return result
         result.put("available", true)
-        for ((key, allowed) in mapOf("state" to states, "operation" to setOf("prepare", "verify"), "reason" to reasons))
+        for ((key, allowed) in mapOf("state" to states, "operation" to setOf("prepare", "verify", "probe"), "reason" to reasons))
             raw.optString(key).takeIf { it in allowed }?.let { result.put(key, it) }
         raw.optString("attemptId").takeIf { it.matches(Regex("[0-9a-f-]{36}")) }?.let { result.put("attemptId", it) }
         for (key in listOf("startedAtEpochMs", "updatedAtEpochMs", "elapsedMs", "bytes", "totalBytes", "entries", "peakRssKiB",
             "heapUsedBytes", "heapMaxBytes", "availableMemoryBytes", "totalMemoryBytes", "ioBytes", "throttledMs",
-            "pressureWaitMs", "pressurePauses", "ioLimitBytesPerSecond", "ioWindowBytes", "cacheRequests", "cacheAccepted")) {
+            "pressureWaitMs", "pressurePauses", "ioLimitBytesPerSecond", "ioWindowBytes", "cacheRequests", "cacheAccepted",
+            "ownershipNormalExit", "ownershipStopExit", "ownershipKilledExit", "stoppedTracees", "killedTracees")) {
             val value = raw.opt(key)
             if ((value is Int || value is Long) && (value as Number).toLong() >= 0) result.put(key, value)
         }
@@ -43,6 +44,12 @@ object ClientRuntimeReport {
             if (raw.opt(key) is Boolean) result.put(key, raw.getBoolean(key))
         for (key in listOf("archiveSha256", "catalogSha256"))
             raw.optString(key).takeIf { it.matches(Regex("[0-9a-f]{64}")) }?.let { result.put(key, it) }
+        val stages = JSONObject()
+        for (key in ClientProbeProtocol.stages) {
+            val value = raw.optJSONObject("probeStages")?.opt(key)
+            if (value is Int && value in -255..255) stages.put(key, value)
+        }
+        if (stages.length() > 0) result.put("probeStages", stages)
         val terminal = raw.optString("state") in setOf("complete", "failed", "stopped")
         val running = runCatching { ClientRuntimeService.running(context) }.getOrNull()
         result.put("workerObservation", when (running) { true -> "active"; false -> "inactive"; null -> "unknown" })
@@ -62,6 +69,12 @@ object ClientRuntimeReport {
             result.put("exitHistoryAvailable", exits.isSuccess).put("recentClientRuntimeExits", JSONArray(exits.getOrDefault(emptyList())))
         }
         val complete = result.optString("state") == "complete" && result.has("archiveSha256") && result.has("catalogSha256")
+        val synthetic = complete && result.optString("operation") == "probe" && raw.optBoolean("syntheticMixedRuntimeValidated") &&
+            raw.optBoolean("runtimePostRehashValidated") && result.optInt("ownershipNormalExit", -1) == 0 &&
+            result.optInt("ownershipStopExit", -1) in 0..255 &&
+            result.optInt("ownershipKilledExit", -1) == 137 && result.optInt("stoppedTracees") == 3 && result.optInt("killedTracees") == 3 &&
+            stages.length() == ClientProbeProtocol.stages.size && ClientProbeProtocol.stages.all { stages.optInt(it, -1) == 0 }
+        result.put("syntheticMixedRuntimeValidated", synthetic).put("runtimePostRehashValidated", synthetic)
         return result.put("runtimeTreeVerified", complete).put("retainedRehashValidated", complete && result.optString("operation") == "verify")
     }
 }

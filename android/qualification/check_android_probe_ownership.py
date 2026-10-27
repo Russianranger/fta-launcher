@@ -35,7 +35,7 @@ def run_case(proot, loader, root, work, mode):
     with log.open('wb') as output:
         tracer = subprocess.Popen([str(proot), '--kill-on-exit', '--sysvipc', '-0', '-r', str(root),
             '-b', '/dev', '-b', '/proc', '-b', '/sys', '-b', f'{work}:/session', '-w', '/session',
-            '/usr/bin/env', '-i', '/usr/bin/python3', '/probe/android_probe.py',
+            '/usr/bin/env', '-i', 'PYTHONDONTWRITEBYTECODE=1', '/usr/bin/python3', '-B', '/probe/android_probe.py',
             '--ownership-normal' if mode == 'normal' else '--ownership-hold'],
             stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.STDOUT, start_new_session=True,
             env=dict(os.environ, PROOT_LOADER=str(loader), PROOT_NO_SECCOMP='1', PROOT_TMP_DIR=str(work)))

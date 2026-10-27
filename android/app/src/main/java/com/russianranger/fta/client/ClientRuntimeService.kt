@@ -16,7 +16,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
-/** Explicit, non-restarting runtime preparation. No native or original client execution. */
+/** Explicit, non-restarting preparation and synthetic native probes. No original client execution. */
 class ClientRuntimeService : Service() {
     private val worker = Executors.newSingleThreadExecutor()
     private val timer = Executors.newSingleThreadScheduledExecutor()
@@ -26,6 +26,7 @@ class ClientRuntimeService : Service() {
     @Volatile private var activityBound = false
     @Volatile private var trimUntil = 0L
     private var started = false
+    private var probing = false
     private var wakeLock: PowerManager.WakeLock? = null
     private fun cancel() { cancelled.set(true); download.cancel() }
     private fun active() { if (cancelled.get()) throw RuntimeInstallFailure(if (timedOut.get()) "timeout" else "cancelled") }
@@ -42,8 +43,9 @@ class ClientRuntimeService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == STOP) { cancel(); if (!started) stopSelf(); return START_NOT_STICKY }
         if (started) return START_NOT_STICKY
-        if (intent?.action !in setOf(PREPARE, VERIFY)) { stopSelf(); return START_NOT_STICKY }
+        if (intent?.action !in setOf(PREPARE, VERIFY, PROBE)) { stopSelf(); return START_NOT_STICKY }
         started = true
+        probing = intent?.action == PROBE
         notification("Preparing client runtime…", true)
         wakeLock = getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "fta:clientRuntime")
             .apply { acquire(90 * 60 * 1000L) }
@@ -55,7 +57,7 @@ class ClientRuntimeService : Service() {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
         val began = SystemClock.elapsedRealtime()
         val report = JSONObject().put("attemptId", UUID.randomUUID().toString())
-            .put("operation", if (verify) "verify" else "prepare").put("state", "preparing")
+            .put("operation", if (probing) "probe" else if (verify) "verify" else "prepare").put("state", "preparing")
             .put("startedAtEpochMs", System.currentTimeMillis()).put("ownerPid", android.os.Process.myPid())
         if (Build.VERSION.SDK_INT >= 30) runCatching {
             getSystemService(ActivityManager::class.java).setProcessStateSummary(ClientExitEvidence.token(report.getString("attemptId")).toByteArray())
@@ -109,7 +111,39 @@ class ClientRuntimeService : Service() {
                 report.put("state", it.stage).put("bytes", it.bytes).put("totalBytes", it.totalBytes).put("entries", it.entries); write()
             }
             report.put("state", if (verify) "verify-runtime" else "archive-verify"); write(true)
-            if (verify) store.withVerified(governor::check, progress) { } else
+            if (probing) {
+                var nextMemory = 0L
+                val result = store.withVerified(governor::check, progress, reverifyAfter = true) { runtime ->
+                    val deadline = SystemClock.elapsedRealtime() + 960000
+                    ClientNativeProbe.run(this, runtime, report.getString("attemptId"), {
+                        active(); val now = SystemClock.elapsedRealtime()
+                        runtimeRequire(now < deadline, "probe-timeout")
+                        if (now >= nextMemory) {
+                            nextMemory = now + 1000
+                            val memory = GameDataDiagnostics.memory(this, activityBound) ?: throw RuntimeInstallFailure("memory-observation-unavailable")
+                            runtimeRequire(!ClientIoGuard.Memory(memory.available, memory.total, memory.threshold, memory.low,
+                                trim = now < trimUntil).pressured(), "memory-pressure")
+                            runtimeRequire(runtime.usableSpace >= ClientRuntimeStore.RESERVE, "insufficient-space")
+                            report.put("availableMemoryBytes", memory.available).put("totalMemoryBytes", memory.total); write()
+                        }
+                    }, { stage, output ->
+                        report.put("state", stage)
+                        val statuses = JSONObject()
+                        for (line in output.lineSequence()) {
+                            val fields = line.split(' ')
+                            if (fields.size == 3 && fields[0] == "FTA_ANDROID_STAGE" && fields[1] in ClientProbeProtocol.stages) {
+                                fields[2].toIntOrNull()?.takeIf { it in -255..255 }?.let { statuses.put(fields[1], it) }
+                            }
+                        }
+                        if (statuses.length() > 0) report.put("probeStages", statuses)
+                        write()
+                    })
+                }
+                report.put("ownershipNormalExit", result.normalExit).put("ownershipStopExit", result.stopExit)
+                    .put("ownershipKilledExit", result.killedExit).put("stoppedTracees", result.stoppedTracees)
+                    .put("killedTracees", result.killedTracees).put("probeStages", JSONObject(result.stages))
+                    .put("syntheticMixedRuntimeValidated", true).put("runtimePostRehashValidated", true)
+            } else if (verify) store.withVerified(governor::check, progress) { } else
                 store.install({ download.open(plan.archiveBytes) }, governor::check, progress)
             report.put("state", "complete").put("bytes", plan.fileBytes).put("totalBytes", plan.fileBytes).put("entries", plan.entries.size)
         } catch (e: Exception) {
@@ -131,7 +165,8 @@ class ClientRuntimeService : Service() {
         val notification = Notification.Builder(this, CHANNEL).setSmallIcon(R.drawable.ic_ashes).setContentTitle("From the Ashes client runtime")
             .setContentText(text).setContentIntent(open).setOngoing(true).addAction(Notification.Action.Builder(null, "Stop", stop).build()).build()
         if (foreground) {
-            if (Build.VERSION.SDK_INT >= 29) startForeground(44, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+            if (probing && Build.VERSION.SDK_INT >= 34) startForeground(44, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            else if (!probing && Build.VERSION.SDK_INT >= 29) startForeground(44, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
             else startForeground(44, notification)
         } else manager.notify(44, notification)
     }
@@ -141,6 +176,7 @@ class ClientRuntimeService : Service() {
     companion object {
         const val PREPARE = "com.russianranger.fta.PREPARE_CLIENT_RUNTIME"
         const val VERIFY = "com.russianranger.fta.VERIFY_CLIENT_RUNTIME"
+        const val PROBE = "com.russianranger.fta.PROBE_CLIENT_RUNTIME"
         const val STOP = "com.russianranger.fta.STOP_CLIENT_RUNTIME"
         const val BIND = "com.russianranger.fta.BIND_CLIENT_RUNTIME"
         private const val CHANNEL = "fta-client-runtime"

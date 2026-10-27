@@ -207,8 +207,12 @@ class ClientRuntimeStore(private val root: File, private val plan: RuntimeArchiv
         Files.move(staging.toPath(), ready.toPath(), ATOMIC_MOVE); syncDirectory(root)
         progress(Progress("complete", plan.fileBytes, plan.fileBytes, plan.entries.size)); ready
     }
-    fun <T> withVerified(active: () -> Unit = {}, progress: (Progress) -> Unit = {}, block: (File) -> T): T =
-        exclusive { block(verifyLocked(active, progress)) }
+    fun <T> withVerified(active: () -> Unit = {}, progress: (Progress) -> Unit = {},
+        reverifyAfter: Boolean = false, block: (File) -> T): T = exclusive {
+        val data = verifyLocked(active, progress); val result = block(data)
+        if (reverifyAfter) verifyTree(data, active, progress)
+        result
+    }
     private fun verifyLocked(active: () -> Unit, progress: (Progress) -> Unit): File {
         runtimeRequire(Files.isDirectory(ready.toPath(), NOFOLLOW_LINKS), "runtime-unavailable")
         verifyTree(ready, active, progress); return ready

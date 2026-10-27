@@ -41,98 +41,71 @@ catalog `0189b8b22be7673e3e9b2bf06c83a61d65bb7f6ac561198514cd57a28eb41bff`.
 Database/updater, realm reuse, backup/restore, process-death recovery and local
 auth/Stop/restart already passed. **Do not repeat these physical gates.**
 
-## Current client-runtime preparation
+## Current client-runtime development
 
-[Host/DLL/proxy contract](warcraftxl-host.md) pins the supplied original binaries
-against Thor's imported observations. The original x64 host is 1,071,104 bytes,
-SHA `6349752018efba461a2ac4bf19a98d1293aa7c21f98cb90f50615f33a7701955`.
-Original host instructions generated 1,140 header comparisons (855 accepted /
-285 zero-PID negatives), all matching the original x86 DLL validator and Kotlin.
-This is isolated fragment/static evidence, not original-host execution or graphics.
-The DLL must launch Utils/WarcraftXLHost.exe with its **Windows** PID in the same
-Wine prefix/session. Never substitute Android PID or prelaunch a separate host.
-The original host's exit watcher is conditional; independent owned cleanup is needed.
-The full 1.1 GB client source is not currently required.
+Original host/DLL/proxy identities and the isolated original header contract are
+pinned in [warcraftxl-host.md](warcraftxl-host.md). The full 1.1 GB client source
+is not needed for this synthetic gate. Preserve the original Windows-PID launch
+contract; original client/host execution, graphics and gameplay remain unqualified.
 
-[Verified-client lease and original Wine override transformation](client-runtime-preparation.md)
-are source helpers; imported files/configs remain unchanged. Runtime candidate
-[lock/audit](client-mixed-runtime.md) pins the public Wine/FEX archive, all
-14,092 entries / 2,637,799,241 file bytes, 12 critical component identities and
-three recovered source archives. All original runtime binaries remain unchanged.
+The unchanged public Wine/FEX archive is pinned in
+`android/qualification/client-runtime-lock.json`: 14,092 entries / 2,637,799,241
+file bytes. [Installation](client-runtime-installation.md) now has authenticated
+extraction ranges, <=1 MiB sync/readback windows, delayed links, OS lease, atomic
+publication and complete retained rehash. Full-candidate host installation and
+both rehashes pass with a 96 MiB JVM heap. The separate Android foreground worker
+uses the existing 24 MiB/s and memory-pressure governor, Stop, a 90-minute limit,
+visible-activity binding and redacted attempt-matched exit reporting.
 
-**Synthetic native ARM64 Linux Wine gate passed:** implementation
-`eddd5be4de75b427660e3489e6bc4d85f3497780`,
-[CI 40396385255](https://github.com/Russianranger/fta-launcher/actions/runs/40396385255),
-[exact proof](evidence/host-2026-10-26-mixed-wine-runtime-pass.json).
-x86/x64 entry exit zero; x86 parent creates x64 child; 64/512 IPC round trips at
-2/16 channels; explicit child Stop exit 37; parent loss child exit 38.
-The initial FEX assertion was missing sysfs/CPU registry in the disposable chroot;
-real read-only sysfs fixes it without invented CPU values or binary patches.
-No original client/host binary enters CI. Android runtime, graphics, original
-WarcraftXL transport and gameplay remain unqualified.
+Latest completed qualified checkpoint: **fcab94bfcead3ef62daa42c65a5467b979939e4c**.
+All foundation jobs **40422957436** passed: 200 tooling, 71 qualification,
+514 Android tests passed / one existing skip, lint/assembly, cache/JNI, packaged
+checks and full 96 MiB-heap runtime installation. ARM64 workflow **40422957424**
+also passed the original Wine tests, the new guest program's ten stages, and its
+normal/Stop/forced-tracer-death ownership fixture. The empty CI prefix's UID
+needed to match the chroot owner (measured runner UID 1001); original Wine's UID
+check and runtime bytes remain unchanged. These are Linux results, not Thor.
 
-[Android PRoot bridge build](client-android-bridge.md) uses pinned PRoot/talloc,
-original compatibility patches, NDK r28c/API26 and one compiler job. Both load
-alignments are 16 KiB. Android PIE tracer depends only on libc/libdl; its static
-ARM64 ET_EXEC loader has checked entry, segment bounds and non-executable stack.
-[Exact build proof](evidence/host-2026-10-26-android-client-bridge-build.json).
-Tracer SHA `46dcafabc77b386a7127f6cb7c71bdac03c372ff6bb4db0e1e9493ee29332adb`;
-loader SHA `614591192bb34c98cc6cef528fb74ecfc1c97d0fabf4e352df1f16873c71d447`.
-The old public 4 KiB loader is not reused. Outputs stay outside Git and are not
-staged in an APK. `tools/build_client_bridge.py` rebuilds from the pinned archives
-in a new private directory; rebuilt identities must be measured afresh.
+[Android bridge](client-android-bridge.md): pinned PRoot/talloc, NDK r28c, one job,
+16 KiB tracer and loader, mandatory PTRACE_O_EXITKILL. The original-vs-fixed Linux
+negative control proved three survivors versus zero, including two detached
+session leaders. Exact build proof remains in evidence. This turn's rebuild
+measured the same tracer/loader hashes; no world/server payload was rebuilt.
 
-**Tracer-death ownership passed on native ARM64 Linux:** implementation
-`969660f0d9c028537d1be53e735bedf1ed50e655`,
-[CI 40400465375](https://github.com/Russianranger/fta-launcher/actions/runs/40400465375),
-[exact evidence](evidence/host-2026-10-26-proot-ownership-pass.json).
-Mandatory PTRACE_O_EXITKILL closes the original tracer-SIGKILL gap: baseline
-survivors=3, patched survivors=0, including two detached session leaders; normal
-exit remains zero. Exact entry/mapping identities are checked before retaining
-cleanup pidfds. The native ELF64 regression uses the separate native loader;
-it does not qualify ARM32 Linux or Android execution. The same CI reran the
-complete Windows x86/x64 process/IPC gate successfully.
+Current increment wires the owned Android driver and private disposable prefix.
+It requires normal/Stop/SIGKILL ownership gates before synthetic x86/x64 entry,
+2/16-channel IPC, parent loss and Wine stop. A full runtime post-rehash follows
+success. Native memory pressure stops the process tree instead of pausing it.
+Python bytecode writes are disabled; temporary files, prefix and font cache are
+separate binds. No managed client or retained realm path is mounted.
+Interrupted attempts are retained, with a three-attempt/2 GiB free-space gate.
 
-All three [foundation jobs 40400465293](https://github.com/Russianranger/fta-launcher/actions/runs/40400465293)
-passed for **969660f0d9c028537d1be53e735bedf1ed50e655**: 200 tooling tests,
-62 qualification tests, 486 Android tests / one existing skip, lint/assembly,
-cache-helper/JNI and packaged-input checks. This checkpoint adds only evidence
-and documentation after that implementation. Inspect remote main on recovery;
-never infer the installed private APK from public CI output.
+`tools/stage_client_probe.py` builds only synthetic fixtures, checks both exact
+bridge ELF identities, stages complete notices, and creates/verifies the matching
+public corresponding-source companion. Foundation CI builds these sequentially
+before Gradle and publishes the companion with its APK. Private packaging requires
+that exact companion, keeps all 21 donor payloads unchanged, and separately checks
+the two bridge additions. Code **38 / 0.14.0-client-probe** is reserved for delivery;
+no private code-38 APK has been issued yet. Verify this increment's exact CI before
+packaging. Latest local changes: 205 tooling and 73 qualification tests pass;
+18 installer, six download and five ownership-protocol JVM regressions pass.
+ARM64 CI also runs the exact Android bind layout through PRoot with complete
+pre/post runtime-tree verification. Preparation source/bridge and this layout
+gate must both pass for the exact delivered commit.
 
 ## Next concrete gate and recovery rules
 
-The [bounded runtime installer](client-runtime-installation.md) is implemented:
-authenticated extraction ranges, <=1 MiB sync/readback windows, delayed links,
-OS lease, atomic publication and full retained rehash. Seventeen new JVM tests
-and four catalog-generation tests pass. Installer commit
-`00f040412915b989b1a716b59a45cabd8d68e8b0`: all foundation jobs 40420915737 and
-ARM64 Wine/ownership 40420915731 passed. Foundation: 200 tooling, 66 qualification,
-503 Android passed / one existing skip, lint/assembly, cache/JNI, packaged checks.
-Full 14,092-entry runtime installation and both rehashes pass with a 96 MiB JVM
-heap. The Android foreground preparation worker is now wired with existing
-memory/I/O guards, Stop, 90-minute deadline and redacted exit-aware reporting.
-Six download regressions pass. The new bounded guest diagnostic program has five
-host regressions and an ARM64 CI gate. No Android native execution action or new
-private APK is issued yet; do not repeat the original client import.
+After exact-commit CI passes, package the private code-38 update from its CI APK,
+code-37 donor, unchanged v15 source companion and new bridge source companion.
+Verify signature, payload inventories, metadata, sources, 16 KiB alignment and
+new measured APK SHA256; save a directly accessible private artifact. The next
+Thor test is in-place update, Prepare client runtime, Test client runtime, export
+report immediately on success/failure. Do not repeat client import/full rehash,
+server data import, database/auth or the completed world/screen-off gate.
 
-Preparation worker `1c3321508934b8d95b4a8d4e6c77e6119c7c61e3` passed foundation
-CI 40421996504. The new guest-program run 40421996385 failed fresh-prefix setup;
-original Wine still passed. CI now assigns only the empty disposable prefix to
-the chroot owner, preserving original Wine's UID check. A handle-owned protocol
-and guest normal/Stop/tracer-SIGKILL tree fixtures precede Wine; five JVM tests
-pass, and ARM64 CI qualifies the exact guest ownership program. Platform driver,
-packaged fixtures/source companion and a new private APK are still pending.
-
-Complete the exact distribution source/notice companion and wire the owned
-native diagnostic, fresh disposable Wine prefix and synthetic fixtures.
-Qualify synthetic mixed processes on Thor before original host/
-graphics claims. Use the existing native process bridge and the new PRoot
-ownership requirement for parent death/Stop; Linux evidence does not qualify
-Android cleanup. Later create a separate writable client view under the verified
-lease: no writable hard links, mutations of imported originals or unbounded
-60 GB copy. Preserve all realm/accounts/backups and never replay a fresh seed.
-Deferred Attriboost Settings field 8 vs 9 remains gameplay work.
+Original WarcraftXL/client execution requires a later separate writable view
+under the verified client lease: no writable hard links, original mutations or
+unbounded 60 GB copy. Deferred Attriboost Settings field 8 vs 9 remains gameplay work.
 
 Keep installed 37; **no physical retest requested now**. A new private APK must
 use version code >=38 and the original signing capsule

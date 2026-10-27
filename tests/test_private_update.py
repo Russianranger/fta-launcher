@@ -9,7 +9,7 @@ import warnings
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_private_update import CERTIFICATE, METADATA, LEGACY, FAULT, WORLD, check_helper_sources, compare_output, inventory, overlay, sha, verify_signature, verify_legacy, verify_fault
+from package_private_update import CERTIFICATE, METADATA, LEGACY, FAULT, WORLD, CLIENT_LIBS, check_helper_sources, compare_output, inventory, overlay, sha, verify_signature, verify_legacy, verify_fault
 
 
 class PrivateUpdateTests(unittest.TestCase):
@@ -59,6 +59,29 @@ class PrivateUpdateTests(unittest.TestCase):
         for name in ('lib/arm64-v8a/libfta_worldserver.so', 'lib/arm64-v8a/unreviewed.so'):
             old = dict(self.old); old[name] = b'changed'
             with self.assertRaises(ValueError): self.build(old=old)
+
+    def test_verified_client_bridge_and_notices_survive_donor_overlay(self):
+        base = dict(self.base, **{name: name.encode() for name in CLIENT_LIBS})
+        base['assets/client-probe/NOTICE.txt'] = b'synthetic component notices'
+        with patch('stage_client_probe.verify_apk') as verify:
+            output, assembly, donor = self.build(base=base)
+            verify.assert_called_once()
+        compare_output(output, assembly, donor)
+        with zipfile.ZipFile(output) as archive:
+            for name in CLIENT_LIBS: self.assertEqual(base[name], archive.read(name))
+        self.assertEqual(b'synthetic component notices', (self.root / 'stage/assets/client-probe/NOTICE.txt').read_bytes())
+
+    def test_partial_or_unqualified_client_bridge_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'Incomplete client bridge'):
+            self.build(base=dict(self.base, **{next(iter(CLIENT_LIBS)): b'partial'}))
+        with patch('stage_client_probe.verify_apk', side_effect=ValueError('unqualified')):
+            with self.assertRaisesRegex(ValueError, 'unqualified'):
+                self.build(base=dict(self.base, **{name: b'unqualified' for name in CLIENT_LIBS}))
+
+    def test_client_bridge_cannot_outlive_its_current_assembly_notices(self):
+        old = dict(self.old, **{name: b'previous bridge' for name in CLIENT_LIBS})
+        with self.assertRaisesRegex(ValueError, 'Retained client bridge requires'):
+            self.build(old=old)
 
     def test_altered_assembly_or_donor_metadata_cannot_be_overlaid(self):
         for member in METADATA:

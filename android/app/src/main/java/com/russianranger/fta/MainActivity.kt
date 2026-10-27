@@ -51,6 +51,7 @@ class MainActivity : Activity() {
     private lateinit var clientImportStatus: TextView
     private lateinit var runtimePrepareButton: Button
     private lateinit var runtimeVerifyButton: Button
+    private lateinit var runtimeProbeButton: Button
     private lateinit var runtimeStopButton: Button
     private lateinit var clientRuntimeStatus: TextView
     private var runtimeRequestedAt = 0L
@@ -297,12 +298,14 @@ class MainActivity : Activity() {
         status.addView(clientImportStatus)
         runtimePrepareButton = action("Prepare client runtime") { startClientRuntime(false) }
         runtimeVerifyButton = action("Verify client runtime") { startClientRuntime(true) }
-        runtimeStopButton = action("Stop client runtime preparation") {
+        runtimeProbeButton = action("Test client runtime") { startClientRuntime(false, probe = true) }
+        runtimeStopButton = action("Stop client runtime operation") {
             startService(Intent(this, ClientRuntimeService::class.java).setAction(ClientRuntimeService.STOP))
         }
-        status.addView(runtimePrepareButton); status.addView(runtimeVerifyButton); status.addView(runtimeStopButton)
+        status.addView(runtimePrepareButton); status.addView(runtimeVerifyButton); status.addView(runtimeProbeButton); status.addView(runtimeStopButton)
         clientRuntimeStatus = label("", 13, muted); status.addView(clientRuntimeStatus)
         status.addView(label("Downloads the verified 613 MB Wine/FEX runtime into separate private storage. Allow 5 GiB free and keep this screen visible. Preparation does not start the client or repeat its import.", 13, muted))
+        status.addView(label("Test client runtime checks process cleanup and x86/x64 compatibility in a temporary prefix. Allow 2 GiB free after preparation, keep this screen visible, then export the report. Original client execution and game login remain later steps.", 13, muted))
         status.addView(label("Import copies the complete client into private internal storage and verifies every byte. Keep at least the client's size plus 1 GiB free. Keep this screen visible. Stop preserves checkpoints; select the same unchanged folder to resume. Your original files and settings remain unchanged. Client launch comes later.", 13, muted))
         status.addView(label("Select your complete extracted client folder containing Wow.exe. Keep this screen open, then export the diagnostic report. This read-only check counts files and inspects executable metadata; full import and client launch come later.", 13, muted))
         progressLabel = label("", 14, ink)
@@ -400,6 +403,7 @@ class MainActivity : Activity() {
         clientStopButton.isEnabled = clientRunning || clientRequested
         runtimePrepareButton.isEnabled = gameDataButton.isEnabled && !File(filesDir, "client-runtime-store/ready").isDirectory
         runtimeVerifyButton.isEnabled = gameDataButton.isEnabled && File(filesDir, "client-runtime-store/ready").isDirectory
+        runtimeProbeButton.isEnabled = runtimeVerifyButton.isEnabled && com.russianranger.fta.client.ClientNativeProbe.packaged(this)
         runtimeStopButton.isEnabled = clientRuntimeRunning || runtimeRequested
         if (activityVisible && clientRuntimeRunning && !runtimeBound) {
             runtimeBound = true
@@ -413,6 +417,7 @@ class MainActivity : Activity() {
             runtimeRequested && !clientRuntimeRunning -> "Starting runtime worker…"
             clientRuntimeRunning && runtimeReport.optBoolean("memoryPaused") -> "Runtime preparation paused for memory pressure. Stop is available."
             clientRuntimeRunning -> "${runtimeReport.optString("state")}: ${runtimeReport.optLong("bytes") / 1048576} / ${runtimeReport.optLong("totalBytes") / 1048576} MiB."
+            runtimeReport.optBoolean("syntheticMixedRuntimeValidated") -> "Runtime process and compatibility tests passed. Export the report. Original client execution remains unqualified."
             runtimeReport.optString("state") == "complete" -> "Runtime files verified. Native client execution remains unqualified."
             runtimeReport.optString("state") in setOf("failed", "stopped") -> "Runtime operation ${runtimeReport.optString("state")}: ${runtimeReport.optString("reason")}. Export the report."
             runtimeReport.optBoolean("available") -> "Runtime preparation interrupted. Export the report before retrying."
@@ -580,11 +585,11 @@ class MainActivity : Activity() {
         data?.data?.let { app.importArchive(spec, it) }
     }
 
-    private fun startClientRuntime(verify: Boolean) {
+    private fun startClientRuntime(verify: Boolean, probe: Boolean = false) {
         if (app.busy || databaseCheckRunning() || ClientImportService.running(this) || ClientRuntimeService.running(this)) return
         try {
             startForegroundService(Intent(this, ClientRuntimeService::class.java)
-                .setAction(if (verify) ClientRuntimeService.VERIFY else ClientRuntimeService.PREPARE))
+                .setAction(if (probe) ClientRuntimeService.PROBE else if (verify) ClientRuntimeService.VERIFY else ClientRuntimeService.PREPARE))
             runtimeRequestedAt = SystemClock.elapsedRealtime(); update()
         } catch (_: Exception) {
             Toast.makeText(this, "Runtime worker could not start. Keep the launcher visible and try again.", Toast.LENGTH_LONG).show()

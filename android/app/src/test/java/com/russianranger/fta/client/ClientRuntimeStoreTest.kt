@@ -133,6 +133,12 @@ class ClientRuntimeStoreTest {
         first.withVerified { failure("busy") { second.install({ error("No source") }) } }
         second.withVerified { assertTrue(it.isDirectory) }
     }
+    @Test fun optionalPostRunRehashRejectsNativeRuntimeMutations() {
+        val f = Fixture(); val (_, store) = installed(f)
+        failure("runtime-changed") { store.withVerified(reverifyAfter = true) { data ->
+            File(data, "usr/bin/probe").writeBytes(ByteArray(f.payload.size))
+        } }
+    }
     @Test fun insufficientSpaceFailsBeforeSourceOpen() {
         val f = Fixture(); val root = File(temp.root, "runtime")
         failure("insufficient-space") { ClientRuntimeStore(root, f.plan, available = { ClientRuntimeStore.RESERVE })

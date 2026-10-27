@@ -87,10 +87,11 @@ def run(stage, args, seconds, env=None):
 
 
 def main():
+    probes = Path(__file__).resolve().parent
     os.environ.update(PATH='/opt/wine/bin:/usr/bin:/bin', HOME='/session/home', LANG='C.UTF-8',
         WINEPREFIX='/prefix', WINEARCH='win64', DISPLAY=':8', WINEDEBUG='-all,err+all',
         WINEDLLOVERRIDES='winemenubuilder,mshtml,mscoree=', WINEESYNC='0', WINEFSYNC='0',
-        FEX_DISABLETELEMETRY='1', FEX_SILENTLOG='0', TMPDIR='/tmp')
+        FEX_DISABLETELEMETRY='1', FEX_SILENTLOG='0', TMPDIR='/tmp', XDG_CACHE_HOME='/session/cache')
     display = None; passed = False
     try:
         if list(Path('/prefix').iterdir()):
@@ -112,11 +113,11 @@ def main():
         record('display', 0)
         run('prefix', ['wine', 'wineboot.exe', '-u'], 180)
         run('cpu-registry', ['wine', 'reg.exe', 'query', r'HKLM\Hardware\Description\System\CentralProcessor\0', '/reg:64'], 30)
-        run('x86-entry', ['wine', '/probe/probe32.exe', '--self-test'], 90)
-        run('x64-entry', ['wine', '/probe/probe64.exe', '--self-test'], 90)
-        run('two-channels', ['wine', '/probe/probe32.exe', '2'], 90)
-        run('sixteen-channels', ['wine', '/probe/probe32.exe', '16'], 90)
-        run('owner-exit', ['wine', '/probe/probe64.exe', '--observe-owner-exit'], 90)
+        run('x86-entry', ['wine', str(probes / 'probe32.exe'), '--self-test'], 90)
+        run('x64-entry', ['wine', str(probes / 'probe64.exe'), '--self-test'], 90)
+        run('two-channels', ['wine', str(probes / 'probe32.exe'), '2'], 90)
+        run('sixteen-channels', ['wine', str(probes / 'probe32.exe'), '16'], 90)
+        run('owner-exit', ['wine', str(probes / 'probe64.exe'), '--observe-owner-exit'], 90)
         # Synthetic exit/IPC qualification does not claim graceful gameplay shutdown.
         subprocess.run(['wineserver', '-k'], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                        stderr=subprocess.DEVNULL, timeout=10, check=True)

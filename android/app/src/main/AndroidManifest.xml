@@ -36,7 +36,10 @@
         <service android:name=".client.ClientImportService" android:process=":client"
             android:exported="false" android:stopWithTask="false" android:foregroundServiceType="dataSync" />
         <service android:name=".client.ClientRuntimeService" android:process=":clientruntime"
-            android:exported="false" android:stopWithTask="false" android:foregroundServiceType="dataSync" />
+            android:exported="false" android:stopWithTask="false" android:foregroundServiceType="dataSync|specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Explicit bounded synthetic client process ownership and Wine compatibility diagnostic with Stop, isolated prefix and no imported client execution" />
+        </service>
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -59,6 +59,14 @@ jobs:
         run: |
           curl --fail --location --retry 2 --max-time 300 https://github.com/Russianranger/uo-android-launcher/releases/download/v0.2.0/client-runtime-arm64.tar.gz -o "$RUNNER_TEMP/client-runtime.tar.gz"
           python3 android/qualification/build_runtime_catalog.py --archive "$RUNNER_TEMP/client-runtime.tar.gz" --output "$RUNNER_TEMP/client-runtime-catalog.tsv"
+      - name: Build owned client bridge and synthetic probes sequentially
+        run: |
+          sudo apt-get update -qq > "$RUNNER_TEMP/client-toolchain.log" 2>&1
+          sudo apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64 gcc-mingw-w64-i686 >> "$RUNNER_TEMP/client-toolchain.log" 2>&1
+          curl -fLsS --retry 2 --max-time 300 https://github.com/Russianranger/uo-android-launcher/releases/download/v0.2.0/runtime-corresponding-sources.tar.gz -o "$RUNNER_TEMP/bridge-sources.tar.gz"
+          curl -fLsS --retry 2 --max-time 300 https://dl.google.com/android/repository/android-ndk-r28c-linux.zip -o "$RUNNER_TEMP/android-ndk.zip"
+          python3 tools/build_client_bridge.py --sources "$RUNNER_TEMP/bridge-sources.tar.gz" --ndk-zip "$RUNNER_TEMP/android-ndk.zip" --work "$RUNNER_TEMP/client-bridge-build" > "$RUNNER_TEMP/client-bridge-build.log" 2>&1
+          python3 tools/stage_client_probe.py --bridge-build "$RUNNER_TEMP/client-bridge-build" --provider "$RUNNER_TEMP/fta-provider" --companion "$RUNNER_TEMP/FTA-client-bridge-corresponding-source.zip"
       - name: Test, lint and compile foundation
         working-directory: android
         run: ./gradlew --no-daemon --max-workers=2 -PftaProviderDir="$RUNNER_TEMP/fta-provider" -PftaClientRuntimeCatalog="$RUNNER_TEMP/client-runtime-catalog.tsv" testDebugUnitTest lintDebug assembleDebug
@@ -116,6 +124,12 @@ jobs:
             android/app/build/outputs/apk/debug/app-debug.apk.sha256
           retention-days: 14
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fta-client-bridge-source-${{ github.sha }}
+          path: ${{ runner.temp }}/FTA-client-bridge-corresponding-source.zip
+          retention-days: 14
+          if-no-files-found: error
 
   publish:
     name: Direct APK download
@@ -129,6 +143,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: fta-foundation-debug-${{ github.sha }}
+          path: apk
+      - uses: actions/download-artifact@v4
+        with:
+          name: fta-client-bridge-source-${{ github.sha }}
           path: apk
       - name: Publish checked development APK
         env:
@@ -150,5 +168,5 @@ jobs:
           if gh release view "$FTA_TAG" >/dev/null 2>&1; then
             echo 'This commit already has a download release.'
           else
-            gh release create "$FTA_TAG" FTA-Launcher-development.apk FTA-Launcher-development.apk.sha256 --target "$GITHUB_SHA" --prerelease --title 'FTA Launcher development snapshot' --notes-file release-notes.txt
+            gh release create "$FTA_TAG" FTA-Launcher-development.apk FTA-Launcher-development.apk.sha256 FTA-client-bridge-corresponding-source.zip --target "$GITHUB_SHA" --prerelease --title 'FTA Launcher development snapshot' --notes-file release-notes.txt
           fi

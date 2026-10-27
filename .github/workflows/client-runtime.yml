@@ -11,6 +11,7 @@ on:
       - 'android/qualification/run_client_runtime.sh'
       - 'android/qualification/android_runtime_probe.py'
       - 'android/qualification/check_android_probe_ownership.py'
+      - 'android/qualification/check_android_runtime_path.py'
       - 'tools/build_client_bridge.py'
       - 'tools/check_client_bridge_ownership.py'
       - 'native/client-bridge/**'
@@ -59,6 +60,17 @@ jobs:
           i686-w64-mingw32-gcc -std=c11 -O2 -Wall -Wextra -Werror android/qualification/runtime_probe.c -o "$RUNNER_TEMP/fta-probe/probe32.exe" > "$RUNNER_TEMP/fta-runtime-evidence/compile-x86.log" 2>&1
           x86_64-w64-mingw32-gcc -std=c11 -O2 -Wall -Wextra -Werror android/qualification/runtime_probe.c -o "$RUNNER_TEMP/fta-probe/probe64.exe" > "$RUNNER_TEMP/fta-runtime-evidence/compile-x64.log" 2>&1
           sha256sum "$RUNNER_TEMP/fta-probe/"*.exe > "$RUNNER_TEMP/fta-runtime-evidence/fixture-sha256.txt"
+          cp android/qualification/android_runtime_probe.py "$RUNNER_TEMP/fta-probe/android_probe.py"
+      - name: Qualify exact guest layout and unchanged runtime through PRoot
+        run: |
+          cleanup() {
+            result=$?
+            trap - EXIT
+            cp "$RUNNER_TEMP/android-runtime-path/probe.log" "$RUNNER_TEMP/fta-runtime-evidence/android-runtime-path.log" 2>/dev/null || true
+            exit "$result"
+          }
+          trap cleanup EXIT
+          python3 android/qualification/check_android_runtime_path.py --proot "$RUNNER_TEMP/fta-ownership/proot-owned" --loader "$RUNNER_TEMP/fta-ownership/loader" --archive "$RUNNER_TEMP/fta-runtime-inputs/client-runtime-arm64.tar.gz" --fixtures "$RUNNER_TEMP/fta-probe" --work "$RUNNER_TEMP/android-runtime-path" > "$RUNNER_TEMP/fta-runtime-evidence/android-runtime-path.json"
       - name: Qualify mixed process creation, IPC and owner loss on native ARM64
         run: |
           test "$(uname -m)" = aarch64
@@ -91,7 +103,7 @@ jobs:
           # The archive was extracted by the runner, but this isolated chroot runs
           # as root. Wine requires its fresh prefix to belong to its actual owner.
           sudo python3 -c 'import os,sys; p=sys.argv[1]; assert not os.listdir(p); print("freshPrefixUidBefore="+str(os.stat(p).st_uid)); os.chown(p,0,0)' "$FTA_ROOT/prefix"
-          sudo timeout --kill-after=30 900 chroot "$FTA_ROOT" /usr/bin/env -i /usr/bin/python3 /probe/android_probe.py > "$RUNNER_TEMP/fta-runtime-evidence/android-program-host-result.log" 2>&1
+          sudo timeout --kill-after=30 900 chroot "$FTA_ROOT" /usr/bin/env -i PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 -B /probe/android_probe.py > "$RUNNER_TEMP/fta-runtime-evidence/android-program-host-result.log" 2>&1
           cat "$RUNNER_TEMP/fta-runtime-evidence/android-program-host-result.log"
       - uses: actions/upload-artifact@v4
         if: always()

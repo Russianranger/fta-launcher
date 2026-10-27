@@ -2,8 +2,9 @@
 
 `RuntimeArchivePlan` and `ClientRuntimeStore` prepare only the pinned public
 Wine/FEX runtime. They do not open the managed client, realm, server assets or
-configuration. `ClientRuntimeService` owns explicit preparation and verification
-in a separate `:clientruntime` process. There is no native execution action yet.
+configuration. `ClientRuntimeService` owns explicit preparation, verification and
+synthetic native tests in a separate `:clientruntime` process. Original client
+execution is not enabled.
 
 `android/qualification/build_runtime_catalog.py` checks the original archive
 identity and existing strict audit before deriving a catalog of all paths,
@@ -79,7 +80,43 @@ also have a 20-second alarm. Every handle is stopped in `finally`, and all three
 tracees must end within three seconds. Five JVM regressions cover ordering,
 deadline, cleanup, unrelated trees, survival and incomplete or contradictory
 success markers. The same guest program has a native ARM64 PRoot CI gate.
-Android execution remains pending the platform driver and packaged fixtures.
+The corrected guest program and its PRoot ownership gate passed ARM64 Linux CI
+40422957424 at `fcab94bfcead3ef62daa42c65a5467b979939e4c`. The same checkpoint's
+foundation CI 40422957436 passed 514 Android tests / one existing skip, lint,
+assembly, packaged checks and full-candidate installation under the 96 MiB heap.
 
-Next wire the disposable prefix and synthetic Wine/PRoot diagnostic. Finish source/notice closure before issuing
-a new private APK. Preserve installed code 37 and all passed physical gates.
+The Android driver now binds only the verified runtime and a new synthetic
+attempt directory. It hashes the two packaged bridge binaries and all probe
+assets, holds the runtime OS lease, and uses `NativeProcessBridge` handles for
+every tracer. It observes PID/start-tick/parent/session relationships before Stop
+or the exact tracer-death request. Native pressure checks abort and stop the
+tree; they do not pause a still-running guest. Both import and realm services
+are excluded while preparation/probing runs. A successful probe must also pass
+another full runtime rehash before any success flag is exported.
+
+Python starts with `-B`/PYTHONDONTWRITEBYTECODE; its prefix, temporary files and
+font cache live in separate attempt binds. PRoot is not claimed to be a security
+sandbox or to provide kernel read-only binds. No original managed client or realm
+path is mounted. Attempts remain private for diagnosis and are capped at three,
+with a 2 GiB free-space gate before starting; future recovery must observe owned
+process termination before removing an interrupted attempt.
+
+Foundation builds PRoot with one job, then both synthetic Windows fixtures
+sequentially. `tools/stage_client_probe.py` verifies their metadata and exact
+bridge hashes, preserves GPL/LGPL/MIT notices, and supplies the corresponding
+source snapshot, original PRoot/talloc archives, patches and build recipe. Its
+source companion accompanies the public CI APK and is mandatory for private
+packaging. The Wine/FEX runtime remains an unchanged direct upstream download;
+its package notices/version list and pinned upstream source links are preserved.
+The private donor's complete server source companion remains separately required.
+
+`check_android_runtime_path.py` separately exercises the same private prefix,
+temporary/cache binds and bytecode-disabled Python invocation through native
+Linux PRoot. It freshly extracts the pinned runtime and checks every original
+file, mode, link and inventory entry before and after the full synthetic program.
+Two regressions reject unexpected files, changed payloads/permissions and replaced
+links. This supplements the original chroot test; Android kernel behavior remains
+the physical gate.
+
+Qualify the exact Android assembly and package/sign code 38 before requesting the
+first Thor runtime test. Preserve installed code 37 and all passed physical gates.
