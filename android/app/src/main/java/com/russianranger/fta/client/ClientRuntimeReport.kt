@@ -15,7 +15,7 @@ object ClientRuntimeReport {
     val states = setOf("preparing", "archive-verify", "download", "extract", "verify-runtime", "probe-ownership", "probe-wine", "complete", "stopped", "failed")
     val reasons = setOf("cancelled", "timeout", "busy", "invalid-catalog", "archive-changed", "runtime-changed",
         "unsafe-runtime-store", "storage-unavailable", "insufficient-space", "runtime-unavailable", "download-failed",
-        "memory-pressure", "memory-observation-unavailable", "io-failed", "ownership-failed", "probe-failed", "probe-timeout", "probe-unavailable", "socket-path-too-long")
+        "memory-pressure", "memory-observation-unavailable", "io-failed", "ownership-failed", "probe-failed", "probe-timeout", "probe-unavailable", "socket-path-too-long", "probe-attempt-limit")
     fun write(context: Context, report: JSONObject) {
         val atomic = file(context); val output = atomic.startWrite()
         try { val bytes = report.toString().toByteArray(); require(bytes.size <= 8192); output.write(bytes); atomic.finishWrite(output) }
@@ -36,11 +36,18 @@ object ClientRuntimeReport {
         for (key in listOf("startedAtEpochMs", "updatedAtEpochMs", "elapsedMs", "bytes", "totalBytes", "entries", "peakRssKiB",
             "heapUsedBytes", "heapMaxBytes", "availableMemoryBytes", "totalMemoryBytes", "ioBytes", "throttledMs",
             "pressureWaitMs", "pressurePauses", "ioLimitBytesPerSecond", "ioWindowBytes", "cacheRequests", "cacheAccepted",
-            "ownershipNormalExit", "ownershipStopExit", "ownershipKilledExit", "stoppedTracees", "killedTracees", "socketHostPathBytes", "socketProbeErrno")) {
+            "ownershipNormalExit", "ownershipStopExit", "ownershipKilledExit", "stoppedTracees", "killedTracees", "socketHostPathBytes", "socketProbeErrno",
+            "memoryThresholdBytes", "memoryFloorBytes", "lastTrimAgeMs", "probeMemoryAdvisories", "probeMemoryAdvisoryMs")) {
             val value = raw.opt(key)
             if ((value is Int || value is Long) && (value as Number).toLong() >= 0) result.put(key, value)
         }
-        for (key in listOf("memoryPaused", "activityBound", "systemLowMemory", "cacheEvictionMeasured"))
+        for ((key, max) in mapOf("lastTrimLevel" to 100, "memoryPsiSomeMilliPercent" to 100000,
+            "memoryPsiFullMilliPercent" to 100000, "probeCleanupComplete" to 1)) {
+            (raw.opt(key) as? Int)?.takeIf { it in 0..max }?.let { result.put(key, it) }
+            (raw.opt(key) as? Long)?.takeIf { it in 0..max.toLong() }?.let { result.put(key, it) }
+        }
+        raw.optString("memoryPressureSource").takeIf { it in ClientProbeMemory.sources }?.let { result.put("memoryPressureSource", it) }
+        for (key in listOf("memoryPaused", "activityBound", "systemLowMemory", "cacheEvictionMeasured", "trimActive", "criticalTrimActive"))
             if (raw.opt(key) is Boolean) result.put(key, raw.getBoolean(key))
         for ((key, max) in ClientProbeEvidence.prefixBounds) {
             val value = raw.opt(key)

@@ -33,15 +33,7 @@ object ClientNativeProbe {
             val file = File(native, name)
             runtimeRequire(file.length() in 1..1024 * 1024 && runtimeHex(runtimeHash().digest(file.readBytes())) == expected, "probe-unavailable")
         }
-        val run = ClientProbePaths.attempt(context.filesDir, attempt)
-        val attempts = run.parentFile!!
-        runtimeRequire(!Files.isSymbolicLink(attempts.toPath()) && (attempts.mkdir() || attempts.isDirectory), "unsafe-runtime-store")
-        // Preserve interrupted attempts for evidence; no deletion while ownership is uncertain.
-        val legacy = File(context.filesDir, "client-runtime-attempts")
-        runtimeRequire(!Files.isSymbolicLink(legacy.toPath()), "unsafe-runtime-store")
-        val oldCount = if (legacy.exists()) legacy.list()?.size ?: throw RuntimeInstallFailure("unsafe-runtime-store") else 0
-        runtimeRequire(attempts.list()?.size?.let { it + oldCount < 3 } == true && attempts.usableSpace >= 2 * ClientRuntimeStore.RESERVE, "insufficient-space")
-        runtimeRequire(run.mkdir(), "unsafe-runtime-store")
+        val run = ClientProbeAttempts.create(context.filesDir, attempt)
         fun dir(name: String) = File(run, name).also { runtimeRequire(it.mkdir(), "storage-unavailable") }
         val probe = dir("probe"); val prefix = dir("prefix"); val session = dir("session"); val tmp = dir("tmp"); val fonts = dir("font-cache")
         evidence("socketHostPathBytes", ClientProbePaths.validateTemporaryPath(tmp.canonicalPath))
@@ -71,8 +63,13 @@ object ClientNativeProbe {
         }
         val logs = mutableMapOf<Long, File>(); val modes = mutableMapOf<Long, String>()
         val checkActive = active
+        val live = mutableSetOf<Long>()
+        var ownershipValidated = false
         val driver = object : ClientProbeProtocol.Driver {
-            override fun recordOwnership(key: String, value: Int) = evidence(key, value)
+            override fun recordOwnership(key: String, value: Int) {
+                if (key == "killedTracees" && value == 3) ownershipValidated = true
+                evidence(key, value)
+            }
             override fun now() = SystemClock.elapsedRealtime()
             override fun pause(ms: Long) { Thread.sleep(ms) }
             override fun active() = checkActive()
@@ -93,6 +90,7 @@ object ClientNativeProbe {
                 val output = File(run, "step-${logs.size}.out"); val error = File(run, "step-${logs.size}.err")
                 val handle = NativeProcessBridge.start(File(native, "libproot.so").absolutePath, args.toTypedArray(), env,
                     run.absolutePath, null, output.absolutePath, error.absolutePath)
+                live.add(handle)
                 logs[handle] = output; modes[handle] = mode
                 observe(if (mode == "--wine") "probe-wine" else "probe-ownership", "")
                 return handle
@@ -117,12 +115,24 @@ object ClientNativeProbe {
                 if (status != ClientProbeProtocol.RUNNING) output(handle)
                 return status
             }
-            override fun stop(handle: Long, graceMs: Long) = NativeProcessBridge.stop(handle, graceMs)
+            override fun stop(handle: Long, graceMs: Long) = NativeProcessBridge.stop(handle, graceMs).also {
+                if (it != ClientProbeProtocol.RUNNING) live.remove(handle)
+            }
             override fun requestTracerDeath(handle: Long) {
                 runtimeRequire(modes[handle] == "--ownership-hold", "ownership-failed")
                 FileOutputStream(File(session, "ownership-control")).use { it.write("kill ${tracer(handle)}\n".toByteArray()); it.fd.sync() }
             }
         }
-        return ClientProbeProtocol.run(driver)
+        try { return ClientProbeProtocol.run(driver) }
+        finally {
+            // Also covers exceptions inside start() after the native handle was acquired.
+            for (handle in live.toList()) runCatching { driver.stop(handle, 2000) }
+            if (ownershipValidated && live.isEmpty()) {
+                runCatching {
+                    ClientProbeAttempts.retire(run)
+                    evidence("probeCleanupComplete", 1)
+                }
+            }
+        }
     }
 }

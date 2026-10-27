@@ -5,7 +5,23 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery and next test
+## Current development
+
+Code 40 was tested and stopped deliberately with `memory-pressure`, not a prefix
+timeout. [Measured result](evidence/android-2026-10-27-thor-code40-memory-guard.json):
+Windows prefix progressed through 75.247 seconds, 789 system32 / 286 syswow64
+entries and 1,828,429 registry bytes. Full runtime pre-rehash, sockets/display and
+ownership passed. Last successful memory sample was 8,848,064,512 available bytes;
+the aborting sample/trim level was not persisted. No attempt-matched Android exit.
+Do not infer a low-memory kill or a proven false alarm from that stale sample.
+
+Code 41 / 0.14.3-client-memory adds bounded advisory-trim handling, immediate
+critical/measured-pressure stops, pre-abort evidence, and one reusable retry slot
+after the three preserved legacy attempts. [Design](client-memory-recovery.md).
+Exact-commit CI and private packaging are pending. Do not install a foundation
+APK. Next gate remains one synthetic runtime probe on Thor, without reimport.
+
+## Previous delivery and test
 
 **40 / 0.14.2-client-prefix** is delivered, with the original persistent signer.
 [APK, exact sources and test procedure](code40-recovery.md). APK: 60,152,013 bytes,
@@ -20,9 +36,9 @@ Application commit **fdf7eb5fedaaa0beaac0a239e1b3b6949bef47c9** passed foundatio
 lint/assembly, cache/JNI and complete runtime installation/rehash with a 96 MiB
 heap. All ten live ARM64 guest stages, socket controls, owned-process cleanup
 and full runtime pre/post rehash passed. [Exact host proof](evidence/host-2026-10-27-client-prefix-pass.json).
-These are Linux results; code 40 has not yet run on Thor.
+These are Linux results; the physical code-40 failure is recorded above.
 
-**Await one code-40 report.** Install in place; retain all storage, keep the
+**Historical code-40 test procedure (report received).** Install in place; retain all storage, keep the
 launcher visible and allow at least 2 GiB free. Run **Test client runtime** once,
 then **Export diagnostic report** on either outcome. Initialization can take up
 to ten minutes; subsequent checks/rehash are automatic. Export immediately on
@@ -33,7 +49,7 @@ intact under the three-attempt limit.
 
 ## Latest physical failure and repair limits
 
-**39 / 0.14.1-client-sockets** is the last measured installed version.
+**39 / 0.14.1-client-sockets** was the preceding measured version.
 [Physical result](evidence/android-2026-10-27-thor-code39-prefix-timeout.json):
 socket errno 0, display ready, normal/Stop/forced tracer-death ownership and
 full 2,637,799,241-byte runtime pre-rehash passed. Prefix initialization timed out

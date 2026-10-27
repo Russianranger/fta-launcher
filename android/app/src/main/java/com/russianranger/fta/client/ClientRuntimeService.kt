@@ -25,7 +25,7 @@ class ClientRuntimeService : Service() {
     private val timedOut = AtomicBoolean(false)
     private val download = ClientRuntimeDownload(::active)
     @Volatile private var activityBound = false
-    @Volatile private var trimUntil = 0L
+    private val probeMemory = ClientProbeMemory()
     private var started = false
     private var probing = false
     private var wakeLock: PowerManager.WakeLock? = null
@@ -37,10 +37,10 @@ class ClientRuntimeService : Service() {
     @Suppress("DEPRECATION")
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        if (level in 5..15 || level >= 40) trimUntil = SystemClock.elapsedRealtime() + 10000
+        probeMemory.trim(level, SystemClock.elapsedRealtime())
     }
     @Suppress("DEPRECATION")
-    override fun onLowMemory() { super.onLowMemory(); trimUntil = SystemClock.elapsedRealtime() + 10000 }
+    override fun onLowMemory() { super.onLowMemory(); probeMemory.low(SystemClock.elapsedRealtime()) }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == STOP) { cancel(); if (!started) stopSelf(); return START_NOT_STICKY }
         if (started) return START_NOT_STICKY
@@ -83,15 +83,35 @@ class ClientRuntimeService : Service() {
             ClientRuntimeReport.write(this, report)
             notification("${report.optString("state")}: ${report.optLong("bytes") / 1048576} / ${report.optLong("totalBytes") / 1048576} MiB")
         }
+        fun recordMemory(memory: ClientIoGuard.Memory, signal: ClientProbeMemory.Signal, now: Long) {
+            report.put("availableMemoryBytes", memory.available).put("totalMemoryBytes", memory.total)
+                .put("memoryThresholdBytes", memory.threshold).put("memoryFloorBytes", memory.floor)
+                .put("systemLowMemory", memory.low).put("trimActive", signal.active(now))
+                .put("criticalTrimActive", signal.critical(now)).put("lastTrimLevel", signal.level)
+                .put("lastTrimAgeMs", if (signal.level == 0) 0 else maxOf(0, now - signal.at))
+            report.remove("memoryPsiSomeMilliPercent"); report.remove("memoryPsiFullMilliPercent")
+            memory.someMilliPercent?.let { report.put("memoryPsiSomeMilliPercent", it) }
+            memory.fullMilliPercent?.let { report.put("memoryPsiFullMilliPercent", it) }
+        }
         val governor = ClientIoGuard(SystemClock::elapsedRealtime, { Thread.sleep(it) }, {
             val memory = GameDataDiagnostics.memory(this, activityBound)
             val psi = runCatching { File("/proc/pressure/memory").bufferedReader().use { input ->
                 val chars = CharArray(4097); val n = input.read(chars)
                 if (n in 1..4096) ClientIoGuard.psi(String(chars, 0, n)) else null
             } }.getOrNull()
-            memory?.let { report.put("availableMemoryBytes", it.available).put("totalMemoryBytes", it.total).put("systemLowMemory", it.low) }
+            val now = SystemClock.elapsedRealtime(); val signal = probeMemory.snapshot()
             memory?.let { ClientIoGuard.Memory(it.available, it.total, it.threshold, it.low, psi?.first, psi?.second,
-                SystemClock.elapsedRealtime() < trimUntil) }
+                signal.active(now)).also { sample ->
+                recordMemory(sample, signal, now)
+                report.put("memoryPressureSource", when {
+                    sample.low -> "system-low"
+                    sample.available < sample.floor -> "available-floor"
+                    sample.trim -> "trim"
+                    (sample.someMilliPercent ?: 0) >= 10000 -> "psi-some"
+                    (sample.fullMilliPercent ?: 0) >= 1000 -> "psi-full"
+                    else -> "none"
+                })
+            } }
         }, ::active, { _, paused -> report.put("memoryPaused", paused); write() }).also { guard = it }
         try {
             write(true); governor.check()
@@ -123,10 +143,17 @@ class ClientRuntimeService : Service() {
                         if (now >= nextMemory) {
                             nextMemory = now + 1000
                             val memory = GameDataDiagnostics.memory(this, activityBound) ?: throw RuntimeInstallFailure("memory-observation-unavailable")
-                            runtimeRequire(!ClientIoGuard.Memory(memory.available, memory.total, memory.threshold, memory.low,
-                                trim = now < trimUntil).pressured(), "memory-pressure")
+                            val signal = probeMemory.snapshot()
+                            val sample = ClientIoGuard.Memory(memory.available, memory.total, memory.threshold, memory.low)
+                            val decision = probeMemory.evaluate(sample, now, signal)
+                            recordMemory(sample, signal, now)
+                            report.put("memoryPressureSource", decision.source)
+                                .put("probeMemoryAdvisories", probeMemory.advisoryEpisodes)
+                                .put("probeMemoryAdvisoryMs", probeMemory.advisoryElapsedMs)
+                            // Persist the actual triggering sample before controlled process teardown.
+                            write(decision.stop)
+                            runtimeRequire(!decision.stop, "memory-pressure")
                             runtimeRequire(runtime.usableSpace >= ClientRuntimeStore.RESERVE, "insufficient-space")
-                            report.put("availableMemoryBytes", memory.available).put("totalMemoryBytes", memory.total); write()
                         }
                     }, { stage, output ->
                         report.put("state", stage)

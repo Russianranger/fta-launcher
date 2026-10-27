@@ -8,12 +8,16 @@ class ClientProbeProtocolTest {
         var time = 0L; var next = 0L; var killed = 0L; var corruptTree = false; var survivor = false
         var killExit = 137; var neverReady = false; var cancelled = false; var wineExit = 0
         var wineDelay = 0L; var wineStart = 0L
+        var memoryFailure = false
         val evidence = linkedMapOf<String, Int>()
         override fun recordOwnership(key: String, value: Int) { evidence[key] = value }
         val modes = linkedMapOf<Long, String>(); val stopped = mutableSetOf<Long>()
         override fun now() = time
         override fun pause(ms: Long) { time += ms }
-        override fun active() { if (cancelled) throw RuntimeInstallFailure("cancelled") }
+        override fun active() {
+            if (cancelled) throw RuntimeInstallFailure("cancelled")
+            if (memoryFailure && "--wine" in modes.values) throw RuntimeInstallFailure("memory-pressure")
+        }
         override fun start(mode: String): Long { val id = ++next; modes[id] = mode; if (mode == "--wine") wineStart = time; return id }
         override fun tracer(handle: Long) = 10
         override fun output(handle: Long) = if (modes[handle] == "--wine") success() else if (neverReady) "" else
@@ -52,6 +56,13 @@ class ClientProbeProtocolTest {
         val driver = Driver().apply { neverReady = true }
         try { ClientProbeProtocol.run(driver); fail() } catch (e: RuntimeInstallFailure) { assertEquals("ownership-failed", e.reason) }
         assertTrue(driver.time <= 6000); assertEquals(driver.modes.keys, driver.stopped)
+    }
+    @Test fun memoryPressureDuringWineStillStopsEveryOwnedHandle() {
+        val driver = Driver().apply { memoryFailure = true }
+        try { ClientProbeProtocol.run(driver); fail() }
+        catch (e: RuntimeInstallFailure) { assertEquals("memory-pressure", e.reason) }
+        assertEquals(driver.modes.keys, driver.stopped)
+        assertEquals(3, driver.evidence["killedTracees"])
     }
     @Test fun completedOwnershipEvidenceSurvivesALaterDisplayFailure() {
         val driver = Driver().apply { wineExit = 1 }

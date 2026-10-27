@@ -16,7 +16,7 @@ class ClientIoGuard(
             require(someMilliPercent == null || someMilliPercent in 0..100000)
             require(fullMilliPercent == null || fullMilliPercent in 0..100000)
         }
-        private val floor get() = maxOf(2L * 1024 * 1024 * 1024, total / 5, threshold * 2)
+        val floor get() = maxOf(2L * 1024 * 1024 * 1024, total / 5, threshold * 2)
         fun pressured() = low || trim || available < floor ||
             (someMilliPercent ?: 0) >= 10000 || (fullMilliPercent ?: 0) >= 1000
         fun recovered() = !low && !trim && available >= maxOf(floor, total / 4) &&
