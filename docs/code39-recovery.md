@@ -29,6 +29,10 @@ These results do not qualify Android execution or WarcraftXL gameplay.
    select Prepare again or reimport the client or Data.zip.
 3. **Export diagnostic report**. If it fails, export immediately before retrying.
 
+Success is the message **Runtime process and compatibility tests passed.** Send
+the exported JSON on either outcome. The test runs synthetic programs and does
+not open the original game; a missing game window is not a failure criterion.
+
 Keep all existing storage. Do not uninstall, clear data, or repeat completed
 client full-rehash, database/auth/world/screen-off gates. The runtime's own
 pre/post rehash is automatic and measures the new 48 MiB/s aggregate I/O ceiling.

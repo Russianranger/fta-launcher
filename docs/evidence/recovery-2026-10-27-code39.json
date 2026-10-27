@@ -1,0 +1,38 @@
+{
+  "scope": "stalled-session-recovery",
+  "checkedAtUtc": "2026-10-27T14:06:24Z",
+  "observedMainHead": "b989c06af2059bf617eac8154645cb4971e85393",
+  "applicationCommit": "51358069f8d958c5e05b343cd6bf1d22be4f13f9",
+  "inProgressWorkflowRuns": 0,
+  "queuedWorkflowRuns": 0,
+  "successfulRuns": [40444054488, 40444054525, 40445176642],
+  "documentationHeadRunAttempt": 2,
+  "applicationJobLogsInspected": [121990960180, 121990960374, 121990960256],
+  "toolingTestsPassed": 207,
+  "qualificationTestsPassed": 77,
+  "androidUnitResults": {"tests": 521, "passed": 520, "skipped": 1, "failures": 0, "errors": 0},
+  "syntheticLinuxArm64SuccessMarkersObserved": true,
+  "recoveredApk": {
+    "libraryFileId": "libfile_495de40c9848819184c3ce74dd46179f",
+    "versionCode": 39,
+    "versionName": "0.14.1-client-sockets",
+    "bytes": 60147917,
+    "sha256": "63b42422a083f3a0e866c6d9df7be1e0048a111b21637ea3dd63a81022d8b0f5",
+    "zipCrcPassed": true,
+    "duplicateZipNames": false,
+    "nativePayloadHashesMatchedToMeasuredProof": 23,
+    "rebuiltOrResignedDuringRecovery": false,
+    "signatureReverifiedDuringRecovery": false,
+    "byteIdenticalToPreviouslySignatureVerifiedApk": true
+  },
+  "recoveredBridgeSource": {
+    "libraryFileId": "libfile_e520c08d28a48191ba266ff8c444f3a2",
+    "sha256": "80fa4cba29cd141a0cbc4b207b629f35370c0a506b705a3c6c86ceb52a1f9882",
+    "zipCrcPassed": true
+  },
+  "physicalCode39RepeatReceived": false,
+  "androidSyntheticRuntimeQualified": false,
+  "originalClientExecuted": false,
+  "gameLoginQualified": false,
+  "nextGate": "Install code 39 in place, Test client runtime once, export diagnostic report."
+}

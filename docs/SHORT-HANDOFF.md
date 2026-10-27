@@ -6,6 +6,31 @@ implementation, commits and pushes. AYN Thor, Android 13, ARM64. Read `AGENTS.md
 and [native gate](native-world-gate.md). Historical detail:
 [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
+## Recovery checkpoint — 2026-10-27
+
+Recovered at 14:06 UTC (09:06 CDT). GitHub reports zero running and zero queued
+workflow runs. Code-39 application CI **40444054488** and ARM64 runtime CI
+**40444054525** completed successfully. The documentation-only head `b989c06`
+also passed all three foundation jobs in **40445176642**, attempt 2; no test
+needs resuming. Exact job logs confirm 207 tooling and 77 qualification tests,
+521 Android tests with 520 passed / one existing skip, and both ARM64 synthetic
+success markers.
+
+Recovered the original [code-39 APK and bridge source](code39-recovery.md), checked
+their complete SHA256/size identities and ZIP integrity, and independently
+matched all 23 packaged native payload hashes to the measured APK proof. This
+recovery changes documentation only; it does not rebuild, resign or increment
+the APK. The previous signing/alignment evidence remains applicable to these
+byte-identical APK bytes. See [recovery evidence](evidence/recovery-2026-10-27-code39.json).
+
+The owner has renewed permission to continue development and push to `main`.
+The next physical gate remains the single code-39 runtime probe below. On receipt,
+check exact APK identity, inactive completed worker, socket/display stages, all
+ten synthetic stages, owned-process cleanup, full pre/post runtime rehash and
+attempt-matched exits. A failure should drive the next targeted repair; a pass
+advances to the isolated writable client view and original WarcraftXL launch.
+Do not infer original client execution or game login from the synthetic pass.
+
 ## Installed private build and passed physical gates
 
 Last passed client-import APK: **37 / 0.13.2-client-memory**, 59,073,805 bytes, SHA256
