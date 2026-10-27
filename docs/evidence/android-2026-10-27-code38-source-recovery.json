@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "archive": "FTA-Launcher-0.14.0-corresponding-source.zip",
+  "bytes": 540190148,
+  "sha256": "70637f0c662509fd43d79a03463e46631e8cfcc2a0360e1990542a4dea9bd7f0",
+  "refreshedFromSha256": "02695902ac274ad33feb881b1d2f53f9933c7a2a6db08fe164fa27edc1a8c98c",
+  "originalNativeSourcesChanged": false,
+  "nativeBuildEvidenceChanged": false,
+  "parts": [
+    {
+      "file": "FTA-Launcher-0.14.0-corresponding-source.zip.part1",
+      "bytes": 419430400,
+      "sha256": "cdad7d35ab9664fd3421f738a63183db5e01bfbb456679fdd1defe68f2fcdc1e",
+      "libraryFileId": "libfile_48e9f5cc1aac8191bebc2bc388b075f0"
+    },
+    {
+      "file": "FTA-Launcher-0.14.0-corresponding-source.zip.part2",
+      "bytes": 120759748,
+      "sha256": "3397ca89b89aa13bb386a8250fb19818e67bcc3703ce9d8f1553786d1f247924",
+      "libraryFileId": "libfile_ceb13c41e9a88191a8b34b6fd67db8a5"
+    }
+  ]
+}

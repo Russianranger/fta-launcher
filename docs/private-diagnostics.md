@@ -1,6 +1,16 @@
 # Private native diagnostic builds
 
-## Current private delivery — code 37 client memory backpressure
+## Current private delivery — code 38 client runtime probe
+
+[Code 38 private APK and source recovery](code38-recovery.md) is available for
+in-place installation with the original persistent certificate. Its Android and
+ARM64 host qualifications passed. It preserves every one of the 21 retained
+native payloads and adds two verified PRoot components plus synthetic probes.
+The next substantial Thor gate is **Prepare client runtime → Test client runtime
+→ Export diagnostic report**. Allow 6 GiB free storage and keep the app visible.
+Export immediately on failure before another attempt. Do not repeat client or
+server-data imports, their full rehashes, or passed database/auth/world tests.
+Code 38 physical native execution remains unqualified until that report arrives.
 
 Physical code 34 passed the complete native world gate, including original GT
 fallback, all 113 DBC stores, 259.2 seconds healthy screen-off, user Stop, clean
@@ -14,10 +24,10 @@ code-36 client copy was interrupted at 4.87 GB. It retains code-36 checkpoints a
 the same 21 native payloads / 148 runtime entries. Follow the [current handoff](SHORT-HANDOFF.md)
 for exact CI, artifact identity and availability. The full 10,476-file import,
 readback/publication and subsequent retained rehash have now passed. Keep the
-installed code 37; no new physical test is requested. [Runtime preparation](client-runtime-preparation.md)
-is source-only and is not delivered in the installed private APK. Do not repeat the
+installed code 37 data intact when updating to 38. The [new runtime gate](client-runtime-installation.md)
+uses a separate runtime and disposable synthetic prefix. Do not repeat the
 passed inspection, server, screen-off, database/auth or game-data import tests.
-WarcraftXL execution, exact x64 host pairing and playable login remain open.
+Original WarcraftXL execution, graphics and playable login remain open.
 
 Historical milestones below are evidence, not instructions to repeat passed work.
 Code 30 was withdrawn before physical testing; do not install it.
@@ -37,6 +47,11 @@ repository license. The repaired world is selected only for retained sessions;
 original updater and realm/backup identities remain unchanged. See
 [the integration and next gate](world-session-repair.md). Package qualification
 does not set native database fallback, world readiness or gameplay flags.
+
+Code 38 additionally requires `--client-source-companion`; its two new native
+components and every synthetic asset are checked against the exact qualified
+assembly and source companion. The refreshed v15 companion includes current
+packaging helpers while preserving original source archives and build evidence.
 
 
 Public CI snapshots package the database provider. A source-matching authserver

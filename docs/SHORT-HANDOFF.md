@@ -13,7 +13,8 @@ Latest installed APK: **37 / 0.13.2-client-memory**, 59,073,805 bytes, SHA256
 [Verified APK/source recovery](code37-recovery.md). Application commit
 `39516bb1b0a499d84279ef9eefea0c5c9e9abcf4`, all three jobs in CI 40216989093 passed.
 All 21 native payloads and 148 runtime entries remain the passed native code-34 set.
-No new private APK is built for the preparation work below.
+New **38 / 0.14.0-client-probe** is delivered for the next gate; physical results
+are pending. [APK, SHA256, source companions and test procedure](code38-recovery.md).
 
 **Client integrity fully passed on 37.**
 [Import](evidence/android-2026-10-25-thor-code37-client-import-pass.json):
@@ -57,62 +58,54 @@ both rehashes pass with a 96 MiB JVM heap. The separate Android foreground worke
 uses the existing 24 MiB/s and memory-pressure governor, Stop, a 90-minute limit,
 visible-activity binding and redacted attempt-matched exit reporting.
 
-Latest completed qualified checkpoint: **fcab94bfcead3ef62daa42c65a5467b979939e4c**.
-All foundation jobs **40422957436** passed: 200 tooling, 71 qualification,
-514 Android tests passed / one existing skip, lint/assembly, cache/JNI, packaged
-checks and full 96 MiB-heap runtime installation. ARM64 workflow **40422957424**
-also passed the original Wine tests, the new guest program's ten stages, and its
-normal/Stop/forced-tracer-death ownership fixture. The empty CI prefix's UID
-needed to match the chroot owner (measured runner UID 1001); original Wine's UID
-check and runtime bytes remain unchanged. These are Linux results, not Thor.
+Delivered application commit: **e22f9b563b5f532da6cb5245f382c31039a8f8aa**.
+All foundation jobs **40424860004** passed: 205 tooling, 73 qualification,
+515 Android tests passed / one existing skip, lint/assembly, cache/JNI, packaged
+checks and full 96 MiB-heap runtime installation. ARM64 workflow **40424860026**
+passed the ten-stage synthetic program through the exact Android bind layout,
+full runtime pre/post rehash, and normal/Stop/forced-tracer-death ownership gates.
+[Exact host evidence](evidence/host-2026-10-27-client-runtime-path-pass.json).
+Both Stop and SIGKILL terminate all three tracees/two detached session leaders.
+These remain Linux results, not Thor. The earlier empty-prefix UID mismatch is
+fixed only in the disposable CI setup; original Wine's checks remain unchanged.
 
-[Android bridge](client-android-bridge.md): pinned PRoot/talloc, NDK r28c, one job,
-16 KiB tracer and loader, mandatory PTRACE_O_EXITKILL. The original-vs-fixed Linux
-negative control proved three survivors versus zero, including two detached
-session leaders. Exact build proof remains in evidence. This turn's rebuild
-measured the same tracer/loader hashes; no world/server payload was rebuilt.
+The Android driver uses the existing native handle bridge and patched PRoot's
+mandatory PTRACE_O_EXITKILL. Both PRoot outputs are ARM64/16 KiB, rebuilt with NDK
+r28c and one job. The driver requires ownership gates before Wine and full post-
+rehash before success. Memory pressure stops the tree. Bytecode writes are disabled;
+prefix, temporary files and caches are separate binds. No managed client or realm
+path is mounted. At most three private attempts are retained, with 2 GiB free
+required before each. Original client/host/graphics and login remain unqualified.
 
-Current increment wires the owned Android driver and private disposable prefix.
-It requires normal/Stop/SIGKILL ownership gates before synthetic x86/x64 entry,
-2/16-channel IPC, parent loss and Wine stop. A full runtime post-rehash follows
-success. Native memory pressure stops the process tree instead of pausing it.
-Python bytecode writes are disabled; temporary files, prefix and font cache are
-separate binds. No managed client or retained realm path is mounted.
-Interrupted attempts are retained, with a three-attempt/2 GiB free-space gate.
-
-`tools/stage_client_probe.py` builds only synthetic fixtures, checks both exact
-bridge ELF identities, stages complete notices, and creates/verifies the matching
-public corresponding-source companion. Foundation CI builds these sequentially
-before Gradle and publishes the companion with its APK. Private packaging requires
-that exact companion, keeps all 21 donor payloads unchanged, and separately checks
-the two bridge additions. Code **38 / 0.14.0-client-probe** is reserved for delivery;
-no private code-38 APK has been issued yet. Verify this increment's exact CI before
-packaging. Latest local changes: 205 tooling and 73 qualification tests pass;
-18 installer, six download and five ownership-protocol JVM regressions pass.
-ARM64 CI also runs the exact Android bind layout through PRoot with complete
-pre/post runtime-tree verification. Preparation source/bridge and this layout
-gate must both pass for the exact delivered commit.
+**Private APK 38:** 60,139,725 bytes, SHA256
+`32f4480d11e8af20402d2db7f679cbe1f36b9601c07338bd280cf3610e7907e2`.
+Original certificate, v2 and 16 KiB alignment verified; 235 packaged-input checks
+passed. All 21 donor payloads/148 runtime entries are unchanged; two separately
+verified PRoot payloads bring the native total to 23. [APK proof](evidence/android-2026-10-27-private-client-probe-apk.json).
+[All delivered artifacts and sources](code38-recovery.md) are durably recoverable.
+The refreshed v15 companion preserves every original archive/notice and build
+proof; the separate exact bridge companion contains new source/patches/notices.
+`tools/refresh_world_session_source.py` has two targeted regressions (207 tooling
+tests now pass locally); it changes no retained native build input.
 
 ## Next concrete gate and recovery rules
 
-After exact-commit CI passes, package the private code-38 update from its CI APK,
-code-37 donor, unchanged v15 source companion and new bridge source companion.
-Verify signature, payload inventories, metadata, sources, 16 KiB alignment and
-new measured APK SHA256; save a directly accessible private artifact. The next
-Thor test is in-place update, Prepare client runtime, Test client runtime, export
-report immediately on success/failure. Do not repeat client import/full rehash,
-server data import, database/auth or the completed world/screen-off gate.
+**Await the code-38 physical report.** Install the private update in place, allow
+6 GiB free, keep the launcher visible, Prepare client runtime once, Test client
+runtime once, export the report. On failure export immediately before another
+attempt. Do not repeat client import/full rehash, server-data import,
+database/auth or the completed world/screen-off gate. Do not uninstall or clear
+storage. The new gate does not execute original game files or open the realm.
 
 Original WarcraftXL/client execution requires a later separate writable view
 under the verified client lease: no writable hard links, original mutations or
 unbounded 60 GB copy. Deferred Attriboost Settings field 8 vs 9 remains gameplay work.
 
-Keep installed 37; **no physical retest requested now**. A new private APK must
-use version code >=38 and the original signing capsule
+Private updates must retain the signing capsule
 `FTA-Launcher-Development-Signing.zip`, `libfile_7f9c88258f0c8191a09ab071e7447d30`.
 Certificate `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
-Never regenerate keys, expose credentials or label public foundation CI APKs as
-private diagnostics. No private binaries/assets/configs/SQL/player data enter Git.
+Never regenerate keys, expose credentials or substitute the public CI APK.
+Future updates must use code >=39 after this delivered code 38.
 
 Native cache/source recovery: [code32 baseline](code32-recovery.md), followed by
 reviewed 0019 seller-count patch/v15 relinks from [code34](code34-recovery.md).

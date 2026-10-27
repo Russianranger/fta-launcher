@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "scope": "client-runtime-android-path-host-qualification",
+  "implementationCommit": "e22f9b563b5f532da6cb5245f382c31039a8f8aa",
+  "foundationCiRunId": 40424860004,
+  "foundationJobsPassed": [
+    121927961308,
+    121927961585,
+    121930180377
+  ],
+  "runtimeCiRunId": 40424860026,
+  "runtimeJobPassed": 121927961123,
+  "toolingTestsPassed": 205,
+  "qualificationTestsPassed": 73,
+  "androidUnitResults": {
+    "tests": 516,
+    "passed": 515,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "suites": 45
+  },
+  "runtimeArtifactId": 12698493792,
+  "runtimeArtifactSha256": "155ec37d338f1d8db92004f78c867e24b25a8d3b1cb90c5c4222adf5ea75d2db",
+  "runtimeLayout": {
+    "scope": "android-guest-layout-on-native-linux",
+    "runtimeEntries": 14092,
+    "fullPreRehash": true,
+    "fullPostRehash": true,
+    "syntheticMixedRuntimePassed": true,
+    "androidExecutionQualified": false
+  },
+  "ownership": {
+    "androidExecutionQualified": false,
+    "kill": {
+      "detachedLeaders": 2,
+      "endedTracees": 3,
+      "exit": 137,
+      "survivingTracees": 0
+    },
+    "normal": {
+      "exit": 0
+    },
+    "scope": "android-guest-ownership-program-on-linux",
+    "stop": {
+      "detachedLeaders": 2,
+      "endedTracees": 3,
+      "exit": 255,
+      "survivingTracees": 0
+    }
+  },
+  "allTenGuestStagesPassed": true,
+  "installerFullCandidate": {
+    "entries": 14092,
+    "fileBytes": 2637799241,
+    "heapMaxBytes": 100663296,
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true
+  },
+  "androidExecutionQualified": false,
+  "originalHostExecuted": false,
+  "warcraftXLCompatible": false,
+  "gameLoginQualified": false
+}
