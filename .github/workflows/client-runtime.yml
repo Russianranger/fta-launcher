@@ -67,6 +67,7 @@ jobs:
             result=$?
             trap - EXIT
             cp "$RUNNER_TEMP/android-runtime-path/probe.log" "$RUNNER_TEMP/fta-runtime-evidence/android-runtime-path.log" 2>/dev/null || true
+            cp "$RUNNER_TEMP/android-runtime-path/"socket-*.log "$RUNNER_TEMP/fta-runtime-evidence/" 2>/dev/null || true
             exit "$result"
           }
           trap cleanup EXIT

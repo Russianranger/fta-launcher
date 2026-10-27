@@ -15,7 +15,7 @@ object ClientRuntimeReport {
     val states = setOf("preparing", "archive-verify", "download", "extract", "verify-runtime", "probe-ownership", "probe-wine", "complete", "stopped", "failed")
     val reasons = setOf("cancelled", "timeout", "busy", "invalid-catalog", "archive-changed", "runtime-changed",
         "unsafe-runtime-store", "storage-unavailable", "insufficient-space", "runtime-unavailable", "download-failed",
-        "memory-pressure", "memory-observation-unavailable", "io-failed", "ownership-failed", "probe-failed", "probe-timeout", "probe-unavailable")
+        "memory-pressure", "memory-observation-unavailable", "io-failed", "ownership-failed", "probe-failed", "probe-timeout", "probe-unavailable", "socket-path-too-long")
     fun write(context: Context, report: JSONObject) {
         val atomic = file(context); val output = atomic.startWrite()
         try { val bytes = report.toString().toByteArray(); require(bytes.size <= 8192); output.write(bytes); atomic.finishWrite(output) }
@@ -36,7 +36,7 @@ object ClientRuntimeReport {
         for (key in listOf("startedAtEpochMs", "updatedAtEpochMs", "elapsedMs", "bytes", "totalBytes", "entries", "peakRssKiB",
             "heapUsedBytes", "heapMaxBytes", "availableMemoryBytes", "totalMemoryBytes", "ioBytes", "throttledMs",
             "pressureWaitMs", "pressurePauses", "ioLimitBytesPerSecond", "ioWindowBytes", "cacheRequests", "cacheAccepted",
-            "ownershipNormalExit", "ownershipStopExit", "ownershipKilledExit", "stoppedTracees", "killedTracees")) {
+            "ownershipNormalExit", "ownershipStopExit", "ownershipKilledExit", "stoppedTracees", "killedTracees", "socketHostPathBytes", "socketProbeErrno")) {
             val value = raw.opt(key)
             if ((value is Int || value is Long) && (value as Number).toLong() >= 0) result.put(key, value)
         }
@@ -50,6 +50,11 @@ object ClientRuntimeReport {
             if (value is Int && value in -255..255) stages.put(key, value)
         }
         if (stages.length() > 0) result.put("probeStages", stages)
+        raw.optString("displayEvent").takeIf { it in ClientProbeEvidence.displayEvents }?.let { result.put("displayEvent", it) }
+        (raw.opt("displayExit") as? Int)?.takeIf { it in -255..255 }?.let { result.put("displayExit", it) }
+        val diagnostics = raw.optJSONArray("probeDiagnostics")
+        if (diagnostics != null) result.put("probeDiagnostics", JSONArray((0 until minOf(diagnostics.length(), 16))
+            .map { diagnostics.optString(it) }.filter { it in ClientProbeEvidence.categories }.distinct()))
         val terminal = raw.optString("state") in setOf("complete", "failed", "stopped")
         val running = runCatching { ClientRuntimeService.running(context) }.getOrNull()
         result.put("workerObservation", when (running) { true -> "active"; false -> "inactive"; null -> "unknown" })
@@ -69,11 +74,16 @@ object ClientRuntimeReport {
             result.put("exitHistoryAvailable", exits.isSuccess).put("recentClientRuntimeExits", JSONArray(exits.getOrDefault(emptyList())))
         }
         val complete = result.optString("state") == "complete" && result.has("archiveSha256") && result.has("catalogSha256")
-        val synthetic = complete && result.optString("operation") == "probe" && raw.optBoolean("syntheticMixedRuntimeValidated") &&
-            raw.optBoolean("runtimePostRehashValidated") && result.optInt("ownershipNormalExit", -1) == 0 &&
+        val ownership = result.optString("operation") == "probe" && result.optInt("ownershipNormalExit", -1) == 0 &&
             result.optInt("ownershipStopExit", -1) in 0..255 &&
-            result.optInt("ownershipKilledExit", -1) == 137 && result.optInt("stoppedTracees") == 3 && result.optInt("killedTracees") == 3 &&
+            result.optInt("ownershipKilledExit", -1) == 137 && result.optInt("stoppedTracees") == 3 && result.optInt("killedTracees") == 3
+        val preRehash = result.optString("operation") == "probe" && result.has("archiveSha256") && result.has("catalogSha256") &&
+            raw.optBoolean("runtimePreRehashValidated")
+        val synthetic = complete && ownership && preRehash && raw.optBoolean("syntheticMixedRuntimeValidated") &&
+            raw.optBoolean("runtimePostRehashValidated") && result.optInt("socketProbeErrno", -1) == 0 &&
+            result.optString("displayEvent") == "ready" &&
             stages.length() == ClientProbeProtocol.stages.size && ClientProbeProtocol.stages.all { stages.optInt(it, -1) == 0 }
+        result.put("ownershipValidated", ownership).put("runtimePreRehashValidated", preRehash)
         result.put("syntheticMixedRuntimeValidated", synthetic).put("runtimePostRehashValidated", synthetic)
         return result.put("runtimeTreeVerified", complete).put("retainedRehashValidated", complete && result.optString("operation") == "verify")
     }

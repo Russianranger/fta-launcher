@@ -25,20 +25,26 @@ object ClientNativeProbe {
         }
     }
     fun run(context: Context, runtime: File, attempt: String, active: () -> Unit,
-        observe: (String, String) -> Unit): ClientProbeProtocol.Result {
+        observe: (String, String) -> Unit,
+        evidence: (String, Int) -> Unit = { _, _ -> }): ClientProbeProtocol.Result {
         runtimeRequire(attempt.matches(Regex("[0-9a-f-]{36}")) && packaged(context), "probe-unavailable")
         val native = File(context.applicationInfo.nativeLibraryDir)
         for ((name, expected) in bridges) {
             val file = File(native, name)
             runtimeRequire(file.length() in 1..1024 * 1024 && runtimeHex(runtimeHash().digest(file.readBytes())) == expected, "probe-unavailable")
         }
-        val attempts = File(context.filesDir, "client-runtime-attempts")
+        val run = ClientProbePaths.attempt(context.filesDir, attempt)
+        val attempts = run.parentFile!!
         runtimeRequire(!Files.isSymbolicLink(attempts.toPath()) && (attempts.mkdir() || attempts.isDirectory), "unsafe-runtime-store")
         // Preserve interrupted attempts for evidence; no deletion while ownership is uncertain.
-        runtimeRequire(attempts.list()?.size?.let { it < 3 } == true && attempts.usableSpace >= 2 * ClientRuntimeStore.RESERVE, "insufficient-space")
-        val run = File(attempts, attempt); runtimeRequire(run.mkdir(), "unsafe-runtime-store")
+        val legacy = File(context.filesDir, "client-runtime-attempts")
+        runtimeRequire(!Files.isSymbolicLink(legacy.toPath()), "unsafe-runtime-store")
+        val oldCount = if (legacy.exists()) legacy.list()?.size ?: throw RuntimeInstallFailure("unsafe-runtime-store") else 0
+        runtimeRequire(attempts.list()?.size?.let { it + oldCount < 3 } == true && attempts.usableSpace >= 2 * ClientRuntimeStore.RESERVE, "insufficient-space")
+        runtimeRequire(run.mkdir(), "unsafe-runtime-store")
         fun dir(name: String) = File(run, name).also { runtimeRequire(it.mkdir(), "storage-unavailable") }
         val probe = dir("probe"); val prefix = dir("prefix"); val session = dir("session"); val tmp = dir("tmp"); val fonts = dir("font-cache")
+        evidence("socketHostPathBytes", ClientProbePaths.validateTemporaryPath(tmp.canonicalPath))
         val metadata = context.assets.open("client-probe/manifest.json").use { input ->
             val data = ByteArray(16385); var count = 0
             while (count < data.size) { val n = input.read(data, count, data.size - count); if (n < 0) break; runtimeRequire(n > 0, "probe-unavailable"); count += n }
@@ -66,6 +72,7 @@ object ClientNativeProbe {
         val logs = mutableMapOf<Long, File>(); val modes = mutableMapOf<Long, String>()
         val checkActive = active
         val driver = object : ClientProbeProtocol.Driver {
+            override fun recordOwnership(key: String, value: Int) = evidence(key, value)
             override fun now() = SystemClock.elapsedRealtime()
             override fun pause(ms: Long) { Thread.sleep(ms) }
             override fun active() = checkActive()

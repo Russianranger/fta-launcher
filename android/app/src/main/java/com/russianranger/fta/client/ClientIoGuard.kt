@@ -70,7 +70,9 @@ class ClientIoGuard(
         due = now(); observe(latest, false)
     }
     companion object {
-        const val IO_BYTES_PER_SECOND = 24L * 1024 * 1024
+        // Code 38 Thor evidence: ~9 GiB available, no pressure, 130 s of pacing.
+        // Raise only the aggregate rate; buffers, dirty windows and pressure gates stay bounded.
+        const val IO_BYTES_PER_SECOND = 48L * 1024 * 1024
         const val MAX_PRESSURE_WAIT_MS = 120000L
         /** PSI numbers are percentages, exported as integer thousandths of one percent. */
         fun psi(text: String): Pair<Long, Long>? = runCatching {

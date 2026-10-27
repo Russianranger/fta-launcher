@@ -11,11 +11,11 @@ class ClientIoGuardTest {
     }
     @Test fun rateIncludesEveryReadWriteAndReadbackWithoutIdleBurstCredit() {
         val clock = Clock(); val guard = ClientIoGuard({ clock.time }, clock::sleep, { healthy }, {})
-        repeat(96) { guard.beforeIo(256 * 1024) }
-        assertEquals(24L shl 20, guard.ioBytes); assertTrue(clock.time >= 1000)
+        repeat(192) { guard.beforeIo(256 * 1024) }
+        assertEquals(48L shl 20, guard.ioBytes); assertTrue(clock.time >= 1000)
         clock.time += 60000; val before = clock.time
         guard.beforeIo(256 * 1024)
-        assertTrue(clock.time - before >= 10); assertTrue(clock.sleeps.all { it in 1..100 })
+        assertTrue(clock.time - before >= 5); assertTrue(clock.sleeps.all { it in 1..100 })
     }
     @Test fun pressureStopsIoUntilFiveSecondsOfSustainedRecovery() {
         val clock = Clock(); var paused = false
@@ -77,5 +77,13 @@ class ClientIoGuardTest {
     @Test fun lowMemoryCallbackHasPriorityOverHealthyPsi() {
         assertTrue(healthy.copy(low = true, someMilliPercent = 0, fullMilliPercent = 0).pressured())
         assertFalse(healthy.copy(trim = true).recovered())
+    }
+    @Test fun fasterRateStillStopsBeforePayloadWhenPressureAppears() {
+        val clock = Clock(); var pressure = false
+        val guard = ClientIoGuard({ clock.time }, clock::sleep, { healthy.copy(low = pressure) }, {})
+        repeat(192) { guard.beforeIo(256 * 1024) }
+        val before = guard.ioBytes; pressure = true; clock.time += 1000
+        fails("memory-pressure") { guard.beforeIo(256 * 1024) }
+        assertEquals(before, guard.ioBytes); assertEquals(1L, guard.pressurePauses)
     }
 }

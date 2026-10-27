@@ -18,6 +18,7 @@ object ClientProbeProtocol {
         fun stop(handle: Long, graceMs: Long): Int
         /** A private control file asks only the initial tracee to kill its own tracer parent. */
         fun requestTracerDeath(handle: Long)
+        fun recordOwnership(key: String, value: Int) { }
     }
     val stages = listOf("cpu-topology", "display", "prefix", "cpu-registry", "x86-entry", "x64-entry",
         "two-channels", "sixteen-channels", "owner-exit", "wine-stop")
@@ -86,17 +87,22 @@ object ClientProbeProtocol {
         val normal = owned("--ownership-normal") { handle ->
             awaitExit(driver, handle, 10000).also { runtimeRequire(it == 0, "ownership-failed") }
         }
+        driver.recordOwnership("ownershipNormalExit", normal)
         val stopped = owned("--ownership-hold") { handle ->
             val identities = children(driver, handle)
             val exit = driver.stop(handle, 2000)
             runtimeRequire(exit != RUNNING, "ownership-failed"); ended(driver, identities); exit
         }
+        driver.recordOwnership("ownershipStopExit", stopped)
+        driver.recordOwnership("stoppedTracees", 3)
         val killed = owned("--ownership-hold") { handle ->
             val identities = children(driver, handle)
             driver.requestTracerDeath(handle)
             val exit = awaitExit(driver, handle, 3000)
             runtimeRequire(exit == 137, "ownership-failed"); ended(driver, identities); exit
         }
+        driver.recordOwnership("ownershipKilledExit", killed)
+        driver.recordOwnership("killedTracees", 3)
         val results = owned("--wine") { handle -> parseStages(driver.outputAfterExit(handle), 0) }
         return Result(normal, stopped, killed, 3, 3, results)
     }

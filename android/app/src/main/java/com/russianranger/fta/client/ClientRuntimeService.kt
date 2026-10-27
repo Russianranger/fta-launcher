@@ -10,6 +10,7 @@ import com.russianranger.fta.R
 import com.russianranger.fta.runtime.GameDataCache
 import com.russianranger.fta.runtime.GameDataDiagnostics
 import org.json.JSONObject
+import org.json.JSONArray
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.Executors
@@ -114,6 +115,7 @@ class ClientRuntimeService : Service() {
             if (probing) {
                 var nextMemory = 0L
                 val result = store.withVerified(governor::check, progress, reverifyAfter = true) { runtime ->
+                    report.put("runtimePreRehashValidated", true); write(true)
                     val deadline = SystemClock.elapsedRealtime() + 960000
                     ClientNativeProbe.run(this, runtime, report.getString("attemptId"), {
                         active(); val now = SystemClock.elapsedRealtime()
@@ -128,16 +130,14 @@ class ClientRuntimeService : Service() {
                         }
                     }, { stage, output ->
                         report.put("state", stage)
-                        val statuses = JSONObject()
-                        for (line in output.lineSequence()) {
-                            val fields = line.split(' ')
-                            if (fields.size == 3 && fields[0] == "FTA_ANDROID_STAGE" && fields[1] in ClientProbeProtocol.stages) {
-                                fields[2].toIntOrNull()?.takeIf { it in -255..255 }?.let { statuses.put(fields[1], it) }
-                            }
-                        }
-                        if (statuses.length() > 0) report.put("probeStages", statuses)
+                        val observed = ClientProbeEvidence.parse(output)
+                        if (observed.stages.isNotEmpty()) report.put("probeStages", JSONObject(observed.stages))
+                        if (observed.diagnostics.isNotEmpty()) report.put("probeDiagnostics", JSONArray(observed.diagnostics.toList()))
+                        observed.displayEvent?.let { report.put("displayEvent", it) }
+                        observed.displayExit?.let { report.put("displayExit", it) }
+                        observed.socketStatus?.let { report.put("socketProbeErrno", it) }
                         write()
-                    })
+                    }, { key, value -> report.put(key, value); write(true) })
                 }
                 report.put("ownershipNormalExit", result.normalExit).put("ownershipStopExit", result.stopExit)
                     .put("ownershipKilledExit", result.killedExit).put("stoppedTracees", result.stoppedTracees)

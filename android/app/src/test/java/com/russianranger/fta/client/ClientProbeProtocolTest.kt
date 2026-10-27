@@ -6,7 +6,9 @@ import org.junit.Test
 class ClientProbeProtocolTest {
     private class Driver : ClientProbeProtocol.Driver {
         var time = 0L; var next = 0L; var killed = 0L; var corruptTree = false; var survivor = false
-        var killExit = 137; var neverReady = false; var cancelled = false
+        var killExit = 137; var neverReady = false; var cancelled = false; var wineExit = 0
+        val evidence = linkedMapOf<String, Int>()
+        override fun recordOwnership(key: String, value: Int) { evidence[key] = value }
         val modes = linkedMapOf<Long, String>(); val stopped = mutableSetOf<Long>()
         override fun now() = time
         override fun pause(ms: Long) { time += ms }
@@ -20,7 +22,7 @@ class ClientProbeProtocolTest {
         override fun ended(identity: ClientProbeProtocol.Identity) = !survivor
         override fun waitFor(handle: Long, ms: Long): Int {
             time += ms
-            return if (handle == killed) killExit else if (modes[handle] != "--ownership-hold") 0 else ClientProbeProtocol.RUNNING
+            return if (handle == killed) killExit else if (modes[handle] == "--wine") wineExit else if (modes[handle] != "--ownership-hold") 0 else ClientProbeProtocol.RUNNING
         }
         override fun stop(handle: Long, graceMs: Long): Int { stopped.add(handle); return 143 }
         override fun requestTracerDeath(handle: Long) { killed = handle }
@@ -47,6 +49,13 @@ class ClientProbeProtocolTest {
         val driver = Driver().apply { neverReady = true }
         try { ClientProbeProtocol.run(driver); fail() } catch (e: RuntimeInstallFailure) { assertEquals("ownership-failed", e.reason) }
         assertTrue(driver.time <= 6000); assertEquals(driver.modes.keys, driver.stopped)
+    }
+    @Test fun completedOwnershipEvidenceSurvivesALaterDisplayFailure() {
+        val driver = Driver().apply { wineExit = 1 }
+        try { ClientProbeProtocol.run(driver); fail() } catch (e: RuntimeInstallFailure) { assertEquals("probe-failed", e.reason) }
+        assertEquals(mapOf("ownershipNormalExit" to 0, "ownershipStopExit" to 143,
+            "ownershipKilledExit" to 137, "stoppedTracees" to 3, "killedTracees" to 3), driver.evidence)
+        assertEquals(driver.modes.keys, driver.stopped)
     }
     @Test fun partialDuplicateOutOfOrderNonzeroAndMissingPassEvidenceRejected() {
         val valid = success()

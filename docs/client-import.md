@@ -131,3 +131,9 @@ exact host pairing and executable compatibility remain separate gates.
 Android references: [SAF grants](https://developer.android.com/training/data-storage/shared/documents-files),
 [foreground data sync](https://developer.android.com/develop/background-work/services/fgs/service-types#data-sync).
 Private delivery identity and current CI are recorded in the short handoff.
+
+Code 39 raises only the aggregate client I/O ceiling to 48 MiB/s based on the
+code-38 Thor report (about 9 GB available, no pressure pauses, 130 s throttled).
+The 256 KiB buffers, 1 MiB write/readback windows and pressure thresholds remain
+unchanged. Device throughput and pressure behavior at the new rate remain to be
+measured. See [socket repair](client-socket-repair.md).

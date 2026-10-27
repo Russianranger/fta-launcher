@@ -8,13 +8,14 @@ and [native gate](native-world-gate.md). Historical detail:
 
 ## Installed private build and passed physical gates
 
-Latest installed APK: **37 / 0.13.2-client-memory**, 59,073,805 bytes, SHA256
+Last passed client-import APK: **37 / 0.13.2-client-memory**, 59,073,805 bytes, SHA256
 `105bf65924ebabedb7dde71c2e3f880e463180a45ccf1fd4f7a6fe14b061cf0b`.
 [Verified APK/source recovery](code37-recovery.md). Application commit
 `39516bb1b0a499d84279ef9eefea0c5c9e9abcf4`, all three jobs in CI 40216989093 passed.
 All 21 native payloads and 148 runtime entries remain the passed native code-34 set.
-New **38 / 0.14.0-client-probe** is delivered for the next gate; physical results
-are pending. [APK, SHA256, source companions and test procedure](code38-recovery.md).
+**38 / 0.14.0-client-probe** is installed. Its first runtime probe failed at
+display startup with status 124, without an attempt-matched Android exit.
+[Measured failure and code-39 repair](client-socket-repair.md). Code 39 is in qualification. [APK, SHA256, source companions and test procedure](code38-recovery.md).
 
 **Client integrity fully passed on 37.**
 [Import](evidence/android-2026-10-25-thor-code37-client-import-pass.json):
@@ -90,12 +91,16 @@ tests now pass locally); it changes no retained native build input.
 
 ## Next concrete gate and recovery rules
 
-**Await the code-38 physical report.** Install the private update in place, allow
-6 GiB free, keep the launcher visible, Prepare client runtime once, Test client
-runtime once, export the report. On failure export immediately before another
-attempt. Do not repeat client import/full rehash, server-data import,
-database/auth or the completed world/screen-off gate. Do not uninstall or clear
-storage. The new gate does not execute original game files or open the realm.
+**Qualify and deliver code 39, then repeat only Test client runtime.** The code-38
+runtime already reached the native probe; retain its verified installation. Keep
+the launcher visible, run Test client runtime once and export immediately on
+failure before retrying. No Prepare/download, client or Data.zip reimport, or
+completed database/auth/world/screen-off tests. Do not uninstall or clear storage.
+Code 39 shortens private socket paths and raises aggregate client I/O from 24 to
+48 MiB/s, preserving buffers, dirty windows, memory/PSI/trim backpressure and all
+original runtime bytes. It exports partial ownership/pre-rehash evidence and
+bounded display error categories. Linux socket negative/positive control and
+full synthetic CI plus Android assembly must pass before private packaging.
 
 Original WarcraftXL/client execution requires a later separate writable view
 under the verified client lease: no writable hard links, original mutations or
@@ -105,7 +110,7 @@ Private updates must retain the signing capsule
 `FTA-Launcher-Development-Signing.zip`, `libfile_7f9c88258f0c8191a09ab071e7447d30`.
 Certificate `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Never regenerate keys, expose credentials or substitute the public CI APK.
-Future updates must use code >=39 after this delivered code 38.
+Code 39 / 0.14.1-client-sockets is reserved for this correction.
 
 Native cache/source recovery: [code32 baseline](code32-recovery.md), followed by
 reviewed 0019 seller-count patch/v15 relinks from [code34](code34-recovery.md).

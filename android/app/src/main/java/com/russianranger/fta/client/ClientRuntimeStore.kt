@@ -236,6 +236,7 @@ class ClientRuntimeStore(private val root: File, private val plan: RuntimeArchiv
             }
         } }
         runtimeRequire(count == plan.entries.size && bytes == plan.fileBytes, "runtime-changed")
+        progress(Progress("verify-runtime", bytes, plan.fileBytes, count))
     }
     companion object {
         const val BUFFER = 256 * 1024

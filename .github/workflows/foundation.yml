@@ -59,14 +59,29 @@ jobs:
         run: |
           curl --fail --location --retry 2 --max-time 300 https://github.com/Russianranger/uo-android-launcher/releases/download/v0.2.0/client-runtime-arm64.tar.gz -o "$RUNNER_TEMP/client-runtime.tar.gz"
           python3 android/qualification/build_runtime_catalog.py --archive "$RUNNER_TEMP/client-runtime.tar.gz" --output "$RUNNER_TEMP/client-runtime-catalog.tsv"
-      - name: Build owned client bridge and synthetic probes sequentially
+      - name: Install synthetic probe compilers
+        timeout-minutes: 5
         run: |
-          sudo apt-get update -qq > "$RUNNER_TEMP/client-toolchain.log" 2>&1
-          sudo apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64 gcc-mingw-w64-i686 >> "$RUNNER_TEMP/client-toolchain.log" 2>&1
+          sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq > "$RUNNER_TEMP/client-toolchain.log" 2>&1
+          sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends gcc-mingw-w64-x86-64 gcc-mingw-w64-i686 >> "$RUNNER_TEMP/client-toolchain.log" 2>&1
+      - name: Build owned client bridge and synthetic probes sequentially
+        timeout-minutes: 10
+        run: |
           curl -fLsS --retry 2 --max-time 300 https://github.com/Russianranger/uo-android-launcher/releases/download/v0.2.0/runtime-corresponding-sources.tar.gz -o "$RUNNER_TEMP/bridge-sources.tar.gz"
           curl -fLsS --retry 2 --max-time 300 https://dl.google.com/android/repository/android-ndk-r28c-linux.zip -o "$RUNNER_TEMP/android-ndk.zip"
           python3 tools/build_client_bridge.py --sources "$RUNNER_TEMP/bridge-sources.tar.gz" --ndk-zip "$RUNNER_TEMP/android-ndk.zip" --work "$RUNNER_TEMP/client-bridge-build" > "$RUNNER_TEMP/client-bridge-build.log" 2>&1
           python3 tools/stage_client_probe.py --bridge-build "$RUNNER_TEMP/client-bridge-build" --provider "$RUNNER_TEMP/fta-provider" --companion "$RUNNER_TEMP/FTA-client-bridge-corresponding-source.zip"
+      - name: Preserve failed public toolchain diagnostics
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-toolchain-failure-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/client-toolchain.log
+            ${{ runner.temp }}/client-bridge-build.log
+            ${{ runner.temp }}/client-bridge-build/build.log
+          retention-days: 14
+          if-no-files-found: warn
       - name: Test, lint and compile foundation
         working-directory: android
         run: ./gradlew --no-daemon --max-workers=2 -PftaProviderDir="$RUNNER_TEMP/fta-provider" -PftaClientRuntimeCatalog="$RUNNER_TEMP/client-runtime-catalog.tsv" testDebugUnitTest lintDebug assembleDebug
