@@ -1,5 +1,21 @@
 # Historical development evidence through code 26
 
+## 2026-10-27 — native memory monitoring and retry recovery, code 41
+
+Code 40 passed pre-rehash, sockets/display and ownership but the launcher stopped
+an actively progressing Windows prefix for memory pressure. It had not saved the
+trigger sample. Code 41 distinguishes advisory from critical callbacks, keeps
+measured low-memory stops immediate, records the trigger before teardown, and
+adds a bounded reusable fourth attempt after validated owned cleanup.
+
+Application `85a3462dc461577c39849680ea01e5133f9a8c32`, CI `40603687890`: all jobs
+passed; 207 tooling, 82 qualification and 534 Android tests passed (one existing
+fixture skip), lint/assembly, cache/JNI and 96 MiB runtime install/rehash. Original
+signer, all 23 native payloads and 148 runtime entries unchanged. Private APK
+60,156,109 bytes, SHA256 `3e26e4bdeac5bd856b5ad95dd6d957e98d3734e1dcc5c6d4186056c53b104f26`.
+[Delivery, sources and pending Thor gate](code41-recovery.md). Do not repeat passed
+imports/server gates or claim a physical client-runtime pass yet.
+
 Historical statements below describe their original checkpoints. For current
 status and instructions, use [SHORT-HANDOFF.md](SHORT-HANDOFF.md).
 

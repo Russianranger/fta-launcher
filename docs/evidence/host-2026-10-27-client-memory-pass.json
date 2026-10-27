@@ -1,0 +1,65 @@
+{
+  "scope": "code41-host-and-ci-qualification",
+  "applicationCommit": "85a3462dc461577c39849680ea01e5133f9a8c32",
+  "ciRunId": 40603687890,
+  "ciUrl": "https://github.com/Russianranger/fta-launcher/actions/runs/40603687890",
+  "jobs": [
+    {
+      "id": 122537807486,
+      "name": "Android foundation APK",
+      "conclusion": "success"
+    },
+    {
+      "id": 122537808173,
+      "name": "Archive and database safety tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 122540365951,
+      "name": "Direct APK download",
+      "conclusion": "success"
+    }
+  ],
+  "toolingTests": {
+    "tests": 207,
+    "passed": 207
+  },
+  "qualificationTests": {
+    "tests": 82,
+    "passed": 82,
+    "skipped": 0
+  },
+  "androidUnitResults": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 535
+  },
+  "androidUnitSuites": 48,
+  "lint": "passed",
+  "assemble": "passed",
+  "nativeOwnedProcessTests": "passed",
+  "cacheAndHostJni": "passed",
+  "runtimeStore": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "unchangedGuestQualification": {
+    "applicationCommit": "fdf7eb5fedaaa0beaac0a239e1b3b6949bef47c9",
+    "ciRunId": 40587205346,
+    "evidence": "host-2026-10-27-client-prefix-pass.json",
+    "rerun": false,
+    "reason": "No changes to guest probes, Wine/FEX runtime or native bridge"
+  },
+  "physicalCode41Executed": false,
+  "androidSyntheticRuntimeValidated": false,
+  "gameLoginQualified": false
+}

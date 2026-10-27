@@ -1,9 +1,9 @@
-Current delivery: **40 / 0.14.2-client-prefix**. [Verified APK and sources](code40-recovery.md).
-Code 39 passed sockets/display and ownership, then timed out during Wine
-initialization; see [the measured failure and new candidate](client-prefix-initialization.md).
-Install in place and repeat **Test client runtime** only. Retain the prepared
-runtime and all completed client/server/database gates. Code 40 is not yet
-physically qualified. The code-38 delivery details below remain recovery history.
+Current delivery: **41 / 0.14.3-client-memory**. [Verified APK and sources](code41-recovery.md).
+Code 40 progressed through Windows initialization but the native memory guard
+aborted; the triggering sample was missing. [Evidence and repair](client-memory-recovery.md).
+Install in place and repeat **Test client runtime** once, then export its report.
+Keep existing runtime/client/server/database data. Code 41 still needs Thor
+validation. Earlier delivery sections below are recovery history.
 
 # Private native diagnostic builds
 
