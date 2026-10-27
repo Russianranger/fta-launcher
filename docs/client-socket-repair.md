@@ -8,7 +8,7 @@ zero pressure pauses and no client-runtime process exit. This is not a measured
 low-memory kill. Code 38 combined early display exit and timeout into 124 and
 suppressed display stderr; its report cannot distinguish those cases.
 
-The old Android temporary path is 105 bytes; appending `/.X11-unix/X8` requires
+Under the standard Android user-0 layout, the old temporary path is 105 bytes; appending `/.X11-unix/X8` requires
 118 bytes. The unchanged pinned PRoot `src/syscall/socket.c` translates the guest
 socket pathname into `sockaddr_un.sun_path` (108 bytes). Its long-path fallback
 calls `create_temp_name(..., "proot")` from `src/path/temp.c`; that creates another
@@ -19,7 +19,7 @@ stages and the complete runtime pre/post rehash. This isolates a concrete path
 failure; the corrected Android display still requires a physical result.
 
 Code 39 keeps the full random attempt identity but uses `files/cr/<UUID hex>/tmp`.
-The actual code-38 user-0 package path becomes 79 bytes (X8: 92 bytes). Before
+The standard user-0 package path becomes 79 bytes (X8: 92 bytes). Before
 launch, UTF-8 byte checks cover both X8 and the original PRoot fallback with a
 maximum signed PID and NUL. Legacy attempts remain intact and count toward the
 same three-attempt limit. No bridge/native binary, runtime archive, client file,
@@ -48,3 +48,9 @@ keep the launcher visible, run **Test client runtime** once and export the repor
 immediately on failure before retrying. Do not prepare/reimport again. The full
 WarcraftXL source is not required for this synthetic gate. Original client,
 graphics and login remain unqualified.
+
+Qualified application commit **51358069f8d958c5e05b343cd6bf1d22be4f13f9** passed
+foundation CI 40444054488 and ARM64 CI 40444054525. [Measured host evidence](evidence/host-2026-10-26-client-socket-repair-pass.json)
+records old-path EINVAL, fixed-path success, all ten stages and complete unchanged
+runtime rehashes. The same-key [code-39 APK and sources](code39-recovery.md) are
+delivered. Android display recovery and higher-rate memory behavior remain pending.

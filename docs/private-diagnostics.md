@@ -1,3 +1,9 @@
+Current delivery: **39 / 0.14.1-client-sockets**. [Verified APK and sources](code39-recovery.md).
+Code 38 reached the runtime display and failed; see [measured repair](client-socket-repair.md).
+Install in place and repeat **Test client runtime** only. Retain the prepared
+runtime and all completed client/server/database gates. Code 39 is not yet
+physically qualified. The code-38 delivery details below remain recovery history.
+
 # Private native diagnostic builds
 
 ## Current private delivery — code 38 client runtime probe

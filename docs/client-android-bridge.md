@@ -4,7 +4,8 @@ The synthetic ARM64 Linux Wine/FEX process and IPC gate
 [passed](evidence/host-2026-10-26-mixed-wine-runtime-pass.json). Android execution
 needs a PRoot tracer/loader launched through the existing owned native process
 bridge. The [owned Android worker and synthetic driver](client-runtime-installation.md)
-are now implemented; first physical execution is pending a qualified private APK.
+are implemented. Code 38 reached physical display startup and failed;
+[code 39 corrects the socket path budget](client-socket-repair.md).
 Original client execution is not enabled.
 
 ## Exact sources and build
@@ -101,4 +102,5 @@ are implemented. The next private APK must verify native parent-death/Stop
 supervision and CPU topology through Android's actual PRoot path. Synthetic Windows fixtures
 must pass on Thor before original host/graphics/client claims. The later client
 view must preserve imported files: no writable hard links or unbounded 60 GB copy.
-Installed private code 37 and all passed import/server gates remain unchanged.
+[Private code 39](code39-recovery.md) preserves the passed import/server gates and
+the code-38 prepared runtime. Only its corrected synthetic probe needs repeating.

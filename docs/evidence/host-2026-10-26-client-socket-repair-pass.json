@@ -1,0 +1,70 @@
+{
+  "scope": "code39-client-socket-repair-host",
+  "implementationCommit": "51358069f8d958c5e05b343cd6bf1d22be4f13f9",
+  "runtimeCiRunId": 40444054525,
+  "runtimeJobId": 121990960256,
+  "artifactId": 12706763885,
+  "artifactSha256": "fcfc6b58697027ca982885c4763c81100142cc3c0498bac9e1895479a4e4d3a9",
+  "socketAndRuntime": {
+    "scope": "android-guest-layout-on-native-linux",
+    "runtimeEntries": 14092,
+    "fullPreRehash": true,
+    "fullPostRehash": true,
+    "syntheticMixedRuntimePassed": true,
+    "androidExecutionQualified": false,
+    "oldTemporaryPathBytes": 105,
+    "oldSocketPathBytes": 118,
+    "oldSocketErrno": 22,
+    "fixedTemporaryPathBytes": 79,
+    "fixedSocketPathBytes": 92,
+    "fixedSocketErrno": 0
+  },
+  "ownership": {
+    "androidExecutionQualified": false,
+    "kill": {
+      "detachedLeaders": 2,
+      "endedTracees": 3,
+      "exit": 137,
+      "survivingTracees": 0
+    },
+    "normal": {
+      "exit": 0
+    },
+    "scope": "android-guest-ownership-program-on-linux",
+    "stop": {
+      "detachedLeaders": 2,
+      "endedTracees": 3,
+      "exit": 255,
+      "survivingTracees": 0
+    }
+  },
+  "allTenGuestStagesPassed": true,
+  "androidExecutionQualified": false,
+  "gameLoginQualified": false,
+  "foundationCiRunId": 40444054488,
+  "foundationJobsPassed": [
+    121990960180,
+    121990960374,
+    121993114026
+  ],
+  "toolingTestsPassed": 207,
+  "qualificationTestsPassed": 77,
+  "qualificationTestsSkipped": 0,
+  "androidUnitResults": {
+    "tests": 521,
+    "passed": 520,
+    "skipped": 1,
+    "errors": 0,
+    "failures": 0,
+    "suites": 46
+  },
+  "installerFullCandidate": {
+    "entries": 14092,
+    "fileBytes": 2637799241,
+    "heapMaxBytes": 100663296,
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true
+  }
+}

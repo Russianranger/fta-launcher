@@ -118,8 +118,9 @@ Two regressions reject unexpected files, changed payloads/permissions and replac
 links. This supplements the original chroot test; Android kernel behavior remains
 the physical gate.
 
-Qualify the exact Android assembly and package/sign code 38 before requesting the
-first Thor runtime test. Preserve installed code 37 and all passed physical gates.
+Code 38 reached display startup on Thor and failed. [Code 39](code39-recovery.md)
+corrects the socket path budget; repeat only its synthetic probe while preserving
+the prepared runtime and all passed import/server gates.
 
 Code 39 raises only the aggregate client I/O ceiling to 48 MiB/s based on the
 code-38 Thor report (about 9 GB available, no pressure pauses, 130 s throttled).

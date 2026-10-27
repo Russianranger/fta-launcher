@@ -15,7 +15,8 @@ Last passed client-import APK: **37 / 0.13.2-client-memory**, 59,073,805 bytes, 
 All 21 native payloads and 148 runtime entries remain the passed native code-34 set.
 **38 / 0.14.0-client-probe** is installed. Its first runtime probe failed at
 display startup with status 124, without an attempt-matched Android exit.
-[Measured failure and code-39 repair](client-socket-repair.md). Code 39 is in qualification. [APK, SHA256, source companions and test procedure](code38-recovery.md).
+[Measured failure and code-39 repair](client-socket-repair.md). **39 / 0.14.1-client-sockets** is delivered; its physical repeat is pending.
+[Verified APK, source companions and procedure](code39-recovery.md). [APK, SHA256, source companions and test procedure](code38-recovery.md).
 
 **Client integrity fully passed on 37.**
 [Import](evidence/android-2026-10-25-thor-code37-client-import-pass.json):
@@ -56,42 +57,39 @@ file bytes. [Installation](client-runtime-installation.md) now has authenticated
 extraction ranges, <=1 MiB sync/readback windows, delayed links, OS lease, atomic
 publication and complete retained rehash. Full-candidate host installation and
 both rehashes pass with a 96 MiB JVM heap. The separate Android foreground worker
-uses the existing 24 MiB/s and memory-pressure governor, Stop, a 90-minute limit,
+uses the 48 MiB/s and unchanged memory-pressure governor, Stop, a 90-minute limit,
 visible-activity binding and redacted attempt-matched exit reporting.
 
-Delivered application commit: **e22f9b563b5f532da6cb5245f382c31039a8f8aa**.
-All foundation jobs **40424860004** passed: 205 tooling, 73 qualification,
-515 Android tests passed / one existing skip, lint/assembly, cache/JNI, packaged
-checks and full 96 MiB-heap runtime installation. ARM64 workflow **40424860026**
-passed the ten-stage synthetic program through the exact Android bind layout,
-full runtime pre/post rehash, and normal/Stop/forced-tracer-death ownership gates.
-[Exact host evidence](evidence/host-2026-10-27-client-runtime-path-pass.json).
-Both Stop and SIGKILL terminate all three tracees/two detached session leaders.
-These remain Linux results, not Thor. The earlier empty-prefix UID mismatch is
-fixed only in the disposable CI setup; original Wine's checks remain unchanged.
+Latest delivered application commit: **51358069f8d958c5e05b343cd6bf1d22be4f13f9**.
+Foundation **40444054488** passed all three jobs: 207 tooling, 77 qualification
+(no skips), 520 Android tests passed / one existing skip, lint/assembly,
+cache/JNI, packaged checks and full runtime install/rehash under a 96 MiB heap.
+ARM64 **40444054525** passed the old-path failure control (118-byte socket,
+EINVAL 22), short-path success, all ten synthetic stages, process ownership and
+complete runtime pre/post rehash. [Exact proof](evidence/host-2026-10-26-client-socket-repair-pass.json).
+These are Linux results; the corrected Android display remains pending.
 
-The Android driver uses the existing native handle bridge and patched PRoot's
-mandatory PTRACE_O_EXITKILL. Both PRoot outputs are ARM64/16 KiB, rebuilt with NDK
-r28c and one job. The driver requires ownership gates before Wine and full post-
-rehash before success. Memory pressure stops the tree. Bytecode writes are disabled;
-prefix, temporary files and caches are separate binds. No managed client or realm
-path is mounted. At most three private attempts are retained, with 2 GiB free
-required before each. Original client/host/graphics and login remain unqualified.
+Code 38's physical probe reached CPU topology 0 and display 124 after 196,339 ms,
+including 130,011 ms deliberate pacing, about 9 GB available and no runtime exit.
+Its old long directory also makes PRoot's original socket fallback too long.
+Code 39 uses the short `files/cr/<UUID hex>/tmp` path, checks both pathname byte
+budgets, preserves/counts legacy attempts, and exports a real socket preflight,
+display exit/timeout categories and completed ownership/pre-rehash evidence.
+Aggregate client I/O is now 48 MiB/s; buffers, dirty windows and memory/PSI/trim
+backpressure remain unchanged. Faster throughput/pressure behavior is not yet
+physically qualified. [Repair and evidence limits](client-socket-repair.md).
 
-**Private APK 38:** 60,139,725 bytes, SHA256
-`32f4480d11e8af20402d2db7f679cbe1f36b9601c07338bd280cf3610e7907e2`.
-Original certificate, v2 and 16 KiB alignment verified; 235 packaged-input checks
-passed. All 21 donor payloads/148 runtime entries are unchanged; two separately
-verified PRoot payloads bring the native total to 23. [APK proof](evidence/android-2026-10-27-private-client-probe-apk.json).
-[All delivered artifacts and sources](code38-recovery.md) are durably recoverable.
-The refreshed v15 companion preserves every original archive/notice and build
-proof; the separate exact bridge companion contains new source/patches/notices.
-`tools/refresh_world_session_source.py` has two targeted regressions (207 tooling
-tests now pass locally); it changes no retained native build input.
+**Private APK 39:** 60,147,917 bytes, SHA256
+`63b42422a083f3a0e866c6d9df7be1e0048a111b21637ea3dd63a81022d8b0f5`.
+Original certificate, v2/16 KiB alignment and 235 packaged checks passed.
+All 23 donor native payloads and 148 runtime entries are unchanged. The new
+bridge source companion matches this exact application commit; the unchanged
+v15 native source companion from code 38 remains valid. [All recovery links](code39-recovery.md).
+[APK proof](evidence/android-2026-10-26-private-client-sockets-apk.json).
 
 ## Next concrete gate and recovery rules
 
-**Qualify and deliver code 39, then repeat only Test client runtime.** The code-38
+**Await the code-39 report: repeat only Test client runtime.** The code-38
 runtime already reached the native probe; retain its verified installation. Keep
 the launcher visible, run Test client runtime once and export immediately on
 failure before retrying. No Prepare/download, client or Data.zip reimport, or
@@ -99,8 +97,8 @@ completed database/auth/world/screen-off tests. Do not uninstall or clear storag
 Code 39 shortens private socket paths and raises aggregate client I/O from 24 to
 48 MiB/s, preserving buffers, dirty windows, memory/PSI/trim backpressure and all
 original runtime bytes. It exports partial ownership/pre-rehash evidence and
-bounded display error categories. Linux socket negative/positive control and
-full synthetic CI plus Android assembly must pass before private packaging.
+bounded display error categories. Linux socket negative/positive controls, full synthetic CI and Android assembly
+have passed; only the physical code-39 repeat remains.
 
 Original WarcraftXL/client execution requires a later separate writable view
 under the verified client lease: no writable hard links, original mutations or
@@ -110,7 +108,7 @@ Private updates must retain the signing capsule
 `FTA-Launcher-Development-Signing.zip`, `libfile_7f9c88258f0c8191a09ab071e7447d30`.
 Certificate `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Never regenerate keys, expose credentials or substitute the public CI APK.
-Code 39 / 0.14.1-client-sockets is reserved for this correction.
+Future updates must use code >=40 after this delivered code 39.
 
 Native cache/source recovery: [code32 baseline](code32-recovery.md), followed by
 reviewed 0019 seller-count patch/v15 relinks from [code34](code34-recovery.md).
