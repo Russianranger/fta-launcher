@@ -23,7 +23,12 @@ with unchanged protected trees and seven rejected root cases on each architectur
 [Measured CI proof](evidence/host-2026-10-28-storage-isolation-pass.json).
 These host results do not qualify physical Android execution.
 
-## Test once on the Thor
+## Physical test passed — historical procedure
+
+The [Thor report assessment](evidence/android-2026-10-27-thor-code42-storage-pass.json)
+passed all 50 checks in **704 ms**, with unchanged protected files, all four root
+refusals, owned handles reaped, worker inactive and no attempt-matched exit.
+The exact APK and payload digests match this delivery. **Do not repeat this test.**
 
 1. Install the APK **over code 41**, keeping all app data.
 2. Tap **Test client storage isolation**. Keep the launcher visible. It normally
@@ -60,6 +65,6 @@ Wine/FEX runtime retains its separate original source references and notices.
 Use the private signed APK above; the public foundation APK is not a substitute.
 Future private updates require code >=43 and the original signing capsule.
 
-Next development gate: assess the physical storage report, then qualify this guard
-with PE32/PE64 file access and build the bounded original-client working view.
+Next development gate: qualify this guard with PE32/PE64 file access and build
+the bounded original-client working view. The physical storage report has passed.
 Keep the passed code-34 world, code-37 import and code-41 runtime evidence.

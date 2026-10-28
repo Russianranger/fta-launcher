@@ -38,7 +38,27 @@ exclusive verified-client lease, no inherited writable descriptors, bounded
 working/prefix storage and post-session integrity checks. Working-view creation,
 original WarcraftXL startup, rendering and login remain unimplemented/unqualified.
 
-## Thor procedure
+## Physical Thor result
+
+[Code-42 assessment](evidence/android-2026-10-27-thor-code42-storage-pass.json):
+all 50 checks passed in 704 ms on Android 13/ARM64. The exact APK and three native
+payload hashes match; four invalid roots were refused, the protected fixture tree
+was unchanged, owned handles were reaped and the worker was inactive. Three
+historical exits predate the attempt; none matched it. The imported client and
+Wine were not accessed. Preserve this pass; no repeated device test is needed.
+
+`android/qualification/client_isolation_report.py` checks the report against the
+delivered APK evidence and emits only typed, allowlisted observations. Nine
+regressions cover missing/false checks, root refusals, identity/packaging drift,
+terminal state and cleanup, timestamps, contradictory exits and private-field
+exclusion. Report authenticity and actual device files are not independently read.
+This qualifies the reported disposable fixture only, not the full imported tree
+or guarded Wine. The assessor does not modify the delivered APK.
+Local validation passed all nine new regressions, all 212 tooling tests and
+100 of 102 qualification tests (two existing host-capability skips). Application
+and native sources are unchanged, retaining their exact application-commit CI.
+
+## Historical Thor procedure — passed
 
 1. Install the private signed code-42 APK over code 41. Keep all app data.
 2. Open the launcher and tap **Test client storage isolation** once. Keep it
@@ -67,5 +87,5 @@ fixture with pinned NDK r28c/API26 and 16 KiB ELF segments. The standard invocat
 continues to produce the original bridge. `tools/stage_client_readonly.py` pins
 both outputs, notices and source hashes and extends the exact bridge source
 companion. The private packager separately verifies these additions and refuses
-silent replacement of any donor native payload. Android execution awaits the
-Thor report; do not infer it from Linux CI or APK assembly.
+silent replacement of any donor native payload. The physical Thor fixture has
+now passed; guarded Wine and original-client execution remain separate gates.

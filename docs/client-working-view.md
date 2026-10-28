@@ -42,6 +42,7 @@ Before exposing an original-client action:
 
 The [code-42 disposable storage-isolation gate](client-storage-isolation.md) now
 implements a separate guarded tracer and native canary fixture. Native x86-64 and
-ARM64 checks passed. Its Thor test is the next concrete gate; it does not expose
-the import or qualify guarded Wine/working-view compatibility. No repeats of the
-already passed runtime/import/server gates are requested.
+ARM64 checks passed, followed by all 50 physical Thor checks in 704 ms. It does not
+expose the import or qualify guarded Wine/working-view compatibility. Next qualify
+PE32/PE64 file access under this guard and implement the bounded working view.
+No repeats of the passed storage/runtime/import/server gates are requested.

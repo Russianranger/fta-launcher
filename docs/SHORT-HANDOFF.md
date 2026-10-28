@@ -20,11 +20,15 @@ skip, lint/assembly, ownership/cache/JNI and runtime rehash with a 96 MiB heap.
 Guard workflow **40614566581** passed all 50 fixture checks on x86-64 and ARM64,
 unchanged trees and seven invalid-root refusals each. [CI proof](evidence/host-2026-10-28-storage-isolation-pass.json).
 
-**Next physical gate:** install over code 41; tap **Test client storage isolation**
-once; keep visible, then export the diagnostic JSON on either outcome. Expected
-**Storage isolation passed: 50 checks.** It uses tiny disposable files, never opens
-the client import or Wine runtime, and preserves the old runtime report. Physical
-code-42 execution is pending. No repeat of passed import/runtime/server tests.
+**Physical storage gate passed — no repeat needed.** The owner-supplied Thor report
+matches the exact APK and three pinned payloads. [Assessment](evidence/android-2026-10-27-thor-code42-storage-pass.json):
+attempt `280ff792-9887-4b12-9e3b-d43f15a12084`, **704 ms**, all **50** checks zero,
+all four invalid-root launches refused, 65,545 fixture bytes, unchanged protected
+tree, owned handles reaped, worker inactive. No attempt-matched exit; all three
+historical exits predate the attempt. It did not access the import or run Wine.
+The old code-41 runtime report and code-37 client verification are still present.
+Keep code 42 and all data. No new device test is requested until the next concrete
+development gate is ready; do not repeat storage/import/runtime/server tests.
 
 ## Physical client-runtime gate passed — no repeat needed
 
@@ -45,7 +49,7 @@ infer that code 40's missing trigger was advisory, or claim cache eviction.
 `rpcss-unavailable` was observed during initialization; all subsequent gates
 passed. It is not a demonstrated original-client compatibility result.
 
-**Preserve the code-41 result and all retained data; run only the new code-42 storage test.**
+**Preserve the code-41 result and all retained data; code 42's storage test also passed.**
 Do not repeat import, client/runtime verification, synthetic probes or passed
 server tests. Original WarcraftXL execution, rendering and login remain unqualified.
 
@@ -56,18 +60,22 @@ import, its catalog, original host/proxy and Windows-PID launch contract. Ordina
 PRoot bindings are not read-only protection. Do not launch Wine against the import,
 use writable hard links, infer safe sharing from symlinks, or silently copy 60 GB.
 Implement and qualify the storage isolation before exposing original-client startup.
-The separately pinned guard is implemented and its native Linux checks pass.
+The separately pinned guard passed its native Linux and physical Android fixture.
 [Storage-isolation design](client-storage-isolation.md); APK/source packaging and
-exact-commit CI are complete. Physical code-42 storage evidence is still missing.
-Then qualify guarded Wine PE32/PE64 file access and implement a bounded working
+exact-commit CI are complete. Next qualify guarded Wine PE32/PE64 file access
+and implement a bounded working
 view under the verified-client lease. The old bridge is unchanged; this is
 cooperative integrity protection, not hostile-code confinement. Original working
 view, WarcraftXL startup, rendering and login remain unqualified.
 
-The assessor binds exact APK/version, archive/catalog/counts, all ten zero stages,
+The runtime assessor binds exact APK/version, archive/catalog/counts, all ten zero stages,
 ownership/cleanup, inactive terminal worker, full pre/post rehash and exit history.
 Only typed allowlisted observations are saved. Report authenticity and device files
 have not been independently read. [Assessment details](client-runtime-report-qualification.md).
+The new storage assessor binds the exact APK/payload inventory, all 50 integer-zero
+checks, four root refusals, terminal cleanup and exit history. Nine regressions
+reject incomplete/contradictory receipts and keep its qualification limited to
+the disposable fixture. No APK or native code changed to record this pass.
 
 ## Passed physical gates — preserve, do not repeat
 
