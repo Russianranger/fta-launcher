@@ -1,5 +1,19 @@
 # Historical development evidence through code 26
 
+## 2026-10-27 — physical synthetic client-runtime gate passed on code 41
+
+The owner-supplied report matches private APK `3e26e4bd…b104f26` and the pinned
+runtime. All ten stages, normal/Stop/tracer-death ownership, final owned cleanup
+and full pre/post rehash passed in 442,250 ms; prefix initialization took 101,911 ms.
+Two I/O memory-pressure pauses recovered (79,000 ms total); no matching Android
+exit. Native advisory handling was not exercised (zero advisory episodes).
+
+[Sanitized assessed evidence](evidence/android-2026-10-27-thor-code41-runtime-pass.json)
+and a strict allowlisted assessor preserve this gate without promoting original
+client/Wine, WarcraftXL, graphics or login. No new APK or repeated Thor test is
+needed for assessment. Next implementation is the isolated client working view,
+followed by original DLL-owned host startup and controlled cleanup.
+
 ## 2026-10-27 — native memory monitoring and retry recovery, code 41
 
 Code 40 passed pre-rehash, sockets/display and ownership but the launcher stopped

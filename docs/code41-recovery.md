@@ -28,7 +28,7 @@ captures the actual trigger. It also preserves the three old attempts while
 allowing one additional slot, reusable only after confirmed owned cleanup.
 [Design and limitations](client-memory-recovery.md).
 
-## One physical test
+## Physical test passed — historical procedure
 
 1. Install **in place**, keeping existing storage. Allow at least **2 GiB free**
    and keep the launcher visible.
@@ -42,7 +42,7 @@ Success reads **Runtime process and compatibility tests passed.** The game does
 not open during this synthetic test. Do not uninstall, clear storage, prepare or
 download the runtime again, reimport the client/Data.zip, or repeat completed
 database/auth/world tests. If `probe-attempt-limit` appears, export the report;
-do not delete unproven attempt directories. No code-41 Thor pass is claimed yet.
+do not delete unproven attempt directories. The subsequent [code-41 Thor report](evidence/android-2026-10-27-thor-code41-runtime-pass.json) passed all ten stages, cleanup and pre/post rehash. Do not repeat this test.
 
 ## Exact corresponding sources
 

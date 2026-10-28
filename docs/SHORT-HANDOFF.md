@@ -21,45 +21,45 @@ cache/JNI and full runtime installation/rehash with a 96 MiB heap.
 [Exact host/CI proof](evidence/host-2026-10-27-client-memory-pass.json).
 The guest scripts, bridge and runtime are unchanged from the ten-stage ARM64
 pass on commit fdf7eb5 / run 40587205346; that job was not rerun for this Android
-monitoring change. These are host results; code 41 has not yet run on Thor.
+monitoring change. Code 41 now also passed the physical synthetic gate described below.
 
-**Await one code-41 report.** Install in place, retain all storage, keep the
-launcher visible and allow at least 2 GiB free. Select **Test client runtime**
-once, then **Export diagnostic report** on either outcome. Initialization can
-use up to ten minutes; subsequent checks and full rehash run automatically.
-Export immediately on failure before retrying. Do not uninstall, clear storage,
-prepare/download again, reimport client/Data.zip or repeat passed server tests.
-The synthetic test does not open the game.
+## Physical client-runtime gate passed — no repeat needed
 
-## Latest physical failure and repair limits
+[Exact reported pass](evidence/android-2026-10-27-thor-code41-runtime-pass.json),
+attempt `d23ae710-c265-4c2a-946f-b89dcf7b902f`, matches the delivered APK and pinned
+runtime. All ten stages returned zero: CPU topology, display, prefix, registry,
+x86/x64 entry, two/sixteen-channel IPC, owner exit and Wine Stop. Full pre/post
+rehash covered all 14,092 entries / 2,637,799,241 file bytes. Normal, Stop and
+forced tracer-death cleanup passed, `probeCleanupComplete=1`, worker inactive,
+no attempt-matched exit. An older low-memory exit predates this attempt.
 
-**40 / 0.14.2-client-prefix** stopped with `memory-pressure`, not a prefix timeout.
-[Physical result](evidence/android-2026-10-27-thor-code40-memory-guard.json):
-Windows initialization progressed through 75.247 seconds, 789 system32 / 286
-syswow64 entries and 1,828,429 registry bytes. Full runtime pre-rehash,
-sockets/display and all ownership gates passed. Total elapsed 257,170 ms;
-I/O pacing 80,173 ms, one recovered I/O pressure pause of 42,000 ms.
-The last successful memory sample was 8,848,064,512 available bytes, lowMemory
-false. The aborting sample and trim level were not persisted. There was no
-attempt-matched Android exit. Do not infer a low-memory kill or a proven false
-alarm from the stale sample.
+Elapsed **442,250 ms (7m22s)**; prefix **101,911 ms**; I/O pacing **160,353 ms**.
+Two I/O pressure pauses recovered, totaling **79,000 ms**. Last available memory
+9,667,428,352 bytes; launcher peak RSS 203,888 KiB (not total guest RSS).
+Native advisory count was zero, so this run did not exercise the new advisory
+allowance. Last trim level was critical (15), expired by completion. Do not
+infer that code 40's missing trigger was advisory, or claim cache eviction.
+`rpcss-unavailable` was observed during initialization; all subsequent gates
+passed. It is not a demonstrated original-client compatibility result.
 
-[Code 41](client-memory-recovery.md) gives advisory-only native trim signals a
-30-second continuous ceiling while measured memory remains healthy. Measured
-low memory, available-memory floor and critical callbacks still stop immediately.
-The trigger sample/category/trim data are saved before teardown. I/O backpressure,
-Stop and all guest deadlines remain. A bounded fourth retry slot preserves the
-three unproven legacy attempts; new work becomes reusable only after validated
-ownership and completed handle cleanup. Uncertain attempts remain intact and
-produce `probe-attempt-limit` if the cap is reached. No unproven directory is deleted.
+**Keep code 41 and all retained data. No additional device test is requested.**
+Do not repeat import, client/runtime verification, synthetic probes or passed
+server tests. Original WarcraftXL execution, rendering and login remain unqualified.
 
-On the next report inspect exact APK, inactive completed worker, all ten stages,
-ownership, pre/post full rehash and attempt-matched exits. If pressure recurs,
-inspect `memoryPressureSource`, `lastTrimLevel`, `lastTrimAgeMs`, threshold/floor,
-available memory, lowMemory/critical flags and advisory duration. A handled native
-termination should have `probeCleanupComplete: 1`. Prefix progress alone cannot
-qualify initialization. A pass advances to the isolated writable client view and
-original WarcraftXL launch; original execution, graphics and login remain unqualified.
+## Active development: isolated original-client working view
+
+[Next gate and acceptance criteria](client-working-view.md). Preserve the full
+import, its catalog, original host/proxy and Windows-PID launch contract. Ordinary
+PRoot bindings are not read-only protection. Do not launch Wine against the import,
+use writable hard links, infer safe sharing from symlinks, or silently copy 60 GB.
+Implement and qualify the storage isolation before exposing original-client startup.
+The current change adds a strict runtime-report assessor and tests; it does not
+add a working view, change the APK, or claim original game execution.
+
+The assessor binds exact APK/version, archive/catalog/counts, all ten zero stages,
+ownership/cleanup, inactive terminal worker, full pre/post rehash and exit history.
+Only typed allowlisted observations are saved. Report authenticity and device files
+have not been independently read. [Assessment details](client-runtime-report-qualification.md).
 
 ## Passed physical gates — preserve, do not repeat
 

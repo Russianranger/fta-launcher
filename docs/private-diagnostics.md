@@ -1,9 +1,9 @@
-Current delivery: **41 / 0.14.3-client-memory**. [Verified APK and sources](code41-recovery.md).
-Code 40 progressed through Windows initialization but the native memory guard
-aborted; the triggering sample was missing. [Evidence and repair](client-memory-recovery.md).
-Install in place and repeat **Test client runtime** once, then export its report.
-Keep existing runtime/client/server/database data. Code 41 still needs Thor
-validation. Earlier delivery sections below are recovery history.
+Current installed delivery: **41 / 0.14.3-client-memory**. [APK and sources](code41-recovery.md).
+The [physical Thor synthetic runtime gate passed](evidence/android-2026-10-27-thor-code41-runtime-pass.json):
+all ten stages, owned cleanup, and complete pre/post integrity checks. Keep the
+installed app and all data; no repeat test is needed. Development moves to the
+[isolated original-client working view](client-working-view.md). Original client,
+rendering and gameplay remain unqualified. Earlier sections are recovery history.
 
 # Private native diagnostic builds
 
