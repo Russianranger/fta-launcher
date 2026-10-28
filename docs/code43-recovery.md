@@ -1,5 +1,9 @@
 # Code 43 — protected Windows file access
 
+**Device report received:** all Windows checks passed, but final verification
+failed. Use [code 44's finish-only recovery](code44-recovery.md); do not repeat
+the historical device test below.
+
 [FTA-Launcher-0.15.1-guarded-wine.apk](https://chatgpt.com/library?file_id=libfile_d7b7efd9f6888191a8dc32da488a56a4&account_id=personal)
 
 **43 / 0.15.1-guarded-wine**, **60,525,583 bytes**, SHA256:

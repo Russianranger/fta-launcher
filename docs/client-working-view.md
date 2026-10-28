@@ -1,9 +1,12 @@
 # Next gate: isolated original-client working view
 
-Prerequisites are now physically satisfied: managed client import and full rehash
+Passed physical prerequisites: managed client import and full rehash
 on code 37, retained native world/session/Stop on code 34, and the ten-stage mixed
 runtime/ownership/pre-post integrity gate on code 41. Preserve those results.
-This document records acceptance criteria; the working view is **not implemented**.
+The bounded working-view core is implemented for disposable fixtures; integration
+with the original client remains unimplemented. Code 43 passed its 56 Windows
+checks but failed final verification. Complete [code 44's retained-evidence
+recovery](client-guarded-finish.md) before advancing the physical gate.
 
 The imported client contains 10,476 files / 60,243,212,332 bytes and remains an
 inert integrity baseline. Its original configurations, binaries, MPQs and modern
@@ -43,6 +46,8 @@ Before exposing an original-client action:
 The [code-42 disposable storage-isolation gate](client-storage-isolation.md) now
 implements a separate guarded tracer and native canary fixture. Native x86-64 and
 ARM64 checks passed, followed by all 50 physical Thor checks in 704 ms. It does not
-expose the import or qualify guarded Wine/working-view compatibility. Next qualify
-PE32/PE64 file access under this guard and implement the bounded working view.
+expose the import or qualify guarded Wine/working-view compatibility. The bounded
+view and guarded PE32/PE64 access passed native ARM64 Linux. Final verification
+of the Thor attempt remains pending; the original-client view is the next
+implementation after that gate completes.
 No repeats of the passed storage/runtime/import/server gates are requested.

@@ -7,44 +7,46 @@ and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVEL
 
 ## Current delivery and next test
 
-**43 / 0.15.1-guarded-wine** is delivered with the original persistent signer.
-[APK, sources and test instructions](code43-recovery.md). APK: **60,525,583 bytes**,
-SHA256 `45965d3cc61321e8f293f7a2cde4cf542e50803b38d2fb1c7655b2d24965a3d3`.
-[Packaging proof](evidence/android-2026-10-27-private-guarded-wine-apk.json): all
-**25** native payloads and **148** runtime entries byte-identical to code 42;
-**245** packaged checks, v2 signing and 16 KiB alignment passed. No native payload
-was rebuilt for this private delivery. All retained realm/import/runtime data remain.
+**44 / 0.15.2-guarded-finish** is delivered with the original persistent signer.
+[APK, sources and test instructions](code44-recovery.md). APK: **60,541,967 bytes**,
+SHA256 `4b077c577f00249413ea933ecda09ca70ccef184dc2d730fd7998d8ed43b9bcb`.
+[Packaging proof](evidence/android-2026-10-28-private-guarded-finish-apk.json): all
+**25** native payloads and **148** runtime entries byte-identical to code 43;
+**245** checks, v2 signing and 16 KiB alignment passed. No native payload was
+rebuilt for private delivery. The realm, imports and installed runtime remain.
 
-Application **cdb80d916028151e0211e88a3f942442ebedef0a** passed foundation
-**40623960896**: **214** tooling, **105** qualification (no skips), **551 Android
-passed / one existing fixture skip** in 51 suites, lint/assembly, ownership,
-cache/JNI and full runtime install/rehash with a 96 MiB heap. Guarded Wine CI
-**40623960909** passed all **56** Windows checks / six stages on native ARM64
-Linux, full runtime pre/post rehash and unchanged protected source inventory.
-All 50 native guard checks and seven invalid-root refusals also passed.
-[Measured proof](evidence/host-2026-10-27-guarded-wine-pass.json).
+Application **10896f7f58c71735cad7e6e6d84f379e23c656c3** passed foundation
+**40784628222**: **214** tooling, **106** qualification (no skips), **559 Android
+passed / one existing skip** in 53 suites, lint/assembly, ownership, cache/JNI and
+full runtime installation/rehash with a 96 MiB heap. Guarded Wine **40784628266**
+passed 56 checks / six stages, full rehash and unchanged source on ARM64 Linux,
+plus 50 native guard checks / seven root refusals. [CI record](evidence/ci-2026-10-28-code44-foundation-pass.json).
 
-**Next physical test: Test protected Wine access, once.** Install over the existing
-app, allow **3 GiB free**, keep the launcher visible and export the diagnostic
-report after completion/failure/interruption. Return JSON before retrying any
-failure. This test uses only disposable files and a fresh Wine prefix; it does
-not open the imported game. Its new `clientGuardedWine` report preserves the old
-code-41 runtime and code-42 storage reports. Automatic runtime pre/post rehash
-belongs to the new gate; do not run separate Verify/Prepare actions.
+**Code 43's overall Thor gate is incomplete.** Its exact APK report contains all
+56 Windows checks and six stages zero, unchanged source, completed owned cleanup,
+worker inactive and no matching exit. It ended `failed / io-failed` after
+368,944 ms. Post-runtime verification is not qualified. I/O counters are consistent
+with a late post-verification/completion failure, but the phase/category and root
+cause are unknown. Do not call this a full pass or a low-memory kill.
+[Assessment](evidence/android-2026-10-28-thor-code43-incomplete.json).
 
-The working-view core is implemented and exercised by the synthetic gate:
-protected guest links, independent writable copies, 64 MiB copy limit,
-atomic publication, source metadata consistency, cancellation cleanup and
-128 MiB view / 2 GiB prefix growth polling. Android app-directory aliases are
-resolved before the strict canonical-root audit. The original import is not yet
-wired into a launch action. [Design and limits](client-guarded-wine.md).
+**Next physical test: Finish protected Wine verification, once.** Install code 44
+in place, keep the launcher visible, use that new action and export the diagnostic
+JSON afterward. If unavailable or failed, return JSON before another action.
+Recovery preserves the original report, checks the exact retained fixture assets,
+source/view/transcript and cleanup marker, and performs one fresh full runtime
+rehash under its lease. It runs no Wine/native probe, creates no new prefix and
+does not touch the import. Missing/changed evidence is refused. It exports a
+separate `clientGuardedWineFinish` report with original attempt/report/transcript
+bindings and bounded failure phase/category/errno. [Contract](client-guarded-finish.md).
+Do not rerun protected Wine or any passed import/runtime/storage/server gate.
 
-Wine reports DeleteFile success although the native guard prevents deletion.
-Both architectures' return/error are recorded; `delete-preserved` verifies the
-file remains readable with its original size/content, and the entire protected
-tree is independently compared after tracees exit. Do not describe this as a
-Windows API denial or original-game compatibility. No guard restriction was
-relaxed; the exact code-42 native guard is retained.
+The working-view core is implemented for disposable fixtures: protected guest
+links, independent writable copies, 64 MiB copy limit, atomic publication,
+source metadata consistency and growth polling. Original-client integration is
+still pending. Wine's DeleteFile reports success while the native guard prevents
+deletion; actual file survival and full source inventory are independently checked.
+No guard restriction was relaxed. [Design and limits](client-guarded-wine.md).
 
 **Physical storage gate 42 passed — no repeat.** [Assessment](evidence/android-2026-10-27-thor-code42-storage-pass.json):
 attempt `280ff792-9887-4b12-9e3b-d43f15a12084`, **704 ms**, all **50** checks zero,
@@ -73,7 +75,7 @@ passed. It is not a demonstrated original-client compatibility result.
 
 **Preserve the code-41 result and all retained data; code 42's storage test also passed.**
 Do not repeat those passed import, standalone runtime or server tests. The
-new code-43 guarded action is a separate gate. Original WarcraftXL execution, rendering and login remain unqualified.
+code-43 guarded attempt remains incomplete; code 44 finishes its verification. Original WarcraftXL execution, rendering and login remain unqualified.
 
 ## Active development: isolated original-client working view
 
@@ -84,10 +86,10 @@ modify imports or silently copy 60 GB. The separately pinned guard passed its
 native Linux and physical Android fixture. Guarded PE32/PE64 access now passes
 native ARM64 Linux, and the bounded working-view builder is implemented.
 
-**Await the code-43 Thor report**, assess its exact APK/payload identity, six
-ordered zero stages, 56 checks, source/copy observations, ownership/cleanup,
-runtime pre/post rehash and matching exit history. Preserve earlier passes.
-Then advance the original-client view under `ClientStore.withVerifiedClient`;
+**Await the code-44 finish report**, bind its exact APK, original code-43 attempt
+and report/transcript digests, retained-file checks, complete fresh runtime rehash,
+lease release, inactive worker and exit history. Preserve the original failed
+report and earlier passes. Then advance the original-client view under `ClientStore.withVerifiedClient`;
 retain its lease until every owned reader exits. Actual original-client view,
 WarcraftXL startup, rendering and login remain unqualified. This is cooperative
 file-integrity protection, not hostile-code confinement.
@@ -143,9 +145,9 @@ Private updates retain `FTA-Launcher-Development-Signing.zip`,
 `libfile_7f9c88258f0c8191a09ab071e7447d30`. Certificate
 `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Never regenerate keys, expose credentials or substitute the public foundation
-APK. Future updates use code >=44. [Code-43 recovery](code43-recovery.md) identifies
-the exact bridge/application source and refreshed v15 server source; both passed the strict
-packaging verifier. The code changes and measured evidence are pushed.
+APK. Future updates use code >=45. [Code-44 recovery](code44-recovery.md) identifies
+the exact bridge/application source and unchanged v15 server source; both passed
+the strict packaging verifier. The code changes and measured evidence are pushed.
 
 Native recovery: [code32 baseline](code32-recovery.md), then the reviewed 0019
 seller-count patch/v15 relinks from [code34](code34-recovery.md). Restore pinned

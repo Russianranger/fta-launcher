@@ -33,7 +33,11 @@ login remain unqualified.
 The supplied [host and root proxy](docs/warcraftxl-host.md) now match Thor, with
 1,140 isolated original x64-to-x86 header comparisons. A separate
 [synthetic mixed Wine/FEX gate](docs/client-mixed-runtime.md) prepares process/IPC
-qualification before original-client execution; the installed APK is unchanged.
+qualification before original-client execution. That gate passed on code 41,
+followed by code 42 storage isolation. Code 43 passed 56 protected Windows checks
+but failed final verification; [code 44](docs/code44-recovery.md) finishes the
+retained attempt through saved-evidence checks and a fresh runtime rehash.
+Original-client execution remains unqualified.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.
