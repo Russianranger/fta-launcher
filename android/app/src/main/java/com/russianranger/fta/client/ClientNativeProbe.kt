@@ -39,7 +39,8 @@ object ClientNativeProbe {
             runtimeRequire(file.length() in 1..1024 * 1024 && runtimeHex(runtimeHash().digest(file.readBytes())) == expected, "probe-unavailable")
         }
         if (guarded) evidence("guardedPayloadSha256", JSONObject(selectedBridges))
-        val run = ClientProbeAttempts.create(context.filesDir, attempt)
+        val run = if (guarded) ClientGuardedWine.createAttempt(context.filesDir, attempt)
+            else ClientProbeAttempts.create(context.filesDir, attempt)
         fun dir(name: String) = File(run, name).also { runtimeRequire(it.mkdir(), "storage-unavailable") }
         val probe = dir("probe"); val prefix = dir("prefix"); val session = dir("session"); val tmp = dir("tmp"); val fonts = dir("font-cache")
         evidence("socketHostPathBytes", ClientProbePaths.validateTemporaryPath(tmp.canonicalPath))

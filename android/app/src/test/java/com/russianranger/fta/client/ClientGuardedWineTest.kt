@@ -15,6 +15,16 @@ class ClientGuardedWineTest {
     private fun rejected(action: () -> Unit) {
         try { action(); fail("Expected rejection") } catch (e: RuntimeInstallFailure) { assertEquals("probe-failed", e.reason) }
     }
+    @Test fun appDirectoryAliasIsResolvedBeforeStrictWorkingViewAudit() {
+        val actual = temp.newFolder(); val alias = File(temp.newFolder(), "user-zero")
+        Files.createSymbolicLink(alias.toPath(), actual.toPath())
+        val run = ClientGuardedWine.createAttempt(alias, "12345678-1234-1234-1234-123456789abc")
+        assertEquals(run.absoluteFile, run.canonicalFile)
+        assertTrue(run.toPath().startsWith(actual.toPath()))
+        val probe = temp.newFolder()
+        for (name in listOf("probe32.exe", "probe64.exe")) File(probe, name).writeText("synthetic")
+        assertEquals(26L, ClientGuardedWine.create(run, probe, {}, {}).copiedBytes)
+    }
     @Test fun everyStageCheckAndDeletionObservationMustBeUniqueAndComplete() {
         val good = success()
         assertEquals(ClientGuardedWine.stages, ClientGuardedWine.parse(good, 0).keys.toList())
