@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -36,7 +37,16 @@ def transcript(text, status):
     seen = [line for line in lines if line.startswith('FTA_GUARDED_WIN ')]
     expected = [f'FTA_GUARDED_WIN {arch} {name} 0' for arch in ('x86', 'x64') for name in CHECKS]
     if seen != expected: raise ValueError('incomplete Windows storage checks')
-    return dict(stages={stage: 0 for stage in STAGES}, checksPerArchitecture=len(CHECKS))
+    deletion = [line for line in lines if line.startswith('FTA_GUARDED_DELETE ')]
+    if len(deletion) != 2: raise ValueError('missing Windows deletion observations')
+    observed = {}
+    for arch, line in zip(('x86', 'x64'), deletion):
+        match = re.fullmatch(r'FTA_GUARDED_DELETE ' + arch + r' ([01]) ([0-9]{1,5})', line)
+        if not match: raise ValueError('invalid Windows deletion observation')
+        observed[arch] = dict(returnedSuccess=bool(int(match[1])), error=int(match[2]))
+    if any(line.startswith('FTA_GUARDED_ERROR ') or line == 'FTA_GUARDED_WINE_FAILED' for line in lines):
+        raise ValueError('contradictory guarded Wine transcript')
+    return dict(stages={stage: 0 for stage in STAGES}, checksPerArchitecture=len(CHECKS), windowsDeletion=observed)
 
 
 def main():

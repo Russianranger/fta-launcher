@@ -84,7 +84,7 @@ object ClientProbeProtocol {
             driver.active(); runtimeRequire(driver.now() < end, "ownership-failed"); driver.pause(50)
         }
     }
-    fun run(driver: Driver): Result {
+    fun run(driver: Driver, validator: (String, Int) -> Map<String, Int> = ::parseStages): Result {
         fun <T> owned(mode: String, action: (Long) -> T): T {
             driver.active(); val handle = driver.start(mode)
             try { return action(handle) }
@@ -109,7 +109,7 @@ object ClientProbeProtocol {
         }
         driver.recordOwnership("ownershipKilledExit", killed)
         driver.recordOwnership("killedTracees", 3)
-        val results = owned("--wine") { handle -> parseStages(driver.outputAfterExit(handle), 0) }
+        val results = owned("--wine") { handle -> validator(driver.outputAfterExit(handle), 0) }
         return Result(normal, stopped, killed, 3, 3, results)
     }
     private fun Driver.outputAfterExit(handle: Long): String {

@@ -29,6 +29,7 @@ class ClientRuntimeService : Service() {
     private var started = false
     private var probing = false
     private var isolating = false
+    private var guarded = false
     private var wakeLock: PowerManager.WakeLock? = null
     private fun cancel() { cancelled.set(true); download.cancel() }
     private fun active() { if (cancelled.get()) throw RuntimeInstallFailure(if (timedOut.get()) "timeout" else "cancelled") }
@@ -45,10 +46,11 @@ class ClientRuntimeService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == STOP) { cancel(); if (!started) stopSelf(); return START_NOT_STICKY }
         if (started) return START_NOT_STICKY
-        if (intent?.action !in setOf(PREPARE, VERIFY, PROBE, ISOLATE)) { stopSelf(); return START_NOT_STICKY }
+        if (intent?.action !in setOf(PREPARE, VERIFY, PROBE, ISOLATE, GUARDED_PROBE)) { stopSelf(); return START_NOT_STICKY }
         started = true
         isolating = intent?.action == ISOLATE
-        probing = intent?.action == PROBE || isolating
+        guarded = intent?.action == GUARDED_PROBE
+        probing = intent?.action == PROBE || isolating || guarded
         notification(if (isolating) "Testing client storage isolation…" else "Preparing client runtime…", true)
         val minutes = if (isolating) 2L else 90L
         wakeLock = getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "fta:clientRuntime")
@@ -115,7 +117,7 @@ class ClientRuntimeService : Service() {
             cache.stats().let { report.put("cacheRequests", it.requests).put("cacheAccepted", it.accepted) }
             guard?.let { report.put("ioBytes", it.ioBytes).put("throttledMs", it.throttledMs)
                 .put("pressureWaitMs", it.pressureWaitMs).put("pressurePauses", it.pressurePauses) }
-            ClientRuntimeReport.write(this, report)
+            ClientRuntimeReport.write(this, report, guarded)
             notification("${report.optString("state")}: ${report.optLong("bytes") / 1048576} / ${report.optLong("totalBytes") / 1048576} MiB")
         }
         fun recordMemory(memory: ClientIoGuard.Memory, signal: ClientProbeMemory.Signal, now: Long) {
@@ -193,19 +195,26 @@ class ClientRuntimeService : Service() {
                     }, { stage, output ->
                         report.put("state", stage)
                         val observed = ClientProbeEvidence.parse(output)
+                        if (guarded) {
+                            val guardedObservation = ClientGuardedWine.observe(output)
+                            if (guardedObservation.stages.isNotEmpty()) report.put("probeStages", JSONObject(guardedObservation.stages))
+                            if (guardedObservation.checks.isNotEmpty()) report.put("windowsChecks", JSONObject(guardedObservation.checks))
+                            if (guardedObservation.errors.isNotEmpty()) report.put("windowsErrors", JSONObject(guardedObservation.errors))
+                            if (guardedObservation.deletion.isNotEmpty()) report.put("windowsDeletion", JSONObject(guardedObservation.deletion))
+                        }
                         for ((key, value) in observed.prefixProgress) report.put(key, value)
-                        if (observed.stages.isNotEmpty()) report.put("probeStages", JSONObject(observed.stages))
+                        if (!guarded && observed.stages.isNotEmpty()) report.put("probeStages", JSONObject(observed.stages))
                         if (observed.diagnostics.isNotEmpty()) report.put("probeDiagnostics", JSONArray(observed.diagnostics.toList()))
                         observed.displayEvent?.let { report.put("displayEvent", it) }
                         observed.displayExit?.let { report.put("displayExit", it) }
                         observed.socketStatus?.let { report.put("socketProbeErrno", it) }
                         write()
-                    }, { key, value -> report.put(key, value); write(true) })
+                    }, { key, value -> report.put(key, value); write(true) }, guarded, governor::beforeIo)
                 }
                 report.put("ownershipNormalExit", result.normalExit).put("ownershipStopExit", result.stopExit)
                     .put("ownershipKilledExit", result.killedExit).put("stoppedTracees", result.stoppedTracees)
                     .put("killedTracees", result.killedTracees).put("probeStages", JSONObject(result.stages))
-                    .put("syntheticMixedRuntimeValidated", true).put("runtimePostRehashValidated", true)
+                    .put(if (guarded) "guardedWineStorageValidated" else "syntheticMixedRuntimeValidated", true).put("runtimePostRehashValidated", true)
             } else if (verify) store.withVerified(governor::check, progress) { } else
                 store.install({ download.open(plan.archiveBytes) }, governor::check, progress)
             report.put("state", "complete").put("bytes", plan.fileBytes).put("totalBytes", plan.fileBytes).put("entries", plan.entries.size)
@@ -240,6 +249,7 @@ class ClientRuntimeService : Service() {
         const val PREPARE = "com.russianranger.fta.PREPARE_CLIENT_RUNTIME"
         const val VERIFY = "com.russianranger.fta.VERIFY_CLIENT_RUNTIME"
         const val PROBE = "com.russianranger.fta.PROBE_CLIENT_RUNTIME"
+        const val GUARDED_PROBE = "com.russianranger.fta.TEST_GUARDED_WINE"
         const val ISOLATE = "com.russianranger.fta.TEST_CLIENT_STORAGE_ISOLATION"
         const val STOP = "com.russianranger.fta.STOP_CLIENT_RUNTIME"
         const val BIND = "com.russianranger.fta.BIND_CLIENT_RUNTIME"

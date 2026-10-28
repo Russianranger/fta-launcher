@@ -115,6 +115,10 @@ def overlay(assembly, donor, output, stage, root, proof, module=None, fault=None
             for name in isolation_libs:
                 require(name not in old_names or old.read(name) == base.read(name), 'Existing isolation bridge must not change silently')
             client_libs |= isolation_libs
+        if 'assets/client-guarded-wine/manifest.json' in base.namelist():
+            from stage_guarded_wine import verify_apk as verify_guarded
+            require(isolation_libs == ISOLATION_LIBS, 'Guarded Wine needs the exact guard')
+            verify_guarded(base)
         if fault is not None:
             require(base.read('assets/metadata/launcher-LICENSE.txt') == (root / 'LICENSE').read_bytes(),
                     'Native helper license differs')
@@ -143,7 +147,7 @@ def overlay(assembly, donor, output, stage, root, proof, module=None, fault=None
             for entry in base.infolist():
                 if (not retained(entry.filename) and not signature(entry.filename)) or entry.filename in client_libs:
                     data = base.read(entry); final.writestr(entry, data)
-                    if entry.filename in client_libs or entry.filename.startswith(('assets/client-probe/', 'assets/client-isolation/')):
+                    if entry.filename in client_libs or entry.filename.startswith(('assets/client-probe/', 'assets/client-isolation/', 'assets/client-guarded-wine/')):
                         relative = entry.filename.replace('lib/arm64-v8a/', 'jniLibs/arm64-v8a/', 1)
                         target = stage / relative; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
             for entry in old.infolist():
@@ -220,7 +224,7 @@ def main():
     check_helper_sources(ROOT, proof)
     from create_world_session_source import verify_companion
     companion_sha = verify_companion(args.world_source_companion, ROOT)
-    client_manifest = None; client_source_sha = None; isolation_manifest = None
+    client_manifest = None; client_source_sha = None; isolation_manifest = None; guarded_manifest = None
     with zipfile.ZipFile(args.assembly) as assembly:
         if CLIENT_LIBS.intersection(assembly.namelist()):
             from stage_client_probe import verify_apk as verify_client, verify_companion as verify_client_source
@@ -232,6 +236,11 @@ def main():
             isolation_manifest = verify_isolation(assembly)
             require(args.client_source_companion is not None, 'Exact isolation source companion required')
             verify_isolation_source(args.client_source_companion, isolation_manifest)
+        if 'assets/client-guarded-wine/manifest.json' in assembly.namelist():
+            from stage_guarded_wine import verify_apk as verify_guarded, verify_companion as verify_guarded_source
+            require(isolation_manifest is not None and args.client_source_companion is not None, 'Guarded Wine sources and guard required')
+            guarded_manifest = verify_guarded(assembly)
+            verify_guarded_source(args.client_source_companion, guarded_manifest)
     apksigner = args.build_tools.resolve() / 'apksigner'
     zipalign = args.build_tools.resolve() / 'zipalign'
     verify_signature(apksigner, args.donor.resolve())
@@ -265,9 +274,11 @@ def main():
         added = sum(name not in proof['nativePayloadSha256'] for name in (LEGACY, FAULT, WORLD, *client_payloads))
         client_assets = len(client_manifest['files']) + 1 if client_manifest else 0
         isolation_assets = 2 if isolation_manifest else 0
+        guarded_assets = len(guarded_manifest["files"]) + 1 if guarded_manifest else 0
         require(result['provider_and_notice_files_verified'] == proof['provider_and_notice_files_verified'] + added +
                 client_assets - proof.get('clientProbePackagedAssetCount', 0) +
-                isolation_assets - proof.get('clientIsolationPackagedAssetCount', 0), 'Provider/notice count differs')
+                isolation_assets - proof.get('clientIsolationPackagedAssetCount', 0) +
+                guarded_assets - proof.get('guardedWinePackagedAssetCount', 0), 'Provider/notice count differs')
         for key in ('nativePayloadSha256', 'processSupervisorSourceSha256', 'cacheHelperSourceSha256',
                     'nativeSourceCompanionSha256', 'runtimeManifestSha256', 'gameDataPolicySha256', 'compiledUpdaterLockSha256'):
             result[key] = proof[key]
@@ -290,6 +301,9 @@ def main():
         if isolation_manifest:
             result.update(clientIsolationManifest=isolation_manifest, clientIsolationPackagedAssetCount=isolation_assets,
                           androidStorageIsolationValidated=False)
+        if guarded_manifest:
+            result.update(guardedWineManifest=guarded_manifest, guardedWinePackagedAssetCount=guarded_assets,
+                          androidGuardedWineValidated=False)
         result['opensslLegacyProvider'] = verify_legacy(args.legacy_provider)
         result['worldFaultWitness'] = verify_fault(args.fault_witness)
         result['nativeRecompiledForDelivery'] = bool(added)

@@ -73,6 +73,7 @@ jobs:
           python3 tools/stage_client_probe.py --bridge-build "$RUNNER_TEMP/client-bridge-build" --provider "$RUNNER_TEMP/fta-provider" --companion "$RUNNER_TEMP/FTA-client-bridge-corresponding-source.zip"
           python3 tools/build_client_bridge.py --readonly --sources "$RUNNER_TEMP/bridge-sources.tar.gz" --ndk-zip "$RUNNER_TEMP/android-ndk.zip" --work "$RUNNER_TEMP/client-readonly-build" > "$RUNNER_TEMP/client-readonly-build.log" 2>&1
           python3 tools/stage_client_readonly.py --bridge-build "$RUNNER_TEMP/client-readonly-build" --provider "$RUNNER_TEMP/fta-provider" --companion "$RUNNER_TEMP/FTA-client-bridge-corresponding-source.zip"
+          python3 tools/stage_guarded_wine.py --provider "$RUNNER_TEMP/fta-provider" --companion "$RUNNER_TEMP/FTA-client-bridge-corresponding-source.zip"
       - name: Preserve failed public toolchain diagnostics
         if: failure() || cancelled()
         uses: actions/upload-artifact@v4

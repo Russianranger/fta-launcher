@@ -11,20 +11,21 @@ import java.io.File
 
 /** Explicit allowlist: never exports URLs, exception text, paths, command lines or raw logs. */
 object ClientRuntimeReport {
-    private fun file(context: Context) = AtomicFile(File(context.filesDir, "client-runtime-report.json"))
+    private fun file(context: Context, guarded: Boolean = false) = AtomicFile(File(context.filesDir, if (guarded) "client-guarded-wine-report.json" else "client-runtime-report.json"))
     val states = setOf("preparing", "archive-verify", "download", "extract", "verify-runtime", "probe-ownership", "probe-wine", "complete", "stopped", "failed")
     val reasons = setOf("cancelled", "timeout", "busy", "invalid-catalog", "archive-changed", "runtime-changed",
         "unsafe-runtime-store", "storage-unavailable", "insufficient-space", "runtime-unavailable", "download-failed",
-        "memory-pressure", "memory-observation-unavailable", "io-failed", "ownership-failed", "probe-failed", "probe-timeout", "probe-unavailable", "socket-path-too-long", "probe-attempt-limit")
-    fun write(context: Context, report: JSONObject) {
-        val atomic = file(context); val output = atomic.startWrite()
+        "memory-pressure", "memory-observation-unavailable", "io-failed", "ownership-failed", "probe-failed", "probe-timeout", "probe-unavailable", "socket-path-too-long", "probe-attempt-limit", "view-copy-limit", "view-growth-limit")
+    fun write(context: Context, report: JSONObject, guarded: Boolean = false) {
+        val atomic = file(context, guarded); val output = atomic.startWrite()
         try { val bytes = report.toString().toByteArray(); require(bytes.size <= 8192); output.write(bytes); atomic.finishWrite(output) }
         catch (e: Exception) { atomic.failWrite(output); throw e }
     }
-    fun export(context: Context, includeExitHistory: Boolean = true): JSONObject {
+    fun export(context: Context, includeExitHistory: Boolean = true, guarded: Boolean = false): JSONObject {
+        val expectedStages = if (guarded) ClientGuardedWine.stages else ClientProbeProtocol.stages
         val result = JSONObject().put("available", false).put("originalClientExecuted", false)
             .put("androidWineQualified", false).put("warcraftXLCompatible", false).put("gameLoginQualified", false)
-        val raw = runCatching { file(context).openRead().use { input ->
+        val raw = runCatching { file(context, guarded).openRead().use { input ->
             val bytes = ByteArray(8193); var count = 0
             while (count < bytes.size) { val n = input.read(bytes, count, bytes.size - count); if (n < 0) break; require(n > 0); count += n }
             require(count <= 8192); JSONObject(String(bytes, 0, count, Charsets.UTF_8))
@@ -55,8 +56,31 @@ object ClientRuntimeReport {
         }
         for (key in listOf("archiveSha256", "catalogSha256"))
             raw.optString(key).takeIf { it.matches(Regex("[0-9a-f]{64}")) }?.let { result.put(key, it) }
+        if (guarded) {
+            for (key in listOf("viewCopiedBytes", "viewSharedBytes", "viewCopiedFiles", "viewSharedFiles", "viewBytesObserved", "prefixBytesObserved")) {
+                val value = raw.opt(key)
+                if ((value is Int || value is Long) && (value as Number).toLong() in 0..(8L * 1024 * 1024 * 1024)) result.put(key, value)
+            }
+            raw.optString("viewPlanSha256").takeIf { it.matches(Regex("[0-9a-f]{64}")) }?.let { result.put("viewPlanSha256", it) }
+            if (raw.opt("protectedFixtureUnchanged") is Boolean) result.put("protectedFixtureUnchanged", raw.getBoolean("protectedFixtureUnchanged"))
+            val payloads = JSONObject()
+            for ((key, value) in ClientGuardedWine.bridges)
+                if (raw.optJSONObject("guardedPayloadSha256")?.optString(key) == value) payloads.put(key, value)
+            result.put("guardedPayloadSha256", payloads)
+            for ((field, maximum) in mapOf("windowsChecks" to 1, "windowsErrors" to 65535)) {
+                val values = JSONObject()
+                for (key in ClientGuardedWine.keys) (raw.optJSONObject(field)?.opt(key) as? Int)?.takeIf { it in 0..maximum }?.let { values.put(key, it) }
+                result.put(field, values)
+            }
+            val deletion = JSONObject()
+            for (arch in listOf("x86", "x64")) for ((suffix, max) in mapOf("ReturnedSuccess" to 1, "Error" to 65535)) {
+                val key = arch + suffix
+                (raw.optJSONObject("windowsDeletion")?.opt(key) as? Int)?.takeIf { it in 0..max }?.let { deletion.put(key, it) }
+            }
+            result.put("windowsDeletion", deletion)
+        }
         val stages = JSONObject()
-        for (key in ClientProbeProtocol.stages) {
+        for (key in expectedStages) {
             val value = raw.optJSONObject("probeStages")?.opt(key)
             if (value is Int && value in -255..255) stages.put(key, value)
         }
@@ -90,12 +114,27 @@ object ClientRuntimeReport {
             result.optInt("ownershipKilledExit", -1) == 137 && result.optInt("stoppedTracees") == 3 && result.optInt("killedTracees") == 3
         val preRehash = result.optString("operation") == "probe" && result.has("archiveSha256") && result.has("catalogSha256") &&
             raw.optBoolean("runtimePreRehashValidated")
-        val synthetic = complete && ownership && preRehash && raw.optBoolean("syntheticMixedRuntimeValidated") &&
+        val synthetic = !guarded && complete && ownership && preRehash && raw.optBoolean("syntheticMixedRuntimeValidated") &&
             raw.optBoolean("runtimePostRehashValidated") && result.optInt("socketProbeErrno", -1) == 0 &&
             result.optString("displayEvent") == "ready" &&
             stages.length() == ClientProbeProtocol.stages.size && ClientProbeProtocol.stages.all { stages.optInt(it, -1) == 0 }
         result.put("ownershipValidated", ownership).put("runtimePreRehashValidated", preRehash)
         result.put("syntheticMixedRuntimeValidated", synthetic).put("runtimePostRehashValidated", synthetic)
+        if (guarded) {
+            val checks = result.getJSONObject("windowsChecks")
+            val qualified = complete && ownership && preRehash && raw.optBoolean("runtimePostRehashValidated") &&
+                raw.optBoolean("guardedWineStorageValidated") && result.optBoolean("protectedFixtureUnchanged") &&
+                result.optInt("probeCleanupComplete") == 1 && result.optInt("socketProbeErrno", -1) == 0 &&
+                result.optString("displayEvent") == "ready" && stages.length() == expectedStages.size &&
+                expectedStages.all { stages.optInt(it, -1) == 0 } && checks.length() == ClientGuardedWine.keys.size &&
+                ClientGuardedWine.keys.all { checks.optInt(it, -1) == 0 } &&
+                result.getJSONObject("guardedPayloadSha256").length() == ClientGuardedWine.bridges.size &&
+                result.getJSONObject("windowsErrors").length() == 0 && result.getJSONObject("windowsDeletion").length() == 4 &&
+                result.optLong("viewCopiedBytes", -1) == 26L && result.optInt("viewCopiedFiles", -1) == 1 &&
+                result.optInt("viewSharedFiles", -1) == 3 && result.has("viewPlanSha256")
+            result.put("guardedWineStorageValidated", qualified).put("runtimePostRehashValidated", qualified)
+                .put("originalImportAccessed", false).put("originalWorkingViewQualified", false)
+        }
         return result.put("runtimeTreeVerified", complete).put("retainedRehashValidated", complete && result.optString("operation") == "verify")
     }
 }

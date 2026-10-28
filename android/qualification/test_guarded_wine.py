@@ -11,7 +11,7 @@ from guarded_wine import CHECKS, STAGES, StorageCapture
 class GuardedWineTests(unittest.TestCase):
     def output(self):
         return '\n'.join([*(f'FTA_ANDROID_STAGE {s} 0' for s in STAGES),
-            *(f'FTA_GUARDED_WIN {a} {n} 0' for a in ('x86', 'x64') for n in CHECKS), 'FTA_GUARDED_WINE_PASS'])
+            *(f'FTA_GUARDED_WIN {a} {n} 0' for a in ('x86', 'x64') for n in CHECKS), 'FTA_GUARDED_DELETE x86 1 0', 'FTA_GUARDED_DELETE x64 1 0', 'FTA_GUARDED_WINE_PASS'])
 
     def test_every_windows_check_matches_the_compiled_fixture_contract(self):
         source = (Path(__file__).parent / 'wine_storage_probe.c').read_text()
