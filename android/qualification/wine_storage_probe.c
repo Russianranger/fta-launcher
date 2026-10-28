@@ -57,7 +57,12 @@ int main(int argc, char **argv) {
     check("truncate-denied",cannot_open(shared,GENERIC_WRITE,TRUNCATE_EXISTING));
     check("overwrite-denied",cannot_open(shared,GENERIC_WRITE,CREATE_ALWAYS));
     check("protected-create-denied",cannot_open("Z:\\immutable\\Data\\new.bin",GENERIC_WRITE,CREATE_NEW));
-    SetLastError(0); int ok=DeleteFileA(direct); check("delete-denied",!ok && denied(GetLastError()));
+    SetLastError(0); int ok=DeleteFileA(direct); DWORD deletionError=GetLastError();
+    printf("FTA_GUARDED_DELETE " ARCH " %d %lu\n",ok ? 1 : 0,deletionError); fflush(stdout);
+    file=open_file(direct,GENERIC_READ,OPEN_EXISTING);
+    check("delete-preserved",(ok || denied(deletionError)) && file != INVALID_HANDLE_VALUE &&
+          ReadFile(file,bytes,1,&count,NULL) && count==1 && bytes[0]==0 && GetFileSize(file,NULL)==65536);
+    if (file != INVALID_HANDLE_VALUE) CloseHandle(file);
     SetLastError(0); ok=MoveFileA(direct,"Z:\\view\\moved.bin"); check("rename-denied",!ok && denied(GetLastError()));
     SetLastError(0); ok=SetFileAttributesA(direct,FILE_ATTRIBUTE_READONLY); check("attributes-denied",!ok && denied(GetLastError()));
     SetLastError(0); ok=CreateHardLinkA("Z:\\view\\hardlink.bin",direct,NULL); check("hardlink-denied",!ok && denied(GetLastError()));

@@ -15,7 +15,7 @@ except ModuleNotFoundError as error:
 STAGES = ('cpu-topology', 'display', 'prefix', 'x86-storage', 'x64-storage', 'wine-stop')
 CHECKS = ('shared-read-open', 'read-content', 'seek', 'read-mapping', 'mapped-content', 'private-mapping',
           'private-view', 'direct-read', 'private-write-isolated', 'directory-list', 'shared-write-denied',
-          'direct-write-denied', 'truncate-denied', 'overwrite-denied', 'protected-create-denied', 'delete-denied',
+          'direct-write-denied', 'truncate-denied', 'overwrite-denied', 'protected-create-denied', 'delete-preserved',
           'rename-denied', 'attributes-denied', 'hardlink-denied', 'mkdir-denied', 'config-open', 'config-write',
           'log-create', 'log-write', 'log-rename', 'log-delete', 'mixed-child-start', 'mixed-child-read-protection')
 
@@ -28,6 +28,8 @@ class StorageCapture(base.OutputCapture):
             match = re.fullmatch(rb'FTA_GUARDED_WIN (x86|x64) ([a-z-]+) ([01])', line)
             if match and match[2].decode() in CHECKS:
                 print(line.decode(), flush=True)
+            deletion = re.fullmatch(rb'FTA_GUARDED_DELETE (x86|x64) ([01]) ([0-9]{1,5})', line)
+            if deletion: print(line.decode(), flush=True)
             error = re.fullmatch(rb'FTA_GUARDED_ERROR (x86|x64) ([a-z-]+) ([0-9]{1,5})', line)
             if error and error[2].decode() in CHECKS:
                 print(line.decode(), flush=True)
