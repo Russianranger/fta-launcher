@@ -156,7 +156,7 @@ object ClientNativeProbe {
             val result = ClientProbeProtocol.run(driver, if (guarded) ClientGuardedWine::parse else ClientProbeProtocol::parseStages)
             if (guarded) {
                 runtimeRequire(ClientGuardedWine.snapshot(immutable, ::stamp) == before, "probe-failed")
-                runtimeRequire(File(view, "WTF/Config.wtf").readText() == "private-original-settings\n", "probe-failed")
+                runtimeRequire(bounded(File(view, "WTF/Config.wtf"), 64) == "private-original-settings\n", "probe-failed")
                 runtimeRequire(File(view, "Logs").list()?.isEmpty() == true, "probe-failed")
                 checkActive()
             }

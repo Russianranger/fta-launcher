@@ -41,6 +41,17 @@ class ClientProbeProtocolTest {
         assertEquals(3, result.stoppedTracees); assertEquals(3, result.killedTracees)
         assertEquals(ClientProbeProtocol.stages.toSet(), result.stages.keys)
     }
+    @Test fun profileValidationRunsAfterOwnershipAndFailureStillReapsEveryHandle() {
+        val driver = Driver(); var validated = false
+        try {
+            ClientProbeProtocol.run(driver) { _, exit ->
+                assertEquals(0, exit); assertEquals(3, driver.evidence["killedTracees"])
+                validated = true; throw RuntimeInstallFailure("probe-failed")
+            }
+            fail("Invalid profile should fail")
+        } catch (e: RuntimeInstallFailure) { assertEquals("probe-failed", e.reason) }
+        assertTrue(validated); assertEquals(driver.modes.keys, driver.stopped)
+    }
     @Test fun wrongTreeAndSurvivingDescendantsBlockWine() {
         for (driver in listOf(Driver().apply { corruptTree = true }, Driver().apply { survivor = true })) {
             try { ClientProbeProtocol.run(driver); fail() } catch (e: RuntimeInstallFailure) { assertEquals("ownership-failed", e.reason) }

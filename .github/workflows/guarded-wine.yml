@@ -9,6 +9,9 @@ on:
       - 'android/qualification/check_guarded_wine.py'
       - 'android/qualification/android_runtime_probe.py'
       - 'native/client-bridge/**'
+      - 'android/app/src/main/java/com/russianranger/fta/client/ClientGuardedWine.kt'
+      - 'android/app/src/main/java/com/russianranger/fta/client/ClientWorkingView.kt'
+      - 'android/app/src/main/java/com/russianranger/fta/client/ClientNativeProbe.kt'
   workflow_dispatch:
 permissions:
   contents: read
