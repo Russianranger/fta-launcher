@@ -1,0 +1,172 @@
+{
+  "formatVersion": 1,
+  "scope": "code43-host-ci-guarded-wine",
+  "appVersionCode": 43,
+  "appVersionName": "0.15.1-guarded-wine",
+  "applicationCommit": "cdb80d916028151e0211e88a3f942442ebedef0a",
+  "foundationCiRunId": 40623960896,
+  "foundationJobs": [
+    122604537892,
+    122604537616,
+    122606483776
+  ],
+  "foundationConclusion": "success",
+  "toolingTests": 214,
+  "qualificationTests": 105,
+  "qualificationSkipped": 0,
+  "androidUnitResults": {
+    "androidUnitResults": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 1,
+      "tests": 552
+    },
+    "suites": 51
+  },
+  "androidTasks": [
+    "testDebugUnitTest",
+    "lintDebug",
+    "assembleDebug"
+  ],
+  "runtimeStoreQualification": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "nativeOwnershipTestsPassed": true,
+  "cacheAndHostJniPassed": true,
+  "guardedWineCiRunId": 40623960909,
+  "guardedWineJobId": 122604343785,
+  "guardedWineConclusion": "success",
+  "assemblySha256": "cc568c835956157f78d7ca4e7fb3ea87a463968cd4172e929cc52a2ee0c85c28",
+  "bridgeSourceCompanionSha256": "3f48560730d0c3d0ef49bab9b126eb4b2bfe759f8780ee521c1d2588da8a590d",
+  "physicalAndroidExecutionQualified": false,
+  "originalClientExecuted": false,
+  "importedClientAccessed": false,
+  "workingViewCoreImplemented": true,
+  "originalWorkingViewQualified": false,
+  "gameLoginQualified": false,
+  "guardedWineResult": {
+    "stages": {
+      "cpu-topology": 0,
+      "display": 0,
+      "prefix": 0,
+      "x86-storage": 0,
+      "x64-storage": 0,
+      "wine-stop": 0
+    },
+    "checksPerArchitecture": 28,
+    "windowsDeletion": {
+      "x86": {
+        "returnedSuccess": true,
+        "error": 0
+      },
+      "x64": {
+        "returnedSuccess": true,
+        "error": 0
+      }
+    },
+    "scope": "guarded-wine-on-native-arm64-linux",
+    "runtimeEntries": 14092,
+    "fullRuntimePrePostRehash": true,
+    "protectedFixtureUnchanged": true,
+    "independentConfigurationWritten": true,
+    "sourceSharedBytes": 573547,
+    "sourceCopiedBytes": 26,
+    "androidExecuted": false,
+    "originalClientExecuted": false,
+    "importedClientAccessed": false
+  },
+  "nativeGuardResult": {
+    "formatVersion": 1,
+    "scope": "native-linux-readonly-fixture",
+    "machine": "aarch64",
+    "checks": {
+      "read-open": 0,
+      "read-content": 0,
+      "seek": 0,
+      "private-map": 0,
+      "shared-read-map": 0,
+      "directory-read": 0,
+      "relative-read": 0,
+      "alias-read": 0,
+      "mode-protected-read": 0,
+      "open-write": 0,
+      "open-read-write": 0,
+      "open-truncate": 0,
+      "open-create": 0,
+      "relative-write": 0,
+      "alias-write": 0,
+      "proc-fd-write": 0,
+      "truncate": 0,
+      "fd-truncate": 0,
+      "fd-write": 0,
+      "fd-pwrite": 0,
+      "chmod": 0,
+      "fd-chmod": 0,
+      "relative-chmod": 0,
+      "chown": 0,
+      "fd-chown": 0,
+      "relative-chown": 0,
+      "timestamps": 0,
+      "fd-timestamps": 0,
+      "xattr": 0,
+      "fd-xattr": 0,
+      "unlink": 0,
+      "relative-unlink": 0,
+      "rename-out": 0,
+      "hard-link-out": 0,
+      "relative-link-out": 0,
+      "mkdir": 0,
+      "rmdir": 0,
+      "symlink-in": 0,
+      "directory-rename": 0,
+      "directory-chmod": 0,
+      "ancestor-chmod": 0,
+      "shared-write-map": 0,
+      "child-start": 0,
+      "child-write": 0,
+      "writable-create": 0,
+      "writable-write": 0,
+      "writable-truncate": 0,
+      "writable-chmod": 0,
+      "writable-rename": 0,
+      "writable-unlink": 0
+    },
+    "rootValidationRejected": [
+      "missing",
+      "relative",
+      "noncanonical",
+      "root",
+      "file",
+      "symlink",
+      "hardlink"
+    ],
+    "protectedTreeUnchanged": true,
+    "buildJobs": 1,
+    "prootSha256": "16fa4b3950587206e55fbfc8d2ffd38f734c58a41fc9e9ac8ccb81c8bdf4b4b5",
+    "fixtureSha256": "7e3722541df1a25b83ba75467c98d41e3d88eb63ad1fb71f9bb8f304ab2a9669",
+    "sourceSha256": {
+      "native/client-bridge/ownership_fixture.c": "104d739a70d1ebf110fd074a803fede5477793cd61bcb269d7a1725c35e5c5ec",
+      "native/client-bridge/proot-exitkill.patch": "509160bd6ec3663d525fa0e795a7bb45b8ccc283a6de8e1398e8cd6624fe86de",
+      "native/client-bridge/proot-readonly.patch": "849e2c24fbf116dd2a8a29330632dc615d50778704c25e7fdfcdae2a666cca01",
+      "native/client-bridge/read_only.c": "fbc1a1aea7727f5436e6aaf4125a6da5afa1016845a4154356c74411e1546c56",
+      "native/client-bridge/readonly_fixture.c": "5ec8455282f75146f673e4523a33e38861541a6f92ac89a4e404706e6eba310e"
+    },
+    "androidExecuted": false,
+    "wineExecuted": false,
+    "originalClientExecuted": false,
+    "hostileCodeSandbox": false
+  },
+  "sourceObservation": {
+    "protectedFixtureUnchanged": true,
+    "changedEntries": []
+  }
+}
