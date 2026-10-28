@@ -1,0 +1,91 @@
+--- a/src/GNUmakefile
++++ b/src/GNUmakefile
+@@ -59,6 +59,7 @@
+ 	ptrace/ptrace.o		\
+ 	ptrace/user.o		\
+ 	ptrace/wait.o		\
++	extension/fta_readonly.o	\
+ 	extension/extension.o	\
+ 	extension/ashmem_memfd/ashmem_memfd.o \
+ 	extension/kompat/kompat.o \
+--- a/src/tracee/tracee.h
++++ b/src/tracee/tracee.h
+@@ -198,6 +198,7 @@
+ 	 *        1: exit syscall no error
+ 	 *   -errno: exit syscall with error.  */
+ 	int status;
++	int fta_readonly_errno;
+ 
+ #define IS_IN_SYSENTER(tracee) ((tracee)->status == 0)
+ #define IS_IN_SYSEXIT(tracee) (!IS_IN_SYSENTER(tracee))
+--- a/src/extension/extension.h
++++ b/src/extension/extension.h
+@@ -186,6 +186,10 @@
+ extern void inherit_extensions(Tracee *child, Tracee *parent, word_t clone_flags);
+ extern Extension *get_extension(Tracee *tracee, extension_callback_t callback);
+ 
++extern int fta_readonly_event(Tracee *, ExtensionEvent, intptr_t, intptr_t);
++extern int fta_readonly_initialize(const char *);
++extern int fta_readonly_ready(void);
++
+ /**
+  * Notify all extensions of @tracee that the given @event occured.
+  * See ExtensionEvent for the meaning of @data1 and @data2.
+@@ -194,6 +198,8 @@
+ 				intptr_t data1, intptr_t data2)
+ {
+ 	Extension *extension;
++	int protected_status = fta_readonly_event(tracee, event, data1, data2);
++	if (protected_status != 0) return protected_status;
+ 
+ 	if (tracee->extensions == NULL)
+ 		return 0;
+--- a/src/cli/proot.c
++++ b/src/cli/proot.c
+@@ -36,6 +36,11 @@
+ #include "build.h"
+ #include "cli/proot.h"
+ 
++static int handle_option_fta_readonly(Tracee *tracee UNUSED, const Cli *cli UNUSED, const char *value)
++{
++	return fta_readonly_initialize(value);
++}
++
+ static int handle_option_r(Tracee *tracee, const Cli *cli UNUSED, const char *value)
+ {
+ 	Binding *binding;
+@@ -346,6 +351,10 @@
+ 	char path[PATH_MAX];
+ 	int status;
+ 
++	if (!fta_readonly_ready()) {
++		note(tracee, ERROR, INTERNAL, "FTA read-only root is required");
++		return -1;
++	}
+ 	/* Nothing else to do ?  */
+ 	if (tracee->qemu == NULL)
+ 		return 0;
+--- a/src/cli/proot.h
++++ b/src/cli/proot.h
+@@ -48,6 +48,7 @@
+ 	NULL,
+ };
+ 
++static int handle_option_fta_readonly(Tracee *tracee, const Cli *cli, const char *value);
+ static int handle_option_r(Tracee *tracee, const Cli *cli, const char *value);
+ static int handle_option_b(Tracee *tracee, const Cli *cli, const char *value);
+ static int handle_option_q(Tracee *tracee, const Cli *cli, const char *value);
+@@ -90,6 +91,13 @@
+ 	.post_initialize_exe = post_initialize_exe,
+ 
+ 	.options = {
++	{ .class = "Regular options",
++	  .arguments = {
++		{ .name = "--fta-readonly", .separator = '=', .value = "path" },
++		{ .name = NULL, .separator = '\0', .value = NULL } },
++	  .handler = handle_option_fta_readonly,
++	  .description = "Protect one canonical host import tree from guest mutation.",
++	  .detail = "Required for this FTA bridge variant." },
+ 	{ .class = "Regular options",
+ 	  .arguments = {
+ 		{ .name = "-r", .separator = ' ', .value = "path" },

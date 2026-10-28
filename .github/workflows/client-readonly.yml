@@ -1,0 +1,39 @@
+name: Client import write guard
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/client-readonly.yml'
+      - 'native/client-bridge/**'
+      - 'tools/check_client_readonly.py'
+      - 'tools/build_client_bridge.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-guard:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recover exact public bridge source
+        run: curl -fLsS --max-time 300 --retry 2 https://github.com/Russianranger/uo-android-launcher/releases/download/v0.2.0/runtime-corresponding-sources.tar.gz -o "$RUNNER_TEMP/bridge-sources.tar.gz"
+      - name: Build one job and exercise native read-only fixture
+        run: python3 tools/check_client_readonly.py --sources "$RUNNER_TEMP/bridge-sources.tar.gz" --work "$RUNNER_TEMP/readonly" > "$RUNNER_TEMP/readonly-launch.log" 2>&1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: client-readonly-${{ matrix.runner }}-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/readonly-launch.log
+            ${{ runner.temp }}/readonly/build.log
+            ${{ runner.temp }}/readonly/readonly.log
+            ${{ runner.temp }}/readonly/readonly-evidence.json
+          retention-days: 14

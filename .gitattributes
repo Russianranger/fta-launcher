@@ -1,3 +1,4 @@
 # Retain original third-party bytes and unified-diff context exactly.
 licenses/android-provider/** -whitespace
 native-port/patches/*.patch -whitespace
+native/client-bridge/*.patch -whitespace

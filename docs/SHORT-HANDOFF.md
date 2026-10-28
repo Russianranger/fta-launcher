@@ -53,8 +53,13 @@ import, its catalog, original host/proxy and Windows-PID launch contract. Ordina
 PRoot bindings are not read-only protection. Do not launch Wine against the import,
 use writable hard links, infer safe sharing from symlinks, or silently copy 60 GB.
 Implement and qualify the storage isolation before exposing original-client startup.
-The current change adds a strict runtime-report assessor and tests; it does not
-add a working view, change the APK, or claim original game execution.
+An opt-in guarded PRoot variant and disposable syscall fixture are in development.
+The native host build compiles; local execution is blocked by the workspace's
+ptrace restriction. The `Client import write guard` workflow must qualify native
+x86_64 and ARM64 before delivery. Android wiring and a code-42 canary-only test
+are next; no imported client is exposed, and no new APK is delivered yet. The
+original runtime bridge stays byte-identical. This is cooperative file-integrity
+protection, not hostile-code confinement; Wine compatibility remains unqualified.
 
 The assessor binds exact APK/version, archive/catalog/counts, all ten zero stages,
 ownership/cleanup, inactive terminal worker, full pre/post rehash and exit history.

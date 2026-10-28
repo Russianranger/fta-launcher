@@ -85,6 +85,7 @@ def main():
     parser.add_argument('--sources', type=Path, required=True)
     parser.add_argument('--ndk-zip', type=Path, required=True)
     parser.add_argument('--work', type=Path, required=True)
+    parser.add_argument('--readonly', action='store_true', help='Build the separate guarded tracer and disposable native fixture')
     args = parser.parse_args()
     ndk_pin = json.loads((ROOT / 'native-port/android-inputs.json').read_text())['inputs']['ndk']
     require(not args.sources.is_symlink() and digest(args.sources) == SOURCE_SHA, 'Source archive identity differs')
@@ -105,6 +106,9 @@ def main():
     ownership_patch = ROOT / 'native/client-bridge/proot-exitkill.patch'
     subprocess.run(['git', 'apply', '--check', str(ownership_patch)], cwd=proot, check=True)
     subprocess.run(['git', 'apply', str(ownership_patch)], cwd=proot, check=True)
+    if args.readonly:
+        subprocess.run(['git', 'apply', str(ROOT / 'native/client-bridge/proot-readonly.patch')], cwd=proot, check=True)
+        shutil.copyfile(ROOT / 'native/client-bridge/read_only.c', proot / 'src/extension/fta_readonly.c')
     makefile = proot / 'src/GNUmakefile'
     makefile.write_text(replace_exact(makefile.read_text(),
         '$(ROSEGMENT),-z,noexecstack', '$(ROSEGMENT),-z,noexecstack,-z,max-page-size=16384'))
@@ -125,6 +129,14 @@ def main():
     require(tracer_meta['needed'] == ['libc.so', 'libdl.so'] and tracer_meta['interpreter'] == '/system/bin/linker64' and
             not tracer_meta['sonames'] and tracer_meta['minimumLoadAlignment'] >= 16384, 'Unexpected Android tracer metadata')
     loader_meta = loader_elf(loader.read_bytes())
+    fixture = None
+    if args.readonly:
+        guarded = output / 'libproot_ro.so'; tracer.rename(guarded); tracer = guarded
+        fixture = output / 'libfta_storage_probe.so'
+        compiler = ndk / 'toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang'
+        subprocess.run([str(compiler), '-std=c11', '-D_GNU_SOURCE', '-O2', '-Wall', '-Wextra', '-Werror',
+            '-fPIE', '-pie', '-Wl,-z,max-page-size=16384', '-Wl,-z,noexecstack', '-Wl,--build-id=none',
+            str(ROOT / 'native/client-bridge/readonly_fixture.c'), '-o', str(fixture)], check=True, timeout=120)
     evidence = dict(formatVersion=1, scope='android-client-bridge-build-only',
         sourceArchiveSha256=SOURCE_SHA, sourceComponents=INPUTS, ownershipPatchSha256=digest(ownership_patch),
         ndkArchiveSha256=ndk_pin['sha256'],
@@ -134,6 +146,11 @@ def main():
         payloads={p.name: dict(bytes=p.stat().st_size, sha256=digest(p), elf=m) for p, m in ((tracer,tracer_meta),(loader,loader_meta))},
         androidBridgeBuilt=True, androidBridgeExecuted=False, androidRuntimeQualified=False,
         originalHostExecuted=False, warcraftXLCompatible=False, gameLoginQualified=False)
+    if fixture:
+        evidence['scope'] = 'android-client-readonly-build-only'
+        evidence['readonlySourceSha256'] = {name: digest(ROOT / name) for name in
+            ('native/client-bridge/proot-readonly.patch', 'native/client-bridge/read_only.c', 'native/client-bridge/readonly_fixture.c')}
+        evidence['payloads'][fixture.name] = dict(bytes=fixture.stat().st_size, sha256=digest(fixture), elf=inspect_elf(fixture, reject_search_paths=True))
     (work / 'build-evidence.json').write_text(json.dumps(evidence, indent=2) + '\n')
     print(json.dumps({'androidBridgeBuilt': True, 'output': str(output)}))
 
