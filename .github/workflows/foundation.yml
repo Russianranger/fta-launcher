@@ -71,6 +71,8 @@ jobs:
           curl -fLsS --retry 2 --max-time 300 https://dl.google.com/android/repository/android-ndk-r28c-linux.zip -o "$RUNNER_TEMP/android-ndk.zip"
           python3 tools/build_client_bridge.py --sources "$RUNNER_TEMP/bridge-sources.tar.gz" --ndk-zip "$RUNNER_TEMP/android-ndk.zip" --work "$RUNNER_TEMP/client-bridge-build" > "$RUNNER_TEMP/client-bridge-build.log" 2>&1
           python3 tools/stage_client_probe.py --bridge-build "$RUNNER_TEMP/client-bridge-build" --provider "$RUNNER_TEMP/fta-provider" --companion "$RUNNER_TEMP/FTA-client-bridge-corresponding-source.zip"
+          python3 tools/build_client_bridge.py --readonly --sources "$RUNNER_TEMP/bridge-sources.tar.gz" --ndk-zip "$RUNNER_TEMP/android-ndk.zip" --work "$RUNNER_TEMP/client-readonly-build" > "$RUNNER_TEMP/client-readonly-build.log" 2>&1
+          python3 tools/stage_client_readonly.py --bridge-build "$RUNNER_TEMP/client-readonly-build" --provider "$RUNNER_TEMP/fta-provider" --companion "$RUNNER_TEMP/FTA-client-bridge-corresponding-source.zip"
       - name: Preserve failed public toolchain diagnostics
         if: failure() || cancelled()
         uses: actions/upload-artifact@v4
@@ -80,6 +82,8 @@ jobs:
             ${{ runner.temp }}/client-toolchain.log
             ${{ runner.temp }}/client-bridge-build.log
             ${{ runner.temp }}/client-bridge-build/build.log
+            ${{ runner.temp }}/client-readonly-build.log
+            ${{ runner.temp }}/client-readonly-build/build.log
           retention-days: 14
           if-no-files-found: warn
       - name: Test, lint and compile foundation

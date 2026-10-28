@@ -7,6 +7,8 @@ on:
       - 'native/client-bridge/**'
       - 'tools/check_client_readonly.py'
       - 'tools/build_client_bridge.py'
+      - 'tools/stage_client_readonly.py'
+      - 'tests/test_client_readonly.py'
   workflow_dispatch:
 permissions:
   contents: read

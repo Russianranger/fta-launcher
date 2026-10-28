@@ -53,13 +53,15 @@ import, its catalog, original host/proxy and Windows-PID launch contract. Ordina
 PRoot bindings are not read-only protection. Do not launch Wine against the import,
 use writable hard links, infer safe sharing from symlinks, or silently copy 60 GB.
 Implement and qualify the storage isolation before exposing original-client startup.
-An opt-in guarded PRoot variant and disposable syscall fixture are in development.
-The native host build compiles; local execution is blocked by the workspace's
-ptrace restriction. The `Client import write guard` workflow must qualify native
-x86_64 and ARM64 before delivery. Android wiring and a code-42 canary-only test
-are next; no imported client is exposed, and no new APK is delivered yet. The
-original runtime bridge stays byte-identical. This is cooperative file-integrity
-protection, not hostile-code confinement; Wine compatibility remains unqualified.
+The separate guarded PRoot variant passed all 50 native fixture checks on both
+x86-64 and ARM64 Linux, including proc-FD aliases, unchanged protected tree and
+seven refused root cases: `d5ad08a` / workflow `40613303413`. Local ptrace is blocked.
+[Code-42 storage-isolation test](client-storage-isolation.md) is now implemented;
+exact-commit Android CI, private signing/source packaging and physical execution
+remain pending. It uses only tiny disposable files; no imported client is exposed.
+The old bridge stays byte-identical. This is cooperative file-integrity protection,
+not hostile-code confinement. Guarded Wine and the original working view remain
+unqualified. Do not repeat passed import, runtime or server tests.
 
 The assessor binds exact APK/version, archive/catalog/counts, all ten zero stages,
 ownership/cleanup, inactive terminal worker, full pre/post rehash and exit history.

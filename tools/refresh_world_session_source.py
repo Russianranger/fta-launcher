@@ -25,7 +25,10 @@ def refresh(source, expected_sha, output, root=ROOT):
         # Permit packaging and regression changes. All previously supplied native
         # code, recipes, schemas, notices and compilation helpers remain exact.
         for name in previous['repositoryFiles']:
-            if name == 'tools/package_private_update.py' or name.startswith('tests/'):
+            # The independent PRoot recipe and this source repackager do not
+            # participate in the retained world build. Its recipes remain exact.
+            if name in ('tools/package_private_update.py', 'tools/build_client_bridge.py',
+                        'tools/refresh_world_session_source.py') or name.startswith('tests/'):
                 continue
             require((root / name).is_file() and old.read(PREFIX + 'repository/' + name) == (root / name).read_bytes(),
                     'Retained native reproduction input changed: ' + name)

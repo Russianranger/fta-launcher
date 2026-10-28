@@ -26,6 +26,7 @@ LEGACY = 'lib/arm64-v8a/libfta_openssl_legacy.so'
 FAULT = 'lib/arm64-v8a/libfta_world_fault_v2.so'
 WORLD = 'lib/arm64-v8a/libfta_world_session.so'
 CLIENT_LIBS = {'lib/arm64-v8a/libproot.so', 'lib/arm64-v8a/libproot-loader.so'}
+ISOLATION_LIBS = {'lib/arm64-v8a/libproot_ro.so', 'lib/arm64-v8a/libfta_storage_probe.so'}
 METADATA = {'assets/metadata/full-seed-lock.json': 'manifests/full-seed-lock.json',
             'assets/metadata/game-data-policy.properties': 'manifests/game-data-policy.properties'}
 
@@ -105,6 +106,15 @@ def overlay(assembly, donor, output, stage, root, proof, module=None, fault=None
             verify_apk(base)
             for name in client_libs:
                 require(name not in old_names or old.read(name) == base.read(name), 'Existing client bridge must not change silently')
+        isolation_libs = ISOLATION_LIBS.intersection(base.namelist())
+        require(not ISOLATION_LIBS.intersection(old_names) or isolation_libs == ISOLATION_LIBS, 'Retained isolation bridge requires current sources and notices')
+        if isolation_libs:
+            from stage_client_readonly import verify_apk as verify_isolation
+            require(isolation_libs == ISOLATION_LIBS and client_libs == CLIENT_LIBS, 'Incomplete isolation bridge')
+            verify_isolation(base)
+            for name in isolation_libs:
+                require(name not in old_names or old.read(name) == base.read(name), 'Existing isolation bridge must not change silently')
+            client_libs |= isolation_libs
         if fault is not None:
             require(base.read('assets/metadata/launcher-LICENSE.txt') == (root / 'LICENSE').read_bytes(),
                     'Native helper license differs')
@@ -133,7 +143,7 @@ def overlay(assembly, donor, output, stage, root, proof, module=None, fault=None
             for entry in base.infolist():
                 if (not retained(entry.filename) and not signature(entry.filename)) or entry.filename in client_libs:
                     data = base.read(entry); final.writestr(entry, data)
-                    if entry.filename in client_libs or entry.filename.startswith('assets/client-probe/'):
+                    if entry.filename in client_libs or entry.filename.startswith(('assets/client-probe/', 'assets/client-isolation/')):
                         relative = entry.filename.replace('lib/arm64-v8a/', 'jniLibs/arm64-v8a/', 1)
                         target = stage / relative; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
             for entry in old.infolist():
@@ -162,7 +172,7 @@ def compare_output(output, assembly, donor, module=None, fault=None, world=None)
     with zipfile.ZipFile(output) as final, zipfile.ZipFile(assembly) as base, zipfile.ZipFile(donor) as old:
         inventory(final)
         expected = {n for n in base.namelist() if not retained(n) and not signature(n)} | {n for n in old.namelist() if retained(n)}
-        client_libs = CLIENT_LIBS.intersection(base.namelist())
+        client_libs = (CLIENT_LIBS | ISOLATION_LIBS).intersection(base.namelist())
         expected |= client_libs
         for name in client_libs:
             require(final.read(name) == base.read(name), 'Final client bridge changed')
@@ -210,13 +220,18 @@ def main():
     check_helper_sources(ROOT, proof)
     from create_world_session_source import verify_companion
     companion_sha = verify_companion(args.world_source_companion, ROOT)
-    client_manifest = None; client_source_sha = None
+    client_manifest = None; client_source_sha = None; isolation_manifest = None
     with zipfile.ZipFile(args.assembly) as assembly:
         if CLIENT_LIBS.intersection(assembly.namelist()):
             from stage_client_probe import verify_apk as verify_client, verify_companion as verify_client_source
             client_manifest = verify_client(assembly)
             require(args.client_source_companion is not None, 'Exact client bridge source companion required')
             client_source_sha = verify_client_source(args.client_source_companion, client_manifest)
+        if ISOLATION_LIBS.intersection(assembly.namelist()):
+            from stage_client_readonly import verify_apk as verify_isolation, verify_companion as verify_isolation_source
+            isolation_manifest = verify_isolation(assembly)
+            require(args.client_source_companion is not None, 'Exact isolation source companion required')
+            verify_isolation_source(args.client_source_companion, isolation_manifest)
     apksigner = args.build_tools.resolve() / 'apksigner'
     zipalign = args.build_tools.resolve() / 'zipalign'
     verify_signature(apksigner, args.donor.resolve())
@@ -245,10 +260,14 @@ def main():
         compare_output(work / 'signed.apk', args.assembly, args.donor, args.legacy_provider, args.fault_witness, args.world_session)
         result = verify(work / 'signed.apk', stage)
         client_payloads = {'lib/arm64-v8a/' + name: sha for name, sha in client_manifest['bridge'].items()} if client_manifest else {}
+        if isolation_manifest:
+            client_payloads.update({'lib/arm64-v8a/' + name: sha for name, sha in isolation_manifest['payloadSha256'].items()})
         added = sum(name not in proof['nativePayloadSha256'] for name in (LEGACY, FAULT, WORLD, *client_payloads))
         client_assets = len(client_manifest['files']) + 1 if client_manifest else 0
+        isolation_assets = 2 if isolation_manifest else 0
         require(result['provider_and_notice_files_verified'] == proof['provider_and_notice_files_verified'] + added +
-                client_assets - proof.get('clientProbePackagedAssetCount', 0), 'Provider/notice count differs')
+                client_assets - proof.get('clientProbePackagedAssetCount', 0) +
+                isolation_assets - proof.get('clientIsolationPackagedAssetCount', 0), 'Provider/notice count differs')
         for key in ('nativePayloadSha256', 'processSupervisorSourceSha256', 'cacheHelperSourceSha256',
                     'nativeSourceCompanionSha256', 'runtimeManifestSha256', 'gameDataPolicySha256', 'compiledUpdaterLockSha256'):
             result[key] = proof[key]
@@ -268,6 +287,9 @@ def main():
         if client_manifest:
             result.update(clientBridgeSourceCompanionSha256=client_source_sha, clientProbeManifest=client_manifest,
                           clientProbePackagedAssetCount=client_assets, androidSyntheticRuntimeValidated=False)
+        if isolation_manifest:
+            result.update(clientIsolationManifest=isolation_manifest, clientIsolationPackagedAssetCount=isolation_assets,
+                          androidStorageIsolationValidated=False)
         result['opensslLegacyProvider'] = verify_legacy(args.legacy_provider)
         result['worldFaultWitness'] = verify_fault(args.fault_witness)
         result['nativeRecompiledForDelivery'] = bool(added)

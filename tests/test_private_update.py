@@ -9,7 +9,7 @@ import warnings
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
-from package_private_update import CERTIFICATE, METADATA, LEGACY, FAULT, WORLD, CLIENT_LIBS, check_helper_sources, compare_output, inventory, overlay, sha, verify_signature, verify_legacy, verify_fault
+from package_private_update import CERTIFICATE, METADATA, LEGACY, FAULT, WORLD, CLIENT_LIBS, ISOLATION_LIBS, check_helper_sources, compare_output, inventory, overlay, sha, verify_signature, verify_legacy, verify_fault
 
 
 class PrivateUpdateTests(unittest.TestCase):
@@ -77,6 +77,29 @@ class PrivateUpdateTests(unittest.TestCase):
         with patch('stage_client_probe.verify_apk', side_effect=ValueError('unqualified')):
             with self.assertRaisesRegex(ValueError, 'unqualified'):
                 self.build(base=dict(self.base, **{name: b'unqualified' for name in CLIENT_LIBS}))
+
+    def test_new_guard_is_verified_separately_and_preserves_original_bridge(self):
+        base = dict(self.base, **{name: name.encode() for name in CLIENT_LIBS | ISOLATION_LIBS})
+        base['assets/client-isolation/NOTICE.txt'] = b'synthetic isolation notice'
+        with patch('stage_client_probe.verify_apk'), patch('stage_client_readonly.verify_apk') as verify:
+            output, assembly, donor = self.build(base=base)
+            verify.assert_called_once()
+        compare_output(output, assembly, donor)
+        with zipfile.ZipFile(output) as archive:
+            for name in CLIENT_LIBS | ISOLATION_LIBS: self.assertEqual(base[name], archive.read(name))
+        self.assertEqual(b'synthetic isolation notice', (self.root / 'stage/assets/client-isolation/NOTICE.txt').read_bytes())
+
+    def test_guard_without_loader_and_notices_is_rejected(self):
+        for additions in (ISOLATION_LIBS, {next(iter(ISOLATION_LIBS))}):
+            with self.assertRaisesRegex(ValueError, 'Incomplete isolation bridge'):
+                self.build(base=dict(self.base, **{n: b'partial' for n in additions}))
+
+    def test_changed_guard_cannot_silently_replace_donor_payload(self):
+        old = dict(self.old, **{n: b'old guard' for n in ISOLATION_LIBS})
+        base = dict(self.base, **{n: b'changed guard' for n in CLIENT_LIBS | ISOLATION_LIBS})
+        with patch('stage_client_probe.verify_apk'), patch('stage_client_readonly.verify_apk'):
+            with self.assertRaisesRegex(ValueError, 'Existing isolation bridge must not change silently'):
+                self.build(base=base, old=old)
 
     def test_client_bridge_cannot_outlive_its_current_assembly_notices(self):
         old = dict(self.old, **{name: b'previous bridge' for name in CLIENT_LIBS})

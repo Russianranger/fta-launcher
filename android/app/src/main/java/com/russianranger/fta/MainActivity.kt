@@ -54,6 +54,8 @@ class MainActivity : Activity() {
     private lateinit var runtimeProbeButton: Button
     private lateinit var runtimeStopButton: Button
     private lateinit var clientRuntimeStatus: TextView
+    private lateinit var isolationStatus: TextView
+    private lateinit var isolationButton: Button
     private var runtimeRequestedAt = 0L
     private var runtimeBound = false
     private val runtimeConnection = object : ServiceConnection {
@@ -304,6 +306,10 @@ class MainActivity : Activity() {
         }
         status.addView(runtimePrepareButton); status.addView(runtimeVerifyButton); status.addView(runtimeProbeButton); status.addView(runtimeStopButton)
         clientRuntimeStatus = label("", 13, muted); status.addView(clientRuntimeStatus)
+        isolationButton = action("Test client storage isolation") { startClientRuntime(false, isolate = true) }
+        status.addView(isolationButton)
+        isolationStatus = label("", 13, muted); status.addView(isolationStatus)
+        status.addView(label("Checks protected reads and blocked writes using tiny disposable files. Keep this screen visible, then export the report. It does not read the imported client or repeat the Wine runtime test.", 13, muted))
         status.addView(label("Downloads the verified 613 MB Wine/FEX runtime into separate private storage. Allow 5 GiB free and keep this screen visible. Preparation does not start the client or repeat its import.", 13, muted))
         status.addView(label("Test client runtime checks process cleanup and x86/x64 compatibility in a temporary prefix. Allow 2 GiB free after preparation, keep this screen visible, then export the report. Original client execution and game login remain later steps.", 13, muted))
         status.addView(label("Import copies the complete client into private internal storage and verifies every byte. Keep at least the client's size plus 1 GiB free. Keep this screen visible. Stop preserves checkpoints; select the same unchanged folder to resume. Your original files and settings remain unchanged. Client launch comes later.", 13, muted))
@@ -404,6 +410,7 @@ class MainActivity : Activity() {
         runtimePrepareButton.isEnabled = gameDataButton.isEnabled && !File(filesDir, "client-runtime-store/ready").isDirectory
         runtimeVerifyButton.isEnabled = gameDataButton.isEnabled && File(filesDir, "client-runtime-store/ready").isDirectory
         runtimeProbeButton.isEnabled = runtimeVerifyButton.isEnabled && com.russianranger.fta.client.ClientNativeProbe.packaged(this)
+        isolationButton.isEnabled = gameDataButton.isEnabled && com.russianranger.fta.client.ClientIsolationNative.packaged(this)
         runtimeStopButton.isEnabled = clientRuntimeRunning || runtimeRequested
         if (activityVisible && clientRuntimeRunning && !runtimeBound) {
             runtimeBound = true
@@ -413,7 +420,17 @@ class MainActivity : Activity() {
             } catch (_: Exception) { releaseRuntimeBinding() }
         } else if (!activityVisible || !clientRuntimeRunning) releaseRuntimeBinding()
         val runtimeReport = ClientRuntimeReport.export(this, includeExitHistory = false)
+        val isolation = com.russianranger.fta.client.ClientIsolationReport.export(this, exits = false)
+        val isolationActive = clientRuntimeRunning && isolation.optString("state") in setOf("preparing", "testing")
+        isolationStatus.text = when {
+            isolationActive -> "Testing client storage isolation… Stop client runtime operation is available."
+            isolation.optBoolean("storageIsolationValidated") -> "Storage isolation passed: ${isolation.optInt("fixtureChecksPassed")} checks. Export the diagnostic report."
+            isolation.optString("state") in setOf("failed", "stopped") -> "Storage isolation ${isolation.optString("state")}: ${isolation.optString("reason")}. Export the diagnostic report."
+            isolation.optBoolean("interrupted") -> "Storage isolation interrupted. Export the diagnostic report."
+            else -> "Storage isolation has not been tested on this device."
+        }
         clientRuntimeStatus.text = when {
+            isolationActive -> if (runtimeReport.optBoolean("syntheticMixedRuntimeValidated")) "Previous runtime test passed; its report is preserved." else "Storage isolation test running."
             runtimeRequested && !clientRuntimeRunning -> "Starting runtime worker…"
             clientRuntimeRunning && runtimeReport.optBoolean("memoryPaused") -> "Runtime preparation paused for memory pressure. Stop is available."
             clientRuntimeRunning && runtimeReport.has("prefixElapsedMs") &&
@@ -588,11 +605,11 @@ class MainActivity : Activity() {
         data?.data?.let { app.importArchive(spec, it) }
     }
 
-    private fun startClientRuntime(verify: Boolean, probe: Boolean = false) {
+    private fun startClientRuntime(verify: Boolean, probe: Boolean = false, isolate: Boolean = false) {
         if (app.busy || databaseCheckRunning() || ClientImportService.running(this) || ClientRuntimeService.running(this)) return
         try {
             startForegroundService(Intent(this, ClientRuntimeService::class.java)
-                .setAction(if (probe) ClientRuntimeService.PROBE else if (verify) ClientRuntimeService.VERIFY else ClientRuntimeService.PREPARE))
+                .setAction(if (isolate) ClientRuntimeService.ISOLATE else if (probe) ClientRuntimeService.PROBE else if (verify) ClientRuntimeService.VERIFY else ClientRuntimeService.PREPARE))
             runtimeRequestedAt = SystemClock.elapsedRealtime(); update()
         } catch (_: Exception) {
             Toast.makeText(this, "Runtime worker could not start. Keep the launcher visible and try again.", Toast.LENGTH_LONG).show()

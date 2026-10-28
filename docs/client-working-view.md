@@ -40,5 +40,8 @@ Before exposing an original-client action:
    Qualify original startup/IPC/Stop before rendering, input, account/login and
    world-entry gates. The synthetic protocol is not an original asset request.
 
-No new Thor test is requested merely to record the code-41 pass. Continue host
-implementation and tests until a concrete, bounded device gate is ready.
+The [code-42 disposable storage-isolation gate](client-storage-isolation.md) now
+implements a separate guarded tracer and native canary fixture. Native x86-64 and
+ARM64 checks passed. Its Thor test is the next concrete gate; it does not expose
+the import or qualify guarded Wine/working-view compatibility. No repeats of the
+already passed runtime/import/server gates are requested.

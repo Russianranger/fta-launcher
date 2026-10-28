@@ -28,6 +28,7 @@ class ClientRuntimeService : Service() {
     private val probeMemory = ClientProbeMemory()
     private var started = false
     private var probing = false
+    private var isolating = false
     private var wakeLock: PowerManager.WakeLock? = null
     private fun cancel() { cancelled.set(true); download.cancel() }
     private fun active() { if (cancelled.get()) throw RuntimeInstallFailure(if (timedOut.get()) "timeout" else "cancelled") }
@@ -44,15 +45,49 @@ class ClientRuntimeService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == STOP) { cancel(); if (!started) stopSelf(); return START_NOT_STICKY }
         if (started) return START_NOT_STICKY
-        if (intent?.action !in setOf(PREPARE, VERIFY, PROBE)) { stopSelf(); return START_NOT_STICKY }
+        if (intent?.action !in setOf(PREPARE, VERIFY, PROBE, ISOLATE)) { stopSelf(); return START_NOT_STICKY }
         started = true
-        probing = intent?.action == PROBE
-        notification("Preparing client runtime…", true)
+        isolating = intent?.action == ISOLATE
+        probing = intent?.action == PROBE || isolating
+        notification(if (isolating) "Testing client storage isolation…" else "Preparing client runtime…", true)
+        val minutes = if (isolating) 2L else 90L
         wakeLock = getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "fta:clientRuntime")
-            .apply { acquire(90 * 60 * 1000L) }
-        timer.schedule({ timedOut.set(true); cancel() }, 90, TimeUnit.MINUTES)
-        worker.execute { prepare(intent?.action == VERIFY) }
+            .apply { acquire(minutes * 60 * 1000L) }
+        timer.schedule({ timedOut.set(true); cancel() }, minutes, TimeUnit.MINUTES)
+        worker.execute { if (isolating) prepareIsolation() else prepare(intent?.action == VERIFY) }
         return START_NOT_STICKY
+    }
+    private fun prepareIsolation() {
+        val began = SystemClock.elapsedRealtime()
+        val report = JSONObject().put("attemptId", UUID.randomUUID().toString()).put("state", "preparing")
+            .put("startedAtEpochMs", System.currentTimeMillis()).put("ownerPid", android.os.Process.myPid())
+        fun write() {
+            report.put("updatedAtEpochMs", System.currentTimeMillis()).put("elapsedMs", SystemClock.elapsedRealtime() - began)
+            ClientIsolationReport.write(this, report)
+        }
+        if (Build.VERSION.SDK_INT >= 30) runCatching {
+            getSystemService(ActivityManager::class.java).setProcessStateSummary(ClientExitEvidence.token(report.getString("attemptId")).toByteArray())
+        }
+        try {
+            write(); active()
+            @Suppress("DEPRECATION")
+            runtimeRequire(getSystemService(ActivityManager::class.java).getRunningServices(30).none {
+                it.service.className in setOf("com.russianranger.fta.runtime.RuntimeDiagnosticService",
+                    "com.russianranger.fta.runtime.RuntimeRecoveryService", ClientImportService::class.java.name) && it.started
+            }, "busy")
+            ClientIsolationNative.run(this, report.getString("attemptId"), ::active) { key, value ->
+                report.put(key, value); write()
+            }
+            report.put("state", "complete")
+        } catch (e: Exception) {
+            val reason = if (cancelled.get()) { if (timedOut.get()) "timeout" else "cancelled" }
+                else (e as? RuntimeInstallFailure)?.reason ?: "io-failed"
+            report.put("state", if (cancelled.get()) "stopped" else "failed")
+                .put("reason", reason.takeIf { it in ClientRuntimeReport.reasons } ?: "io-failed")
+        } finally {
+            runCatching { write() }; timer.shutdownNow(); releaseWakeLock()
+            stopForeground(STOP_FOREGROUND_REMOVE); stopSelf()
+        }
     }
     private fun prepare(verify: Boolean) {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
@@ -205,6 +240,7 @@ class ClientRuntimeService : Service() {
         const val PREPARE = "com.russianranger.fta.PREPARE_CLIENT_RUNTIME"
         const val VERIFY = "com.russianranger.fta.VERIFY_CLIENT_RUNTIME"
         const val PROBE = "com.russianranger.fta.PROBE_CLIENT_RUNTIME"
+        const val ISOLATE = "com.russianranger.fta.TEST_CLIENT_STORAGE_ISOLATION"
         const val STOP = "com.russianranger.fta.STOP_CLIENT_RUNTIME"
         const val BIND = "com.russianranger.fta.BIND_CLIENT_RUNTIME"
         private const val CHANNEL = "fta-client-runtime"
