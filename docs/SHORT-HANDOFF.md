@@ -7,21 +7,24 @@ and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVEL
 
 ## Current delivery and next test
 
-**41 / 0.14.3-client-memory** is delivered, with the original persistent signer.
-[APK, sources and test procedure](code41-recovery.md). APK: 60,156,109 bytes,
-SHA256 `3e26e4bdeac5bd856b5ad95dd6d957e98d3734e1dcc5c6d4186056c53b104f26`.
-[Packaging proof](evidence/android-2026-10-27-private-client-memory-apk.json).
-All 23 native payloads and 148 retained runtime entries match code 40 exactly;
-235 packaged checks, v2 signature and 16 KiB alignment passed.
+**42 / 0.15.0-storage-isolation** is delivered with the original persistent signer.
+[APK, sources and test procedure](code42-recovery.md). APK: 60,291,597 bytes,
+SHA256 `e86336eafd6a5e49733e88033024db8e9c8c6b0d5fdaec4207eba30e3d8b1bd5`.
+[Packaging proof](evidence/android-2026-10-28-private-storage-isolation-apk.json):
+all 23 donor native payloads / 148 runtime entries unchanged; two separate native
+additions, 25 payloads total, 239 checks, v2 signing and 16 KiB alignment passed.
 
-Application commit **85a3462dc461577c39849680ea01e5133f9a8c32** passed foundation
-**40603687890**, all three jobs. Results: 207 tooling, 82 qualification (no skips),
-534 Android tests passed / one existing fixture-dependent skip, lint/assembly,
-cache/JNI and full runtime installation/rehash with a 96 MiB heap.
-[Exact host/CI proof](evidence/host-2026-10-27-client-memory-pass.json).
-The guest scripts, bridge and runtime are unchanged from the ten-stage ARM64
-pass on commit fdf7eb5 / run 40587205346; that job was not rerun for this Android
-monitoring change. Code 41 now also passed the physical synthetic gate described below.
+Application **29008511b1860c07a01b58b0b799e6b06d600165** passed foundation
+**40614566601**: 212 tooling, 93 qualification, 540 Android passed / one existing
+skip, lint/assembly, ownership/cache/JNI and runtime rehash with a 96 MiB heap.
+Guard workflow **40614566581** passed all 50 fixture checks on x86-64 and ARM64,
+unchanged trees and seven invalid-root refusals each. [CI proof](evidence/host-2026-10-28-storage-isolation-pass.json).
+
+**Next physical gate:** install over code 41; tap **Test client storage isolation**
+once; keep visible, then export the diagnostic JSON on either outcome. Expected
+**Storage isolation passed: 50 checks.** It uses tiny disposable files, never opens
+the client import or Wine runtime, and preserves the old runtime report. Physical
+code-42 execution is pending. No repeat of passed import/runtime/server tests.
 
 ## Physical client-runtime gate passed — no repeat needed
 
@@ -42,7 +45,7 @@ infer that code 40's missing trigger was advisory, or claim cache eviction.
 `rpcss-unavailable` was observed during initialization; all subsequent gates
 passed. It is not a demonstrated original-client compatibility result.
 
-**Keep code 41 and all retained data. No additional device test is requested.**
+**Preserve the code-41 result and all retained data; run only the new code-42 storage test.**
 Do not repeat import, client/runtime verification, synthetic probes or passed
 server tests. Original WarcraftXL execution, rendering and login remain unqualified.
 
@@ -53,15 +56,13 @@ import, its catalog, original host/proxy and Windows-PID launch contract. Ordina
 PRoot bindings are not read-only protection. Do not launch Wine against the import,
 use writable hard links, infer safe sharing from symlinks, or silently copy 60 GB.
 Implement and qualify the storage isolation before exposing original-client startup.
-The separate guarded PRoot variant passed all 50 native fixture checks on both
-x86-64 and ARM64 Linux, including proc-FD aliases, unchanged protected tree and
-seven refused root cases: `d5ad08a` / workflow `40613303413`. Local ptrace is blocked.
-[Code-42 storage-isolation test](client-storage-isolation.md) is now implemented;
-exact-commit Android CI, private signing/source packaging and physical execution
-remain pending. It uses only tiny disposable files; no imported client is exposed.
-The old bridge stays byte-identical. This is cooperative file-integrity protection,
-not hostile-code confinement. Guarded Wine and the original working view remain
-unqualified. Do not repeat passed import, runtime or server tests.
+The separately pinned guard is implemented and its native Linux checks pass.
+[Storage-isolation design](client-storage-isolation.md); APK/source packaging and
+exact-commit CI are complete. Physical code-42 storage evidence is still missing.
+Then qualify guarded Wine PE32/PE64 file access and implement a bounded working
+view under the verified-client lease. The old bridge is unchanged; this is
+cooperative integrity protection, not hostile-code confinement. Original working
+view, WarcraftXL startup, rendering and login remain unqualified.
 
 The assessor binds exact APK/version, archive/catalog/counts, all ten zero stages,
 ownership/cleanup, inactive terminal worker, full pre/post rehash and exit history.
@@ -110,9 +111,9 @@ Private updates retain `FTA-Launcher-Development-Signing.zip`,
 `libfile_7f9c88258f0c8191a09ab071e7447d30`. Certificate
 `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Never regenerate keys, expose credentials or substitute the public foundation
-APK. Future updates use code >=42. [Code-41 recovery](code41-recovery.md) identifies
-the new exact bridge source and unchanged v15 server source; both passed the
-strict packaging verifier. The code changes and measured evidence are pushed.
+APK. Future updates use code >=43. [Code-42 recovery](code42-recovery.md) identifies
+the exact bridge source and refreshed v15 server source; both passed the strict
+packaging verifier. The code changes and measured evidence are pushed.
 
 Native recovery: [code32 baseline](code32-recovery.md), then the reviewed 0019
 seller-count patch/v15 relinks from [code34](code34-recovery.md). Restore pinned

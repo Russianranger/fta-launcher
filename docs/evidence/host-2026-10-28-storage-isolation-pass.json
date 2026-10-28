@@ -1,0 +1,60 @@
+{
+  "formatVersion": 1,
+  "scope": "code42-host-ci-storage-isolation",
+  "appVersionCode": 42,
+  "appVersionName": "0.15.0-storage-isolation",
+  "applicationCommit": "29008511b1860c07a01b58b0b799e6b06d600165",
+  "foundationCiRunId": 40614566601,
+  "foundationJobs": [
+    122573924238,
+    122573924371,
+    122576227221
+  ],
+  "foundationConclusion": "success",
+  "toolingTests": 212,
+  "qualificationTests": 93,
+  "qualificationSkipped": 0,
+  "androidUnitResults": {
+    "androidUnitResults": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 1,
+      "tests": 541
+    },
+    "suites": 49
+  },
+  "androidTasks": [
+    "testDebugUnitTest",
+    "lintDebug",
+    "assembleDebug"
+  ],
+  "runtimeStoreQualification": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "nativeOwnershipTestsPassed": true,
+  "cacheAndHostJniPassed": true,
+  "nativeGuardCiRunId": 40614566581,
+  "nativeGuardArchitectures": [
+    "x86_64",
+    "aarch64"
+  ],
+  "nativeGuardChecksPerArchitecture": 50,
+  "rejectedRootsPerArchitecture": 7,
+  "nativeProtectedTreeUnchanged": true,
+  "assemblySha256": "07b38b0e9a71d31476c42828e7dfadfa5f38b4609601c2b00b24a52dedeffc45",
+  "bridgeSourceCompanionSha256": "a632fe7fc994f46d06a36df12ce34f645c9cd857b2894e0399783c3618d263b4",
+  "physicalAndroidExecutionQualified": false,
+  "guardedWineQualified": false,
+  "originalClientExecuted": false,
+  "workingViewImplemented": false,
+  "gameLoginQualified": false
+}
