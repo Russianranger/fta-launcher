@@ -133,6 +133,17 @@ class ClientRuntimeStoreTest {
         first.withVerified { failure("busy") { second.install({ error("No source") }) } }
         second.withVerified { assertTrue(it.isDirectory) }
     }
+    @Test fun verificationMilestonesIncludeLeaseReleaseAndNeverCompleteAfterRehashFailure() {
+        val f = Fixture(); val (_, store) = installed(f); val phases = mutableListOf<String>()
+        store.withVerified(reverifyAfter = true, milestone = { phases.add(it) }) { }
+        assertEquals(listOf("runtime-lease-acquire", "runtime-pre-verify", "runtime-pre-verified", "verified-action",
+            "runtime-post-verify", "runtime-post-verified", "runtime-lease-release", "runtime-verified"), phases)
+        phases.clear()
+        failure("runtime-changed") { store.withVerified(reverifyAfter = true, milestone = { phases.add(it) }) {
+            File(it, "usr/bin/probe").writeBytes(ByteArray(f.payload.size))
+        } }
+        assertEquals("runtime-post-verify", phases.last()); assertFalse("runtime-verified" in phases)
+    }
     @Test fun optionalPostRunRehashRejectsNativeRuntimeMutations() {
         val f = Fixture(); val (_, store) = installed(f)
         failure("runtime-changed") { store.withVerified(reverifyAfter = true) { data ->

@@ -208,10 +208,20 @@ class ClientRuntimeStore(private val root: File, private val plan: RuntimeArchiv
         progress(Progress("complete", plan.fileBytes, plan.fileBytes, plan.entries.size)); ready
     }
     fun <T> withVerified(active: () -> Unit = {}, progress: (Progress) -> Unit = {},
-        reverifyAfter: Boolean = false, block: (File) -> T): T = exclusive {
-        val data = verifyLocked(active, progress); val result = block(data)
-        if (reverifyAfter) verifyTree(data, active, progress)
-        result
+        reverifyAfter: Boolean = false, milestone: (String) -> Unit = {}, block: (File) -> T): T {
+        milestone("runtime-lease-acquire")
+        val result = exclusive {
+            milestone("runtime-pre-verify")
+            val data = verifyLocked(active, progress)
+            milestone("runtime-pre-verified"); milestone("verified-action")
+            val value = block(data)
+            if (reverifyAfter) {
+                milestone("runtime-post-verify"); verifyTree(data, active, progress); milestone("runtime-post-verified")
+            }
+            milestone("runtime-lease-release"); value
+        }
+        milestone("runtime-verified")
+        return result
     }
     private fun verifyLocked(active: () -> Unit, progress: (Progress) -> Unit): File {
         runtimeRequire(Files.isDirectory(ready.toPath(), NOFOLLOW_LINKS), "runtime-unavailable")

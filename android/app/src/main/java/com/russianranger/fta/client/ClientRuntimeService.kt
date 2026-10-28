@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.*
+import android.system.Os
 import com.russianranger.fta.MainActivity
 import com.russianranger.fta.R
 import com.russianranger.fta.runtime.GameDataCache
@@ -30,6 +31,7 @@ class ClientRuntimeService : Service() {
     private var probing = false
     private var isolating = false
     private var guarded = false
+    private var finishing = false
     private var wakeLock: PowerManager.WakeLock? = null
     private fun cancel() { cancelled.set(true); download.cancel() }
     private fun active() { if (cancelled.get()) throw RuntimeInstallFailure(if (timedOut.get()) "timeout" else "cancelled") }
@@ -46,10 +48,11 @@ class ClientRuntimeService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == STOP) { cancel(); if (!started) stopSelf(); return START_NOT_STICKY }
         if (started) return START_NOT_STICKY
-        if (intent?.action !in setOf(PREPARE, VERIFY, PROBE, ISOLATE, GUARDED_PROBE)) { stopSelf(); return START_NOT_STICKY }
+        if (intent?.action !in setOf(PREPARE, VERIFY, PROBE, ISOLATE, GUARDED_PROBE, GUARDED_FINISH)) { stopSelf(); return START_NOT_STICKY }
         started = true
         isolating = intent?.action == ISOLATE
-        guarded = intent?.action == GUARDED_PROBE
+        finishing = intent?.action == GUARDED_FINISH
+        guarded = intent?.action == GUARDED_PROBE || finishing
         probing = intent?.action == PROBE || isolating || guarded
         notification(if (isolating) "Testing client storage isolation…" else "Preparing client runtime…", true)
         val minutes = if (isolating) 2L else 90L
@@ -95,12 +98,13 @@ class ClientRuntimeService : Service() {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
         val began = SystemClock.elapsedRealtime()
         val report = JSONObject().put("attemptId", UUID.randomUUID().toString())
-            .put("operation", if (probing) "probe" else if (verify) "verify" else "prepare").put("state", "preparing")
+            .put("operation", if (finishing) "finish" else if (probing) "probe" else if (verify) "verify" else "prepare").put("state", "preparing")
             .put("startedAtEpochMs", System.currentTimeMillis()).put("ownerPid", android.os.Process.myPid())
         if (Build.VERSION.SDK_INT >= 30) runCatching {
             getSystemService(ActivityManager::class.java).setProcessStateSummary(ClientExitEvidence.token(report.getString("attemptId")).toByteArray())
         }
         val cache = GameDataCache(); var guard: ClientIoGuard? = null
+        var phase = "preparing"
         var writtenAt = 0L; var writtenStage = ""; var peakRss = 0L
         fun write(force: Boolean = false) {
             val now = SystemClock.elapsedRealtime()
@@ -117,8 +121,17 @@ class ClientRuntimeService : Service() {
             cache.stats().let { report.put("cacheRequests", it.requests).put("cacheAccepted", it.accepted) }
             guard?.let { report.put("ioBytes", it.ioBytes).put("throttledMs", it.throttledMs)
                 .put("pressureWaitMs", it.pressureWaitMs).put("pressurePauses", it.pressurePauses) }
-            ClientRuntimeReport.write(this, report, guarded)
-            notification("${report.optString("state")}: ${report.optLong("bytes") / 1048576} / ${report.optLong("totalBytes") / 1048576} MiB")
+            report.put("completionPhase", phase)
+            try { ClientRuntimeReport.write(this, report, guarded, finishing) }
+            catch (e: Exception) { throw ClientFailureEvidence.AtPhase("report-write", e) }
+            try { notification("${report.optString("state")}: ${report.optLong("bytes") / 1048576} / ${report.optLong("totalBytes") / 1048576} MiB") }
+            catch (e: Exception) { throw ClientFailureEvidence.AtPhase("notification-update", e) }
+        }
+        fun milestone(next: String) {
+            phase = next
+            if (next == "runtime-post-verified" || (finishing && next == "runtime-pre-verified"))
+                report.put("runtimePostRehashCompleted", true)
+            write(true)
         }
         fun recordMemory(memory: ClientIoGuard.Memory, signal: ClientProbeMemory.Signal, now: Long) {
             report.put("availableMemoryBytes", memory.available).put("totalMemoryBytes", memory.total)
@@ -169,9 +182,34 @@ class ClientRuntimeService : Service() {
                 report.put("state", it.stage).put("bytes", it.bytes).put("totalBytes", it.totalBytes).put("entries", it.entries); write()
             }
             report.put("state", if (verify) "verify-runtime" else "archive-verify"); write(true)
-            if (probing) {
+            if (finishing) {
+                milestone("retained-receipt")
+                val saved = ClientRuntimeReport.stored(this, guarded = true)
+                runtimeRequire(saved != null && ClientGuardedFinish.eligible(ClientRuntimeReport.values(saved.first)), "retained-probe-unavailable")
+                val source = saved!!.first
+                runtimeRequire(plan.archiveSha256 == source.getString("archiveSha256") && plan.catalogSha256 == source.getString("catalogSha256"), "retained-probe-changed")
+                for (key in ClientGuardedFinish.retainedFields) if (source.has(key)) report.put(key, source.get(key))
+                report.put("sourceProbeAttemptId", source.getString("attemptId")).put("sourceReportSha256", saved.second)
+                    .put("sourceProbeStartedAtEpochMs", source.getLong("startedAtEpochMs"))
+                    .put("sourceProbeUpdatedAtEpochMs", source.getLong("updatedAtEpochMs"))
+                    .put("sourceProbeElapsedMs", source.getLong("elapsedMs"))
+                    .put("nativeProbeReexecuted", false).put("retainedProbeValidated", true)
+                write(true)
+                store.withVerified(governor::check, progress, milestone = ::milestone) {
+                    report.put("state", "retained-verify"); milestone("retained-files")
+                    val result = ClientGuardedFinish.validateFiles(filesDir, source.getString("attemptId"), source.getString("viewPlanSha256"),
+                        governor::check, governor::beforeIo, links = { file -> Os.lstat(file.absolutePath).st_nlink },
+                        stamp = { file -> Os.lstat(file.absolutePath).let { st -> listOf(st.st_dev, st.st_ino, st.st_mode.toLong(), st.st_nlink,
+                            st.st_uid.toLong(), st.st_gid.toLong(), st.st_size, st.st_mtime, st.st_ctime) } })
+                    runtimeRequire(result.deletion == ClientRuntimeReport.values(source.getJSONObject("windowsDeletion")), "retained-probe-changed")
+                    report.put("retainedTranscriptSha256", result.transcriptSha256).put("retainedFilesValidated", true)
+                        .put("retainedFilesUnchanged", true)
+                    milestone("retained-complete")
+                }
+                report.put("guardedWineStorageValidated", true).put("runtimePostRehashValidated", true)
+            } else if (probing) {
                 var nextMemory = 0L
-                val result = store.withVerified(governor::check, progress, reverifyAfter = true) { runtime ->
+                val result = store.withVerified(governor::check, progress, reverifyAfter = true, milestone = ::milestone) { runtime ->
                     report.put("runtimePreRehashValidated", true); write(true)
                     val deadline = SystemClock.elapsedRealtime() + ClientProbeProtocol.WINE_TIMEOUT_MS + 60_000
                     ClientNativeProbe.run(this, runtime, report.getString("attemptId"), {
@@ -193,6 +231,7 @@ class ClientRuntimeService : Service() {
                             runtimeRequire(runtime.usableSpace >= ClientRuntimeStore.RESERVE, "insufficient-space")
                         }
                     }, { stage, output ->
+                        phase = stage
                         report.put("state", stage)
                         val observed = ClientProbeEvidence.parse(output)
                         if (guarded) {
@@ -217,10 +256,21 @@ class ClientRuntimeService : Service() {
                     .put(if (guarded) "guardedWineStorageValidated" else "syntheticMixedRuntimeValidated", true).put("runtimePostRehashValidated", true)
             } else if (verify) store.withVerified(governor::check, progress) { } else
                 store.install({ download.open(plan.archiveBytes) }, governor::check, progress)
+            milestone("result-commit")
             report.put("state", "complete").put("bytes", plan.fileBytes).put("totalBytes", plan.fileBytes).put("entries", plan.entries.size)
+            write(true)
         } catch (e: Exception) {
+            val cause = (e as? ClientFailureEvidence.AtPhase)?.cause ?: e
+            report.put("failurePhase", (e as? ClientFailureEvidence.AtPhase)?.phase ?: phase)
+                .put("failureCategory", ClientFailureEvidence.category(e))
+            var nested: Throwable? = cause
+            repeat(8) {
+                val current = nested
+                if (current is android.system.ErrnoException) report.put("failureErrno", current.errno)
+                nested = current?.cause
+            }
             val reason = if (cancelled.get()) { if (timedOut.get()) "timeout" else "cancelled" }
-                else (e as? RuntimeInstallFailure)?.reason ?: (e as? ClientImportFailure)?.reason ?: "io-failed"
+                else (cause as? RuntimeInstallFailure)?.reason ?: (cause as? ClientImportFailure)?.reason ?: "io-failed"
             report.put("state", if (cancelled.get()) "stopped" else "failed")
                 .put("reason", reason.takeIf { it in ClientRuntimeReport.reasons } ?: "io-failed")
         } finally {
@@ -249,6 +299,7 @@ class ClientRuntimeService : Service() {
         const val PREPARE = "com.russianranger.fta.PREPARE_CLIENT_RUNTIME"
         const val VERIFY = "com.russianranger.fta.VERIFY_CLIENT_RUNTIME"
         const val PROBE = "com.russianranger.fta.PROBE_CLIENT_RUNTIME"
+        const val GUARDED_FINISH = "com.russianranger.fta.FINISH_GUARDED_WINE"
         const val GUARDED_PROBE = "com.russianranger.fta.TEST_GUARDED_WINE"
         const val ISOLATE = "com.russianranger.fta.TEST_CLIENT_STORAGE_ISOLATION"
         const val STOP = "com.russianranger.fta.STOP_CLIENT_RUNTIME"

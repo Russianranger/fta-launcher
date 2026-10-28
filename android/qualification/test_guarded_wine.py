@@ -1,5 +1,6 @@
 import contextlib
 import io
+import json
 from pathlib import Path
 import re
 import unittest
@@ -9,6 +10,14 @@ from guarded_wine import CHECKS, STAGES, StorageCapture
 
 
 class GuardedWineTests(unittest.TestCase):
+    def test_finish_recovery_pins_match_delivered_code43_fixture(self):
+        root = Path(__file__).resolve().parents[2]
+        packaged = json.loads((root / 'docs/evidence/android-2026-10-27-private-guarded-wine-apk.json').read_text())
+        source = (root / 'android/app/src/main/java/com/russianranger/fta/client/ClientGuardedFinish.kt').read_text()
+        pins = {name: dict(bytes=int(size), sha256=sha) for name, size, sha in
+                re.findall(r'"([^"\n]+)" to Pin\((\d+), "([0-9a-f]{64})"\)', source)}
+        self.assertEqual(packaged['guardedWineManifest']['files'], pins)
+
     def output(self):
         return '\n'.join([*(f'FTA_ANDROID_STAGE {s} 0' for s in STAGES),
             *(f'FTA_GUARDED_WIN {a} {n} 0' for a in ('x86', 'x64') for n in CHECKS), 'FTA_GUARDED_DELETE x86 1 0', 'FTA_GUARDED_DELETE x64 1 0', 'FTA_GUARDED_WINE_PASS'])
