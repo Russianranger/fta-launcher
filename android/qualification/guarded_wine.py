@@ -28,6 +28,9 @@ class StorageCapture(base.OutputCapture):
             match = re.fullmatch(rb'FTA_GUARDED_WIN (x86|x64) ([a-z-]+) ([01])', line)
             if match and match[2].decode() in CHECKS:
                 print(line.decode(), flush=True)
+            error = re.fullmatch(rb'FTA_GUARDED_ERROR (x86|x64) ([a-z-]+) ([0-9]{1,5})', line)
+            if error and error[2].decode() in CHECKS:
+                print(line.decode(), flush=True)
 
 
 def main():

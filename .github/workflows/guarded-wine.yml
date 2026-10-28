@@ -51,4 +51,5 @@ jobs:
             ${{ runner.temp }}/guarded-native/readonly-evidence.json
             ${{ runner.temp }}/guarded-wine/probe.log
             ${{ runner.temp }}/guarded-wine/evidence.json
+            ${{ runner.temp }}/guarded-wine/source-observation.json
           retention-days: 14

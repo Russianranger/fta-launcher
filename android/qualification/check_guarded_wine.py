@@ -73,8 +73,11 @@ def main():
                 env=dict(os.environ, PROOT_LOADER=str(args.loader.resolve()), PROOT_TMP_DIR=str(tmp), PROOT_NO_SECCOMP='1'), timeout=1000)
     with (work / 'probe.log').open('rb') as incoming: output = incoming.read(65537)
     if len(output) > 65536: raise ValueError('oversized probe log')
+    after = snapshot(original)
+    (work / 'source-observation.json').write_text(json.dumps(dict(protectedFixtureUnchanged=after == before,
+        changedEntries=sorted(n for n in set(before) | set(after) if before.get(n) != after.get(n))), indent=2) + '\n')
+    if after != before: raise ValueError('protected fixture changed')
     result = transcript(output.decode(), value.returncode)
-    if snapshot(original) != before: raise ValueError('protected fixture changed')
     if not (view / 'WTF/Config.wtf').read_bytes().startswith(b'private'): raise ValueError('independent configuration not written')
     verify(root, rows)
     result.update(scope='guarded-wine-on-native-arm64-linux', runtimeEntries=len(rows), fullRuntimePrePostRehash=True,

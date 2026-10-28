@@ -16,8 +16,9 @@ static const char *shared="Z:\\view\\Data\\canary.bin";
 static const char *direct="Z:\\immutable\\Data\\canary.bin";
 static int denied(DWORD error) { return error == ERROR_ACCESS_DENIED || error == ERROR_WRITE_PROTECT; }
 static void check(const char *name, int ok) {
+    DWORD error=GetLastError();
     printf("FTA_GUARDED_WIN " ARCH " %s %d\n",name,ok ? 0 : 1); fflush(stdout);
-    if (!ok) { fprintf(stderr,"fixture Windows error=%lu\n",GetLastError()); ExitProcess(1); }
+    if (!ok) { printf("FTA_GUARDED_ERROR " ARCH " %s %lu\n",name,error); fflush(stdout); ExitProcess(1); }
     checks++;
 }
 static HANDLE open_file(const char *path, DWORD access, DWORD mode) {
