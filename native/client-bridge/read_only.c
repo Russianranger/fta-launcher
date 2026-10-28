@@ -33,6 +33,25 @@ static bool touches(const char *path)
         strcmp(path, "/") == 0 || beneath(protected_root, path));
 }
 
+/* PRoot intentionally leaves /proc/PID/fd/N magic links for the kernel.
+ * Resolve host aliases independently; for a new leaf, inspect its nearest
+ * existing parent. The owned launcher closes inherited descriptors. */
+static bool references_protected(const char *path)
+{
+    if (path[0] != '/') return false;
+    if (touches(path)) return true;
+    char candidate[PATH_MAX], resolved[PATH_MAX];
+    if (strlen(path) >= sizeof(candidate)) return true;
+    strcpy(candidate, path);
+    while (true) {
+        if (realpath(candidate, resolved) != NULL) return touches(resolved);
+        if (errno != ENOENT && errno != ENOTDIR) return true;
+        char *last = strrchr(candidate, '/');
+        if (last == candidate) return true;
+        *last = '\0';
+    }
+}
+
 /* Imported generations contain no links. Reject pre-existing hard-link aliases
  * before any guest entry; subsequent link/linkat attempts are checked below. */
 static int audit_tree(const char *path, unsigned depth, unsigned *entries)
@@ -92,7 +111,7 @@ static int check_fd(Tracee *tracee, Reg argument)
     if (size < 0) return errno == ENOENT ? 0 : denied(tracee, EACCES);
     if ((size_t)size >= sizeof(path) - 1) return denied(tracee, EACCES);
     path[size] = '\0';
-    return touches(path) ? denied(tracee, EROFS) : 0;
+    return references_protected(path) ? denied(tracee, EROFS) : 0;
 }
 
 static bool writes_path(const Tracee *tracee)
@@ -163,9 +182,9 @@ int fta_readonly_event(Tracee *tracee, ExtensionEvent event, intptr_t data1, int
     case HOST_PATH:
         /* PRoot's fake-root extension temporarily chmods traversed nodes.
          * Skip that and other extension side effects on protected nodes. */
-        return touches((const char *)data1) ? 1 : 0;
+        return references_protected((const char *)data1) ? 1 : 0;
     case TRANSLATED_PATH:
-        if (!touches((const char *)data1)) return 0;
+        if (!references_protected((const char *)data1)) return 0;
         return writes_path(tracee) ? denied(tracee, EROFS) : 1;
     case SYSCALL_ENTER_END:
         return tracee->fta_readonly_errno ? -tracee->fta_readonly_errno : 0;
