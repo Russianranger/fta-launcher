@@ -5,7 +5,7 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## In progress: code 53 x87 startup compatibility
+## Current delivery: code 53 x87 startup compatibility
 
 The exact supplied Wow.exe matched its retained SHA256. Read-only disassembly
 located the repeated fault in a 48-iteration x87 store loop. The pinned FEX-2510
@@ -19,9 +19,26 @@ Application **53 / 0.17.3-x87-startup** applies that tested compatibility profil
 only to the original-startup child. It retains code-52 speed, original binaries,
 read-only protection, imported data/settings, runtime and realm. Reduced x87
 precision is a workaround with rendering-accuracy limits, not gameplay proof.
-Exact-commit foundation/ARM64 qualification and signed delivery are pending.
-Next: complete both, package with the persistent key, then one combined Thor
-startup test and export. Do not repeat passed gates, reimport or clear data.
+Application **384198efe1a5357ff0d1d5967c4fc2067f408527** passed foundation
+**40946926084**: 600 Android passed / one existing skip, 214 tooling and 135
+qualification with no skips, lint/assembly and full runtime rehash with 96 MiB
+heap. Same-commit ARM64 **40946925988** passed the exact production profile's
+failure/pass/failure matrix, startup/crash observer, 56 Windows / 50 native guard
+checks, seven root refusals and owned normal/Stop/kill cleanup.
+
+[Signed APK, sources and one device test](code53-recovery.md) are saved. APK
+**60,689,601 bytes**, SHA256
+`97e36579bfc35cf7e91c34460cf70247bf3fb17cf056e39af3ea0899edb4cce4`.
+All 247 package checks, persistent v2 signing and 16 KiB alignment passed.
+All 25 native payloads / 148 runtime entries match code 52; exact companions
+verified. Physical code-53 startup/rendering/login remain unqualified.
+
+**Next:** install in place and run **Test original client startup** once, then
+export diagnostic JSON. Allow roughly 7–10 minutes based on code 52; 5 GiB free,
+airplane mode with Wi-Fi off, visible/powered. On failure/Stop export before retry.
+No passed-gate repeats, reimport, clear data or setting deletion. Determine whether
+the original loop fault disappears or a later startup boundary emerges. Preserve
+all prior receipts. Future code **>=54** and the persistent signer.
 
 ## Previous delivery: code 52 faster verification
 
@@ -450,7 +467,7 @@ auth/Stop/restart already passed. Never reseed the retained realm.
 The verified Wine/FEX runtime remains installed: 14,092 entries /
 2,637,799,241 file bytes. [Installer](client-runtime-installation.md): authenticated
 extraction, <=1 MiB sync/readback, delayed links, exclusive lease, atomic
-publication and full rehash. Client I/O remains 48 MiB/s with existing buffers
+publication and full rehash. Client I/O remains 240 MiB/s with existing buffers
 and memory/PSI/trim backpressure.
 
 Original host/DLL/proxy identities are pinned in [warcraftxl-host.md](warcraftxl-host.md).

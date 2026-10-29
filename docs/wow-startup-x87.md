@@ -64,3 +64,10 @@ accuracy still needs qualification. A runtime rebuild with a reviewed upstream
 correction can replace the workaround later. Fivefold verification pacing,
 full hashes, imports/settings, ownership and pressure handling are unchanged.
 Physical code-53 startup, rendering and login remain unqualified until observed.
+
+The [exact code-53 qualification](evidence/host-2026-10-29-code53-x87-startup-pass.json)
+passed again with the production mapping, including explicit strict=0. The signed
+[code-53 delivery and one Thor test](code53-recovery.md) are ready. The earlier
+investigation harness failure occurred before executing the fixture because its
+Python driver was inside the protected tree; the corrected layout matches the
+existing separate-driver/protected-executable model. No guard policy was relaxed.
