@@ -10,6 +10,8 @@ on:
       - 'android/qualification/android_runtime_probe.py'
       - 'android/qualification/original_startup*'
       - 'android/qualification/check_original_startup.py'
+      - 'android/qualification/x87_flags_fixture.c'
+      - 'android/qualification/check_x87_flags.py'
       - 'native/client-bridge/**'
       - 'android/app/src/main/java/com/russianranger/fta/client/ClientGuardedWine.kt'
       - 'android/app/src/main/java/com/russianranger/fta/client/ClientWorkingView.kt'
@@ -49,10 +51,14 @@ jobs:
           mkdir "$RUNNER_TEMP/guarded-fixtures/Utils"
           x86_64-w64-mingw32-gcc -std=c11 -O2 -Wall -Wextra -Werror android/qualification/original_startup_fixture.c -o "$RUNNER_TEMP/guarded-fixtures/Utils/WarcraftXLHost.exe"
           cp android/qualification/original_startup.py "$RUNNER_TEMP/guarded-fixtures/"
+          i686-w64-mingw32-gcc -std=c11 -O2 -Wall -Wextra -Werror android/qualification/x87_flags_fixture.c -o "$RUNNER_TEMP/guarded-fixtures/x87-flags.exe"
+          cp android/qualification/check_x87_flags.py "$RUNNER_TEMP/guarded-fixtures/"
       - name: Qualify guarded Wine and rehash both source trees
         run: python3 android/qualification/check_guarded_wine.py --proot "$RUNNER_TEMP/guarded-native/proot-readonly" --loader "$RUNNER_TEMP/guarded-native/loader" --archive "$RUNNER_TEMP/guarded-inputs/client-runtime-arm64.tar.gz" --fixtures "$RUNNER_TEMP/guarded-fixtures" --work "$RUNNER_TEMP/guarded-wine" > "$RUNNER_TEMP/guarded-wine-result.log" 2>&1
       - name: Qualify original startup observer with synthetic client and host
         run: python3 android/qualification/check_original_startup.py --proot "$RUNNER_TEMP/guarded-native/proot-readonly" --loader "$RUNNER_TEMP/guarded-native/loader" --archive "$RUNNER_TEMP/guarded-inputs/client-runtime-arm64.tar.gz" --runtime "$RUNNER_TEMP/guarded-wine/runtime" --fixtures "$RUNNER_TEMP/guarded-fixtures" --work "$RUNNER_TEMP/original-startup" > "$RUNNER_TEMP/guarded-original-result.log" 2>&1
+      - name: Compare x87 condition-code profiles with synthetic data
+        run: python3 android/qualification/check_x87_flags.py --proot "$RUNNER_TEMP/guarded-native/proot-readonly" --loader "$RUNNER_TEMP/guarded-native/loader" --archive "$RUNNER_TEMP/guarded-inputs/client-runtime-arm64.tar.gz" --runtime "$RUNNER_TEMP/guarded-wine/runtime" --fixtures "$RUNNER_TEMP/guarded-fixtures" --prefix "$RUNNER_TEMP/original-startup/prefix" --work "$RUNNER_TEMP/x87-flags" > "$RUNNER_TEMP/guarded-x87-result.log" 2>&1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -69,4 +75,6 @@ jobs:
             ${{ runner.temp }}/original-startup/fault.log
             ${{ runner.temp }}/original-startup/session/fixture-trace.log
             ${{ runner.temp }}/original-startup/evidence.json
+            ${{ runner.temp }}/x87-flags/*.log
+            ${{ runner.temp }}/x87-flags/evidence.json
           retention-days: 14
