@@ -6,7 +6,9 @@ runtime/ownership/pre-post integrity gate on code 41. Preserve those results.
 The bounded working-view core is implemented for disposable fixtures; integration
 with the original client remains unimplemented. Code 43 passed its 56 Windows
 checks but failed final verification. Code 44 identified access denial;
-complete [code 45's retained-evidence and bind-placeholder recovery](client-guarded-finish.md) before advancing the physical gate.
+[code 45's retained-evidence and bind-placeholder recovery passed on Thor](evidence/android-2026-10-28-thor-code45-guarded-finish-pass.json).
+It removed both matching empty directories and fully verified the runtime, with
+the saved Windows evidence unchanged and no Wine rerun. No repeat is needed.
 
 The imported client contains 10,476 files / 60,243,212,332 bytes and remains an
 inert integrity baseline. Its original configurations, binaries, MPQs and modern
@@ -47,7 +49,26 @@ The [code-42 disposable storage-isolation gate](client-storage-isolation.md) now
 implements a separate guarded tracer and native canary fixture. Native x86-64 and
 ARM64 checks passed, followed by all 50 physical Thor checks in 704 ms. It does not
 expose the import or qualify guarded Wine/working-view compatibility. The bounded
-view and guarded PE32/PE64 access passed native ARM64 Linux. Final verification
-of the Thor attempt remains pending; the original-client view is the next
-implementation after that gate completes.
+view and guarded PE32/PE64 access passed native ARM64 Linux. Code 45 completed
+the Thor fixture's retained evidence and full runtime verification; the
+original-client view is now the next implementation.
 No repeats of the passed storage/runtime/import/server gates are requested.
+
+## Next implementation boundary
+
+Wire the existing bounded view builder to `ClientStore.withVerifiedClient`, not
+to a saved pathname or a receipt-only shortcut. Bind its preparation result to
+the exact client catalog, generation and view plan while holding the lease.
+Use one fresh baseline verification as part of the actual preparation/session;
+do not request an extra standalone 60 GB Verify beforehand. The lease must
+remain held across view publication and any guest readers, including Stop and
+failure cleanup. A later session must reacquire and validate that ownership.
+
+Before exposing the action, test the integrated path against a small managed
+client fixture: immutable source bytes, independent mutable copies, correct
+guest link targets/casing, copy/reserve bounds, competing store operations,
+cancellation, crash recovery and publication failures. Then connect the owned
+guarded Wine launch and original DLL/host contract. No original process should
+be launched merely because the disposable fixture has passed. The next private
+APK should offer a substantial combined preparation/startup diagnostic; code 45
+needs no replacement merely to acknowledge its success.

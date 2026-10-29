@@ -1,5 +1,13 @@
 # Code 45 — recover empty bind placeholders and finish verification
 
+**Physical Thor recovery passed. No repeat test is needed.** The returned exact-APK
+report records both placeholders removed, retained files/transcript unchanged,
+all 14,092 runtime entries rehashed and successful completion in 155,074 ms,
+without a Wine rerun or matching process exit.
+[Measured assessment](evidence/android-2026-10-28-thor-code45-guarded-finish-pass.json).
+Keep code 45 and all app data. The installation/test procedure below is retained
+for recovery history; original-client execution remains the next unqualified gate.
+
 [FTA-Launcher-0.15.3-bind-cleanup.apk](https://chatgpt.com/library?file_id=libfile_fe621fe5d0dc81918a32abdb805d209d&account_id=personal)
 
 **45 / 0.15.3-bind-cleanup**, **60,546,063 bytes**, SHA256:
@@ -25,7 +33,9 @@ Native ARM64 CI now reproduces the two leftovers, `immutable` and `view`, using
 the real guarded bindings; the previous Wine-only host test omitted that sequence.
 The fixed normal, Stop, killed-tracer and Wine sequence leaves no extra runtime
 entries. This reproduces a mechanism matching the report; the exact physical
-directory identities await recovery. [Measured host proof](evidence/host-2026-10-28-bind-placeholder-recovery-pass.json).
+directory identities were not independently read. The later Thor receipt reports
+both matching placeholders removed and successful full runtime verification.
+[Measured host proof](evidence/host-2026-10-28-bind-placeholder-recovery-pass.json).
 
 Code 45 sets `PROOT_DONT_POLLUTE_ROOTFS=1` for future probes. For the retained
 attempt, Finish first checks saved fixture files and transcript under the runtime
@@ -51,7 +61,7 @@ starts no Wine/native probe and creates no new prefix. [Recovery contract](clien
 [FTA-Launcher-0.15.3-test-instructions.txt](https://chatgpt.com/library?file_id=libfile_50db41fc3ae08191b2573d69cd62f18b&account_id=personal).
 Preserve the saved attempt; no protected Wine rerun, runtime preparation, separate
 Verify, client import, storage-isolation or server test is needed. Code 45's Thor
-recovery remains pending. Original WarcraftXL execution, rendering and login
+recovery has passed; do not repeat it. Original WarcraftXL execution, rendering and login
 remain unqualified.
 
 ## Measured build checks

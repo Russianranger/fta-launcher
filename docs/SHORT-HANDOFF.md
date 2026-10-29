@@ -5,7 +5,7 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery and next test
+## Current delivery and passed physical recovery
 
 **45 / 0.15.3-bind-cleanup** is delivered with the original persistent signer.
 [APK, sources and test instructions](code45-recovery.md). APK: **60,546,063 bytes**,
@@ -28,12 +28,22 @@ also passed. The final application commit changes only the Android directory-onl
 deletion API and its regression; the qualified harness/probe environment is unchanged.
 [Host proof](evidence/host-2026-10-28-bind-placeholder-recovery-pass.json).
 
-**Code 43's overall Thor gate is incomplete.** Its exact APK report contains all
-56 Windows checks and six stages zero, unchanged source, completed owned cleanup,
-worker inactive and no matching exit. It ended `failed / io-failed` after
-368,944 ms. Post-runtime verification is not qualified. Do not call this a full
-pass or a low-memory kill.
-[Assessment](evidence/android-2026-10-28-thor-code43-incomplete.json).
+**Code 45's physical guarded-Wine recovery passed — no repeat.**
+[Assessment](evidence/android-2026-10-28-thor-code45-guarded-finish-pass.json):
+attempt `d077a12c-e9ce-478a-85d7-1dd190d3a735`, **155,074 ms (2m35s)**,
+two known empty mode-zero bind placeholders removed, retained files/transcript
+validated unchanged, and full runtime rehash of **14,092 entries / 2,637,799,241
+file bytes** completed. Result committed, worker inactive, no matching exit.
+One pressure pause recovered after **28,000 ms**; I/O pacing totaled **80,248 ms**.
+Reported peak launcher RSS **214,480 KiB**, last available memory **7,954,456,576 bytes**.
+These observations do not establish total guest RSS or actual cache eviction.
+
+All **56 Windows checks / six zero stages** bind to the original code-43 attempt
+`a47e4d81-110f-413a-81ae-111d3e963afb`; the saved source report digest still matches
+the prior finish attempt. Wine was not rerun. The original code-43 report remains
+`failed / io-failed` after 368,944 ms; its missing verification is completed by the
+separate code-45 receipt. Preserve both records and the earlier
+[incomplete assessment](evidence/android-2026-10-28-thor-code43-incomplete.json).
 
 **Code 44 failed at `runtime-pre-verify / access-denied`**, after 122,548 ms.
 All file bytes were read, but the last file-progress count is not proof that
@@ -41,23 +51,16 @@ directory verification completed. No matching exit, pressure pause or Wine rerun
 [Assessment](evidence/android-2026-10-28-thor-code44-access-denied.json).
 The pinned PRoot creates mode-zero bind placeholders; the forced tracer kill
 bypasses their exit destructors. CI now reproduces `/immutable` and `/view`
-leftovers and tests the complete guarded ownership sequence. The exact device
-directory identities still await recovery. Future probes prevent this pollution.
+leftovers and tests the complete guarded ownership sequence. Code 45 now reports
+removal of both matching placeholders on Thor and successful full rehash.
+Future probes prevent this pollution. Device files were not independently read.
 
-**Next physical test: Finish protected Wine verification, once.** Install code 45
-in place, keep the launcher visible, use that action and export the diagnostic
-JSON afterward. If unavailable or failed, return JSON before another action.
-Recovery preserves the original report and checks the exact retained fixture assets,
-source/view/transcript and cleanup marker under the runtime lease. It then removes
-only the two known uncatalogued, app-owned, empty mode-zero bind directories and
-performs one fresh full runtime rehash. `SecureDirectoryStream.deleteDirectory`
-refuses files, links and nonempty directories; no chmod or recursion is used.
-It runs no Wine/native probe, creates no new prefix and
-does not touch the import. Missing/changed evidence is refused. It exports a
-separate `clientGuardedWineFinish` report with original attempt/report/transcript
-bindings, `runtimeBindPlaceholdersRemoved` / `runtimeBindPlaceholdersChecked`
-and bounded failure phase/category/errno. [Contract](client-guarded-finish.md).
-Do not rerun protected Wine or any passed import/runtime/storage/server gate.
+**No further code-45 test is needed.** Keep the installed app and all retained
+data. The strict finish assessor binds exact APK, source attempt/report history,
+retained fixture checks, 56 integer-zero checks, complete runtime counts, cleanup,
+terminal state and exit evidence. Twelve regressions reject incomplete or
+contradictory completion. [Contract](client-guarded-finish.md).
+Do not rerun Finish, protected Wine or any passed import/runtime/storage/server gate.
 
 The working-view core is implemented for disposable fixtures: protected guest
 links, independent writable copies, 64 MiB copy limit, atomic publication,
@@ -93,8 +96,8 @@ passed. It is not a demonstrated original-client compatibility result.
 
 **Preserve the code-41 result and all retained data; code 42's storage test also passed.**
 Do not repeat those passed import, standalone runtime or server tests. The
-code-43 guarded attempt remains incomplete; code 45 repairs the reproduced
-placeholder leak and finishes its verification. Original WarcraftXL execution,
+code-43 guarded attempt is now qualified through code 45's separately recorded
+retained completion. Original WarcraftXL execution,
 rendering and login remain unqualified.
 
 ## Active development: isolated original-client working view
@@ -106,11 +109,9 @@ modify imports or silently copy 60 GB. The separately pinned guard passed its
 native Linux and physical Android fixture. Guarded PE32/PE64 access now passes
 native ARM64 Linux, and the bounded working-view builder is implemented.
 
-**Await the code-45 finish report**, bind its exact APK, original code-43 attempt
-and report/transcript digests, retained-file checks, scoped cleanup count/checks,
-complete fresh runtime rehash,
-lease release, inactive worker and exit history. Preserve the original failed
-report and earlier passes. Then advance the original-client view under `ClientStore.withVerifiedClient`;
+**The code-45 finish report has passed.** Preserve the original failed
+report, its successful completion and earlier passes. Advance the original-client
+view under `ClientStore.withVerifiedClient`;
 retain its lease until every owned reader exits. Actual original-client view,
 WarcraftXL startup, rendering and login remain unqualified. This is cooperative
 file-integrity protection, not hostile-code confinement.

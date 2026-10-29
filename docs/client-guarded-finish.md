@@ -1,5 +1,12 @@
 # Complete a retained guarded Wine attempt
 
+**Completed on physical Thor with code 45.** Both matching empty bind placeholders
+were removed and the full 14,092-entry runtime rehash passed in 155,074 ms.
+Saved fixture/transcript validation passed without rerunning Wine. The original
+failed code-43 report remains preserved alongside the successful finish receipt.
+[Assessment](evidence/android-2026-10-28-thor-code45-guarded-finish-pass.json).
+No repeated device test is requested.
+
 The code-43 Thor report matches the delivered APK. All 56 Windows checks and
 six stages returned zero, ownership cleanup completed, and the protected
 fixture was unchanged. The operation nevertheless ended `failed / io-failed`.
@@ -58,8 +65,9 @@ CI previously omitted that preceding guarded ownership sequence. Code 45 adds
 an explicit reproduction and checks prevention through normal, Stop, killed
 tracer and guarded Wine lifecycles. [Native ARM64 CI reproduced both mode-zero
 placeholders and passed the fixed sequence](evidence/host-2026-10-28-bind-placeholder-recovery-pass.json),
-including all 56 Windows checks and full runtime rehash. The exact device
-directory identities still await the recovery report.
+including all 56 Windows checks and full runtime rehash. The returned code-45
+receipt reports both matching directories removed and full verification passed;
+device files were not independently read by the assessor.
 
 Every future client probe sets `PROOT_DONT_POLLUTE_ROOTFS=1`. For the retained
 attempt only, after exact saved-file/transcript validation and while holding the
@@ -82,4 +90,33 @@ This checks the retained 2.64 GB runtime; no separate Prepare, Verify, protected
 Wine rerun, client import or server test is needed. If the finish action is
 unavailable, export the report instead of replacing the retained attempt.
 
-Code 45 remains unqualified on Thor until its completion report is returned.
+Code 45's completion report has passed. The procedure above is historical;
+the next implementation is the original-client working view.
+
+## Strict report qualification
+
+`android/qualification/client_guarded_finish_report.py` binds the exact delivered
+APK, pinned runtime, original failed assessment and source-report digest from
+the prior finish attempt. It requires the complete 56-check/six-stage contract,
+exact retained observations, unchanged source failure/timing, saved-file validation,
+cleanup checks/count, full runtime counts, committed terminal state and inactive
+worker. Token-matched exits or exits within either attempt prevent qualification.
+Missing OS history does not invent survival evidence. No raw paths/configuration
+or arbitrary fields are exported; no original-game or imported-tree qualification
+is inferred. Twelve regressions cover these boundaries.
+
+Local validation of this assessor passed all **214 tooling tests** and **116
+qualification tests**, including all twelve new regressions. Two unchanged live
+Unix-socket tests were skipped because this host denies Unix sockets; their
+existing code passed the code-45 foundation CI recorded in the handoff. This
+assessment/docs change does not alter or rebuild the delivered APK.
+
+```sh
+python3 android/qualification/client_guarded_finish_report.py \
+  --report /private/FTA-database-diagnostic-1793236583371.json \
+  --apk-evidence docs/evidence/android-2026-10-28-private-bind-cleanup-apk.json \
+  --runtime-lock android/qualification/client-runtime-lock.json \
+  --source-assessment docs/evidence/android-2026-10-28-thor-code43-incomplete.json \
+  --prior-finish docs/evidence/android-2026-10-28-thor-code44-access-denied.json \
+  --output /private/new-finish-assessment.json
+```

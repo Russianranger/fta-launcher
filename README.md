@@ -39,7 +39,10 @@ but failed final verification. Code 44 localized the failure to access denied
 during runtime verification. [Code 45](docs/code45-recovery.md) repairs a reproduced
 empty bind-placeholder leak after forced tracer death, prevents future leftovers,
 and finishes the retained attempt through saved-evidence checks and a full rehash.
-Original-client execution remains unqualified.
+Its [physical Thor recovery passed](docs/evidence/android-2026-10-28-thor-code45-guarded-finish-pass.json):
+both placeholders removed, retained files unchanged, and all 14,092 runtime entries
+verified in 2m35s without rerunning Wine. The next implementation is the isolated
+original-client view; original-client execution remains unqualified.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.
