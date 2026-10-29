@@ -315,7 +315,7 @@ class MainActivity : Activity() {
         originalClientButton = action("Test original client startup") { startClientRuntime(false, original = true) }
         status.addView(originalClientButton)
         originalClientStatus = label("", 13, muted); status.addView(originalClientStatus)
-        status.addView(label("Verifies the retained client, prepares separate settings and starts Wow.exe briefly to check its WarcraftXL host, then stops automatically. Runs without a visible game window. Allow 5 GiB free and up to an hour for verification. Keep the launcher visible, use airplane mode, then export the report. This does not start the realm or log in.", 13, muted))
+        status.addView(label("Verifies the retained client, prepares separate settings with fresh cache/output folders and starts Wow.exe briefly to check its WarcraftXL host, then stops automatically. Runs without a visible game window. Allow 5 GiB free and up to an hour for verification. Keep the launcher visible, use airplane mode, then export the report. This does not start the realm or log in.", 13, muted))
         guardedFinishButton = action("Finish protected Wine verification") { startClientRuntime(false, finish = true) }
         status.addView(guardedFinishButton)
         guardedFinishStatus = label("", 13, muted); status.addView(guardedFinishStatus)

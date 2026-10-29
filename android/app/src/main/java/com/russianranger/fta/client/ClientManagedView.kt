@@ -28,13 +28,19 @@ object ClientManagedView {
             phase("client-preflight")
             runtimeRequire(!Files.exists(destination.toPath(), NOFOLLOW_LINKS) && destination.absoluteFile == destination.canonicalFile &&
                 !destination.toPath().startsWith(source.canonicalFile.toPath()) && !source.canonicalFile.toPath().startsWith(destination.toPath()), "unsafe-runtime-store")
-            val plan = ClientWorkingView.plan(source.canonicalFile, active)
+            val plan = ClientWorkingView.plan(source.canonicalFile, active) { cost ->
+                evidence("plannedCopiedBytes", cost.copiedBytes); evidence("plannedSharedBytes", cost.sharedBytes)
+                evidence("plannedExcludedBytes", cost.excludedBytes); evidence("viewCopyLimitBytes", ClientWorkingView.COPY_LIMIT)
+                for (group in ClientWorkingView.budgetGroups) {
+                    evidence(ClientWorkingView.budgetField(group, "Bytes"), cost.inputBytes.getValue(group))
+                    evidence(ClientWorkingView.budgetField(group, "Files"), cost.inputFiles.getValue(group))
+                }
+            }
             runtimeRequire(available() >= plan.copiedBytes + 4L * ClientRuntimeStore.RESERVE, "insufficient-space")
             for ((path, pin) in pins) runtimeRequire(plan.entries.any {
                 it.path == path && !it.directory && !it.copied && it.bytes == pin.first
             }, "client-build-mismatch")
             planned = plan
-            evidence("plannedCopiedBytes", plan.copiedBytes); evidence("plannedSharedBytes", plan.sharedBytes)
             phase("client-verify")
         }) { rawSource, client ->
             val source = rawSource.canonicalFile
@@ -59,6 +65,8 @@ object ClientManagedView {
             val built = ClientWorkingView.build(source, destination, active, beforeIo, available)
             evidence("viewCopiedBytes", built.copiedBytes); evidence("viewSharedBytes", built.sharedBytes)
             evidence("viewCopiedFiles", built.copiedFiles); evidence("viewSharedFiles", built.sharedFiles)
+            evidence("viewExcludedBytes", built.excludedBytes); evidence("viewExcludedFiles", built.excludedFiles)
+            evidence("freshOutputDirectoriesPrepared", true)
             evidence("viewPlanSha256", built.planSha256)
             // Existing spelling is retained; the builder creates WTF if absent.
             val settingsDir = destination.listFiles()!!.single { it.name.equals("WTF", true) }

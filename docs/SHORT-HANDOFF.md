@@ -5,6 +5,22 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
+## Active fix: code 47 working-view budget
+
+Code 46 failed at `client-preflight / view-copy-limit` after **130,618 ms**.
+The full runtime precheck passed; client full verification, view creation and
+Wine had not started. No pressure pause or matching Android exit. Earlier passes
+remain intact. [Assessment](evidence/android-2026-10-28-thor-code46-view-copy-limit.json).
+The report does not identify which mutable subtree exceeded the 64 MiB cap.
+
+Code 47 / `0.16.1-view-budget` makes Cache/Logs/Errors/Screenshots fresh independent
+session folders, preserving their original imported contents and every source
+verification/audit entry. Settings still copy under the 64 MiB limit. Complete
+fixed-group costs are recorded before a copy-budget refusal. Sparse oversized
+output fixtures, audit mutations, settings limits and the retained code-43 plan
+identity are covered by regressions. CI/private packaging are pending.
+Do not retry code 46 or reimport; finish code 47 and deliver an in-place update.
+
 ## Current delivery: code 46 original-client startup
 
 **46 / 0.16.0-client-startup** is built and persistently signed. Downloads and

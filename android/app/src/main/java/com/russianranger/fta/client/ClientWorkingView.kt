@@ -18,18 +18,24 @@ import java.util.UUID
 object ClientWorkingView {
     const val COPY_LIMIT = 64L * 1024 * 1024
     const val GROWTH_LIMIT = 128L * 1024 * 1024
-    private val mutableDirectories = setOf("wtf", "cache", "logs", "errors", "screenshots")
+    private val freshDirectories = setOf("cache", "logs", "errors", "screenshots")
+    val budgetGroups = listOf("wtf", "configuration", "cache", "logs", "errors", "screenshots", "shared")
+    fun budgetField(group: String, suffix: String) = "viewInput${group.replaceFirstChar { it.uppercaseChar() }}$suffix"
     private val reserved = setOf("con", "prn", "aux", "nul") + (1..9).flatMap { listOf("com$it", "lpt$it") }
-    data class Entry(val path: String, val directory: Boolean, val bytes: Long, val copied: Boolean)
-    data class Plan(val entries: List<Entry>, val copiedBytes: Long, val sharedBytes: Long, val sha256: String)
-    data class Result(val copiedBytes: Long, val sharedBytes: Long, val copiedFiles: Int, val sharedFiles: Int, val planSha256: String)
+    data class Entry(val path: String, val directory: Boolean, val bytes: Long, val copied: Boolean, val excluded: Boolean = false)
+    data class Plan(val entries: List<Entry>, val copiedBytes: Long, val sharedBytes: Long, val sha256: String,
+        val excludedBytes: Long, val inputBytes: Map<String, Long>, val inputFiles: Map<String, Int>)
+    data class Result(val copiedBytes: Long, val sharedBytes: Long, val copiedFiles: Int, val sharedFiles: Int, val planSha256: String,
+        val excludedBytes: Long, val excludedFiles: Int)
     private fun mutable(path: String): Boolean {
         val lower = path.lowercase(Locale.ROOT)
-        return lower.substringBefore('/') in mutableDirectories || lower.substringAfterLast('.', "") in setOf("cfg", "wtf", "ini")
+        return lower.substringBefore('/') == "wtf" || lower.substringAfterLast('.', "") in setOf("cfg", "wtf", "ini")
     }
-    fun plan(source: File, active: () -> Unit = {}): Plan {
+    fun plan(source: File, active: () -> Unit = {}, observed: (Plan) -> Unit = {}): Plan {
         runtimeRequire(source.absoluteFile == source.canonicalFile && Files.isDirectory(source.toPath(), NOFOLLOW_LINKS), "unsafe-runtime-store")
-        val inventory = ClientInventory(); val entries = mutableListOf<Entry>(); var copies = 0L; var shared = 0L
+        val inventory = ClientInventory(); val entries = mutableListOf<Entry>(); var copies = 0L; var shared = 0L; var excludedBytes = 0L
+        val groupBytes = budgetGroups.associateWith { 0L }.toMutableMap()
+        val groupFiles = budgetGroups.associateWith { 0 }.toMutableMap()
         Files.walkFileTree(source.toPath(), object : SimpleFileVisitor<Path>() {
             private fun add(path: Path, attrs: BasicFileAttributes) {
                 active(); if (path == source.toPath()) return
@@ -39,10 +45,21 @@ object ClientWorkingView {
                     it.substringBefore('.').lowercase(Locale.ROOT) !in reserved }, "unsafe-runtime-store")
                 try { inventory.add(relative, attrs.isDirectory, if (attrs.isDirectory) 0 else attrs.size()) }
                 catch (_: IllegalArgumentException) { throw RuntimeInstallFailure("unsafe-runtime-store") }
-                val copy = !attrs.isDirectory && mutable(relative); val size = if (attrs.isDirectory) 0 else attrs.size()
-                if (copy) { runtimeRequire(size <= COPY_LIMIT - copies, "view-copy-limit"); copies += size }
-                else { runtimeRequire(size <= ClientPlan.MAX_BYTES - shared, "view-copy-limit"); shared += size }
-                entries += Entry(relative, attrs.isDirectory, size, copy)
+                val top = relative.substringBefore('/').lowercase(Locale.ROOT)
+                runtimeRequire(top !in freshDirectories || '/' in relative || attrs.isDirectory, "unsafe-runtime-store")
+                // Keep every source entry in the audit, but give session outputs
+                // fresh independent directories instead of copying old content.
+                val excluded = top in freshDirectories && '/' in relative
+                val copy = !attrs.isDirectory && !excluded && mutable(relative)
+                val size = if (attrs.isDirectory) 0 else attrs.size()
+                runtimeRequire(size <= ClientPlan.MAX_BYTES - copies - shared - excludedBytes, "view-copy-limit")
+                if (excluded) excludedBytes += size else if (copy) copies += size else shared += size
+                if (!attrs.isDirectory) {
+                    val group = if (top in freshDirectories || top == "wtf") top else if (copy) "configuration" else "shared"
+                    groupBytes[group] = groupBytes.getValue(group) + size
+                    groupFiles[group] = groupFiles.getValue(group) + 1
+                }
+                entries += Entry(relative, attrs.isDirectory, size, copy, excluded)
             }
             override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult { add(dir, attrs); return FileVisitResult.CONTINUE }
             override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult { add(file, attrs); return FileVisitResult.CONTINUE }
@@ -50,8 +67,15 @@ object ClientWorkingView {
         runtimeRequire(entries.isNotEmpty(), "unsafe-runtime-store")
         val ordered = entries.sortedBy { it.path }
         val hash = runtimeHash()
-        for (entry in ordered) hash.update("${entry.path}\t${entry.directory}\t${entry.bytes}\t${entry.copied}\n".toByteArray())
-        return Plan(ordered, copies, shared, runtimeHex(hash.digest()))
+        for (entry in ordered) {
+            // Preserve the existing digest for retained fixtures without outputs.
+            val excluded = if (entry.excluded) "\tfresh-output-excluded" else ""
+            hash.update("${entry.path}\t${entry.directory}\t${entry.bytes}\t${entry.copied}$excluded\n".toByteArray())
+        }
+        val plan = Plan(ordered, copies, shared, runtimeHex(hash.digest()), excludedBytes, groupBytes, groupFiles)
+        observed(plan) // Report complete bounded totals before rejecting the copy budget.
+        runtimeRequire(copies <= COPY_LIMIT, "view-copy-limit")
+        return plan
     }
     fun build(source: File, destination: File, active: () -> Unit = {}, beforeIo: (Int) -> Unit = {},
         available: () -> Long = { destination.parentFile!!.usableSpace }, reserve: Long = ClientRuntimeStore.RESERVE,
@@ -64,11 +88,11 @@ object ClientWorkingView {
         val building = File(target.parentFile, ".view-${UUID.randomUUID()}")
         runtimeRequire(building.mkdir(), "storage-unavailable")
         try {
-            for (entry in planned.entries.filter { it.directory }.sortedBy { it.path.count { c -> c == '/' } }) {
+            for (entry in planned.entries.filter { it.directory && !it.excluded }.sortedBy { it.path.count { c -> c == '/' } }) {
                 active(); runtimeRequire(File(building, entry.path).mkdir(), "storage-unavailable")
             }
             val buffer = ByteArray(256 * 1024)
-            for (entry in planned.entries.filter { !it.directory }) {
+            for (entry in planned.entries.filter { !it.directory && !it.excluded }) {
                 active(); val original = File(source, entry.path); val output = File(building, entry.path)
                 runtimeRequire(Files.isRegularFile(original.toPath(), NOFOLLOW_LINKS) && original.length() == entry.bytes, "runtime-changed")
                 if (!entry.copied) {
@@ -105,7 +129,8 @@ object ClientWorkingView {
             Files.move(building.toPath(), target.toPath(), ATOMIC_MOVE)
             syncDirectory(target.parentFile!!)
             return Result(planned.copiedBytes, planned.sharedBytes, planned.entries.count { it.copied },
-                planned.entries.count { !it.directory && !it.copied }, planned.sha256)
+                planned.entries.count { !it.directory && !it.copied && !it.excluded }, planned.sha256,
+                planned.excludedBytes, planned.entries.count { !it.directory && it.excluded })
         } finally {
             if (Files.exists(building.toPath(), NOFOLLOW_LINKS)) Files.walkFileTree(building.toPath(), object : SimpleFileVisitor<Path>() {
                 override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult { Files.delete(file); return FileVisitResult.CONTINUE }

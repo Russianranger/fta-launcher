@@ -11,10 +11,11 @@ class ClientManagedViewTest {
     @get:Rule val temp = TemporaryFolder()
     private val content = linkedMapOf("Wow.exe" to byteArrayOf(1, 2, 3), "Utils/WarcraftXLHost.exe" to byteArrayOf(4, 5),
         "d3d9.dll" to byteArrayOf(6), "WarcraftXL.dll" to byteArrayOf(7), "WarcraftXL.cfg" to "synthetic settings".toByteArray(),
+        "Cache/old-output.bin" to ByteArray(200) { it.toByte() },
         "Data/a.mpq" to ByteArray(100), "wTf/Config.wtf" to "SET accountName \"private\"\r\nSET specular \"1\"\r\n".toByteArray())
     private fun source() = object : ClientSource {
         override val identity = "managed-view-synthetic"
-        override fun inventory() = listOf("Data", "Utils", "wTf").map { ClientEntry(it, it, 0, 1, true) } +
+        override fun inventory() = listOf("Data", "Utils", "wTf", "Cache").map { ClientEntry(it, it, 0, 1, true) } +
             content.map { (p, b) -> ClientEntry(p, p, b.size.toLong(), 1, false) }
         override fun open(entry: ClientEntry) = ByteArrayInputStream(content.getValue(entry.path))
     }
@@ -36,10 +37,14 @@ class ClientManagedViewTest {
             assertTrue(File(working, "wTf/Config.wtf").readText().contains("SET specular \"0\""))
             assertTrue(File(working, "wTf/Config.wtf").readText().contains("SET projectedTextures \"1\""))
             assertTrue(File(working, "wTf/Config.wtf").readText().contains("SET accountName \"private\""))
+            assertTrue(File(working, "Cache").list()!!.isEmpty())
+            assertArrayEquals(content.getValue("Cache/old-output.bin"), File(original, "Cache/old-output.bin").readBytes())
             assertEquals("/immutable/Wow.exe", java.nio.file.Files.readSymbolicLink(File(working, "Wow.exe").toPath()).toString())
         }
         assertTrue(built.sourceMetadataUnchanged); assertEquals(true, evidence["clientFullRehashValidated"])
         assertEquals(true, evidence["sourceMetadataUnchanged"])
+        assertEquals(true, evidence["freshOutputDirectoriesPrepared"])
+        assertEquals(200L, evidence["viewInputCacheBytes"]); assertEquals(200L, evidence["viewExcludedBytes"])
         assertEquals(result.catalogSha256, ClientStore(root).verify(validate = {}).catalogSha256)
     }
     @Test fun preflightRejectsSpaceAndIdentityBeforeFullFileReadsOrViewPublication() {
@@ -75,11 +80,13 @@ class ClientManagedViewTest {
         ClientStore(root).verify(validate = {})
     }
     @Test fun sourceMutationDuringSessionCannotBeReportedSuccessful() {
+        for (path in listOf("Data/a.mpq", "Cache/old-output.bin")) {
         val (_, store, result) = setup(); val evidence = mutableMapOf<String, Any>()
         try { ClientManagedView.run(store, File(temp.newFolder(), "view"), result.catalogSha256,
             validate = {}, pins = pins(), stamp = ::stamp, evidence = { k, v -> evidence[k] = v }) { original, _ ->
-            File(original, "Data/a.mpq").appendBytes(byteArrayOf(1))
+            File(original, path).appendBytes(byteArrayOf(1))
         }; fail() } catch (e: RuntimeInstallFailure) { assertEquals("runtime-changed", e.reason) }
         assertEquals(false, evidence["sourceMetadataUnchanged"])
+        }
     }
 }
