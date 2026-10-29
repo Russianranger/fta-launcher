@@ -5,25 +5,47 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current development: code 48 settings budget
+## Current delivery: code 48 settings budget
 
-Code 47 physically failed before Wine at `client-preflight / view-copy-limit`.
-The new aggregate costs identify **112,058,085 bytes / 4,491 files in WTF**,
-plus **4,117 configuration bytes**, above the 64 MiB copy cap. Cache exclusion
-worked (1,113,628 bytes); it was not enough to fit the settings. Runtime prehash
-passed, worker inactive, no memory pause or matching exit.
+**48 / 0.16.2-settings-budget** is signed and packaged.
+[APK, sources and one test](code48-recovery.md). APK **60,677,313 bytes**, SHA256
+`d152797c5046abbecd5edcfb2931eddf67916551f07c50b39a5d4b182d74d227`.
+All **247 package checks**, persistent v2 signing and 16 KiB alignment passed.
+All **25 native payloads / 148 runtime entries** match code 47 byte-for-byte.
+[Packaging proof](evidence/android-2026-10-29-private-settings-budget-apk.json).
+No native rebuild; the exact server companion from code 46 remains valid.
+
+Application **161720f9cea06e6fcb52374c3634ea673ec75b5b** passed foundation
+**40884250737**: **214 tooling**, **122 qualification** (no skips), **583 Android
+passed / one existing skip**, lint/assembly, native ownership, cache/JNI and full
+runtime installation/rehash under 96 MiB heap. [CI evidence](evidence/ci-2026-10-29-code48-foundation-pass.json).
+Same-commit ARM64 **40884250533** passed synthetic startup observation, guarded
+Wine, native storage and owned tracer cleanup. [Host evidence](evidence/host-2026-10-29-code48-guarded-observer-pass.json).
+
+Code 47 physically failed before Wine at `client-preflight / view-copy-limit`
+after **127,186 ms**. The new aggregate costs identify **112,058,085 bytes /
+4,491 files in WTF**, plus **4,117 configuration bytes**, above its 64 MiB cap.
+Cache exclusion worked (1,113,628 bytes); it was insufficient to fit settings.
+Runtime prehash passed, worker inactive, no pressure pause or matching exit.
 [Report assessment](evidence/android-2026-10-29-thor-code47-settings-budget.json).
 
-**48 / 0.16.2-settings-budget** preserves every setting in independent copies,
-raises their copy ceiling to 256 MiB, and freezes a separate 128 MiB output
-allowance above the prepared view before native entry. The initial view is
-bounded by the copy cap plus at most 1 MiB for launch settings. Polling and a
-terminal check enforce this total; it is not a filesystem quota. Prefix, free
-space, 256 KiB I/O buffers, source audits and ownership remain unchanged.
-Synthetic regressions reproduce the measured 112,062,202-byte / 4,491-WTF-file
-budget, source independence, reserve refusal and exact output-limit boundaries.
-Build and package qualification pending; do not deliver the foundation APK.
-Physical original startup remains unqualified. Do not repeat any passed gate.
+Code 48 preserves every setting in independent copies, raises their ceiling to
+256 MiB, and freezes a separate 128 MiB output allowance above the prepared view
+before native entry. The initial view is bounded by the copy cap plus at most
+1 MiB for launch settings. Five-second polling and a terminal check enforce the
+total; it is not a filesystem quota. Prefix, free space, 256 KiB I/O buffers,
+source audits and ownership remain unchanged. Synthetic regressions reproduce
+112,062,202 copied bytes / 4,491 WTF files, verify copy/source independence,
+reserve refusal and exact session-output boundaries. No private file content
+was used in the fixture.
+
+**Next:** install in place, keep 5 GiB free, airplane mode with Wi-Fi off,
+launcher visible and powered. Tap **Test original client startup** once. Allow
+roughly an hour for fresh full client verification plus runtime/prefix checks.
+Export after completion/failure/Stop before retrying; if disabled, export instead.
+No visible game window is expected. Physical original startup/rendering/login
+remain unqualified. Do not reimport, clear data, delete imported cache/settings,
+repeat Finish or rerun passed storage/runtime/server gates. Future code >=49.
 
 ## Superseded delivery: code 47 working-view budget
 
@@ -62,7 +84,7 @@ full client verification plus runtime/prefix checks; export after completion,
 failure or Stop before retrying. No visible game window: this is still a bounded
 headless startup test. Original-client startup/rendering/login remain physically
 unqualified. Do not reimport, clear data, delete imported caches, repeat Finish
-or rerun passed storage/runtime/server tests. Future updates require code >=48.
+or rerun passed storage/runtime/server tests. Future updates require code >=49.
 
 ## Superseded delivery: code 46
 
@@ -234,7 +256,7 @@ Private updates retain `FTA-Launcher-Development-Signing.zip`,
 `libfile_7f9c88258f0c8191a09ab071e7447d30`. Certificate
 `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Never regenerate keys, expose credentials or substitute the public foundation
-APK. Future updates use code >=48. [Code-47 recovery](code47-recovery.md) identifies
+APK. Future updates use code >=49. [Code-48 recovery](code48-recovery.md) identifies
 the exact bridge/application source and refreshed reproduction companion for
 the unchanged v15 native server. Both passed the strict packaging verifier. The code changes and measured evidence are pushed.
 

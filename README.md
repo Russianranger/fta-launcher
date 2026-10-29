@@ -49,8 +49,11 @@ synthetic client/host executables; physical original execution, rendering and
 login remain unqualified. Code 46 stopped at its mutable-copy budget before Wine.
 [Code 47](docs/code47-recovery.md) uses fresh session cache/output folders,
 preserves imported originals and settings, and records complete copy costs.
-Its Android and synthetic ARM64 gates passed; the original-client device
-test remains pending.
+Code 47's device report then identified 106.9 MiB of WTF settings exceeding the
+64 MiB copy cap. [Code 48](docs/code48-recovery.md) preserves those settings with
+a bounded 256 MiB copy allowance and separate 128 MiB session-output headroom.
+Its exact Android build/tests and synthetic ARM64 gates passed; physical
+original startup, rendering and login remain pending.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.

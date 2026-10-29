@@ -1,0 +1,61 @@
+{
+  "scope": "code48-exact-commit-foundation-build",
+  "commit": "161720f9cea06e6fcb52374c3634ea673ec75b5b",
+  "runId": 40884250737,
+  "runAttempt": 1,
+  "conclusion": "success",
+  "jobs": {
+    "android": 123483596763,
+    "tooling": 123483597144,
+    "publish": 123487580314
+  },
+  "toolingTestsPassed": 214,
+  "qualificationTestsPassed": 122,
+  "qualificationSkips": 0,
+  "androidUnitResults": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 584
+  },
+  "suites": 57,
+  "androidTestsPassed": 583,
+  "lintPassed": true,
+  "assemblyPassed": true,
+  "nativeOwnershipPassed": true,
+  "cacheAndHostJniPassed": true,
+  "runtimeStoreQualification": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "assemblySha256": "4572b4ef5b74d66f491df94d713d82e9394a88e1b060f2fb797f928ff53fe068",
+  "assemblyBytes": 20463228,
+  "clientSourceSha256": "a87d42553ffde90583939ac238c163adf480c56dbdbf228ace8f7f072c49a6a5",
+  "clientSourceBytes": 2703396,
+  "applicationSourceFilesMatched": 236,
+  "artifacts": [
+    {
+      "id": 12902581547,
+      "name": "fta-client-bridge-source-161720f9cea06e6fcb52374c3634ea673ec75b5b",
+      "sha256": "6bf3e270e849142e38553e9e450b5ffcd2e0a7606a2b34e3f75bdf300a15441e",
+      "bytes": 2702466
+    },
+    {
+      "id": 12902511745,
+      "name": "fta-foundation-debug-161720f9cea06e6fcb52374c3634ea673ec75b5b",
+      "sha256": "e0e12646a6e6e216dd6b7fbce0f590d671feb45edbd7524bb5787963373ef79e",
+      "bytes": 19940423
+    }
+  ],
+  "physicalVersionExecuted": false,
+  "renderingQualified": false,
+  "gameLoginQualified": false
+}

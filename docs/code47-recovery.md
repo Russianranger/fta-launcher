@@ -1,5 +1,10 @@
 # Code 47 — fresh working-session output folders
 
+**Superseded by [code 48](code48-recovery.md).** The returned report identified
+112,058,085 WTF bytes plus 4,117 other configuration bytes, exceeding this
+build's 64 MiB cap before Wine. Preserve the report and update in place; do not
+retry code 47. [Assessment](evidence/android-2026-10-29-thor-code47-settings-budget.json).
+
 [FTA-Launcher-0.16.1-view-budget.apk](https://chatgpt.com/library?file_id=libfile_7a9e67631c7481918459b318f9691fa2&account_id=personal)
 
 [FTA-Launcher-0.16.1-test-instructions.txt](https://chatgpt.com/library?file_id=libfile_07f720f4b5b88191b74dd20da166aec0&account_id=personal)
