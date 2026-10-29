@@ -5,26 +5,55 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Active work: code 51 client fault tracing
+## Current delivery: code 51 client fault tracing
 
-Code 50 **passed prefix setup**, all client verification and settings preparation.
-Original client process creation succeeded, then it exited early with
-**0xC0000005 (access violation)** before any host observation. No pressure event or
-matching Android exit; Wine Stop, owned cleanup and source metadata audit passed.
-[Assessment](evidence/android-2026-10-29-thor-code50-client-access-violation.json).
-No fault location is present; do not assert a root cause or claim startup passed.
+**51 / 0.17.1-client-fault** is signed and saved. [APK, sources and one device test](code51-recovery.md).
+This collects the missing crash location; **it is not a demonstrated crash fix**.
+APK **60,689,601 bytes**, SHA256
+`501ed646a4006f69090ee7bbaebd51b896beab829c269a77c09b822adf16c572`.
+All **247 package checks**, persistent v2 signing and 16 KiB alignment passed.
+All **25 native payloads / 148 runtime entries** match code 50 byte-for-byte.
+No native delivery rebuild; the exact code-46 server companion remains valid.
+[Packaging proof](evidence/android-2026-10-29-private-client-fault-apk.json).
 
-Code **51 / 0.17.1-client-fault** adds bounded process-correlated Wine 10.13
-SEH/module-load tracing during the existing original-startup invocation. It exports
-only fixed role IDs and numeric last-observed exception/range/access/exit facts.
-PIDs, private paths, raw logs and settings stay out of reports. No debugger attaches,
-original binary changes, memory threshold relaxation or qualified flag shortcut.
-A matching last observed exception is a candidate, not proof of fatal causality.
+Application **cb13b1753837609989eaf5ef9838f3054b1a1c7b** passed foundation
+**40927895734**: **214 tooling**, **135 qualification** (no skips), **597 Android
+passed / one existing skip**, lint/assembly, native ownership, cache/JNI and full
+runtime installation/rehash with 96 MiB heap. [CI evidence](evidence/ci-2026-10-29-code51-foundation-pass.json).
+Same-commit ARM64 **40927895789** passed normal startup plus an actual synthetic
+PE32 write fault: module 1 (Wow.exe), RVA **0x7f18**, access kind 1, exit
+**0xC0000005**, **767 ms**, two AV trace records, zero dropped lines/overflow.
+The fault case stayed failed; cleanup/source/runtime checks passed. The 56 Windows,
+50 native guard, seven root-refusal and normal/Stop/kill ownership checks passed.
+[ARM64 evidence](evidence/host-2026-10-29-code51-client-fault-pass.json).
+No original game execution or physical code-51 result is claimed.
 
-Pending exact-commit Android and ARM64 normal/fault fixture qualification, private
-packaging and one combined device report. A deliberate synthetic PE32 write fault
-must locate Wow.exe/RVA and remain failed with clean shutdown. Do not ship the
-foundation APK. Existing imports, settings, realm, runtime and passed gates remain.
+Code 50 **passed prefix setup in 100,368 ms**, all 60.24 GB client verification
+and independent settings preparation. Its original client process was created,
+then exited early with **0xC0000005** before host observation. No recorded pressure
+stop or matching Android exit. Wine Stop, owned cleanup and source audit passed;
+runtime posthash did not complete. [Assessment](evidence/android-2026-10-29-thor-code50-client-access-violation.json).
+This report has no faulting instruction/module. Do not assert a specific root
+cause or claim original startup passed. Cache eviction remains unmeasured.
+
+Code 51 adds bounded process-correlated Wine 10.13 SEH/module-load tracing only
+to original startup. Fixed numeric role/range/access/exit facts are exported;
+PIDs, raw logs, private paths/settings, register/stack contents are excluded.
+No debugger attaches and no original code or memory policy changes. PE headers,
+lines and process/module state are bounded; strict Android validation rejects
+malformed/inconsistent fields. Unknown or incomplete traces cannot claim a
+location candidate. The last observed exception can have been handled; matching
+exit codes do not prove fatal causality (`fatalExceptionLocationProven=false`).
+Normal event/terminal-marker capture continues beyond the raw trace prefix cap.
+[Design and roles 0..7](client-original-startup.md#bounded-fault-observations-from-code-51).
+
+**Next:** install in place, 5 GiB free internally, airplane mode with Wi-Fi off,
+launcher visible and powered. Tap **Test original client startup** once and export
+after completion/failure/Stop before retrying (or export if disabled). Allow
+40–60 minutes; no game window. A repeated failure is useful for the new fault
+location. No repeated attempts, reimports, clear data, settings/cache deletion,
+Finish, separate Verify or passed standalone gates. All data/receipts remain.
+Original startup/rendering/login remain unqualified. Future code **>=52**.
 
 ## Superseded delivery: code 50 prefix first
 

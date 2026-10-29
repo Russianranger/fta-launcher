@@ -60,8 +60,12 @@ confirmation with strict immediate-stop conditions. Code 49 measured full PSI
 verification/settings complete. [Code 50](docs/code50-recovery.md) prepares and
 reaps Wine before that long verification, adds bounded disposable-prefix cache
 advice and preserves the pressure thresholds. Exact-commit Android and ARM64
-two-invocation fixture checks pass; physical original startup, rendering and
-login remain pending.
+two-invocation fixture checks pass. Its device report then passed prefix setup,
+full verification and settings preparation, but Wow.exe exited early with
+0xC0000005 before host observation. [Code 51](docs/code51-recovery.md) adds bounded,
+process-correlated exception/module tracing, tested against a deliberate PE32
+write fault on ARM64. It collects the missing crash location; it is not a
+confirmed crash fix. Physical original startup, rendering and login remain pending.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.

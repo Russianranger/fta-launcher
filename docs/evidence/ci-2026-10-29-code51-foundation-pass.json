@@ -1,0 +1,64 @@
+{
+  "scope": "code51-exact-commit-foundation-build",
+  "commit": "cb13b1753837609989eaf5ef9838f3054b1a1c7b",
+  "runId": 40927895734,
+  "runAttempt": 1,
+  "conclusion": "success",
+  "jobs": {
+    "android": 123638206709,
+    "tooling": 123638207101,
+    "publish": 123643792279
+  },
+  "toolingTestsPassed": 214,
+  "qualificationTestsPassed": 135,
+  "qualificationSkips": 0,
+  "androidUnitResults": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 598
+  },
+  "suites": 58,
+  "androidTestsPassed": 597,
+  "lintPassed": true,
+  "assemblyPassed": true,
+  "nativeOwnershipPassed": true,
+  "cacheAndHostJniPassed": true,
+  "runtimeStoreQualification": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "assemblySha256": "08a3732f469d1495646d58c78ffcae4c4b1347bc58dc1191f364630cdd6d7193",
+  "assemblyBytes": 20476628,
+  "clientSourceSha256": "c67f6c03022b21f0cf96d02fa3274b9c4c659a571e57a18e99220c1b45d631b5",
+  "clientSourceBytes": 2762032,
+  "applicationSourceFilesMatched": 240,
+  "artifacts": [
+    {
+      "id": 12922111308,
+      "name": "fta-client-bridge-source-cb13b1753837609989eaf5ef9838f3054b1a1c7b",
+      "sha256": "c4660eb41254195343033c4a814b7fd57465b63303ba3a9417c9611fff1773a1",
+      "bytes": 2761116
+    },
+    {
+      "id": 12921717103,
+      "name": "fta-foundation-debug-cb13b1753837609989eaf5ef9838f3054b1a1c7b",
+      "sha256": "abc3373507c21e36ec2c825fe35952c12025a5b3dbe2050ca996612140cb1120",
+      "bytes": 19954456
+    }
+  ],
+  "arm64QualificationRunId": 40927895789,
+  "arm64Evidence": "host-2026-10-29-code51-client-fault-pass.json",
+  "physicalVersionExecuted": false,
+  "crashFixDemonstrated": false,
+  "renderingQualified": false,
+  "gameLoginQualified": false
+}

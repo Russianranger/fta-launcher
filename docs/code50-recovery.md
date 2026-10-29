@@ -1,5 +1,11 @@
 # Code 50 — prepare Wine before the long client verification
 
+**Code 50 passed prefix preparation and reached the original client process.**
+The returned report then recorded an early 0xC0000005 exit. Preserve this report
+and earlier passes. [Assessment](evidence/android-2026-10-29-thor-code50-client-access-violation.json).
+[Code 51](code51-recovery.md) adds bounded fault-location diagnostics; follow its
+current recovery notes.
+
 [FTA-Launcher-0.17.0-prefix-first.apk](https://chatgpt.com/library?file_id=libfile_4f3aa91a3fc88191b5ff1e0a1058762f&account_id=personal)
 
 [FTA-Launcher-0.17.0-test-instructions.txt](https://chatgpt.com/library?file_id=libfile_05d06d4d8d98819182f93f1daf628212&account_id=personal)
