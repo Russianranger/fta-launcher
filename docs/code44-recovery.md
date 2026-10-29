@@ -1,5 +1,9 @@
 # Code 44 — finish retained protected Wine verification
 
+**Report received:** runtime verification failed with access denied. Use
+[code 45](code45-recovery.md), which repairs the reproduced empty bind-placeholder
+leak before full verification. The instructions below describe the older update.
+
 [FTA-Launcher-0.15.2-guarded-finish.apk](https://chatgpt.com/library?file_id=libfile_fded3867fea481919aa8d98b7ffc3865&account_id=personal)
 
 **44 / 0.15.2-guarded-finish**, **60,541,967 bytes**, SHA256:
@@ -39,7 +43,8 @@ numeric errno when available. [Recovery contract](client-guarded-finish.md).
 Do not repeat the protected Wine run, runtime preparation, standalone Verify,
 client import, storage-isolation or server tests. Replacing the saved attempt
 would discard the evidence needed by this recovery. Original-client execution,
-rendering and login remain unqualified. Code 44's device result is pending.
+rendering and login remain unqualified. Code 44's returned device report failed
+with access denied; use the code-45 instructions linked above.
 
 ## Measured build checks
 

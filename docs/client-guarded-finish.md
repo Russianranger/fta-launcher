@@ -46,7 +46,9 @@ become a successful completion.
 ## Code-44 finding and scoped cleanup
 
 The returned code-44 report identifies `runtime-pre-verify / access-denied` after
-all file bytes were read. No Wine process was restarted. [Assessment](evidence/android-2026-10-28-thor-code44-access-denied.json).
+all file bytes were read. The entry counter records the last file-progress
+callback, not the failing path; an unreadable extra directory can throw inside
+`Files.walk` before the catalog callback rejects it. No Wine process was restarted. [Assessment](evidence/android-2026-10-28-thor-code44-access-denied.json).
 
 The pinned PRoot `src/path/glue.c` creates mode-zero placeholders for missing
 bind targets and registers exit destructors to remove them. SIGKILL bypasses
@@ -54,13 +56,19 @@ those destructors. Code 43 adds `/immutable` and `/view`, absent from the runtim
 catalog, and deliberately kills a tracer during its ownership check. Normal Wine
 CI previously omitted that preceding guarded ownership sequence. Code 45 adds
 an explicit reproduction and checks prevention through normal, Stop, killed
-tracer and guarded Wine lifecycles.
+tracer and guarded Wine lifecycles. [Native ARM64 CI reproduced both mode-zero
+placeholders and passed the fixed sequence](evidence/host-2026-10-28-bind-placeholder-recovery-pass.json),
+including all 56 Windows checks and full runtime rehash. The exact device
+directory identities still await the recovery report.
 
 Every future client probe sets `PROOT_DONT_POLLUTE_ROOTFS=1`. For the retained
 attempt only, after exact saved-file/transcript validation and while holding the
 runtime lease, recovery accepts only the two known uncatalogued names as real,
-app-owned, permission-zero directories with link count two. Android `rmdir`
-removes each atomically only if empty. There is no chmod, recursion or file
+app-owned, permission-zero directories with link count two. Android’s `SecureDirectoryStream.deleteDirectory`
+uses directory-only removal relative to an open parent; it refuses files, links
+and nonempty directories. The Android 13 provider and native capability checks
+were checked against the tagged AOSP source; API 26+ supplies the required
+libc calls. Unsupported providers are refused. There is no chmod, recursion or file
 removal; any other type, mode, owner or catalog membership is refused. Other
 unexpected entries still fail full verification. Removal count and completed
 cleanup checks are exported. No runtime integrity rule is relaxed.

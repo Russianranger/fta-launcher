@@ -5,8 +5,8 @@ on code 37, retained native world/session/Stop on code 34, and the ten-stage mix
 runtime/ownership/pre-post integrity gate on code 41. Preserve those results.
 The bounded working-view core is implemented for disposable fixtures; integration
 with the original client remains unimplemented. Code 43 passed its 56 Windows
-checks but failed final verification. Complete [code 44's retained-evidence
-recovery](client-guarded-finish.md) before advancing the physical gate.
+checks but failed final verification. Code 44 identified access denial;
+complete [code 45's retained-evidence and bind-placeholder recovery](client-guarded-finish.md) before advancing the physical gate.
 
 The imported client contains 10,476 files / 60,243,212,332 bytes and remains an
 inert integrity baseline. Its original configurations, binaries, MPQs and modern

@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "applicationCommit": "d09350364a38ceaed4d992ee67b9b3352994579f",
+  "workflowRunId": 40792082906,
+  "workflowAttempt": 2,
+  "workflowConclusion": "success",
+  "androidJobId": 123180496994,
+  "toolingJobId": 123180499853,
+  "toolingTests": 214,
+  "qualificationTests": 106,
+  "qualificationSkipped": 0,
+  "androidUnitResults": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 567
+  },
+  "suites": 54,
+  "lintPassed": true,
+  "assemblyPassed": true,
+  "nativeOwnershipPassed": true,
+  "jniCacheChecksPassed": true,
+  "runtime": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "assembledApkSha256": "2ab2ba40df419b5cd6318dac9c3f010488dd9db30523101cf13ee36498ed6c9d",
+  "androidExecutionQualified": false
+}

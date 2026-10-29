@@ -7,38 +7,56 @@ and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVEL
 
 ## Current delivery and next test
 
-**44 / 0.15.2-guarded-finish** is delivered with the original persistent signer.
-[APK, sources and test instructions](code44-recovery.md). APK: **60,541,967 bytes**,
-SHA256 `4b077c577f00249413ea933ecda09ca70ccef184dc2d730fd7998d8ed43b9bcb`.
-[Packaging proof](evidence/android-2026-10-28-private-guarded-finish-apk.json): all
-**25** native payloads and **148** runtime entries byte-identical to code 43;
+**45 / 0.15.3-bind-cleanup** is delivered with the original persistent signer.
+[APK, sources and test instructions](code45-recovery.md). APK: **60,546,063 bytes**,
+SHA256 `f1b84656765cc4ba2c59e5e786e5bfc1f41e9e733f8a87cc52113ff10c5355b8`.
+[Packaging proof](evidence/android-2026-10-28-private-bind-cleanup-apk.json): all
+**25** native payloads and **148** runtime entries byte-identical to code 44;
 **245** checks, v2 signing and 16 KiB alignment passed. No native payload was
 rebuilt for private delivery. The realm, imports and installed runtime remain.
 
-Application **10896f7f58c71735cad7e6e6d84f379e23c656c3** passed foundation
-**40784628222**: **214** tooling, **106** qualification (no skips), **559 Android
-passed / one existing skip** in 53 suites, lint/assembly, ownership, cache/JNI and
-full runtime installation/rehash with a 96 MiB heap. Guarded Wine **40784628266**
-passed 56 checks / six stages, full rehash and unchanged source on ARM64 Linux,
-plus 50 native guard checks / seven root refusals. [CI record](evidence/ci-2026-10-28-code44-foundation-pass.json).
+Application **d09350364a38ceaed4d992ee67b9b3352994579f** passed foundation
+**40792082906**, attempt 2: **214** tooling, **106** qualification (no skips),
+**566 Android passed / one existing skip** in 54 suites, lint/assembly, ownership,
+cache/JNI and full runtime installation/rehash with a 96 MiB heap.
+[CI record](evidence/ci-2026-10-28-code45-foundation-pass.json).
+Guarded Wine **40791282750** on **55ac0fb** reproduced two legacy mode-zero
+placeholders after tracer death, then passed fixed normal/Stop/kill ownership,
+56 Windows checks / six stages, full rehash and unchanged source on ARM64 Linux,
+plus 50 native guard checks / seven root refusals. Mixed runtime **40791282689**
+also passed. The final application commit changes only the Android directory-only
+deletion API and its regression; the qualified harness/probe environment is unchanged.
+[Host proof](evidence/host-2026-10-28-bind-placeholder-recovery-pass.json).
 
 **Code 43's overall Thor gate is incomplete.** Its exact APK report contains all
 56 Windows checks and six stages zero, unchanged source, completed owned cleanup,
 worker inactive and no matching exit. It ended `failed / io-failed` after
-368,944 ms. Post-runtime verification is not qualified. I/O counters are consistent
-with a late post-verification/completion failure, but the phase/category and root
-cause are unknown. Do not call this a full pass or a low-memory kill.
+368,944 ms. Post-runtime verification is not qualified. Do not call this a full
+pass or a low-memory kill.
 [Assessment](evidence/android-2026-10-28-thor-code43-incomplete.json).
 
-**Next physical test: Finish protected Wine verification, once.** Install code 44
-in place, keep the launcher visible, use that new action and export the diagnostic
+**Code 44 failed at `runtime-pre-verify / access-denied`**, after 122,548 ms.
+All file bytes were read, but the last file-progress count is not proof that
+directory verification completed. No matching exit, pressure pause or Wine rerun.
+[Assessment](evidence/android-2026-10-28-thor-code44-access-denied.json).
+The pinned PRoot creates mode-zero bind placeholders; the forced tracer kill
+bypasses their exit destructors. CI now reproduces `/immutable` and `/view`
+leftovers and tests the complete guarded ownership sequence. The exact device
+directory identities still await recovery. Future probes prevent this pollution.
+
+**Next physical test: Finish protected Wine verification, once.** Install code 45
+in place, keep the launcher visible, use that action and export the diagnostic
 JSON afterward. If unavailable or failed, return JSON before another action.
-Recovery preserves the original report, checks the exact retained fixture assets,
-source/view/transcript and cleanup marker, and performs one fresh full runtime
-rehash under its lease. It runs no Wine/native probe, creates no new prefix and
+Recovery preserves the original report and checks the exact retained fixture assets,
+source/view/transcript and cleanup marker under the runtime lease. It then removes
+only the two known uncatalogued, app-owned, empty mode-zero bind directories and
+performs one fresh full runtime rehash. `SecureDirectoryStream.deleteDirectory`
+refuses files, links and nonempty directories; no chmod or recursion is used.
+It runs no Wine/native probe, creates no new prefix and
 does not touch the import. Missing/changed evidence is refused. It exports a
 separate `clientGuardedWineFinish` report with original attempt/report/transcript
-bindings and bounded failure phase/category/errno. [Contract](client-guarded-finish.md).
+bindings, `runtimeBindPlaceholdersRemoved` / `runtimeBindPlaceholdersChecked`
+and bounded failure phase/category/errno. [Contract](client-guarded-finish.md).
 Do not rerun protected Wine or any passed import/runtime/storage/server gate.
 
 The working-view core is implemented for disposable fixtures: protected guest
@@ -75,7 +93,9 @@ passed. It is not a demonstrated original-client compatibility result.
 
 **Preserve the code-41 result and all retained data; code 42's storage test also passed.**
 Do not repeat those passed import, standalone runtime or server tests. The
-code-43 guarded attempt remains incomplete; code 44 finishes its verification. Original WarcraftXL execution, rendering and login remain unqualified.
+code-43 guarded attempt remains incomplete; code 45 repairs the reproduced
+placeholder leak and finishes its verification. Original WarcraftXL execution,
+rendering and login remain unqualified.
 
 ## Active development: isolated original-client working view
 
@@ -86,8 +106,9 @@ modify imports or silently copy 60 GB. The separately pinned guard passed its
 native Linux and physical Android fixture. Guarded PE32/PE64 access now passes
 native ARM64 Linux, and the bounded working-view builder is implemented.
 
-**Await the code-44 finish report**, bind its exact APK, original code-43 attempt
-and report/transcript digests, retained-file checks, complete fresh runtime rehash,
+**Await the code-45 finish report**, bind its exact APK, original code-43 attempt
+and report/transcript digests, retained-file checks, scoped cleanup count/checks,
+complete fresh runtime rehash,
 lease release, inactive worker and exit history. Preserve the original failed
 report and earlier passes. Then advance the original-client view under `ClientStore.withVerifiedClient`;
 retain its lease until every owned reader exits. Actual original-client view,
@@ -145,7 +166,7 @@ Private updates retain `FTA-Launcher-Development-Signing.zip`,
 `libfile_7f9c88258f0c8191a09ab071e7447d30`. Certificate
 `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Never regenerate keys, expose credentials or substitute the public foundation
-APK. Future updates use code >=45. [Code-44 recovery](code44-recovery.md) identifies
+APK. Future updates use code >=46. [Code-45 recovery](code45-recovery.md) identifies
 the exact bridge/application source and unchanged v15 server source; both passed
 the strict packaging verifier. The code changes and measured evidence are pushed.
 
