@@ -25,10 +25,26 @@ location, not proven fatal causality or a specific dependency fault.
 Code 52 addresses verification speed. The original-client crash remains
 unresolved; startup, rendering and login remain unqualified. Fivefold configured
 I/O rate is not a measured fivefold total-attempt speedup: storage, hashing and
-scheduler performance still determine elapsed time. Physical code-52 speed and
-pressure behavior require the next report.
+scheduler performance still determine elapsed time. The returned device result is recorded below.
 
-## One combined test
+## Returned physical code-52 result
+
+The returned [report assessment](evidence/android-2026-10-29-thor-code52-speed-and-repeat-fault.json)
+records **7m26s**, down from code 51's **39m15s**: a **5.28x** elapsed ratio across
+these two attempts, with the same accounted I/O/client/settings volumes and no
+pressure pauses. Requested pacing fell from 1,699,713 to 137,522 ms. Keep the
+faster governor. This is not a controlled storage benchmark.
+
+Prefix setup and full client verification passed. The original process repeated
+the identical fault candidate and exited after 4424 ms. No new APK or repeated
+device test is requested yet. The next required input is the original client-root
+**Wow.exe** (7,702,016 bytes), matching SHA256
+`c4ea8503112878fa47d06580de9d936b184f9bb6b452f6931dfe793fe2f0a47e`,
+for read-only analysis of the observed instruction and target image section.
+Existing DLL/host uploads do not contain that executable. Startup/rendering/login
+remain unqualified; do not infer a specific defect or patch from an address alone.
+
+## Original combined test (completed; do not repeat yet)
 
 1. Install code 52 over the existing launcher, preserving all app data/imports.
 2. Keep **5 GiB free internally**, airplane mode with Wi-Fi off, power connected,

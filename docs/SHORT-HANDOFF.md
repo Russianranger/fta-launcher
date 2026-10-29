@@ -21,7 +21,10 @@ elapsed reading/hashing time counts toward the deadline. After a stall only the
 current <=256 KiB operation may proceed; idle credit does not accumulate.
 Full hashes, leases, 1 MiB cache/write/readback windows, Stop and all pressure
 thresholds remain. No extra workers, native or original-client changes.
-Physical fivefold total-attempt improvement is **not yet measured**.
+The returned physical attempt fell from **39m15s to 7m26s (5.28x)** with identical
+accounted I/O and zero pressure pauses. Keep this implementation. This compares
+two reported attempts; it is not a controlled storage benchmark.
+[Code-52 assessment](evidence/android-2026-10-29-thor-code52-speed-and-repeat-fault.json).
 
 Application **10912350bdc639c2204aab4063606aaeb8612037** passed foundation
 **40938186319 attempt 2**: **600 Android passed / one existing skip**, **214
@@ -39,12 +42,21 @@ client image roles observed. Fatal causality is unproven; the crash is unresolve
 Original startup/rendering/login remain unqualified. Preserve this candidate
 for further investigation against the exact imported Wow.exe, not a guessed build.
 
-**Next:** install code 52 in place, 5 GiB free internally, airplane mode with
-Wi-Fi off, launcher visible and powered. Tap **Test original client startup**
-once; export JSON after completion/failure/Stop before retrying (or export if
-disabled). Compare rate **251658240**, elapsed, I/O and pacing/pressure waits with
-code 51. No game window expected. No reimport, clear data, settings/cache deletion,
-Finish, separate Verify or passed standalone gates. Future code **>=53**.
+Code 52 repeated the same fault candidate exactly (all fault fields except exit
+elapsed); client exit occurred at **4424 ms**. Prefix setup, all client hashes,
+settings, source metadata and owned cleanup passed. Runtime posthash did not
+complete after failure. No matching Android exit or memory-pressure pause.
+
+**Next:** obtain the exact original client-root **Wow.exe**, **7,702,016 bytes**,
+SHA256 `c4ea8503112878fa47d06580de9d936b184f9bb6b452f6931dfe793fe2f0a47e`.
+It is not among supplied files; existing WarcraftXL DLL/proxy/host are available.
+Inspect its PE section permissions and instruction/control flow around candidate
+RVA **0x5c7898**, and the write target RVA **0x9fe000**. Do not substitute a stock
+build, infer fatal causality from equal exception/exit codes, or patch permissions
+without evidence. No full client upload, repeated device test, reimport, clear
+data or passed standalone gate is needed yet. Keep code 52 installed and preserve
+all reports/settings/receipts. No new APK has been built from this assessment.
+Future application code **>=53**.
 
 ## Superseded delivery: code 51 client fault tracing
 
