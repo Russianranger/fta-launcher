@@ -20,7 +20,12 @@ int main(int argc, char **argv) {
     UnmapViewOfFile(words); CloseHandle(mapping); CloseHandle(parent);
     return status == WAIT_OBJECT_0 ? 0 : 6;
 #else
-    (void)argc; (void)argv;
+    if (argc == 3 && !strcmp(argv[2], "--fta-fixture-crash")) {
+        volatile DWORD *page = VirtualAlloc(NULL, 4096, MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
+        if (!page) return 12;
+        *page = 42; // Actual synthetic write fault in this PE32 image, never private game code.
+        return 13;
+    }
     char args[160]; snprintf(args, sizeof(args), "\"Z:\\view\\Utils\\WarcraftXLHost.exe\" --client-pid %lu", (unsigned long)GetCurrentProcessId());
     STARTUPINFOA info; memset(&info, 0, sizeof(info)); info.cb = sizeof(info);
     PROCESS_INFORMATION host; memset(&host, 0, sizeof(host));

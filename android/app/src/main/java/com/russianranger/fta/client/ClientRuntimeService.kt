@@ -223,7 +223,10 @@ class ClientRuntimeService : Service() {
                         }
                     }
                     fun observeNative(text: String, preparingPrefix: Boolean) {
-                        if (!preparingPrefix) report.put("startupEvents", JSONObject(ClientStartupProtocol.values(text)))
+                        if (!preparingPrefix) {
+                            report.put("startupEvents", JSONObject(ClientStartupProtocol.values(text)))
+                            report.put("startupFault", JSONObject(ClientStartupFault.parse(text)))
+                        }
                         val stages = JSONObject()
                         val expected = if (preparingPrefix) ClientStartupProtocol.prefixStages else ClientStartupProtocol.stages
                         for (line in text.lineSequence()) {

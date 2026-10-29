@@ -39,21 +39,30 @@ static int stop_client(PROCESS_INFORMATION *client) {
     return WaitForSingleObject(client->hProcess, 10000) == WAIT_OBJECT_0;
 }
 int main(int argc, char **argv) {
-    int fixture = argc == 2 && !strcmp(argv[1], "--fixture");
+    int fixture_crash = argc == 2 && !strcmp(argv[1], "--fixture-crash");
+    int fixture = argc == 2 && (!strcmp(argv[1], "--fixture") || fixture_crash);
     if (argc != 2 || (!fixture && strcmp(argv[1], "--original"))) return 2;
     STARTUPINFOA info; memset(&info, 0, sizeof(info)); info.cb = sizeof(info);
     PROCESS_INFORMATION client; memset(&client, 0, sizeof(client));
     HANDLE mapping = NULL, host = NULL; void *view = NULL; int passed = 0;
-    char command[] = "\"Z:\\view\\Wow.exe\" -windowed";
+    char command[128]; snprintf(command, sizeof(command), "\"Z:\\view\\Wow.exe\" -windowed%s", fixture_crash ? " --fta-fixture-crash" : "");
+    ULONGLONG began = GetTickCount64();
     if (!CreateProcessA("Z:\\view\\Wow.exe", command, NULL, NULL, FALSE, 0, NULL, "Z:\\view", &info, &client)) {
         event("client-create-error", GetLastError()); return 10;
     }
+    // Correlation markers are consumed privately by the bounded guest parser.
+    // Android exports neither the PID nor raw guest output.
+    printf("FTA_CLIENT_PROCESS %lu\n", (unsigned long)client.dwProcessId); fflush(stdout);
     event("client-started", 1);
     char name[96]; snprintf(name, sizeof(name), "Local\\WarcraftXLShm_%lu", (unsigned long)client.dwProcessId);
     ULONGLONG deadline = GetTickCount64() + (fixture ? 10000 : 90000);
     do {
         if (WaitForSingleObject(client.hProcess, 0) != WAIT_TIMEOUT) {
-            DWORD status = 0; if (GetExitCodeProcess(client.hProcess, &status)) event("client-early-exit", status);
+            DWORD status = 0; if (GetExitCodeProcess(client.hProcess, &status)) {
+                event("client-early-exit", status);
+                printf("FTA_CLIENT_EXIT %lu %lu %llu\n", (unsigned long)client.dwProcessId,
+                    (unsigned long)status, (unsigned long long)(GetTickCount64() - began)); fflush(stdout);
+            }
             goto done;
         }
         mapping = OpenFileMappingA(FILE_MAP_READ, FALSE, name);

@@ -134,3 +134,50 @@ The ARM64 fixture gate performs real separate prefix/startup invocations, checks
 prefix cache advice was exercised, and fully rehashes the runtime between and
 after them. Synthetic client/host ownership checks still do not qualify original
 WarcraftXL, rendering or login. One combined device test remains necessary.
+
+## Bounded fault observations from code 51
+
+Code 50 completed prefix preparation and full source verification but its original
+client process exited early with **0xC0000005**. Microsoft defines this as an
+[access violation](https://learn.microsoft.com/en-us/shows/inside/c0000005).
+No faulting instruction/module or access parameters were saved, so that code
+alone cannot identify a specific game, proxy, WarcraftXL, Wine or FEX defect.
+
+Code 51 enables `trace+seh`, `trace+loaddll` and PID headers for the original
+startup command only. Prefix preparation and memory policy remain unchanged.
+The existing observer privately identifies its owned Windows client PID and early
+exit/elapsed time; the streaming parser correlates only that process. Neither PID
+nor raw Wine output reaches Android reports. No debugger is attached and no game
+code, DLL, import or settings are rewritten.
+
+The parser follows Wine 10.13's [exception trace](https://github.com/wine-mirror/wine/blob/wine-10.13/dlls/ntdll/exception.c),
+[module trace](https://github.com/wine-mirror/wine/blob/wine-10.13/dlls/ntdll/loader.c)
+and [PID header](https://github.com/wine-mirror/wine/blob/wine-10.13/dlls/ntdll/unix/debug.c).
+It reads only bounded PE headers from verified fixed images, then matches exact
+allowlisted load paths and ranges. Role IDs: 0 unknown, 1 Wow.exe, 2 WarcraftXL.dll,
+3 root d3d9.dll, 4 x86 ntdll, 5 x86 kernelbase, 6 x86 kernel32, 7 x86 wined3d.
+Unknown paths, unknown replacements, unloaded ranges, range overlaps and missing
+headers cannot acquire a named role. Module/RVA capture occurs at exception time.
+
+Limits are 4 KiB per line, 32 process states before private PID correlation, 128
+known module ranges per process, 64 fixed event records and 256 KiB retained raw
+prefix. Streaming event/marker capture continues past that raw prefix cap.
+Oversized lines and state overflow are explicit, and incomplete traces cannot
+claim an available location candidate. The strict Android validator requires
+all fixed fields, integer ranges, access-kind/range/exit consistency and no extras.
+The report exports numeric exception/access addresses, flags, module base/size/RVA,
+fixed loaded-client-module bits, counts and elapsed exit time. No stack memory,
+register dumps, file names outside the fixed role list or configurations escape.
+
+The **last observed** access violation can have been handled before a later exit.
+Matching exception and exit codes therefore do not prove fatal causality; the
+export always sets `fatalExceptionLocationProven=false`. Trace observations never
+promote original-startup/rendering/login qualification. The synthetic ARM64 test
+adds a third invocation that deliberately writes to a PAGE_NOACCESS page in its
+PE32 Wow.exe fixture; it must report the correct write/module/RVA and remain a
+failed startup, with Wine/native cleanup and source/runtime integrity preserved.
+Only that explicitly selected synthetic fixture retains a bounded raw trace in
+its CI artifact; the production `--original` mode never saves raw Wine output.
+
+The next device gate remains one combined original-startup attempt and export.
+It collects the missing crash location; code 51 is not a demonstrated crash fix.

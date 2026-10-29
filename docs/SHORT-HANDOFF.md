@@ -5,7 +5,28 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery: code 50 prefix first
+## Active work: code 51 client fault tracing
+
+Code 50 **passed prefix setup**, all client verification and settings preparation.
+Original client process creation succeeded, then it exited early with
+**0xC0000005 (access violation)** before any host observation. No pressure event or
+matching Android exit; Wine Stop, owned cleanup and source metadata audit passed.
+[Assessment](evidence/android-2026-10-29-thor-code50-client-access-violation.json).
+No fault location is present; do not assert a root cause or claim startup passed.
+
+Code **51 / 0.17.1-client-fault** adds bounded process-correlated Wine 10.13
+SEH/module-load tracing during the existing original-startup invocation. It exports
+only fixed role IDs and numeric last-observed exception/range/access/exit facts.
+PIDs, private paths, raw logs and settings stay out of reports. No debugger attaches,
+original binary changes, memory threshold relaxation or qualified flag shortcut.
+A matching last observed exception is a candidate, not proof of fatal causality.
+
+Pending exact-commit Android and ARM64 normal/fault fixture qualification, private
+packaging and one combined device report. A deliberate synthetic PE32 write fault
+must locate Wow.exe/RVA and remain failed with clean shutdown. Do not ship the
+foundation APK. Existing imports, settings, realm, runtime and passed gates remain.
+
+## Superseded delivery: code 50 prefix first
 
 **50 / 0.17.0-prefix-first** is signed and saved. [APK, sources and one device test](code50-recovery.md).
 APK **60,681,409 bytes**, SHA256

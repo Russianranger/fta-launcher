@@ -92,6 +92,11 @@ object ClientRuntimeReport {
             result.put("windowsDeletion", deletion)
         }
         if (original) {
+            val fault = ClientStartupFault.validate(raw.optJSONObject("startupFault")?.let { values(it) } ?: emptyMap())
+            result.put("startupFault", JSONObject(fault))
+                .put("faultLocationCandidateAvailable", ClientStartupFault.locationCandidateAvailable(fault))
+                .put("fatalExceptionLocationProven", false)
+            fault["moduleId"]?.let { result.put("faultModuleCandidate", ClientStartupFault.modules[it.toInt()]) }
             val events = JSONObject()
             for (key in ClientStartupProtocol.events) (raw.optJSONObject("startupEvents")?.opt(key) as? Number)?.let {
                 if ((it is Int || it is Long) && it.toLong() in 0..0xffffffffL) events.put(key, it)

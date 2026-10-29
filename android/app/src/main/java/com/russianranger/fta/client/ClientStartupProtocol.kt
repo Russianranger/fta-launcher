@@ -50,7 +50,7 @@ object ClientStartupProtocol {
     fun validate(text: String, exit: Int): Map<String, Long> {
         val values = values(text); val lines = text.lineSequence().toList()
         runtimeRequire(exit == 0 && lines.count { it == "FTA_CLIENT_STARTUP_PASS" } == 1 &&
-            lines.none { it in setOf("FTA_CLIENT_STARTUP_FAILED", "FTA_CLIENT_STOP_FAILED") } &&
+            lines.none { it in setOf("FTA_CLIENT_STARTUP_FAILED", "FTA_CLIENT_STOP_FAILED", "FTA_CLIENT_TRACE_OVERFLOW") } &&
             lines.filter { it.startsWith("FTA_ANDROID_STAGE ") } == stages.map { "FTA_ANDROID_STAGE $it 0" } &&
             lines.count { it.startsWith("FTA_CLIENT_EVENT ") } == values.size &&
             required.all { values[it] == 1L } && values["host-channels"]?.let { it in 2L..16L } == true &&

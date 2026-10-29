@@ -13,7 +13,7 @@ from check_guarded_wine import snapshot
 from check_android_runtime_path import verify
 from build_runtime_catalog import catalog
 from check_client_runtime import LOCK
-from original_startup import STAGES, EVENTS, PREFIX_STAGES
+from original_startup import STAGES, EVENTS, PREFIX_STAGES, FAULT_BOUNDS
 
 
 def transcript(text, status):
@@ -52,6 +52,32 @@ def prefix_transcript(text, status):
     return dict(syncedFiles=synced, acceptedFiles=accepted, errors=errors, advisedBytes=byte_count, actualEvictionMeasured=False)
 
 
+def fault_transcript(text, status):
+    lines = text.splitlines()
+    if status != 1 or lines.count('FTA_CLIENT_STARTUP_FAILED') != 1 or 'FTA_CLIENT_STARTUP_PASS' in lines:
+        raise ValueError('crash fixture must remain failed')
+    expected = [f'FTA_ANDROID_STAGE {s} {11 if s == "original-startup" else 0}' for s in STAGES]
+    if [l for l in lines if l.startswith('FTA_ANDROID_STAGE ')] != expected:
+        raise ValueError('crash fixture cleanup incomplete')
+    if [l for l in lines if l.startswith('FTA_CLIENT_EVENT ')] != ['FTA_CLIENT_EVENT client-started 1', 'FTA_CLIENT_EVENT client-early-exit 3221225477']:
+        raise ValueError('crash fixture exit differs')
+    fault = {}
+    for line in lines:
+        if not line.startswith('FTA_CLIENT_FAULT '): continue
+        f = line.split(' ')
+        if len(f) != 3 or f[1] not in FAULT_BOUNDS or f[1] in fault or not f[2].isdigit() or int(f[2]) > FAULT_BOUNDS[f[1]]:
+            raise ValueError('invalid fault observation')
+        fault[f[1]] = int(f[2])
+    if fault.keys() != FAULT_BOUNDS.keys(): raise ValueError('fault details missing')
+    required = dict(pidCorrelated=1, traceLinesDropped=0, traceStateOverflow=0, exceptionCode=0xc0000005,
+        accessType=1, accessDetailsKnown=1, moduleId=1, exitCode=0xc0000005, exitObserved=1, exceptionMatchesExit=1)
+    if any(fault[k] != v for k, v in required.items()) or fault['accessViolationCount'] < 1 or not fault['loadedClientModules'] & 1:
+        raise ValueError('synthetic write fault not correlated: ' + json.dumps(fault, sort_keys=True))
+    if not 0 <= fault['moduleRva'] < fault['moduleSize'] or fault['moduleBase'] + fault['moduleRva'] != fault['exceptionAddress']:
+        raise ValueError('fault module location differs')
+    return fault
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('proot', 'loader', 'archive', 'runtime', 'fixtures', 'work'): parser.add_argument('--' + name, type=Path, required=True)
@@ -68,14 +94,14 @@ def main():
     before = snapshot(original)
     with tempfile.TemporaryDirectory(prefix='fta-original-') as temporary:
         tmp = Path(temporary)
-        def command(prepare):
+        def command(prepare, crash=False):
             cmd = [str(a.proot.resolve()), '--kill-on-exit', '--fta-readonly=' + str(work / 'prefix-source' if prepare else original), '--sysvipc', '-0', '-r', str(root), '-b', '/dev', '-b', '/proc', '-b', '/sys']
             for source, target in ((a.fixtures.resolve(), '/client'), (work / 'prefix-source' if prepare else original, '/immutable'),
                     (work / 'prefix-view' if prepare else view, '/view'), (work / 'prefix', '/prefix'),
                     (work / 'session', '/session'), (work / 'cache', '/var/cache'), (tmp, '/tmp')):
                 cmd += ['-b', f'{source}:{target}']
             return cmd + ['-w', '/view', '/usr/bin/env', '-i', 'PYTHONDONTWRITEBYTECODE=1', '/usr/bin/python3', '-B',
-                '/client/original_startup.py', '--prepare' if prepare else '--fixture']
+                '/client/original_startup.py', '--prepare' if prepare else '--fixture-crash' if crash else '--fixture']
         environment = dict(os.environ, PROOT_LOADER=str(a.loader.resolve()), PROOT_TMP_DIR=str(tmp), PROOT_NO_SECCOMP='1', PROOT_DONT_POLLUTE_ROOTFS='1')
         with (work / 'prefix.log').open('wb') as log:
             prefix = subprocess.run(command(True), stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, env=environment, timeout=1000)
@@ -88,6 +114,14 @@ def main():
         with (work / 'probe.log').open('wb') as log:
             process = subprocess.run(command(False), stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
                 env=environment, timeout=1000)
+        verify(root, rows)
+        if snapshot(original) != before: raise ValueError('protected source changed')
+        with (work / 'fault.log').open('wb') as log:
+            crash = subprocess.run(command(False, crash=True), stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
+                env=environment, timeout=1000)
+        with (work / 'fault.log').open('rb') as stream: fault_data = stream.read(65537)
+        if len(fault_data) > 65536: raise ValueError('oversized fault transcript')
+        fault = fault_transcript(fault_data.decode(), crash.returncode)
     with (work / 'probe.log').open('rb') as stream: data = stream.read(65537)
     if len(data) > 65536: raise ValueError('oversized startup transcript')
     events = transcript(data.decode(), process.returncode)
@@ -95,6 +129,7 @@ def main():
     verify(root, rows)
     result = dict(scope='synthetic-original-startup-observer-on-arm64', events=events, prefixPreparedBeforeClientExposure=True,
         prefixCache=prefix_cache, separateOwnedPrefixInvocation=True,
+        syntheticWriteFault=fault, faultRemainsFailed=True, rawPrivateLogsExported=False,
         protectedSourceUnchanged=True, fullRuntimePrePostRehash=True, originalClientExecuted=False,
         androidExecuted=False, warcraftXLCompatible=False, gameLoginQualified=False)
     (work / 'evidence.json').write_text(json.dumps(result, indent=2) + '\n'); print(json.dumps(result))
