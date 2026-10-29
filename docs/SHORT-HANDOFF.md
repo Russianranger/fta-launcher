@@ -5,58 +5,52 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Active fix: code 47 working-view budget
+## Current delivery: code 47 working-view budget
+
+**47 / 0.16.1-view-budget** is signed and packaged. [APK, sources and one test](code47-recovery.md).
+APK **60,677,313 bytes**, SHA256
+`45ecddaad7abe3ae6aafc95da0890ac63744cf2c554fec166ef8c6a481e484f1`.
+All **247 package checks**, persistent v2 signing and 16 KiB alignment passed.
+All **25 native payloads / 148 runtime entries** match code 46 byte-for-byte.
+[Packaging proof](evidence/android-2026-10-28-private-view-budget-apk.json).
+
+Application **272fb07dc779e66cb163be42941f9dcaa096fad7** passed foundation
+**40810151183**: **214 tooling**, **122 qualification** (no skips), **581 Android
+passed / one existing skip**, lint/assembly, native ownership, cache/JNI and full
+runtime installation/rehash under 96 MiB heap. [CI evidence](evidence/ci-2026-10-28-code47-foundation-pass.json).
+Same-commit ARM64 **40810151216** passed the synthetic startup observer, guarded
+Wine, native storage and owned tracer cleanup gates.
+[Host proof](evidence/host-2026-10-28-code47-guarded-observer-pass.json).
 
 Code 46 failed at `client-preflight / view-copy-limit` after **130,618 ms**.
-The full runtime precheck passed; client full verification, view creation and
-Wine had not started. No pressure pause or matching Android exit. Earlier passes
+Full runtime precheck passed; client full verification, view creation and Wine
+had not started. No pressure pause or matching Android exit. Earlier passes
 remain intact. [Assessment](evidence/android-2026-10-28-thor-code46-view-copy-limit.json).
-The report does not identify which mutable subtree exceeded the 64 MiB cap.
+The report cannot identify which mutable subtree exceeded the 64 MiB cap.
 
-Code 47 / `0.16.1-view-budget` makes Cache/Logs/Errors/Screenshots fresh independent
-session folders, preserving their original imported contents and every source
-verification/audit entry. Settings still copy under the 64 MiB limit. Complete
-fixed-group costs are recorded before a copy-budget refusal. Sparse oversized
-output fixtures, audit mutations, settings limits and the retained code-43 plan
-identity are covered by regressions. CI/private packaging are pending.
-Do not retry code 46 or reimport; finish code 47 and deliver an in-place update.
+Code 47 makes Cache/Logs/Errors/Screenshots fresh independent session folders,
+preserving their original imported content and every source verification/audit
+entry. WTF/configuration copies still use the 64 MiB limit. Complete fixed-group
+costs are recorded before budget refusal. Regressions cover oversized sparse
+historical outputs, preserved source/settings, source mutation, settings limits,
+unsafe roots and the unchanged retained code-43 fixture plan identity.
+The server source companion from code 46 remains exact; no native rebuild.
 
-## Current delivery: code 46 original-client startup
+**Next:** update in place, 5 GiB free, airplane mode with Wi-Fi off, launcher
+visible, tap **Test original client startup** once. Allow about an hour for the
+full client verification plus runtime/prefix checks; export after completion,
+failure or Stop before retrying. No visible game window: this is still a bounded
+headless startup test. Original-client startup/rendering/login remain physically
+unqualified. Do not reimport, clear data, delete imported caches, repeat Finish
+or rerun passed storage/runtime/server tests. Future updates require code >=48.
 
-**46 / 0.16.0-client-startup** is built and persistently signed. Downloads and
-one device test: [code-46 recovery](code46-recovery.md). APK **60,673,217 bytes**,
-SHA256 `5b93c145bf067ee64034ecc81e0db8593fe6a5d2a8dfdedb245c40b0a18d1c66`.
-All **247 packaging checks** passed; all **25 native payloads / 148 runtime
-entries** remain byte-identical to code 45. No native server rebuild, reseed or
-import is needed. [Packaging proof](evidence/android-2026-10-29-private-client-startup-apk.json).
+## Superseded delivery: code 46
 
-Application **1424e31274a35e880bebc170b585f04f31f75b56**, foundation
-**40805115590**, passed **214 tooling**, **122 qualification** (no skips),
-**577 Android tests / one existing skip**, lint/assembly, ownership, cache/JNI
-and full runtime installation/rehash under a 96 MiB heap.
-[CI record](evidence/ci-2026-10-29-code46-foundation-pass.json).
-The ARM64 synthetic observer/guard gate **40803796559** passed on **85239b7**;
-its qualification sources are unchanged in the final app. Five startup stages,
-x86-created x64 host, read-only header/parent/image observation and host exit
-passed, alongside all 56 guarded Windows / 50 native guard checks and owned
-tracer cleanup. [Host proof](evidence/host-2026-10-29-original-startup-observer-pass.json).
-
-The new operation holds the client lease from fresh full verification through
-isolated view creation, all owned process exits and a metadata audit. Large
-assets are protected guest links; mutable copies are capped at 64 MiB. Only
-view settings change. Runtime pre/post hashes remain full; source postcheck is
-metadata/inventory, not a second full client hash. Strict typed completion
-requires every stage, original-host event, verification and cleanup flag.
-[Contract](client-original-startup.md).
-
-**Next physical gate:** update in place, 5 GiB free, airplane mode with Wi-Fi off,
-launcher visible, tap **Test original client startup** once. Allow roughly an
-hour for client verification plus runtime/prefix checks. Export the JSON after
-completion/failure/Stop before retrying; if unavailable, export instead. The
-new `clientOriginalStartup` report is separate. The display is headless; there
-is no game window, realm launch or login. Original behavior on Thor is still
-unqualified. Assess this report before advancing to rendering/input/login.
-Do not repeat Finish or passed import/runtime/storage/server gates.
+[Code-46 delivery and sources](code46-recovery.md) remain recovery history.
+Its exact APK `5b93c145bf067ee64034ecc81e0db8593fe6a5d2a8dfdedb245c40b0a18d1c66`
+failed preflight as assessed above. The original-client diagnostic, observer
+contract and source protection remain in code 47, with the working-session
+output policy fixed. Do not retry code 46. Retain its returned failure report.
 
 ## Passed physical recovery (code 45)
 
@@ -220,7 +214,7 @@ Private updates retain `FTA-Launcher-Development-Signing.zip`,
 `libfile_7f9c88258f0c8191a09ab071e7447d30`. Certificate
 `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Never regenerate keys, expose credentials or substitute the public foundation
-APK. Future updates use code >=47. [Code-46 recovery](code46-recovery.md) identifies
+APK. Future updates use code >=48. [Code-47 recovery](code47-recovery.md) identifies
 the exact bridge/application source and refreshed reproduction companion for
 the unchanged v15 native server. Both passed the strict packaging verifier. The code changes and measured evidence are pushed.
 

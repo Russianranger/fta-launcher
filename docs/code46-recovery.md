@@ -1,5 +1,12 @@
 # Code 46 — isolated original-client startup
 
+**Superseded by code 47.** The physical attempt stopped before Wine at
+`client-preflight / view-copy-limit` after 130,618 ms. Runtime verification passed;
+no memory-pressure pause or matching Android kill. The exact contributing
+folder was not reported. [Assessment](evidence/android-2026-10-28-thor-code46-view-copy-limit.json).
+Use [code 47](code47-recovery.md); do not repeat code 46. Instructions below are
+retained as delivery history.
+
 [FTA-Launcher-0.16.0-client-startup.apk](https://chatgpt.com/library?file_id=libfile_2798c6e5b80c8191a49ec7aa20a7991f&account_id=personal)
 
 [FTA-Launcher-0.16.0-test-instructions.txt](https://chatgpt.com/library?file_id=libfile_3414e0a072508191b194073fbf631acb&account_id=personal)

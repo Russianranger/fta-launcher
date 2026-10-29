@@ -16,7 +16,12 @@ copies or insufficient space before the roughly 60 GB verification. Existing
 The pinned catalog and four original Wow/proxy/DLL/host hashes must match.
 Large shared files are guest links into `/immutable`, protected by the previously
 qualified native guard. Mutable files are independent copies, capped at 64 MiB;
-there are no writable hard links or full client recopy. Only the view's
+there are no writable hard links or full client recopy. From code 47, root
+Cache/Logs/Errors/Screenshots start as independent empty session directories;
+their historical contents remain in the imported baseline, full verification
+and source audit, but are excluded from view copies and shared links. All WTF
+and other configuration copies retain the 64 MiB budget. Fixed-group sizes and
+counts are saved before a budget refusal, without filenames or settings. Only the view's
 `WTF/Config.wtf` receives `specular=0` and `projectedTextures=1`; unrelated bytes
 and the original root proxy remain intact. Source paths and metadata are audited
 after cleanup. This is explicitly **not a second full client hash** or protection

@@ -46,7 +46,11 @@ verified in 2m35s without rerunning Wine. Code 46 implements the isolated
 fresh client verification, protected working view, original DLL-owned host
 observation and controlled Stop. Its ARM64 Linux observer gate passes with
 synthetic client/host executables; physical original execution, rendering and
-login remain unqualified. [Private code-46 APK and one device test](docs/code46-recovery.md).
+login remain unqualified. Code 46 stopped at its mutable-copy budget before Wine.
+[Code 47](docs/code47-recovery.md) uses fresh session cache/output folders,
+preserves imported originals and settings, and records complete copy costs.
+Its Android and synthetic ARM64 gates passed; the original-client device
+test remains pending.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.

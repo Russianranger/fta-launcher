@@ -53,6 +53,12 @@ expose the import or qualify guarded Wine/working-view compatibility. The bounde
 view and guarded PE32/PE64 access passed native ARM64 Linux. Code 45 completed
 the Thor fixture's retained evidence and full runtime verification; the
 original-client view and startup are now the next physical gate.
+Code 46 then refused the original-client plan at its 64 MiB mutable-copy
+budget, before client full verification or Wine. Code 47 starts root
+Cache/Logs/Errors/Screenshots empty in the working session and preserves their
+original content in the import and all audits. It does not relax settings-copy
+or growth limits. Exact contributing folders were not exported by code 46;
+code 47 adds complete fixed-group cost diagnostics before budget rejection.
 No repeats of the passed storage/runtime/import/server gates are requested.
 
 ## Integrated preparation/session boundary
