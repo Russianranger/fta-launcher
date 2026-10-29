@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream
 class ClientManagedViewTest {
     @get:Rule val temp = TemporaryFolder()
     private val content = linkedMapOf("Wow.exe" to byteArrayOf(1, 2, 3), "Utils/WarcraftXLHost.exe" to byteArrayOf(4, 5),
+        "d3d9.dll" to byteArrayOf(6), "WarcraftXL.dll" to byteArrayOf(7), "WarcraftXL.cfg" to "synthetic settings".toByteArray(),
         "Data/a.mpq" to ByteArray(100), "wTf/Config.wtf" to "SET accountName \"private\"\r\nSET specular \"1\"\r\n".toByteArray())
     private fun source() = object : ClientSource {
         override val identity = "managed-view-synthetic"

@@ -90,6 +90,16 @@ jobs:
       - name: Test, lint and compile foundation
         working-directory: android
         run: ./gradlew --no-daemon --max-workers=2 -PftaProviderDir="$RUNNER_TEMP/fta-provider" -PftaClientRuntimeCatalog="$RUNNER_TEMP/client-runtime-catalog.tsv" testDebugUnitTest lintDebug assembleDebug
+      - name: Preserve failed Android test and lint evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-failure-${{ github.sha }}
+          path: |
+            android/app/build/test-results/testDebugUnitTest/*.xml
+            android/app/build/reports/lint-results-debug.txt
+          retention-days: 14
+          if-no-files-found: warn
       - name: Summarize measured Android unit results
         working-directory: android
         run: |
