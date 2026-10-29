@@ -5,7 +5,27 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery: code 47 working-view budget
+## Current development: code 48 settings budget
+
+Code 47 physically failed before Wine at `client-preflight / view-copy-limit`.
+The new aggregate costs identify **112,058,085 bytes / 4,491 files in WTF**,
+plus **4,117 configuration bytes**, above the 64 MiB copy cap. Cache exclusion
+worked (1,113,628 bytes); it was not enough to fit the settings. Runtime prehash
+passed, worker inactive, no memory pause or matching exit.
+[Report assessment](evidence/android-2026-10-29-thor-code47-settings-budget.json).
+
+**48 / 0.16.2-settings-budget** preserves every setting in independent copies,
+raises their copy ceiling to 256 MiB, and freezes a separate 128 MiB output
+allowance above the prepared view before native entry. The initial view is
+bounded by the copy cap plus at most 1 MiB for launch settings. Polling and a
+terminal check enforce this total; it is not a filesystem quota. Prefix, free
+space, 256 KiB I/O buffers, source audits and ownership remain unchanged.
+Synthetic regressions reproduce the measured 112,062,202-byte / 4,491-WTF-file
+budget, source independence, reserve refusal and exact output-limit boundaries.
+Build and package qualification pending; do not deliver the foundation APK.
+Physical original startup remains unqualified. Do not repeat any passed gate.
+
+## Superseded delivery: code 47 working-view budget
 
 **47 / 0.16.1-view-budget** is signed and packaged. [APK, sources and one test](code47-recovery.md).
 APK **60,677,313 bytes**, SHA256

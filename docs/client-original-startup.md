@@ -15,12 +15,17 @@ copies or insufficient space before the roughly 60 GB verification. Existing
 
 The pinned catalog and four original Wow/proxy/DLL/host hashes must match.
 Large shared files are guest links into `/immutable`, protected by the previously
-qualified native guard. Mutable files are independent copies, capped at 64 MiB;
+qualified native guard. Mutable files are independent copies, capped at 256 MiB from code 48;
 there are no writable hard links or full client recopy. From code 47, root
 Cache/Logs/Errors/Screenshots start as independent empty session directories;
 their historical contents remain in the imported baseline, full verification
 and source audit, but are excluded from view copies and shared links. All WTF
-and other configuration copies retain the 64 MiB budget. Fixed-group sizes and
+and other configuration copies share that bounded budget. Code 47 measured
+112,062,202 copied bytes, mostly WTF settings, exceeding its old 64 MiB cap.
+Before native entry code 48 freezes the actual prepared view size (at most
+257 MiB, including up to 1 MiB for launch settings) and adds a separate 128 MiB
+session-output allowance. Five-second polling and the terminal check enforce
+this limit without following shared links; this is not a filesystem quota. Fixed-group sizes and
 counts are saved before a budget refusal, without filenames or settings. Only the view's
 `WTF/Config.wtf` receives `specular=0` and `projectedTextures=1`; unrelated bytes
 and the original root proxy remain intact. Source paths and metadata are audited

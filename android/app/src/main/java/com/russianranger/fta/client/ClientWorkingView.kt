@@ -16,7 +16,7 @@ import java.util.UUID
  * require the guarded tracer and its exact /immutable binding; links alone do
  * not protect anything. This builds a fresh view, never edits a retained view. */
 object ClientWorkingView {
-    const val COPY_LIMIT = 64L * 1024 * 1024
+    const val COPY_LIMIT = 256L * 1024 * 1024
     const val GROWTH_LIMIT = 128L * 1024 * 1024
     private val freshDirectories = setOf("cache", "logs", "errors", "screenshots")
     val budgetGroups = listOf("wtf", "configuration", "cache", "logs", "errors", "screenshots", "shared")
@@ -140,6 +140,13 @@ object ClientWorkingView {
                 }
             })
         }
+    }
+    data class SessionBudget(val initialBytes: Long, val limitBytes: Long)
+    /** Freeze the prepared settings size before any guest starts. Session output
+     * gets a separate allowance; existing copied settings cannot consume it. */
+    fun sessionBudget(root: File): SessionBudget {
+        val initial = checkGrowth(root, COPY_LIMIT + ClientLaunchSettings.LIMIT)
+        return SessionBudget(initial, initial + GROWTH_LIMIT)
     }
     /** Polling growth threshold, not a filesystem quota. Never follows DOS/source links. */
     fun checkGrowth(root: File, limit: Long): Long {

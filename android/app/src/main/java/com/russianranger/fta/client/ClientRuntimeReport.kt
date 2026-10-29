@@ -102,7 +102,7 @@ object ClientRuntimeReport {
             for (key in listOf("clientCatalogSha256", "viewPlanSha256"))
                 raw.optString(key).takeIf { it.matches(Regex("[a-f0-9]{64}")) }?.let { result.put(key, it) }
             for (key in listOf("clientFiles", "clientBytes", "plannedCopiedBytes", "plannedSharedBytes", "plannedExcludedBytes",
-                "viewCopyLimitBytes", "viewExcludedBytes", "viewExcludedFiles", "sessionExit") +
+                "viewCopyLimitBytes", "viewInitialBytes", "viewLimitBytes", "viewGrowthAllowanceBytes", "viewExcludedBytes", "viewExcludedFiles", "sessionExit") +
                 ClientWorkingView.budgetGroups.flatMap { group -> listOf("Bytes", "Files").map { ClientWorkingView.budgetField(group, it) } }) {
                 val n = raw.opt(key)
                 if ((n is Long || n is Int) && (n as Number).toLong() in 0..ClientPlan.MAX_BYTES) result.put(key, n)

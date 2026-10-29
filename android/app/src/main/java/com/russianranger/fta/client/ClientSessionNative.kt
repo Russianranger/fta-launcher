@@ -23,6 +23,10 @@ object ClientSessionNative {
         active: () -> Unit, observe: (String) -> Unit, evidence: (String, Any) -> Unit) {
         var owned: Long? = null
         try {
+            val budget = ClientWorkingView.sessionBudget(view)
+            evidence("viewInitialBytes", budget.initialBytes)
+            evidence("viewLimitBytes", budget.limitBytes)
+            evidence("viewGrowthAllowanceBytes", ClientWorkingView.GROWTH_LIMIT)
             val native = File(context.applicationInfo.nativeLibraryDir)
             for ((name, pin) in ClientGuardedWine.bridges) {
                 val file = File(native, name)
@@ -65,12 +69,14 @@ object ClientSessionNative {
                 }
                 if (now >= nextGrowth) {
                     nextGrowth = now + 5000
-                    evidence("viewBytesObserved", ClientWorkingView.checkGrowth(view, ClientWorkingView.GROWTH_LIMIT))
+                    evidence("viewBytesObserved", ClientWorkingView.checkGrowth(view, budget.limitBytes))
                     evidence("prefixBytesObserved", ClientWorkingView.checkGrowth(prefix, 3L * ClientRuntimeStore.RESERVE))
                 }
                 val status = NativeProcessBridge.waitFor(handle, 100)
                 if (status != Int.MIN_VALUE) {
                     val text = bounded(output); observe(text); evidence("sessionExit", status)
+                    // Also enforce the budget on a fast terminal result between polls.
+                    evidence("viewBytesObserved", ClientWorkingView.checkGrowth(view, budget.limitBytes))
                     ClientStartupProtocol.validate(text, status)
                     evidence("startupProtocolValidated", true)
                     break

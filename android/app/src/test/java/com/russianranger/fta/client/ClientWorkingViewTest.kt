@@ -140,4 +140,57 @@ class ClientWorkingViewTest {
             RandomAccessFile(File(original, name), "rw").use { it.setLength(ClientGuardedFinish.assets.getValue(name).bytes.toLong()) }
         assertEquals("f2fff40f7c10693870a08fc649f3adfca3a8b692aeed5436dfb808d40539735c", ClientWorkingView.plan(original).sha256)
     }
+    @Test fun thorSizedSettingsAreCopiedIntactWithSeparateBoundedSessionHeadroom() {
+        // Reproduce the reported totals/counts with synthetic sparse files only.
+        val original = source(); val parent = temp.newFolder(); val view = File(parent, "view")
+        val settings = File(original, "wTf/saved.lua")
+        RandomAccessFile(settings, "rw").use {
+            it.setLength(112058085L - 15)
+            it.writeUTF("synthetic first bytes"); it.seek(it.length() - 32); it.writeUTF("synthetic last bytes")
+        }
+        for (index in 1..4489) File(original, "wTf/saved-$index.lua").createNewFile()
+        RandomAccessFile(File(original, "WarcraftXL.cfg"), "rw").use { it.setLength(4117) }
+        RandomAccessFile(File(original, "Data/asset.mpq"), "rw").use { it.setLength(60130036502L) }
+        File(original, "Cache").mkdir()
+        RandomAccessFile(File(original, "Cache/old.bin"), "rw").use { it.setLength(1113628) }
+        val plan = ClientWorkingView.plan(original)
+        assertEquals(112062202L, plan.copiedBytes); assertEquals(4491, plan.inputFiles["wtf"])
+        assertEquals(1113628L, plan.excludedBytes); assertEquals(60130036502L, plan.sharedBytes)
+        rejected("insufficient-space") {
+            ClientWorkingView.build(original, view, available = { plan.copiedBytes + ClientRuntimeStore.RESERVE - 1 })
+        }
+        assertTrue(parent.list()!!.isEmpty())
+        var maxIo = 0
+        val built = ClientWorkingView.build(original, view, beforeIo = { maxIo = maxOf(maxIo, it) })
+        assertEquals(plan.copiedBytes, built.copiedBytes); assertTrue(maxIo <= 256 * 1024)
+        fun digest(file: File): String {
+            val hash = runtimeHash(); val buffer = ByteArray(256 * 1024)
+            file.inputStream().use { input -> while (true) {
+                val n = input.read(buffer); if (n < 0) break; hash.update(buffer, 0, n)
+            } }
+            return runtimeHex(hash.digest())
+        }
+        val copied = File(view, "wTf/saved.lua"); val originalHash = digest(settings)
+        assertEquals(originalHash, digest(copied)); assertFalse(Files.isSameFile(settings.toPath(), copied.toPath()))
+        val budget = ClientWorkingView.sessionBudget(view)
+        assertEquals(112062202L, budget.initialBytes)
+        assertEquals(budget.initialBytes + 128L * 1024 * 1024, budget.limitBytes)
+        val output = File(view, "Cache/new.bin")
+        RandomAccessFile(output, "rw").use { it.setLength(ClientWorkingView.GROWTH_LIMIT) }
+        assertEquals(budget.limitBytes, ClientWorkingView.checkGrowth(view, budget.limitBytes))
+        RandomAccessFile(output, "rw").use { it.setLength(ClientWorkingView.GROWTH_LIMIT + 1) }
+        rejected("view-growth-limit") { ClientWorkingView.checkGrowth(view, budget.limitBytes) }
+        RandomAccessFile(copied, "rw").use { it.writeUTF("working copy changed") }
+        assertEquals(originalHash, digest(settings)); assertEquals(plan, ClientWorkingView.plan(original))
+        assertFalse(File(original, "Cache/new.bin").exists())
+    }
+    @Test fun sessionBudgetRejectsOversizedBaselineAndNeverCountsSharedTargets() {
+        val view = temp.newFolder(); val settings = File(view, "settings")
+        val maximum = ClientWorkingView.COPY_LIMIT + ClientLaunchSettings.LIMIT
+        RandomAccessFile(settings, "rw").use { it.setLength(maximum) }
+        Files.createSymbolicLink(File(view, "shared").toPath(), java.nio.file.Paths.get("/"))
+        assertEquals(maximum + ClientWorkingView.GROWTH_LIMIT, ClientWorkingView.sessionBudget(view).limitBytes)
+        RandomAccessFile(settings, "rw").use { it.setLength(maximum + 1) }
+        rejected("view-growth-limit") { ClientWorkingView.sessionBudget(view) }
+    }
 }

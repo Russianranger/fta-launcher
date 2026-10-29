@@ -59,7 +59,13 @@ Cache/Logs/Errors/Screenshots empty in the working session and preserves their
 original content in the import and all audits. It does not relax settings-copy
 or growth limits. Exact contributing folders were not exported by code 46;
 code 47 adds complete fixed-group cost diagnostics before budget rejection.
-No repeats of the passed storage/runtime/import/server gates are requested.
+Code 47 subsequently measured 112,058,085 WTF bytes plus 4,117 other config
+bytes; its settings copy cap was too small. Code 48 raises it to 256 MiB,
+retains every setting, and gives the session 128 MiB above its frozen prepared
+view size (bounded by 257 MiB including launch settings). Independent synthetic
+fixtures cover the measured aggregate/count, source preservation, disk reserve,
+bounded copy I/O and exact session growth boundaries. Physical startup remains
+unqualified. No repeats of the passed storage/runtime/import/server gates are requested.
 
 ## Integrated preparation/session boundary
 
