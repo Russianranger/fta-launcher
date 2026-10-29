@@ -57,3 +57,36 @@ rejection, source mutation and strict transcript acceptance. The physical test
 is one tap on **Test original client startup**, followed by diagnostic export.
 Keep airplane mode enabled and the launcher visible; no game window is presented
 in this diagnostic. Do not repeat previously passed import/runtime/storage gates.
+
+## Native memory confirmation from code 49
+
+Code 48 completed client/view preparation but stopped during prefix startup on
+`TRIM_MEMORY_RUNNING_CRITICAL` with substantial available memory. Android
+[documents that callback](https://developer.android.com/reference/android/content/ComponentCallbacks2.html)
+as a critical resource warning; high global available bytes alone do not prove
+it was false. Code 48 did not sample PSI during native execution. The report
+shows controlled cleanup, not an attempt-matched Android kill.
+
+Code 49 samples ActivityManager memory and bounded `/proc/pressure/memory`
+once per second throughout native execution, sharing the I/O sampler. Kernel
+[PSI documentation](https://www.kernel.org/doc/html/v6.6/accounting/psi.html)
+describes some/full as task stall fractions, not a free-memory reading or a
+proof of per-app safety. The thresholds below are launcher policy, not Android
+or kernel-prescribed limits.
+
+- System lowMemory, available memory below the unchanged floor, PSI some >=10%
+  or full >=1%, `onLowMemory`, and callbacks >=80 stop immediately.
+- A running-critical callback (15..19) gets at most ten seconds from the first
+  callback in its observed continuous episode only while available bytes are
+  >=max(existing floor, total/3), measured PSI some <2% and full <0.2%.
+  Missing/invalid PSI or reduced headroom refuses this allowance.
+- A later milder callback cannot erase a critical/severe callback. Repeated
+  critical callbacks cannot move the episode deadline. An isolated expired
+  signal can recover; sustained critical signals stop. Existing advisory-only
+  grace remains limited to 30 seconds.
+
+No Java-monitor sleep pretends to pause native allocations. Stop, periodic
+sampling, process ownership and source checks remain active. Numeric grace
+counts/max duration and live PSI are exported. This is bounded confirmation,
+not a guarantee against LMK or unmeasured cgroup pressure. Original-startup,
+rendering and login qualification still require their actual device evidence.

@@ -49,7 +49,8 @@ object ClientRuntimeReport {
             "heapUsedBytes", "heapMaxBytes", "availableMemoryBytes", "totalMemoryBytes", "ioBytes", "throttledMs",
             "pressureWaitMs", "pressurePauses", "ioLimitBytesPerSecond", "ioWindowBytes", "cacheRequests", "cacheAccepted",
             "ownershipNormalExit", "ownershipStopExit", "ownershipKilledExit", "stoppedTracees", "killedTracees", "socketHostPathBytes", "socketProbeErrno",
-            "memoryThresholdBytes", "memoryFloorBytes", "lastTrimAgeMs", "probeMemoryAdvisories", "probeMemoryAdvisoryMs")) {
+            "memoryThresholdBytes", "memoryFloorBytes", "lastTrimAgeMs", "probeMemoryAdvisories", "probeMemoryAdvisoryMs",
+            "probeMemoryCriticalGraceEpisodes", "probeMemoryCriticalGraceMaxMs", "probeMemoryCriticalGraceLimitMs")) {
             val value = raw.opt(key)
             if ((value is Int || value is Long) && (value as Number).toLong() >= 0) result.put(key, value)
         }

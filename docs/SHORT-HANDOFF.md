@@ -5,7 +5,30 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery: code 48 settings budget
+## Current development: code 49 native pressure confirmation
+
+Code 48 physically completed full verification of all 10,476 client files /
+60,243,212,332 bytes, copied 112,062,202 settings bytes and prepared the isolated
+view. It then stopped during prefix initialization on a level-15 critical trim
+aged 585 ms, with 8,570,064,896 available bytes and systemLowMemory=false.
+No matching Android kill. Owned cleanup and source metadata audit passed;
+original Wow.exe never started and runtime posthash remains incomplete.
+[Report assessment](evidence/android-2026-10-29-thor-code48-prefix-memory-stop.json).
+Native PSI was not recorded, so a spurious warning or absence of actual
+system/cgroup pressure cannot be inferred.
+
+**49 / 0.16.3-pressure-confirmation** uses the same bounded PSI sampler for
+I/O and native monitoring. Measured pressure still stops immediately. A
+running-critical callback alone receives at most ten seconds from its original
+episode start only with available memory above max(existing floor, total/3),
+PSI some <2% and full <0.2%; missing PSI refuses grace. Repeated callbacks
+cannot extend the window. Severe callbacks/onLowMemory remain immediate and
+cannot be downgraded by later milder callbacks. The monitor never sleeps its
+native guest; cancellation and ownership cleanup remain active.
+Build/package qualification pending. Keep the one original-startup gate;
+no passed standalone import/runtime/storage/server test needs repeating.
+
+## Superseded delivery: code 48 settings budget
 
 **48 / 0.16.2-settings-budget** is signed and packaged.
 [APK, sources and one test](code48-recovery.md). APK **60,677,313 bytes**, SHA256

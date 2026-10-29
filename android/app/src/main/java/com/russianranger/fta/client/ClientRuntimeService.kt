@@ -145,15 +145,31 @@ class ClientRuntimeService : Service() {
             memory.someMilliPercent?.let { report.put("memoryPsiSomeMilliPercent", it) }
             memory.fullMilliPercent?.let { report.put("memoryPsiFullMilliPercent", it) }
         }
-        val governor = ClientIoGuard(SystemClock::elapsedRealtime, { Thread.sleep(it) }, {
-            val memory = GameDataDiagnostics.memory(this, activityBound)
+        fun memorySample(signal: ClientProbeMemory.Signal): ClientIoGuard.Memory? {
+            val memory = GameDataDiagnostics.memory(this, activityBound) ?: return null
             val psi = runCatching { File("/proc/pressure/memory").bufferedReader().use { input ->
                 val chars = CharArray(4097); val n = input.read(chars)
                 if (n in 1..4096) ClientIoGuard.psi(String(chars, 0, n)) else null
             } }.getOrNull()
+            return ClientIoGuard.Memory(memory.available, memory.total, memory.threshold, memory.low,
+                psi?.first, psi?.second, signal.active(SystemClock.elapsedRealtime()))
+        }
+        fun recordProbeDecision(memory: ClientIoGuard.Memory, signal: ClientProbeMemory.Signal, now: Long): ClientProbeMemory.Decision {
+            val decision = probeMemory.evaluate(memory, now, signal)
+            recordMemory(memory, signal, now)
+            report.put("memoryPressureSource", decision.source)
+                .put("probeMemoryAdvisories", probeMemory.advisoryEpisodes)
+                .put("probeMemoryAdvisoryMs", probeMemory.advisoryElapsedMs)
+                .put("probeMemoryCriticalGraceEpisodes", probeMemory.criticalGraceEpisodes)
+                .put("probeMemoryCriticalGraceMaxMs", probeMemory.criticalGraceMaxMs)
+                .put("probeMemoryCriticalGraceLimitMs", ClientProbeMemory.CRITICAL_MS)
+            write(decision.stop)
+            return decision
+        }
+        val governor = ClientIoGuard(SystemClock::elapsedRealtime, { Thread.sleep(it) }, {
             val now = SystemClock.elapsedRealtime(); val signal = probeMemory.snapshot()
-            memory?.let { ClientIoGuard.Memory(it.available, it.total, it.threshold, it.low, psi?.first, psi?.second,
-                signal.active(now)).also { sample ->
+            val memory = memorySample(signal)
+            memory?.also { sample ->
                 recordMemory(sample, signal, now)
                 report.put("memoryPressureSource", when {
                     sample.low -> "system-low"
@@ -163,7 +179,7 @@ class ClientRuntimeService : Service() {
                     (sample.fullMilliPercent ?: 0) >= 1000 -> "psi-full"
                     else -> "none"
                 })
-            } }
+            }
         }, ::active, { _, paused -> report.put("memoryPaused", paused); write() }).also { guard = it }
         try {
             write(true); governor.check()
@@ -210,11 +226,9 @@ class ClientRuntimeService : Service() {
                                 active(); val now = SystemClock.elapsedRealtime()
                                 if (now >= nextMemory) {
                                     nextMemory = now + 1000
-                                    val sample = GameDataDiagnostics.memory(this, activityBound) ?: throw RuntimeInstallFailure("memory-observation-unavailable")
                                     val signal = probeMemory.snapshot()
-                                    val memory = ClientIoGuard.Memory(sample.available, sample.total, sample.threshold, sample.low)
-                                    val decision = probeMemory.evaluate(memory, now, signal); recordMemory(memory, signal, now)
-                                    report.put("memoryPressureSource", decision.source); write(decision.stop)
+                                    val memory = memorySample(signal) ?: throw RuntimeInstallFailure("memory-observation-unavailable")
+                                    val decision = recordProbeDecision(memory, signal, now)
                                     runtimeRequire(!decision.stop, "memory-pressure")
                                 }
                             }, observe = { text ->
@@ -282,16 +296,10 @@ class ClientRuntimeService : Service() {
                         runtimeRequire(now < deadline, "probe-timeout")
                         if (now >= nextMemory) {
                             nextMemory = now + 1000
-                            val memory = GameDataDiagnostics.memory(this, activityBound) ?: throw RuntimeInstallFailure("memory-observation-unavailable")
                             val signal = probeMemory.snapshot()
-                            val sample = ClientIoGuard.Memory(memory.available, memory.total, memory.threshold, memory.low)
-                            val decision = probeMemory.evaluate(sample, now, signal)
-                            recordMemory(sample, signal, now)
-                            report.put("memoryPressureSource", decision.source)
-                                .put("probeMemoryAdvisories", probeMemory.advisoryEpisodes)
-                                .put("probeMemoryAdvisoryMs", probeMemory.advisoryElapsedMs)
-                            // Persist the actual triggering sample before controlled process teardown.
-                            write(decision.stop)
+                            val sample = memorySample(signal) ?: throw RuntimeInstallFailure("memory-observation-unavailable")
+                            // Persist the exact triggering sample before controlled teardown.
+                            val decision = recordProbeDecision(sample, signal, now)
                             runtimeRequire(!decision.stop, "memory-pressure")
                             runtimeRequire(runtime.usableSpace >= ClientRuntimeStore.RESERVE, "insufficient-space")
                         }
