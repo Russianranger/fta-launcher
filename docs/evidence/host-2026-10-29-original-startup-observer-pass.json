@@ -1,0 +1,198 @@
+{
+  "scope": "synthetic-startup-observer-and-guarded-storage-on-arm64-linux",
+  "commit": "85239b7b226d41900a088f368ce1d0abdc201892",
+  "workflowRun": 40803796559,
+  "job": 123217818155,
+  "conclusion": "success",
+  "artifactId": 12867595864,
+  "artifactSha256": "8e1a2cac1b5bceb4a8d5a7eaa7cd97dedc79a80346716621dc50646b403294d3",
+  "sourceSha256": {
+    "android/qualification/original_startup.c": "c431aa25f898e8805c370e25df7f853fc3c379f136a74054cc942bfb96478e05",
+    "android/qualification/original_startup.py": "4f24523594a414a5893f8c1fff693cafc91b651714900d00ec8976cadcea128a",
+    "android/qualification/original_startup_fixture.c": "b6cf1e5de081ec5948888306cf083f72381bc5e8032c1fd88c116ed166f1da5f",
+    "android/qualification/check_original_startup.py": "d02464a892a2341c1ad59924ec28f2757e5efcac85e90d7104e417d0b165fd44",
+    "android/qualification/android_runtime_probe.py": "f79e11410cffc88508b5918680af1d3a22132516d1b1b4f171e8332a7a4a89f4",
+    "android/qualification/check_guarded_wine.py": "c81cb7d2dba2cfd2f4d99077163ab847af0d0f041d8d341c4c0560ff6d694e66",
+    ".github/workflows/guarded-wine.yml": "c436a80b9673778b99778be76b03076e7e09b7d5193c5b7a6bbb021390c1aad5"
+  },
+  "originalStartup": {
+    "scope": "synthetic-original-startup-observer-on-arm64",
+    "events": {
+      "client-started": 1,
+      "host-header-valid": 1,
+      "host-owned": 1,
+      "host-channels": 2,
+      "startup-observed": 1,
+      "client-forced-stop": 1,
+      "client-stopped": 1,
+      "host-stopped": 1
+    },
+    "protectedSourceUnchanged": true,
+    "fullRuntimePrePostRehash": true,
+    "originalClientExecuted": false,
+    "androidExecuted": false,
+    "warcraftXLCompatible": false,
+    "gameLoginQualified": false
+  },
+  "startupStages": {
+    "cpu-topology": 0,
+    "display": 0,
+    "prefix": 0,
+    "original-startup": 0,
+    "wine-stop": 0
+  },
+  "guardedWine": {
+    "stages": {
+      "cpu-topology": 0,
+      "display": 0,
+      "prefix": 0,
+      "x86-storage": 0,
+      "x64-storage": 0,
+      "wine-stop": 0
+    },
+    "checksPerArchitecture": 28,
+    "windowsDeletion": {
+      "x86": {
+        "returnedSuccess": true,
+        "error": 0
+      },
+      "x64": {
+        "returnedSuccess": true,
+        "error": 0
+      }
+    },
+    "legacyKilledTracer": {
+      "exit": 137,
+      "endedTracees": 3,
+      "survivingTracees": 0,
+      "detachedLeaders": 2
+    },
+    "legacyPlaceholderNames": [
+      "immutable",
+      "view"
+    ],
+    "guardedOwnership": {
+      "normal": {
+        "exit": 0
+      },
+      "stop": {
+        "exit": 255,
+        "endedTracees": 3,
+        "survivingTracees": 0,
+        "detachedLeaders": 2
+      },
+      "kill": {
+        "exit": 137,
+        "endedTracees": 3,
+        "survivingTracees": 0,
+        "detachedLeaders": 2
+      }
+    },
+    "runtimeRootPollutionPrevented": true,
+    "scope": "guarded-wine-on-native-arm64-linux",
+    "runtimeEntries": 14092,
+    "fullRuntimePrePostRehash": true,
+    "protectedFixtureUnchanged": true,
+    "independentConfigurationWritten": true,
+    "sourceSharedBytes": 573547,
+    "sourceCopiedBytes": 26,
+    "androidExecuted": false,
+    "originalClientExecuted": false,
+    "importedClientAccessed": false
+  },
+  "nativeGuard": {
+    "formatVersion": 1,
+    "scope": "native-linux-readonly-fixture",
+    "machine": "aarch64",
+    "checks": {
+      "read-open": 0,
+      "read-content": 0,
+      "seek": 0,
+      "private-map": 0,
+      "shared-read-map": 0,
+      "directory-read": 0,
+      "relative-read": 0,
+      "alias-read": 0,
+      "mode-protected-read": 0,
+      "open-write": 0,
+      "open-read-write": 0,
+      "open-truncate": 0,
+      "open-create": 0,
+      "relative-write": 0,
+      "alias-write": 0,
+      "proc-fd-write": 0,
+      "truncate": 0,
+      "fd-truncate": 0,
+      "fd-write": 0,
+      "fd-pwrite": 0,
+      "chmod": 0,
+      "fd-chmod": 0,
+      "relative-chmod": 0,
+      "chown": 0,
+      "fd-chown": 0,
+      "relative-chown": 0,
+      "timestamps": 0,
+      "fd-timestamps": 0,
+      "xattr": 0,
+      "fd-xattr": 0,
+      "unlink": 0,
+      "relative-unlink": 0,
+      "rename-out": 0,
+      "hard-link-out": 0,
+      "relative-link-out": 0,
+      "mkdir": 0,
+      "rmdir": 0,
+      "symlink-in": 0,
+      "directory-rename": 0,
+      "directory-chmod": 0,
+      "ancestor-chmod": 0,
+      "shared-write-map": 0,
+      "child-start": 0,
+      "child-write": 0,
+      "writable-create": 0,
+      "writable-write": 0,
+      "writable-truncate": 0,
+      "writable-chmod": 0,
+      "writable-rename": 0,
+      "writable-unlink": 0
+    },
+    "rootValidationRejected": [
+      "missing",
+      "relative",
+      "noncanonical",
+      "root",
+      "file",
+      "symlink",
+      "hardlink"
+    ],
+    "protectedTreeUnchanged": true,
+    "buildJobs": 1,
+    "prootSha256": "16fa4b3950587206e55fbfc8d2ffd38f734c58a41fc9e9ac8ccb81c8bdf4b4b5",
+    "fixtureSha256": "7e3722541df1a25b83ba75467c98d41e3d88eb63ad1fb71f9bb8f304ab2a9669",
+    "sourceSha256": {
+      "native/client-bridge/ownership_fixture.c": "104d739a70d1ebf110fd074a803fede5477793cd61bcb269d7a1725c35e5c5ec",
+      "native/client-bridge/proot-exitkill.patch": "509160bd6ec3663d525fa0e795a7bb45b8ccc283a6de8e1398e8cd6624fe86de",
+      "native/client-bridge/proot-readonly.patch": "849e2c24fbf116dd2a8a29330632dc615d50778704c25e7fdfcdae2a666cca01",
+      "native/client-bridge/read_only.c": "fbc1a1aea7727f5436e6aaf4125a6da5afa1016845a4154356c74411e1546c56",
+      "native/client-bridge/readonly_fixture.c": "5ec8455282f75146f673e4523a33e38861541a6f92ac89a4e404706e6eba310e"
+    },
+    "androidExecuted": false,
+    "wineExecuted": false,
+    "originalClientExecuted": false,
+    "hostileCodeSandbox": false
+  },
+  "observerHarnessUnchangedAtApplicationCommit": "1424e31274a35e880bebc170b585f04f31f75b56",
+  "androidExecuted": false,
+  "originalClientExecuted": false,
+  "renderingQualified": false,
+  "gameLoginQualified": false,
+  "laterCommitChangedFiles": [
+    ".github/workflows/foundation.yml",
+    "android/app/src/main/java/com/russianranger/fta/MainActivity.kt",
+    "android/app/src/main/java/com/russianranger/fta/client/ClientManagedView.kt",
+    "android/app/src/main/java/com/russianranger/fta/client/ClientRuntimeReport.kt",
+    "android/app/src/main/java/com/russianranger/fta/client/ClientStartupProtocol.kt",
+    "android/app/src/test/java/com/russianranger/fta/client/ClientManagedViewTest.kt",
+    "android/app/src/test/java/com/russianranger/fta/client/ClientStartupProtocolTest.kt"
+  ]
+}

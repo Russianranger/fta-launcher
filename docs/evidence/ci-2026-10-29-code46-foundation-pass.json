@@ -1,0 +1,67 @@
+{
+  "scope": "code46-exact-commit-foundation-build",
+  "commit": "1424e31274a35e880bebc170b585f04f31f75b56",
+  "runId": 40805115590,
+  "runAttempt": 1,
+  "conclusion": "success",
+  "jobs": {
+    "tooling": 123222087722,
+    "android": 123222087975,
+    "publish": 123224617988
+  },
+  "toolingTestsPassed": 214,
+  "qualificationTestsPassed": 122,
+  "qualificationSkips": 0,
+  "androidUnitResults": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 578
+  },
+  "suites": 57,
+  "androidTestsPassed": 577,
+  "lintPassed": true,
+  "assemblyPassed": true,
+  "nativeOwnershipPassed": true,
+  "cacheAndHostJniPassed": true,
+  "runtimeStoreQualification": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "assemblySha256": "b908eec49d6995da4de6b24a02c401bf1c61feb0e96b721cb57fa238cca66618",
+  "assemblyBytes": 20459392,
+  "clientSourceSha256": "90aa85d2f206bb80ccf92a939c0837086d7373b460119a2a3404ead26ee5ebc7",
+  "clientSourceBytes": 2673617,
+  "applicationSourceFilesMatched": 236,
+  "artifacts": [
+    {
+      "id": 12868436062,
+      "name": "fta-foundation-debug-1424e31274a35e880bebc170b585f04f31f75b56",
+      "sha256": "a5d84712e96b5a4de149f5d2a5c0a7d6ef8391f05edfac2834ca81e868e1e499",
+      "bytes": 19937120
+    },
+    {
+      "id": 12867534252,
+      "name": "fta-client-bridge-source-1424e31274a35e880bebc170b585f04f31f75b56",
+      "sha256": "f0132559154d5049bd4b0d010c072a3a150c99dd53c9a7d37557e7e6801cff80",
+      "bytes": 2672685
+    }
+  ],
+  "priorFailedRun": {
+    "runId": 40804180731,
+    "commit": "def9a1314b0bb8d4f3692652b627cc3f42cc1064",
+    "failedTests": 5,
+    "cause": "Synthetic managed-client fixtures omitted required proxy, DLL and configuration roles; completed fixtures without changing the production validator."
+  },
+  "physicalVersionExecuted": false,
+  "renderingQualified": false,
+  "gameLoginQualified": false
+}

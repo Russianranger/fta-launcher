@@ -5,16 +5,44 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Active implementation: code 46
+## Current delivery: code 46 original-client startup
 
-Code 46 / `0.16.0-client-startup` adds one bounded original-client startup
-diagnostic, with a fresh verified client lease and isolated working view.
-[Contract](client-original-startup.md). Local and exact-commit CI checks are in
-progress; no code-46 APK or physical result has been qualified yet. Preserve
-all passed gates below. Next: complete CI, package with the persistent signer,
-then run the new startup diagnostic once and export its separate report.
+**46 / 0.16.0-client-startup** is built and persistently signed. Downloads and
+one device test: [code-46 recovery](code46-recovery.md). APK **60,673,217 bytes**,
+SHA256 `5b93c145bf067ee64034ecc81e0db8593fe6a5d2a8dfdedb245c40b0a18d1c66`.
+All **247 packaging checks** passed; all **25 native payloads / 148 runtime
+entries** remain byte-identical to code 45. No native server rebuild, reseed or
+import is needed. [Packaging proof](evidence/android-2026-10-29-private-client-startup-apk.json).
 
-## Current delivery and passed physical recovery
+Application **1424e31274a35e880bebc170b585f04f31f75b56**, foundation
+**40805115590**, passed **214 tooling**, **122 qualification** (no skips),
+**577 Android tests / one existing skip**, lint/assembly, ownership, cache/JNI
+and full runtime installation/rehash under a 96 MiB heap.
+[CI record](evidence/ci-2026-10-29-code46-foundation-pass.json).
+The ARM64 synthetic observer/guard gate **40803796559** passed on **85239b7**;
+its qualification sources are unchanged in the final app. Five startup stages,
+x86-created x64 host, read-only header/parent/image observation and host exit
+passed, alongside all 56 guarded Windows / 50 native guard checks and owned
+tracer cleanup. [Host proof](evidence/host-2026-10-29-original-startup-observer-pass.json).
+
+The new operation holds the client lease from fresh full verification through
+isolated view creation, all owned process exits and a metadata audit. Large
+assets are protected guest links; mutable copies are capped at 64 MiB. Only
+view settings change. Runtime pre/post hashes remain full; source postcheck is
+metadata/inventory, not a second full client hash. Strict typed completion
+requires every stage, original-host event, verification and cleanup flag.
+[Contract](client-original-startup.md).
+
+**Next physical gate:** update in place, 5 GiB free, airplane mode with Wi-Fi off,
+launcher visible, tap **Test original client startup** once. Allow roughly an
+hour for client verification plus runtime/prefix checks. Export the JSON after
+completion/failure/Stop before retrying; if unavailable, export instead. The
+new `clientOriginalStartup` report is separate. The display is headless; there
+is no game window, realm launch or login. Original behavior on Thor is still
+unqualified. Assess this report before advancing to rendering/input/login.
+Do not repeat Finish or passed import/runtime/storage/server gates.
+
+## Passed physical recovery (code 45)
 
 **45 / 0.15.3-bind-cleanup** is delivered with the original persistent signer.
 [APK, sources and test instructions](code45-recovery.md). APK: **60,546,063 bytes**,
@@ -73,8 +101,8 @@ Do not rerun Finish, protected Wine or any passed import/runtime/storage/server 
 
 The working-view core is implemented for disposable fixtures: protected guest
 links, independent writable copies, 64 MiB copy limit, atomic publication,
-source metadata consistency and growth polling. Original-client integration is
-still pending. Wine's DeleteFile reports success while the native guard prevents
+source metadata consistency and growth polling. Original-client integration is now implemented in code 46; its physical
+startup result is pending. Wine's DeleteFile reports success while the native guard prevents
 deletion; actual file survival and full source inventory are independently checked.
 No guard restriction was relaxed. [Design and limits](client-guarded-wine.md).
 
@@ -109,7 +137,7 @@ code-43 guarded attempt is now qualified through code 45's separately recorded
 retained completion. Original WarcraftXL execution,
 rendering and login remain unqualified.
 
-## Active development: isolated original-client working view
+## Original-client working view boundary
 
 [Acceptance criteria](client-working-view.md). Preserve the full import/catalog,
 original host/proxy and Windows-PID launch contract. Plain PRoot bindings and
@@ -119,9 +147,9 @@ native Linux and physical Android fixture. Guarded PE32/PE64 access now passes
 native ARM64 Linux, and the bounded working-view builder is implemented.
 
 **The code-45 finish report has passed.** Preserve the original failed
-report, its successful completion and earlier passes. Advance the original-client
-view under `ClientStore.withVerifiedClient`;
-retain its lease until every owned reader exits. Actual original-client view,
+report, its successful completion and earlier passes. Code 46 prepares the original-client
+view under `ClientStore.withVerifiedClient` and retains its lease until every
+owned reader exits. Actual original-client view,
 WarcraftXL startup, rendering and login remain unqualified. This is cooperative
 file-integrity protection, not hostile-code confinement.
 
@@ -176,9 +204,9 @@ Private updates retain `FTA-Launcher-Development-Signing.zip`,
 `libfile_7f9c88258f0c8191a09ab071e7447d30`. Certificate
 `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Never regenerate keys, expose credentials or substitute the public foundation
-APK. Future updates use code >=46. [Code-45 recovery](code45-recovery.md) identifies
-the exact bridge/application source and unchanged v15 server source; both passed
-the strict packaging verifier. The code changes and measured evidence are pushed.
+APK. Future updates use code >=47. [Code-46 recovery](code46-recovery.md) identifies
+the exact bridge/application source and refreshed reproduction companion for
+the unchanged v15 native server. Both passed the strict packaging verifier. The code changes and measured evidence are pushed.
 
 Native recovery: [code32 baseline](code32-recovery.md), then the reviewed 0019
 seller-count patch/v15 relinks from [code34](code34-recovery.md). Restore pinned

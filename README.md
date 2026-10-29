@@ -41,8 +41,12 @@ empty bind-placeholder leak after forced tracer death, prevents future leftovers
 and finishes the retained attempt through saved-evidence checks and a full rehash.
 Its [physical Thor recovery passed](docs/evidence/android-2026-10-28-thor-code45-guarded-finish-pass.json):
 both placeholders removed, retained files unchanged, and all 14,092 runtime entries
-verified in 2m35s without rerunning Wine. The next implementation is the isolated
-original-client view; original-client execution remains unqualified.
+verified in 2m35s without rerunning Wine. Code 46 implements the isolated
+[original-client startup diagnostic](docs/client-original-startup.md), including
+fresh client verification, protected working view, original DLL-owned host
+observation and controlled Stop. Its ARM64 Linux observer gate passes with
+synthetic client/host executables; physical original execution, rendering and
+login remain unqualified. [Private code-46 APK and one device test](docs/code46-recovery.md).
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.
