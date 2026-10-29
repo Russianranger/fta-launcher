@@ -18,7 +18,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
-/** Explicit, non-restarting preparation and synthetic native probes. No original client execution. */
+/** Explicit, non-restarting preparation and bounded owned client diagnostics. */
 class ClientRuntimeService : Service() {
     private val worker = Executors.newSingleThreadExecutor()
     private val timer = Executors.newSingleThreadScheduledExecutor()
@@ -32,6 +32,7 @@ class ClientRuntimeService : Service() {
     private var isolating = false
     private var guarded = false
     private var finishing = false
+    private var original = false
     private var wakeLock: PowerManager.WakeLock? = null
     private fun cancel() { cancelled.set(true); download.cancel() }
     private fun active() { if (cancelled.get()) throw RuntimeInstallFailure(if (timedOut.get()) "timeout" else "cancelled") }
@@ -48,14 +49,15 @@ class ClientRuntimeService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == STOP) { cancel(); if (!started) stopSelf(); return START_NOT_STICKY }
         if (started) return START_NOT_STICKY
-        if (intent?.action !in setOf(PREPARE, VERIFY, PROBE, ISOLATE, GUARDED_PROBE, GUARDED_FINISH)) { stopSelf(); return START_NOT_STICKY }
+        if (intent?.action !in setOf(PREPARE, VERIFY, PROBE, ISOLATE, GUARDED_PROBE, GUARDED_FINISH, ORIGINAL)) { stopSelf(); return START_NOT_STICKY }
         started = true
         isolating = intent?.action == ISOLATE
         finishing = intent?.action == GUARDED_FINISH
+        original = intent?.action == ORIGINAL
         guarded = intent?.action == GUARDED_PROBE || finishing
-        probing = intent?.action == PROBE || isolating || guarded
+        probing = intent?.action == PROBE || isolating || guarded || original
         notification(if (isolating) "Testing client storage isolation…" else "Preparing client runtime…", true)
-        val minutes = if (isolating) 2L else 90L
+        val minutes = if (original) 180L else if (isolating) 2L else 90L
         wakeLock = getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "fta:clientRuntime")
             .apply { acquire(minutes * 60 * 1000L) }
         timer.schedule({ timedOut.set(true); cancel() }, minutes, TimeUnit.MINUTES)
@@ -98,7 +100,7 @@ class ClientRuntimeService : Service() {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
         val began = SystemClock.elapsedRealtime()
         val report = JSONObject().put("attemptId", UUID.randomUUID().toString())
-            .put("operation", if (finishing) "finish" else if (probing) "probe" else if (verify) "verify" else "prepare").put("state", "preparing")
+            .put("operation", if (original) "original" else if (finishing) "finish" else if (probing) "probe" else if (verify) "verify" else "prepare").put("state", "preparing")
             .put("startedAtEpochMs", System.currentTimeMillis()).put("ownerPid", android.os.Process.myPid())
         if (Build.VERSION.SDK_INT >= 30) runCatching {
             getSystemService(ActivityManager::class.java).setProcessStateSummary(ClientExitEvidence.token(report.getString("attemptId")).toByteArray())
@@ -122,7 +124,7 @@ class ClientRuntimeService : Service() {
             guard?.let { report.put("ioBytes", it.ioBytes).put("throttledMs", it.throttledMs)
                 .put("pressureWaitMs", it.pressureWaitMs).put("pressurePauses", it.pressurePauses) }
             report.put("completionPhase", phase)
-            try { ClientRuntimeReport.write(this, report, guarded, finishing) }
+            try { ClientRuntimeReport.write(this, report, guarded, finishing, original) }
             catch (e: Exception) { throw ClientFailureEvidence.AtPhase("report-write", e) }
             try { notification("${report.optString("state")}: ${report.optLong("bytes") / 1048576} / ${report.optLong("totalBytes") / 1048576} MiB") }
             catch (e: Exception) { throw ClientFailureEvidence.AtPhase("notification-update", e) }
@@ -182,7 +184,63 @@ class ClientRuntimeService : Service() {
                 report.put("state", it.stage).put("bytes", it.bytes).put("totalBytes", it.totalBytes).put("entries", it.entries); write()
             }
             report.put("state", if (verify) "verify-runtime" else "archive-verify"); write(true)
-            if (finishing) {
+            if (original) {
+                val saved = ClientRuntimeReport.stored(this, guarded = true)
+                val finished = ClientRuntimeReport.export(this, includeExitHistory = false, guarded = true, finish = true)
+                runtimeRequire(saved != null && finished.optBoolean("guardedWineStorageValidated") &&
+                    finished.optString("sourceProbeAttemptId") == saved.first.optString("attemptId") &&
+                    finished.optString("sourceReportSha256") == saved.second, "retained-probe-unavailable")
+                store.withVerified(governor::check, progress, reverifyAfter = true, milestone = ::milestone) { runtime ->
+                    report.put("runtimePreRehashValidated", true)
+                    val run = ClientProbeAttempts.create(filesDir.canonicalFile, report.getString("attemptId"))
+                    var nativeEntered = false
+                    try {
+                        val clientStore = ClientStore(File(filesDir, "client-store"), beforeIo = governor::beforeIo, releaseCache = cache::release)
+                        ClientManagedView.run(clientStore, File(run, "view"), active = governor::check, beforeIo = governor::beforeIo,
+                            progress = { p -> report.put("state", "client-verify").put("bytes", p.bytes).put("totalBytes", p.totalBytes)
+                                .put("clientFilesVerified", p.files); write() },
+                            stamp = { file -> Os.lstat(file.absolutePath).let { st ->
+                                runtimeRequire(!file.isFile || st.st_nlink == 1L, "unsafe-runtime-store")
+                                listOf(st.st_dev, st.st_ino, st.st_mode.toLong(), st.st_nlink, st.st_size, st.st_mtime, st.st_ctime)
+                            } }, phase = { stage -> report.put("state", stage); milestone(stage) },
+                            evidence = { key, value -> report.put(key, value); write() }) { source, view ->
+                            var nextMemory = 0L
+                            nativeEntered = true
+                            ClientSessionNative.run(this, runtime, run, source, view, active = {
+                                active(); val now = SystemClock.elapsedRealtime()
+                                if (now >= nextMemory) {
+                                    nextMemory = now + 1000
+                                    val sample = GameDataDiagnostics.memory(this, activityBound) ?: throw RuntimeInstallFailure("memory-observation-unavailable")
+                                    val signal = probeMemory.snapshot()
+                                    val memory = ClientIoGuard.Memory(sample.available, sample.total, sample.threshold, sample.low)
+                                    val decision = probeMemory.evaluate(memory, now, signal); recordMemory(memory, signal, now)
+                                    report.put("memoryPressureSource", decision.source); write(decision.stop)
+                                    runtimeRequire(!decision.stop, "memory-pressure")
+                                }
+                            }, observe = { text ->
+                                report.put("startupEvents", JSONObject(ClientStartupProtocol.values(text)))
+                                val stages = JSONObject()
+                                for (line in text.lineSequence()) {
+                                    val f = line.split(' ')
+                                    if (f.size == 3 && f[0] == "FTA_ANDROID_STAGE" && f[1] in ClientStartupProtocol.stages)
+                                        f[2].toIntOrNull()?.let { stages.put(f[1], it) }
+                                }
+                                report.put("probeStages", stages)
+                                val observations = ClientProbeEvidence.parse(text)
+                                observations.displayEvent?.let { report.put("displayEvent", it) }
+                                observations.socketStatus?.let { report.put("socketProbeErrno", it) }
+                                if (observations.diagnostics.isNotEmpty()) report.put("probeDiagnostics", JSONArray(observations.diagnostics.toList()))
+                                for ((key, value) in observations.prefixProgress) report.put(key, value)
+                                write()
+                            }, evidence = { key, value -> report.put(key, value); write() })
+                        }
+                    } finally {
+                        // Verification/preflight/Stop before native entry acquired no readers.
+                        if (!nativeEntered) ClientProbeAttempts.retire(run)
+                    }
+                }
+                report.put("runtimePostRehashValidated", true)
+            } else if (finishing) {
                 milestone("retained-receipt")
                 val saved = ClientRuntimeReport.stored(this, guarded = true)
                 runtimeRequire(saved != null && ClientGuardedFinish.eligible(ClientRuntimeReport.values(saved.first)), "retained-probe-unavailable")
@@ -279,7 +337,7 @@ class ClientRuntimeService : Service() {
             val reason = if (cancelled.get()) { if (timedOut.get()) "timeout" else "cancelled" }
                 else (cause as? RuntimeInstallFailure)?.reason ?: (cause as? ClientImportFailure)?.reason ?: "io-failed"
             report.put("state", if (cancelled.get()) "stopped" else "failed")
-                .put("reason", reason.takeIf { it in ClientRuntimeReport.reasons } ?: "io-failed")
+                .put("reason", reason.takeIf { it in ClientRuntimeReport.reasons || (original && (it in ClientImportReport.reasons || it in setOf("client-config-refused", "client-startup-failed"))) } ?: "io-failed")
         } finally {
             report.put("memoryPaused", false); runCatching { write(true) }
             download.cancel(); timer.shutdownNow(); releaseWakeLock()
@@ -307,6 +365,7 @@ class ClientRuntimeService : Service() {
         const val VERIFY = "com.russianranger.fta.VERIFY_CLIENT_RUNTIME"
         const val PROBE = "com.russianranger.fta.PROBE_CLIENT_RUNTIME"
         const val GUARDED_FINISH = "com.russianranger.fta.FINISH_GUARDED_WINE"
+        const val ORIGINAL = "com.russianranger.fta.TEST_ORIGINAL_CLIENT_STARTUP"
         const val GUARDED_PROBE = "com.russianranger.fta.TEST_GUARDED_WINE"
         const val ISOLATE = "com.russianranger.fta.TEST_CLIENT_STORAGE_ISOLATION"
         const val STOP = "com.russianranger.fta.STOP_CLIENT_RUNTIME"

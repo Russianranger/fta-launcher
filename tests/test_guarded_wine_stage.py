@@ -16,8 +16,9 @@ import stage_guarded_wine as stage
 class GuardedWineStageTests(unittest.TestCase):
     def entries(self):
         files = {'android_probe.py': (stage.ROOT / stage.SOURCES[2]).read_bytes(),
+                 'original_startup.py': (stage.ROOT / stage.SOURCES[4]).read_bytes(),
                  'guarded_wine.py': (stage.ROOT / stage.SOURCES[1]).read_bytes(), 'NOTICE.txt': stage.NOTICE}
-        for name, machine in [('probe32.exe', 0x14c), ('probe64.exe', 0x8664)]:
+        for name, machine in [('probe32.exe', 0x14c), ('probe64.exe', 0x8664), ('startup64.exe', 0x8664)]:
             data = bytearray(128); data[:2] = b'MZ'; struct.pack_into('<I', data, 60, 64)
             data[64:68] = b'PE\0\0'; struct.pack_into('<H', data, 68, machine); files[name] = bytes(data)
         manifest = stage.metadata({n: dict(bytes=len(b), sha256=hashlib.sha256(b).hexdigest()) for n, b in files.items()})
@@ -34,7 +35,7 @@ class GuardedWineStageTests(unittest.TestCase):
     def test_exact_inventory_hash_architecture_and_native_identity_are_required(self):
         bridges = {n: hashlib.sha256(b).hexdigest() for n, b in [('libproot_ro.so', b'guard'), ('libproot-loader.so', b'loader')]}
         with patch.object(stage, 'BRIDGES', bridges):
-            good = self.entries(); self.assertEqual(5, len(self.verify(good)['files']))
+            good = self.entries(); self.assertEqual(7, len(self.verify(good)['files']))
             for name in good:
                 changed = dict(good); changed[name] += b'changed'
                 with self.assertRaises((ValueError, json.JSONDecodeError)): self.verify(changed)

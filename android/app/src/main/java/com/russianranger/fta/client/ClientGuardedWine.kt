@@ -9,7 +9,7 @@ object ClientGuardedWine {
     /** Resolve Android's app-directory alias before the strict view/root audit. */
     fun createAttempt(files: File, id: String): File = ClientProbeAttempts.create(files.canonicalFile, id)
     val bridges = ClientIsolationPins.payloads.filterKeys { it != "libfta_storage_probe.so" }
-    val assets = setOf("probe32.exe", "probe64.exe", "android_probe.py", "guarded_wine.py", "NOTICE.txt")
+    val assets = setOf("probe32.exe", "probe64.exe", "android_probe.py", "guarded_wine.py", "NOTICE.txt", "startup64.exe", "original_startup.py")
     val stages = listOf("cpu-topology", "display", "prefix", "x86-storage", "x64-storage", "wine-stop")
     val checks = listOf("shared-read-open", "read-content", "seek", "read-mapping", "mapped-content", "private-mapping",
         "private-view", "direct-read", "private-write-isolated", "directory-list", "shared-write-denied",

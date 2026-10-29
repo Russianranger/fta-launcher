@@ -5,6 +5,15 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
+## Active implementation: code 46
+
+Code 46 / `0.16.0-client-startup` adds one bounded original-client startup
+diagnostic, with a fresh verified client lease and isolated working view.
+[Contract](client-original-startup.md). Local and exact-commit CI checks are in
+progress; no code-46 APK or physical result has been qualified yet. Preserve
+all passed gates below. Next: complete CI, package with the persistent signer,
+then run the new startup diagnostic once and export its separate report.
+
 ## Current delivery and passed physical recovery
 
 **45 / 0.15.3-bind-cleanup** is delivered with the original persistent signer.

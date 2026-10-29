@@ -38,7 +38,7 @@
         <service android:name=".client.ClientRuntimeService" android:process=":clientruntime"
             android:exported="false" android:stopWithTask="false" android:foregroundServiceType="dataSync|specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Explicit bounded synthetic client process ownership, Wine compatibility and disposable storage isolation diagnostics with Stop, isolated files and no imported client execution" />
+                android:value="Explicit bounded client startup, process ownership, Wine compatibility and storage isolation diagnostics with Stop and separate writable files" />
         </service>
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>

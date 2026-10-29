@@ -205,9 +205,10 @@ class ClientStore(private val root: File,
      */
     fun <T> withVerifiedClient(expectedCatalogSha256: String, active: () -> Unit = {},
         progress: (Progress) -> Unit = {}, validate: (File) -> Unit,
+        beforeVerify: (File) -> Unit = {},
         action: (File, Result) -> T): T = exclusive {
         demand(expectedCatalogSha256.matches(Regex("[a-f0-9]{64}")), "invalid-checkpoint")
-        val verified = verifyLocked(active, progress, validate)
+        val verified = verifyLocked(active, progress, validate, beforeVerify)
         demand(verified.result.catalogSha256 == expectedCatalogSha256, "client-catalog-mismatch")
         active()
         action(verified.data, verified.result)
@@ -215,7 +216,8 @@ class ClientStore(private val root: File,
 
     private data class VerifiedClient(val data: File, val result: Result)
 
-    private fun verifyLocked(active: () -> Unit, progress: (Progress) -> Unit, validate: (File) -> Unit): VerifiedClient {
+    private fun verifyLocked(active: () -> Unit, progress: (Progress) -> Unit, validate: (File) -> Unit,
+        beforeVerify: (File) -> Unit = {}): VerifiedClient {
         val generation = pointer("active") ?: throw ClientImportFailure("no-client")
         val folder = File(root, generation); demand(Files.isDirectory(folder.toPath(), NOFOLLOW_LINKS), "unsafe-destination")
         val encoded = bounded(File(folder, "catalog.bin"), 16L * 1024 * 1024)
@@ -225,6 +227,9 @@ class ClientStore(private val root: File,
         val plannedFiles = plan.files.associateBy { it.path }.toMutableMap()
         val plannedPaths = plan.entries.associateBy { it.path }
         plan.entries.filter { it.directory }.forEach { target(data, it.path, true, false) }
+        // Read-only budget/preflight while the same lease is held. No caller may
+        // use this path for guest execution before the full verification below.
+        active(); beforeVerify(data)
         var processed = 0L
         DataInputStream(ByteArrayInputStream(encoded)).use { input ->
             demand(input.readInt() == 1, "invalid-checkpoint")

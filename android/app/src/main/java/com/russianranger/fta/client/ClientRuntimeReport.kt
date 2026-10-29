@@ -11,18 +11,18 @@ import java.io.File
 
 /** Explicit allowlist: never exports URLs, exception text, paths, command lines or raw logs. */
 object ClientRuntimeReport {
-    private fun file(context: Context, guarded: Boolean = false, finish: Boolean = false) = AtomicFile(File(context.filesDir, if (finish) "client-guarded-wine-finish-report.json" else if (guarded) "client-guarded-wine-report.json" else "client-runtime-report.json"))
+    private fun file(context: Context, guarded: Boolean = false, finish: Boolean = false, original: Boolean = false) = AtomicFile(File(context.filesDir, if (original) "client-original-startup-report.json" else if (finish) "client-guarded-wine-finish-report.json" else if (guarded) "client-guarded-wine-report.json" else "client-runtime-report.json"))
     val states = setOf("preparing", "archive-verify", "download", "extract", "verify-runtime", "probe-ownership", "probe-wine", "probe-postconditions", "retained-verify", "complete", "stopped", "failed")
     val reasons = setOf("cancelled", "timeout", "busy", "invalid-catalog", "archive-changed", "runtime-changed",
         "unsafe-runtime-store", "storage-unavailable", "insufficient-space", "runtime-unavailable", "download-failed",
         "memory-pressure", "memory-observation-unavailable", "io-failed", "ownership-failed", "probe-failed", "probe-timeout", "probe-unavailable", "socket-path-too-long", "probe-attempt-limit", "view-copy-limit", "view-growth-limit", "retained-probe-unavailable", "retained-probe-changed", "runtime-bind-recovery-refused")
-    fun write(context: Context, report: JSONObject, guarded: Boolean = false, finish: Boolean = false) {
-        val atomic = file(context, guarded, finish); val output = atomic.startWrite()
+    fun write(context: Context, report: JSONObject, guarded: Boolean = false, finish: Boolean = false, original: Boolean = false) {
+        val atomic = file(context, guarded, finish, original); val output = atomic.startWrite()
         try { val bytes = report.toString().toByteArray(); require(bytes.size <= 8192); output.write(bytes); atomic.finishWrite(output) }
         catch (e: Exception) { atomic.failWrite(output); throw e }
     }
-    fun stored(context: Context, guarded: Boolean = false, finish: Boolean = false): Pair<JSONObject, String>? = runCatching {
-        file(context, guarded, finish).openRead().use { input ->
+    fun stored(context: Context, guarded: Boolean = false, finish: Boolean = false, original: Boolean = false): Pair<JSONObject, String>? = runCatching {
+        file(context, guarded, finish, original).openRead().use { input ->
             val bytes = ByteArray(8193); var count = 0
             while (count < bytes.size) { val n = input.read(bytes, count, bytes.size - count); if (n < 0) break; require(n > 0); count += n }
             require(count <= 8192)
@@ -36,13 +36,13 @@ object ClientRuntimeReport {
             if (value is JSONObject) values(value, depth - 1) else value
         }
     }
-    fun export(context: Context, includeExitHistory: Boolean = true, guarded: Boolean = false, finish: Boolean = false): JSONObject {
-        val expectedStages = if (guarded) ClientGuardedWine.stages else ClientProbeProtocol.stages
+    fun export(context: Context, includeExitHistory: Boolean = true, guarded: Boolean = false, finish: Boolean = false, original: Boolean = false): JSONObject {
+        val expectedStages = if (original) ClientStartupProtocol.stages else if (guarded) ClientGuardedWine.stages else ClientProbeProtocol.stages
         val result = JSONObject().put("available", false).put("originalClientExecuted", false)
             .put("androidWineQualified", false).put("warcraftXLCompatible", false).put("gameLoginQualified", false)
-        val raw = stored(context, guarded, finish)?.first ?: return result
+        val raw = stored(context, guarded, finish, original)?.first ?: return result
         result.put("available", true)
-        for ((key, allowed) in mapOf("state" to states, "operation" to setOf("prepare", "verify", "probe", "finish"), "reason" to reasons))
+        for ((key, allowed) in mapOf("state" to states + ClientFailureEvidence.clientPhases, "operation" to setOf("prepare", "verify", "probe", "finish", "original"), "reason" to reasons + ClientImportReport.reasons + setOf("client-config-refused", "client-startup-failed")))
             raw.optString(key).takeIf { it in allowed }?.let { result.put(key, it) }
         raw.optString("attemptId").takeIf { it.matches(Regex("[0-9a-f-]{36}")) }?.let { result.put("attemptId", it) }
         for (key in listOf("startedAtEpochMs", "updatedAtEpochMs", "elapsedMs", "bytes", "totalBytes", "entries", "peakRssKiB",
@@ -67,7 +67,7 @@ object ClientRuntimeReport {
         }
         for (key in listOf("archiveSha256", "catalogSha256"))
             raw.optString(key).takeIf { it.matches(Regex("[0-9a-f]{64}")) }?.let { result.put(key, it) }
-        if (guarded) {
+        if (guarded || original) {
             for (key in listOf("viewCopiedBytes", "viewSharedBytes", "viewCopiedFiles", "viewSharedFiles", "viewBytesObserved", "prefixBytesObserved")) {
                 val value = raw.opt(key)
                 if ((value is Int || value is Long) && (value as Number).toLong() in 0..(8L * 1024 * 1024 * 1024)) result.put(key, value)
@@ -89,6 +89,22 @@ object ClientRuntimeReport {
                 (raw.optJSONObject("windowsDeletion")?.opt(key) as? Int)?.takeIf { it in 0..max }?.let { deletion.put(key, it) }
             }
             result.put("windowsDeletion", deletion)
+        }
+        if (original) {
+            val events = JSONObject()
+            for (key in ClientStartupProtocol.events) (raw.optJSONObject("startupEvents")?.opt(key) as? Number)?.let {
+                if ((it is Int || it is Long) && it.toLong() in 0..0xffffffffL) events.put(key, it)
+            }
+            result.put("startupEvents", events).put("originalClientExecuted", events.optLong("client-started") == 1L)
+                .put("renderingQualified", false).put("sourcePostFullRehashPerformed", false)
+            for (key in listOf("clientFullRehashValidated", "sourceMetadataUnchanged", "independentLaunchSettingsPrepared", "startupProtocolValidated", "ownedCleanupComplete"))
+                (raw.opt(key) as? Boolean)?.let { result.put(key, it) }
+            for (key in listOf("clientCatalogSha256", "viewPlanSha256"))
+                raw.optString(key).takeIf { it.matches(Regex("[a-f0-9]{64}")) }?.let { result.put(key, it) }
+            for (key in listOf("clientFiles", "clientBytes", "plannedCopiedBytes", "plannedSharedBytes", "sessionExit")) {
+                val n = raw.opt(key)
+                if ((n is Long || n is Int) && (n as Number).toLong() >= 0) result.put(key, n)
+            }
         }
         raw.optString("failurePhase").takeIf { it in ClientFailureEvidence.phases }?.let { result.put("failurePhase", it) }
         raw.optString("completionPhase").takeIf { it in ClientFailureEvidence.phases }?.let { result.put("completionPhase", it) }
@@ -168,6 +184,12 @@ object ClientRuntimeReport {
                     result.has("sourceProbeAttemptId") && result.has("sourceReportSha256") && result.has("retainedTranscriptSha256")))
             result.put("guardedWineStorageValidated", qualified).put("runtimePostRehashValidated", qualified)
                 .put("originalImportAccessed", false).put("originalWorkingViewQualified", false)
+        }
+        if (original) {
+            val passed = complete && raw.optBoolean("startupProtocolValidated") && raw.optBoolean("ownedCleanupComplete") &&
+                raw.optBoolean("clientFullRehashValidated") && raw.optBoolean("sourceMetadataUnchanged") && raw.optBoolean("runtimePostRehashValidated") &&
+                stages.length() == expectedStages.size && expectedStages.all { stages.optInt(it, -1) == 0 }
+            result.put("originalStartupValidated", passed).put("runtimePostRehashValidated", passed)
         }
         return result.put("runtimeTreeVerified", complete).put("retainedRehashValidated", complete && result.optString("operation") == "verify")
     }

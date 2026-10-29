@@ -33,7 +33,7 @@ object ClientProbeAttempts {
         runtimeRequire(run.mkdir(), "unsafe-runtime-store")
         return run
     }
-    /** Called only after owned handles are reaped and tracer-death protection was validated. */
+    /** Called after owned readers are reaped, or when no native reader was acquired. */
     fun retire(run: File) {
         runtimeRequire(Files.isDirectory(run.toPath(), NOFOLLOW_LINKS), "unsafe-runtime-store")
         val file = File(run, RECEIPT)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile disposable Windows storage fixtures; reuse the exact qualified native guard."""
+"""Compile Windows storage fixtures and the original-client startup observer; reuse the exact qualified native guard."""
 import argparse
 import ast
 import hashlib
@@ -16,9 +16,10 @@ from stage_client_readonly import PAYLOADS
 
 BRIDGES = {'libproot_ro.so': PAYLOADS['libproot_ro.so'], 'libproot-loader.so': BRIDGE['libproot-loader.so']}
 SOURCES = ('android/qualification/wine_storage_probe.c', 'android/qualification/guarded_wine.py',
-           'android/qualification/android_runtime_probe.py')
-NOTICE = b'FTA guarded Wine file-access fixtures: MIT; synthetic files only, no game content.\nThe unchanged native import guard is GPL-3.0-or-later. Exact sources and reproduction commands accompany this APK in FTA-client-bridge-corresponding-source.zip. See client-isolation/NOTICE.txt and client-probe notices for the native guard and runtime.\n'
-ASSETS = {'probe32.exe', 'probe64.exe', 'guarded_wine.py', 'android_probe.py', 'NOTICE.txt'}
+           'android/qualification/android_runtime_probe.py', 'android/qualification/original_startup.c',
+           'android/qualification/original_startup.py', 'android/qualification/original_startup_fixture.c')
+NOTICE = b'FTA guarded Wine storage fixtures and read-only original-client startup observer: MIT; no game content.\nThe unchanged native import guard is GPL-3.0-or-later. Exact sources and reproduction commands accompany this APK in FTA-client-bridge-corresponding-source.zip. See client-isolation/NOTICE.txt and client-probe notices for the native guard and runtime.\n'
+ASSETS = {'probe32.exe', 'probe64.exe', 'guarded_wine.py', 'android_probe.py', 'NOTICE.txt', 'startup64.exe', 'original_startup.py'}
 
 
 def contract():
@@ -43,8 +44,10 @@ def verify_apk(archive):
         data = archive.read(prefix + name)
         require(dict(bytes=len(data), sha256=hashlib.sha256(data).hexdigest()) == expected, 'Guarded Wine asset differs')
         if name.startswith('probe'): pe(data, 0x14c if name == 'probe32.exe' else 0x8664)
+        if name == 'startup64.exe': pe(data, 0x8664)
     require(archive.read(prefix + 'guarded_wine.py') == (ROOT / SOURCES[1]).read_bytes() and
             archive.read(prefix + 'android_probe.py') == (ROOT / SOURCES[2]).read_bytes() and
+            archive.read(prefix + 'original_startup.py') == (ROOT / SOURCES[4]).read_bytes() and
             archive.read(prefix + 'NOTICE.txt') == NOTICE, 'Guarded Wine guest or notice differs')
     for name, expected in BRIDGES.items():
         require(hashlib.sha256(archive.read('lib/arm64-v8a/' + name)).hexdigest() == expected, 'Guarded Wine bridge differs')
@@ -74,13 +77,17 @@ def stage(provider, companion):
         pe((assets / name).read_bytes(), machine)
     shutil.copyfile(ROOT / SOURCES[1], assets / 'guarded_wine.py')
     shutil.copyfile(ROOT / SOURCES[2], assets / 'android_probe.py')
+    subprocess.run(['x86_64-w64-mingw32-gcc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
+                    '-Wl,--no-insert-timestamp', str(ROOT / SOURCES[3]), '-o', str(assets / 'startup64.exe')], check=True, timeout=120)
+    pe((assets / 'startup64.exe').read_bytes(), 0x8664)
+    shutil.copyfile(ROOT / SOURCES[4], assets / 'original_startup.py')
     (assets / 'NOTICE.txt').write_bytes(NOTICE)
     manifest = metadata({f.name: identity(f) for f in sorted(assets.iterdir())})
     encoded = json.dumps(manifest, indent=2) + '\n'; (assets / 'manifest.json').write_text(encoded)
     with zipfile.ZipFile(companion, 'a', compression=zipfile.ZIP_DEFLATED) as archive:
         require(not any(n.startswith('guarded-wine/') for n in archive.namelist()), 'Do not replace guarded Wine source evidence')
         archive.writestr('guarded-wine/manifest.json', encoded); archive.writestr('guarded-wine/NOTICE.txt', NOTICE)
-        archive.writestr('guarded-wine/REPRODUCE.txt', 'Use the included launcher-source.zip. After tools/stage_client_probe.py and tools/stage_client_readonly.py, run tools/stage_guarded_wine.py with --provider and --companion. PE compilers and exact flags are in that file. Native payloads are reused byte-for-byte. tools/check_client_readonly.py and android/qualification/check_guarded_wine.py exercise native Linux; Android remains a separate physical gate.\n')
+        archive.writestr('guarded-wine/REPRODUCE.txt', 'Use the included launcher-source.zip. After tools/stage_client_probe.py and tools/stage_client_readonly.py, run tools/stage_guarded_wine.py with --provider and --companion. PE compilers and exact flags are in that file. Native payloads are reused byte-for-byte. tools/check_client_readonly.py and android/qualification/check_guarded_wine.py exercise native Linux; android/qualification/check_original_startup.py qualifies the observer with synthetic x86/x64 processes. Original-client execution and Android remain separate physical gates.\n')
     verify_companion(companion, manifest)
     print(json.dumps(dict(guardedWineStaged=True, sourceCompanionSha256=digest(companion))))
 

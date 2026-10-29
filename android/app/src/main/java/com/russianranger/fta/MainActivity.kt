@@ -57,6 +57,8 @@ class MainActivity : Activity() {
     private lateinit var isolationStatus: TextView
     private lateinit var guardedButton: Button
     private lateinit var guardedFinishButton: Button
+    private lateinit var originalClientButton: Button
+    private lateinit var originalClientStatus: TextView
     private lateinit var guardedFinishStatus: TextView
     private lateinit var guardedStatus: TextView
     private lateinit var isolationButton: Button
@@ -310,6 +312,10 @@ class MainActivity : Activity() {
         }
         status.addView(runtimePrepareButton); status.addView(runtimeVerifyButton); status.addView(runtimeProbeButton); status.addView(runtimeStopButton)
         clientRuntimeStatus = label("", 13, muted); status.addView(clientRuntimeStatus)
+        originalClientButton = action("Test original client startup") { startClientRuntime(false, original = true) }
+        status.addView(originalClientButton)
+        originalClientStatus = label("", 13, muted); status.addView(originalClientStatus)
+        status.addView(label("Verifies the retained client, prepares separate settings and starts Wow.exe briefly to check its WarcraftXL host, then stops automatically. Allow 5 GiB free and up to an hour for verification. Keep the launcher visible, use airplane mode, then export the report. This does not start the realm or log in.", 13, muted))
         guardedFinishButton = action("Finish protected Wine verification") { startClientRuntime(false, finish = true) }
         status.addView(guardedFinishButton)
         guardedFinishStatus = label("", 13, muted); status.addView(guardedFinishStatus)
@@ -438,6 +444,18 @@ class MainActivity : Activity() {
         val finishActive = clientRuntimeRunning && finished.optBoolean("available") && finished.optString("state") !in setOf("complete", "failed", "stopped")
         val finishEligible = com.russianranger.fta.client.ClientGuardedFinish.eligible(ClientRuntimeReport.values(guardedObservation))
         val finishPassed = finished.optBoolean("guardedWineStorageValidated") && finished.optString("sourceProbeAttemptId") == guardedObservation.optString("attemptId")
+        originalClientButton.isEnabled = runtimeVerifyButton.isEnabled && finishPassed && File(filesDir, "client-store/active").isFile &&
+            com.russianranger.fta.client.ClientNativeProbe.packaged(this, guarded = true)
+        val originalReport = ClientRuntimeReport.export(this, includeExitHistory = false, original = true)
+        val originalActive = clientRuntimeRunning && originalReport.optBoolean("available") && originalReport.optString("state") !in setOf("complete", "failed", "stopped")
+        originalClientStatus.text = when {
+            originalActive && originalReport.optBoolean("memoryPaused") -> "Client preparation paused for memory pressure. Stop is available."
+            originalActive && originalReport.optString("state") == "client-verify" -> "Checking retained client: ${originalReport.optLong("bytes") / 1048576} / ${originalReport.optLong("totalBytes") / 1048576} MiB. No recopy is needed."
+            originalActive -> "Client startup diagnostic: ${originalReport.optString("state")}. Stop is available."
+            originalReport.optBoolean("originalStartupValidated") -> "Original startup and host cleanup passed. Export the report. Rendering and login are not yet qualified."
+            originalReport.optString("state") in setOf("failed", "stopped") -> "Client startup ${originalReport.optString("state")}: ${originalReport.optString("reason")} (${originalReport.optString("failurePhase")}, ${originalReport.optString("failureCategory")}). Export the report before retrying."
+            else -> "Original-client startup has not been tested."
+        }
         guardedFinishButton.isEnabled = runtimeVerifyButton.isEnabled && finishEligible && !finishPassed
         if (finishEligible && !finishPassed) { guardedButton.isEnabled = false; runtimeProbeButton.isEnabled = false }
         guardedFinishStatus.text = when {
@@ -469,6 +487,7 @@ class MainActivity : Activity() {
             else -> "Storage isolation has not been tested on this device."
         }
         clientRuntimeStatus.text = when {
+            originalActive -> "Previous runtime tests are preserved while the original-client diagnostic runs."
             isolationActive || guardedActive || finishActive -> if (runtimeReport.optBoolean("syntheticMixedRuntimeValidated")) "Previous runtime test passed; its report is preserved." else "Storage isolation test running."
             runtimeRequested && !clientRuntimeRunning -> "Starting runtime worker…"
             clientRuntimeRunning && runtimeReport.optBoolean("memoryPaused") -> "Runtime preparation paused for memory pressure. Stop is available."
@@ -644,11 +663,11 @@ class MainActivity : Activity() {
         data?.data?.let { app.importArchive(spec, it) }
     }
 
-    private fun startClientRuntime(verify: Boolean, probe: Boolean = false, isolate: Boolean = false, guarded: Boolean = false, finish: Boolean = false) {
+    private fun startClientRuntime(verify: Boolean, probe: Boolean = false, isolate: Boolean = false, guarded: Boolean = false, finish: Boolean = false, original: Boolean = false) {
         if (app.busy || databaseCheckRunning() || ClientImportService.running(this) || ClientRuntimeService.running(this)) return
         try {
             startForegroundService(Intent(this, ClientRuntimeService::class.java)
-                .setAction(if (finish) ClientRuntimeService.GUARDED_FINISH else if (guarded) ClientRuntimeService.GUARDED_PROBE else if (isolate) ClientRuntimeService.ISOLATE else if (probe) ClientRuntimeService.PROBE else if (verify) ClientRuntimeService.VERIFY else ClientRuntimeService.PREPARE))
+                .setAction(if (original) ClientRuntimeService.ORIGINAL else if (finish) ClientRuntimeService.GUARDED_FINISH else if (guarded) ClientRuntimeService.GUARDED_PROBE else if (isolate) ClientRuntimeService.ISOLATE else if (probe) ClientRuntimeService.PROBE else if (verify) ClientRuntimeService.VERIFY else ClientRuntimeService.PREPARE))
             runtimeRequestedAt = SystemClock.elapsedRealtime(); update()
         } catch (_: Exception) {
             Toast.makeText(this, "Runtime worker could not start. Keep the launcher visible and try again.", Toast.LENGTH_LONG).show()
