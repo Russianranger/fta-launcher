@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -27,7 +28,7 @@ def guest(profile):
     os.environ.update(PROFILES[profile])
     success = False; cleanup = False
     try:
-        base.run('x87', ['wine', '/client/x87-flags.exe'], 45); success = True
+        base.run('x87', ['wine', '/immutable/x87-flags.exe'], 45); success = True
     except Exception: pass
     finally:
         try:
@@ -51,15 +52,17 @@ def main():
     if os.uname().machine != 'aarch64': raise ValueError('native ARM64 required')
     root = a.runtime.resolve(); fixtures = a.fixtures.resolve(); work = a.work.resolve(); work.mkdir()
     rows = [l.split('\t') for l in catalog(a.archive, json.loads(LOCK.read_text())).decode().splitlines()[1:-1]]
-    verify(root, rows); before = snapshot(fixtures); results = {}
+    original = work / 'immutable'; original.mkdir()
+    shutil.copyfile(fixtures / 'x87-flags.exe', original / 'x87-flags.exe')
+    verify(root, rows); before = snapshot(fixtures); protected_before = snapshot(original); results = {}
     for profile in PROFILES:
         case = work / profile; case.mkdir(); (case / 'home').mkdir(); (case / 'view').mkdir()
         (case / 'cache').mkdir()
         with tempfile.TemporaryDirectory(prefix='fta-x87-') as temporary:
             tmp = Path(temporary)
-            cmd = [str(a.proot.resolve()), '--kill-on-exit', '--fta-readonly=' + str(fixtures), '--sysvipc', '-0',
+            cmd = [str(a.proot.resolve()), '--kill-on-exit', '--fta-readonly=' + str(original), '--sysvipc', '-0',
                 '-r', str(root), '-b', '/dev', '-b', '/proc', '-b', '/sys']
-            for source, target in ((fixtures, '/client'), (case / 'view', '/view'), (a.prefix.resolve(), '/prefix'),
+            for source, target in ((fixtures, '/client'), (original, '/immutable'), (case / 'view', '/view'), (a.prefix.resolve(), '/prefix'),
                     (case, '/session'), (case / 'cache', '/var/cache'), (tmp, '/tmp')):
                 cmd += ['-b', f'{source}:{target}']
             cmd += ['-w', '/view', '/usr/bin/env', '-i', 'PYTHONDONTWRITEBYTECODE=1', '/usr/bin/python3', '-B',
@@ -76,6 +79,7 @@ def main():
                 raise ValueError('fixture cleanup or status incomplete')
             results[profile] = dict(exitCode=result.returncode, observations=[l for l in lines if l.startswith('FTA_X87_')])
         if snapshot(fixtures) != before: raise ValueError('synthetic source changed')
+        if snapshot(original) != protected_before: raise ValueError('protected synthetic executable changed')
     verify(root, rows)
     proof = dict(scope='synthetic-x87-flags-on-native-arm64', profiles=results,
         fullRuntimePrePostRehash=True, fixtureUnchanged=True, originalClientExecuted=False, androidExecuted=False)
