@@ -1,5 +1,11 @@
 # Code 48 — preserve large settings with bounded session output
 
+**Superseded by [code 49](code49-recovery.md).** Code 48 physically completed
+full client verification and working-view setup, then stopped during prefix
+initialization on a critical trim callback. No matching Android kill; owned
+cleanup and source metadata audit passed. [Report assessment](evidence/android-2026-10-29-thor-code48-prefix-memory-stop.json).
+Do not retry code 48 or discard the retained imports.
+
 [FTA-Launcher-0.16.2-settings-budget.apk](https://chatgpt.com/library?file_id=libfile_d7ad771597fc8191be752c8d380fc547&account_id=personal)
 
 [FTA-Launcher-0.16.2-test-instructions.txt](https://chatgpt.com/library?file_id=libfile_95a65a0a2e0481919c7d1c3d803afd75&account_id=personal)

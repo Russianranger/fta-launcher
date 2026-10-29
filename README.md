@@ -52,8 +52,11 @@ preserves imported originals and settings, and records complete copy costs.
 Code 47's device report then identified 106.9 MiB of WTF settings exceeding the
 64 MiB copy cap. [Code 48](docs/code48-recovery.md) preserves those settings with
 a bounded 256 MiB copy allowance and separate 128 MiB session-output headroom.
-Its exact Android build/tests and synthetic ARM64 gates passed; physical
-original startup, rendering and login remain pending.
+Code 48 physically passed full client verification and working-view preparation,
+then stopped during prefix initialization on a critical memory-trim callback.
+[Code 49](docs/code49-recovery.md) adds live pressure-stall sampling and bounded
+confirmation with strict immediate-stop conditions. Physical original startup,
+rendering and login remain pending.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.

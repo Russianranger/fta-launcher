@@ -5,28 +5,53 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current development: code 49 native pressure confirmation
+## Current delivery: code 49 native pressure confirmation
+
+**49 / 0.16.3-pressure-confirmation** is signed and packaged.
+[APK, sources and one test](code49-recovery.md). APK **60,677,313 bytes**, SHA256
+`1f10af52686d4a796e0d4434bd717f242c1673f11ecf0544da773eb3de4482d5`.
+All **247 package checks**, persistent v2 signing and 16 KiB alignment passed.
+All **25 native payloads / 148 runtime entries** match code 48 byte-for-byte.
+[Packaging proof](evidence/android-2026-10-29-private-pressure-confirmation-apk.json).
+No native rebuild; the exact server companion from code 46 remains valid.
+
+Application **41055bcde585997333ab56202e88850d45d4f7e3** passed foundation
+**40894673034**: **214 tooling**, **122 qualification** (no skips), **590 Android
+passed / one existing skip**, lint/assembly, native ownership, cache/JNI and
+full runtime installation/rehash with 96 MiB heap. [CI evidence](evidence/ci-2026-10-29-code49-foundation-pass.json).
+The guarded native/observer/ownership code and host harness match code 48's
+qualified sources exactly. Its [ARM64 evidence](evidence/host-2026-10-29-code48-guarded-observer-pass.json)
+is retained for those unchanged components; no new guarded host run is claimed.
 
 Code 48 physically completed full verification of all 10,476 client files /
 60,243,212,332 bytes, copied 112,062,202 settings bytes and prepared the isolated
-view. It then stopped during prefix initialization on a level-15 critical trim
-aged 585 ms, with 8,570,064,896 available bytes and systemLowMemory=false.
-No matching Android kill. Owned cleanup and source metadata audit passed;
-original Wow.exe never started and runtime posthash remains incomplete.
+view. Its settings-budget fix worked. After **2,257,840 ms (37m38s)** it failed
+during prefix initialization on a level-15 critical trim aged 585 ms, with
+8,570,064,896 available bytes and systemLowMemory=false. No matching Android
+kill. Owned cleanup and source metadata audit passed; original Wow.exe never
+started and runtime posthash remains incomplete.
 [Report assessment](evidence/android-2026-10-29-thor-code48-prefix-memory-stop.json).
 Native PSI was not recorded, so a spurious warning or absence of actual
 system/cgroup pressure cannot be inferred.
 
-**49 / 0.16.3-pressure-confirmation** uses the same bounded PSI sampler for
-I/O and native monitoring. Measured pressure still stops immediately. A
-running-critical callback alone receives at most ten seconds from its original
-episode start only with available memory above max(existing floor, total/3),
-PSI some <2% and full <0.2%; missing PSI refuses grace. Repeated callbacks
-cannot extend the window. Severe callbacks/onLowMemory remain immediate and
-cannot be downgraded by later milder callbacks. The monitor never sleeps its
-native guest; cancellation and ownership cleanup remain active.
-Build/package qualification pending. Keep the one original-startup gate;
-no passed standalone import/runtime/storage/server test needs repeating.
+Code 49 uses the same bounded PSI sampler for I/O and native monitoring.
+Measured pressure still stops immediately. A running-critical callback alone
+receives at most ten seconds from its original episode start only with available
+memory >=max(existing floor, total/3), PSI some <2% and full <0.2%; missing PSI
+refuses grace. Repeated callbacks cannot extend the window. Severe callbacks and
+onLowMemory remain immediate and cannot be downgraded by later milder callbacks.
+The monitor never sleeps its native guest; cancellation and ownership cleanup
+remain active. Seven new regressions cover all policy boundaries and recovery.
+[Exact policy and limits](client-original-startup.md#native-memory-confirmation-from-code-49).
+
+**Next:** install in place, keep 5 GiB free internally, airplane mode with Wi-Fi
+off, launcher visible and powered. Tap **Test original client startup** once;
+allow 40–60 minutes plus prefix checks. A new session requires a fresh source
+verification under its lease; no separate Verify is requested. Export after
+completion/failure/Stop before retrying, or export if disabled. No game window
+is expected. Physical original startup, rendering and login remain unqualified.
+Do not reimport, clear data, delete imported cache/settings, repeat Finish or
+rerun passed standalone storage/runtime/server gates. Future code >=50.
 
 ## Superseded delivery: code 48 settings budget
 
@@ -107,7 +132,7 @@ full client verification plus runtime/prefix checks; export after completion,
 failure or Stop before retrying. No visible game window: this is still a bounded
 headless startup test. Original-client startup/rendering/login remain physically
 unqualified. Do not reimport, clear data, delete imported caches, repeat Finish
-or rerun passed storage/runtime/server tests. Future updates require code >=49.
+or rerun passed storage/runtime/server tests. Future updates require code >=50.
 
 ## Superseded delivery: code 46
 
@@ -279,7 +304,7 @@ Private updates retain `FTA-Launcher-Development-Signing.zip`,
 `libfile_7f9c88258f0c8191a09ab071e7447d30`. Certificate
 `3e6705b6dc4a6bf3e7109f5322ec51d5ff094a4d912560cd9c1bb826f88754a6`.
 Never regenerate keys, expose credentials or substitute the public foundation
-APK. Future updates use code >=49. [Code-48 recovery](code48-recovery.md) identifies
+APK. Future updates use code >=50. [Code-49 recovery](code49-recovery.md) identifies
 the exact bridge/application source and refreshed reproduction companion for
 the unchanged v15 native server. Both passed the strict packaging verifier. The code changes and measured evidence are pushed.
 

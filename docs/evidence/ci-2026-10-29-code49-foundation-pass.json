@@ -1,0 +1,78 @@
+{
+  "scope": "code49-exact-commit-foundation-build",
+  "commit": "41055bcde585997333ab56202e88850d45d4f7e3",
+  "runId": 40894673034,
+  "runAttempt": 1,
+  "conclusion": "success",
+  "jobs": {
+    "android": 123520405760,
+    "tooling": 123520406263,
+    "publish": 123524723006
+  },
+  "toolingTestsPassed": 214,
+  "qualificationTestsPassed": 122,
+  "qualificationSkips": 0,
+  "androidUnitResults": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 591
+  },
+  "suites": 57,
+  "androidTestsPassed": 590,
+  "lintPassed": true,
+  "assemblyPassed": true,
+  "nativeOwnershipPassed": true,
+  "cacheAndHostJniPassed": true,
+  "runtimeStoreQualification": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "assemblySha256": "ebabc3c667b5411e5e73010255cb8540854b2f79cbdb6b3a308007830491b2ca",
+  "assemblyBytes": 20464200,
+  "clientSourceSha256": "18bd25dbc524643e1c0d28f73c901dfa03c8a3098dba1fab2dc4ec06d58d6e3f",
+  "clientSourceBytes": 2718845,
+  "applicationSourceFilesMatched": 236,
+  "artifacts": [
+    {
+      "id": 12907665503,
+      "name": "fta-client-bridge-source-41055bcde585997333ab56202e88850d45d4f7e3",
+      "sha256": "132dc0948e2d3d33d271cdb89ccedcec65238b9881aa9a79311fa9ff876f7de2",
+      "bytes": 2717929
+    },
+    {
+      "id": 12905424810,
+      "name": "fta-foundation-debug-41055bcde585997333ab56202e88850d45d4f7e3",
+      "sha256": "f336cc6839f4c941751fac36b17a6f652e384decdac19e681fb36ed6b29de074",
+      "bytes": 19941787
+    }
+  ],
+  "priorNativeQualification": {
+    "commit": "161720f9cea06e6fcb52374c3634ea673ec75b5b",
+    "runId": 40884250533,
+    "evidence": "host-2026-10-29-code48-guarded-observer-pass.json",
+    "unchangedPaths": [
+      "native",
+      "manifests",
+      "tools",
+      "android/qualification",
+      "android/app/src/main/java/com/russianranger/fta/client/ClientWorkingView.kt",
+      "android/app/src/main/java/com/russianranger/fta/client/ClientGuardedWine.kt",
+      "android/app/src/main/java/com/russianranger/fta/client/ClientNativeProbe.kt",
+      "android/app/src/main/java/com/russianranger/fta/client/ClientSessionNative.kt"
+    ],
+    "rerunPerformed": false,
+    "scope": "Reuse only the unchanged native guard, observer, harness and owned session code; new Android memory policy covered by current unit tests, physical result pending"
+  },
+  "physicalVersionExecuted": false,
+  "renderingQualified": false,
+  "gameLoginQualified": false
+}
