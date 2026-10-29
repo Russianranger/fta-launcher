@@ -5,7 +5,25 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery: code 49 native pressure confirmation
+## Active recovery: code 50 prefix first
+
+Code 49 failed under an active critical trim: measured full PSI **0.36%** exceeded
+its strict **0.2%** critical-grace threshold. It fully verified all client files
+and copied settings before stopping during Wine setup after **36m27s**. No
+matching Android kill; owned cleanup/source audit passed. [Assessment](evidence/android-2026-10-29-thor-code49-prefix-pressure.json).
+
+Code **50 / 0.17.0-prefix-first** prepares Wine before client verification with
+empty client bindings, then reaps that owned tracer. Only successful setup can
+start the full client verification and second owned startup invocation. A bounded
+NOFOLLOW/dirfd worker syncs and requests cache release for disposable prefix files.
+Counters measure accepted requests, not actual eviction. Code-49 pressure limits
+are unchanged. Prefix space already allocated is not reserved twice.
+
+Pending: exact-commit Android foundation and native ARM64 two-invocation observer
+qualification, private packaging/signing and one combined device test. Do not
+ship the foundation APK. Imports/settings/realm/runtime and passed gates remain.
+
+## Superseded delivery: code 49 native pressure confirmation
 
 **49 / 0.16.3-pressure-confirmation** is signed and packaged.
 [APK, sources and one test](code49-recovery.md). APK **60,677,313 bytes**, SHA256

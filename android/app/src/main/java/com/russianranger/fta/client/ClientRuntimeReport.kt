@@ -96,14 +96,20 @@ object ClientRuntimeReport {
             for (key in ClientStartupProtocol.events) (raw.optJSONObject("startupEvents")?.opt(key) as? Number)?.let {
                 if ((it is Int || it is Long) && it.toLong() in 0..0xffffffffL) events.put(key, it)
             }
+            val preparation = JSONObject()
+            for (key in ClientStartupProtocol.prefixStages) {
+                val value = raw.optJSONObject("prefixPreparationStages")?.opt(key)
+                if ((value is Int || value is Long) && (value as Number).toLong() in 0..255) preparation.put(key, value)
+            }
+            result.put("prefixPreparationStages", preparation).put("prefixCacheEvictionMeasured", false)
             result.put("startupEvents", events).put("originalClientExecuted", events.optLong("client-started") == 1L)
                 .put("renderingQualified", false).put("sourcePostFullRehashPerformed", false)
-            for (key in listOf("clientFullRehashValidated", "sourceMetadataUnchanged", "independentLaunchSettingsPrepared", "startupProtocolValidated", "ownedCleanupComplete", "freshOutputDirectoriesPrepared"))
+            for (key in listOf("clientFullRehashValidated", "sourceMetadataUnchanged", "independentLaunchSettingsPrepared", "startupProtocolValidated", "ownedCleanupComplete", "freshOutputDirectoriesPrepared", "prefixPreparationValidated", "prefixPreparationCleanupComplete"))
                 (raw.opt(key) as? Boolean)?.let { result.put(key, it) }
             for (key in listOf("clientCatalogSha256", "viewPlanSha256"))
                 raw.optString(key).takeIf { it.matches(Regex("[a-f0-9]{64}")) }?.let { result.put(key, it) }
             for (key in listOf("clientFiles", "clientBytes", "plannedCopiedBytes", "plannedSharedBytes", "plannedExcludedBytes",
-                "viewCopyLimitBytes", "viewInitialBytes", "viewLimitBytes", "viewGrowthAllowanceBytes", "viewExcludedBytes", "viewExcludedFiles", "sessionExit") +
+                "prefixPreparationExit", "viewCopyLimitBytes", "viewInitialBytes", "viewLimitBytes", "viewGrowthAllowanceBytes", "viewExcludedBytes", "viewExcludedFiles", "sessionExit") + ClientStartupProtocol.cacheFields +
                 ClientWorkingView.budgetGroups.flatMap { group -> listOf("Bytes", "Files").map { ClientWorkingView.budgetField(group, it) } }) {
                 val n = raw.opt(key)
                 if ((n is Long || n is Int) && (n as Number).toLong() in 0..ClientPlan.MAX_BYTES) result.put(key, n)

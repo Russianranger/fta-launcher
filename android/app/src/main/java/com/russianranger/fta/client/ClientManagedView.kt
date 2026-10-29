@@ -21,8 +21,9 @@ object ClientManagedView {
         validate: (File) -> Unit = ClientCandidate::validate,
         pins: Map<String, Pair<Long, String>> = originalPins,
         stamp: (File) -> List<Long>, available: () -> Long = { destination.parentFile!!.usableSpace },
-        phase: (String) -> Unit = {}, evidence: (String, Any) -> Unit = { _, _ -> },
+        preparedPrefixBytes: Long = 0, phase: (String) -> Unit = {}, evidence: (String, Any) -> Unit = { _, _ -> },
         action: (File, File) -> Unit): Result {
+        runtimeRequire(preparedPrefixBytes in 0..3L * ClientRuntimeStore.RESERVE, "view-growth-limit")
         var planned: ClientWorkingView.Plan? = null
         return store.withVerifiedClient(expectedCatalog, active, progress, validate, beforeVerify = { source ->
             phase("client-preflight")
@@ -36,7 +37,7 @@ object ClientManagedView {
                     evidence(ClientWorkingView.budgetField(group, "Files"), cost.inputFiles.getValue(group))
                 }
             }
-            runtimeRequire(available() >= plan.copiedBytes + 4L * ClientRuntimeStore.RESERVE, "insufficient-space")
+            runtimeRequire(available() >= plan.copiedBytes + 4L * ClientRuntimeStore.RESERVE - preparedPrefixBytes, "insufficient-space")
             for ((path, pin) in pins) runtimeRequire(plan.entries.any {
                 it.path == path && !it.directory && !it.copied && it.bytes == pin.first
             }, "client-build-mismatch")

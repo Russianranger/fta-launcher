@@ -32,8 +32,10 @@ and the original root proxy remain intact. Source paths and metadata are audited
 after cleanup. This is explicitly **not a second full client hash** or protection
 against hostile native code. Post-session runtime verification remains a full hash.
 
-One owned guarded tracer starts a fresh Wine prefix and a headless 1280x720
-display. The x64 observer starts original `Wow.exe -windowed`. Its unchanged
+From code 50, a first owned guarded tracer creates the fresh Wine prefix with
+empty client bindings, then fully exits before client verification. A second
+owned tracer reuses that completed prefix and starts a headless 1280x720 display.
+The x64 observer starts original `Wow.exe -windowed`. Its unchanged
 x86 DLL owns the x64 host launch using the original Windows process ID and Utils
 directory. The observer never starts the original host independently. It reads
 only the first 64 mapping bytes, checks magic/protocol/channel bounds, and checks
@@ -90,3 +92,41 @@ sampling, process ownership and source checks remain active. Numeric grace
 counts/max duration and live PSI are exported. This is bounded confirmation,
 not a guarantee against LMK or unmeasured cgroup pressure. Original-startup,
 rendering and login qualification still require their actual device evidence.
+
+## Prefix preparation before client verification from code 50
+
+The code-49 report measured 1.07 GB of generated prefix files before its controlled
+memory stop. PSI full 0.36% exceeded the 0.2% ceiling for critical grace. Cache
+pressure from rapid prefix growth is a hypothesis; no threshold is relaxed.
+
+Within the exclusive runtime lease, full runtime prehash now precedes Wine
+preparation, **before** the long client hash and copied settings. This invocation
+binds empty disposable source/view folders, never the imported client. Success
+requires CPU topology, display, prefix and Wine Stop stages, a bounded prefix
+receipt and registry/binary checks. Its owned tracer must be reaped before
+returning. Failure skips the client hash, original process launch and view copy.
+The attempt directory is retired only after all acquired native handles exit.
+
+A Python worker opens only descriptor-relative entries below the disposable
+prefix, with NOFOLLOW, NONBLOCK and regular-file/single-link checks. It skips
+symlinks, hard links and special files; never reads payload contents or rewrites
+files. Changed files up to 128 MiB receive fdatasync followed by DONTNEED advice.
+Traversal is bounded by 10,000 entries and depth 16; unchanged inode/size/time
+records skip repeat requests. Errors are counted. The worker is stopped before
+the preparation pass marker; an unjoined worker cannot qualify setup. The native
+owner remains responsible for terminating all descendants on cancellation.
+Accepted calls **do not establish actual cache eviction**.
+
+The second guarded invocation requires the prepared prefix/receipt and exact
+staged observer bytes. It does not rerun wineboot. Client lease, full client
+verification, immutable guard, settings preservation, source audit and full
+runtime posthash remain mandatory. Already allocated prefix bytes are deducted
+from remaining space reservations, with the same 3 GiB prefix/1 GiB free-space
+limits. Memory policy, 256 MiB settings ceiling and 128 MiB growth allowance are
+unchanged. Exported prefix stages, exit/cleanup flags and four cache counters
+contain no file names or raw guest output. Success requires both invocations.
+
+The ARM64 fixture gate performs real separate prefix/startup invocations, checks
+prefix cache advice was exercised, and fully rehashes the runtime between and
+after them. Synthetic client/host ownership checks still do not qualify original
+WarcraftXL, rendering or login. One combined device test remains necessary.

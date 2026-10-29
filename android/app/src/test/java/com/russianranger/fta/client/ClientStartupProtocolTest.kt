@@ -26,6 +26,7 @@ class ClientStartupProtocolTest {
         val complete = mutableMapOf<String, Any?>("state" to "complete", "operation" to "original",
             "clientCatalogSha256" to ClientManagedView.CATALOG, "sessionExit" to 0,
             "probeStages" to ClientStartupProtocol.stages.associateWith { 0 },
+            "prefixPreparationStages" to ClientStartupProtocol.prefixStages.associateWith { 0 }, "prefixPreparationExit" to 0,
             "startupEvents" to ClientStartupProtocol.validate(good(), 0))
         for (flag in ClientStartupProtocol.completionFlags) complete[flag] = true
         assertTrue(ClientStartupProtocol.qualified(complete))
@@ -34,9 +35,31 @@ class ClientStartupProtocolTest {
             assertFalse(flag, ClientStartupProtocol.qualified(complete + (flag to false)))
             assertFalse(flag, ClientStartupProtocol.qualified(complete + (flag to "true")))
         }
-        for ((key, value) in listOf("sessionExit" to "0", "state" to "failed", "clientCatalogSha256" to "0".repeat(64),
+        for ((key, value) in listOf("sessionExit" to "0", "prefixPreparationExit" to "0", "state" to "failed", "clientCatalogSha256" to "0".repeat(64),
+            "prefixPreparationStages" to ClientStartupProtocol.prefixStages.associateWith { "0" },
             "probeStages" to ClientStartupProtocol.stages.associateWith { "0" },
             "startupEvents" to (ClientStartupProtocol.validate(good(), 0) + ("client-early-exit" to 0L))))
             assertFalse(key, ClientStartupProtocol.qualified(complete + (key to value)))
+    }
+    @Test fun prefixRequiresExactStagesAndCleanupWithoutClientExecution() {
+        val text = ClientStartupProtocol.prefixStages.joinToString("\n") { "FTA_ANDROID_STAGE $it 0" } + "\nFTA_CLIENT_PREFIX_PASS\n"
+        ClientStartupProtocol.validatePrefix(text, 0)
+        for (bad in listOf(text + "FTA_CLIENT_PREFIX_PASS\n", text + "FTA_CLIENT_STARTUP_FAILED\n",
+            text + "FTA_CLIENT_EVENT client-started 1\n", text + "FTA_CLIENT_STARTUP_PASS\n",
+            text + "FTA_CLIENT_PREFIX_FAILED\n", text.replace("wine-stop 0", "wine-stop 1"),
+            text.replace("FTA_ANDROID_STAGE prefix 0\n", ""))) {
+            try { ClientStartupProtocol.validatePrefix(bad, 0); fail() }
+            catch (e: RuntimeInstallFailure) { assertEquals("client-startup-failed", e.reason) }
+        }
+        try { ClientStartupProtocol.validatePrefix(text, 1); fail() }
+        catch (e: RuntimeInstallFailure) { assertEquals("client-startup-failed", e.reason) }
+    }
+    @Test fun cacheTelemetryIsBoundedAndUsesTheLastObservation() {
+        val values = ClientStartupProtocol.cacheValues("FTA_PREFIX_CACHE 2 1 1 1024\nFTA_PREFIX_CACHE 5 3 2 2048\n")
+        assertEquals(mapOf("prefixCacheSyncedFiles" to 5L, "prefixCacheAcceptedFiles" to 3L,
+            "prefixCacheErrors" to 2L, "prefixCacheBytes" to 2048L), values)
+        for (bad in listOf("FTA_PREFIX_CACHE 1 2 0 100", "FTA_PREFIX_CACHE 1 1 -1 100",
+            "FTA_PREFIX_CACHE 1 1 0 ${ClientPlan.MAX_BYTES + 1}", "FTA_PREFIX_CACHE 1 1 0 private", "FTA_PREFIX_CACHE 1 1 0"))
+            assertTrue(ClientStartupProtocol.cacheValues(bad).isEmpty())
     }
 }

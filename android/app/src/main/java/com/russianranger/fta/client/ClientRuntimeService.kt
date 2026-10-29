@@ -209,10 +209,47 @@ class ClientRuntimeService : Service() {
                 store.withVerified(governor::check, progress, reverifyAfter = true, milestone = ::milestone) { runtime ->
                     report.put("runtimePreRehashValidated", true)
                     val run = ClientProbeAttempts.create(filesDir.canonicalFile, report.getString("attemptId"))
-                    var nativeEntered = false
+                    fun nativeMonitor(): () -> Unit {
+                        var nextMemory = 0L
+                        return {
+                            active(); val now = SystemClock.elapsedRealtime()
+                            if (now >= nextMemory) {
+                                nextMemory = now + 1000
+                                val signal = probeMemory.snapshot()
+                                val memory = memorySample(signal) ?: throw RuntimeInstallFailure("memory-observation-unavailable")
+                                val decision = recordProbeDecision(memory, signal, now)
+                                runtimeRequire(!decision.stop, "memory-pressure")
+                            }
+                        }
+                    }
+                    fun observeNative(text: String, preparingPrefix: Boolean) {
+                        if (!preparingPrefix) report.put("startupEvents", JSONObject(ClientStartupProtocol.values(text)))
+                        val stages = JSONObject()
+                        val expected = if (preparingPrefix) ClientStartupProtocol.prefixStages else ClientStartupProtocol.stages
+                        for (line in text.lineSequence()) {
+                            val f = line.split(' ')
+                            if (f.size == 3 && f[0] == "FTA_ANDROID_STAGE" && f[1] in expected)
+                                f[2].toIntOrNull()?.let { stages.put(f[1], it) }
+                        }
+                        report.put(if (preparingPrefix) "prefixPreparationStages" else "probeStages", stages)
+                        val observations = ClientProbeEvidence.parse(text)
+                        observations.displayEvent?.let { report.put("displayEvent", it) }
+                        observations.socketStatus?.let { report.put("socketProbeErrno", it) }
+                        if (observations.diagnostics.isNotEmpty()) report.put("probeDiagnostics", JSONArray(observations.diagnostics.toList()))
+                        for ((key, value) in observations.prefixProgress) report.put(key, value)
+                        if (preparingPrefix) for ((key, value) in ClientStartupProtocol.cacheValues(text)) report.put(key, value)
+                        write()
+                    }
                     try {
+                        // Prefix setup never binds or reads the imported client. Its owned
+                        // tracer must exit before beginning the expensive client verification.
+                        report.put("state", "prefix-preparation"); milestone("prefix-preparation")
+                        val prepared = ClientSessionNative.prepare(this, runtime, run, nativeMonitor(),
+                            { text -> observeNative(text, true) }, { key, value -> report.put(key, value); write() })
+                        val prefixBytes = ClientWorkingView.checkGrowth(File(run, "prefix"), 3L * ClientRuntimeStore.RESERVE)
                         val clientStore = ClientStore(File(filesDir, "client-store"), beforeIo = governor::beforeIo, releaseCache = cache::release)
                         ClientManagedView.run(clientStore, File(run, "view"), active = governor::check, beforeIo = governor::beforeIo,
+                            preparedPrefixBytes = prefixBytes,
                             progress = { p -> report.put("state", "client-verify").put("bytes", p.bytes).put("totalBytes", p.totalBytes)
                                 .put("clientFilesVerified", p.files); write() },
                             stamp = { file -> Os.lstat(file.absolutePath).let { st ->
@@ -220,37 +257,13 @@ class ClientRuntimeService : Service() {
                                 listOf(st.st_dev, st.st_ino, st.st_mode.toLong(), st.st_nlink, st.st_size, st.st_mtime, st.st_ctime)
                             } }, phase = { stage -> report.put("state", stage); milestone(stage) },
                             evidence = { key, value -> report.put(key, value); write() }) { source, view ->
-                            var nextMemory = 0L
-                            nativeEntered = true
-                            ClientSessionNative.run(this, runtime, run, source, view, active = {
-                                active(); val now = SystemClock.elapsedRealtime()
-                                if (now >= nextMemory) {
-                                    nextMemory = now + 1000
-                                    val signal = probeMemory.snapshot()
-                                    val memory = memorySample(signal) ?: throw RuntimeInstallFailure("memory-observation-unavailable")
-                                    val decision = recordProbeDecision(memory, signal, now)
-                                    runtimeRequire(!decision.stop, "memory-pressure")
-                                }
-                            }, observe = { text ->
-                                report.put("startupEvents", JSONObject(ClientStartupProtocol.values(text)))
-                                val stages = JSONObject()
-                                for (line in text.lineSequence()) {
-                                    val f = line.split(' ')
-                                    if (f.size == 3 && f[0] == "FTA_ANDROID_STAGE" && f[1] in ClientStartupProtocol.stages)
-                                        f[2].toIntOrNull()?.let { stages.put(f[1], it) }
-                                }
-                                report.put("probeStages", stages)
-                                val observations = ClientProbeEvidence.parse(text)
-                                observations.displayEvent?.let { report.put("displayEvent", it) }
-                                observations.socketStatus?.let { report.put("socketProbeErrno", it) }
-                                if (observations.diagnostics.isNotEmpty()) report.put("probeDiagnostics", JSONArray(observations.diagnostics.toList()))
-                                for ((key, value) in observations.prefixProgress) report.put(key, value)
-                                write()
-                            }, evidence = { key, value -> report.put(key, value); write() })
+                            ClientSessionNative.run(this, runtime, run, source, view, prepared, nativeMonitor(),
+                                { text -> observeNative(text, false) }, { key, value -> report.put(key, value); write() })
                         }
                     } finally {
-                        // Verification/preflight/Stop before native entry acquired no readers.
-                        if (!nativeEntered) ClientProbeAttempts.retire(run)
+                        // Both native entry points reap their owned readers before returning.
+                        // Pre-native/preflight failures acquired no readers; every path retires once.
+                        ClientProbeAttempts.retire(run)
                     }
                 }
                 report.put("runtimePostRehashValidated", true)

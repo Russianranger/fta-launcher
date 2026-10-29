@@ -64,6 +64,7 @@ jobs:
             ${{ runner.temp }}/guarded-wine/probe.log
             ${{ runner.temp }}/guarded-wine/evidence.json
             ${{ runner.temp }}/guarded-wine/source-observation.json
+            ${{ runner.temp }}/original-startup/prefix.log
             ${{ runner.temp }}/original-startup/probe.log
             ${{ runner.temp }}/original-startup/evidence.json
           retention-days: 14

@@ -68,6 +68,26 @@ class ClientManagedViewTest {
         catch (e: ClientImportFailure) { assertEquals("destination-changed", e.reason) }
         assertFalse(view.exists())
     }
+    @Test fun alreadyAllocatedPrefixSpaceIsNotReservedTwiceAndBoundsStillHold() {
+        val (root, _, result) = setup(); var reads = 0
+        val store = ClientStore(root, beforeIo = { reads++ })
+        val copied = content.getValue("WarcraftXL.cfg").size + content.getValue("wTf/Config.wtf").size
+        val prefix = ClientRuntimeStore.RESERVE
+        val remaining = copied + 4L * ClientRuntimeStore.RESERVE - prefix
+        for ((allocated, free, reason) in listOf(Triple(prefix, remaining - 1, "insufficient-space"),
+            Triple(0L, remaining, "insufficient-space"), Triple(-1L, remaining, "view-growth-limit"),
+            Triple(3L * ClientRuntimeStore.RESERVE + 1, remaining, "view-growth-limit"))) {
+            val view = File(temp.newFolder(), "view")
+            try { ClientManagedView.run(store, view, result.catalogSha256, validate = {}, pins = pins(), stamp = ::stamp,
+                available = { free }, preparedPrefixBytes = allocated) { _, _ -> fail() }; fail() }
+            catch (e: RuntimeInstallFailure) { assertEquals(reason, e.reason) }
+            assertEquals(0, reads); assertFalse(view.exists())
+        }
+        var entered = false
+        ClientManagedView.run(store, File(temp.newFolder(), "view"), result.catalogSha256, validate = {}, pins = pins(), stamp = ::stamp,
+            available = { remaining }, preparedPrefixBytes = prefix) { _, _ -> entered = true }
+        assertTrue(entered); assertTrue(reads > 0)
+    }
     @Test fun actionFailureStillChecksSourceAndReleasesLeaseAfterCallbackCleanup() {
         val (root, store, result) = setup(); val evidence = mutableMapOf<String, Any>(); var stopped = false
         try { ClientManagedView.run(store, File(temp.newFolder(), "view"), result.catalogSha256,

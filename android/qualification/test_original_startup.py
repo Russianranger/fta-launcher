@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 import original_startup as guest
-from check_original_startup import transcript
+from check_original_startup import transcript, prefix_transcript
 
 
 class OriginalStartupTests(unittest.TestCase):
@@ -47,12 +47,13 @@ class OriginalStartupTests(unittest.TestCase):
                      patch('builtins.open', return_value=io.BytesIO(b'0-3')), \
                      patch.dict(guest.os.environ, {}, clear=True), \
                      patch.multiple(guest.base, STAGES=guest.base.STAGES, MARKERS=guest.base.MARKERS, OutputCapture=guest.base.OutputCapture), \
+                     patch.object(guest, 'prepared'), patch.object(guest, 'PrefixCache'), \
                      patch.object(guest.base, 'socket_check', return_value=0), \
                      patch.object(guest.base, 'start_display', return_value=(child, capture)), \
                      patch.object(guest.base, 'run', side_effect=run), \
                      patch.object(guest.base, 'stop') as stop, \
                      patch.object(guest.subprocess, 'run') as server, patch('sys.stdout', new_callable=io.StringIO):
-                    self.assertEqual(1, guest.main())
+                    self.assertEqual(1, guest.main(prepare=failure == "prefix"))
                     self.assertEqual('wine-stop', calls[-1])
                     server.assert_called_once(); stop.assert_called_once_with(child); capture.close.assert_called_once()
 
