@@ -5,7 +5,26 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery: code 51 client fault tracing
+## Code 52 in progress: fivefold verification rate
+
+Owner requests fivefold file-verification speed. Code 52 / **0.17.2-fast-verify**
+raises the shared aggregate I/O ceiling from **48 to 240 MiB/s**, carries fractional
+milliseconds across requests, and credits time already spent reading/hashing.
+Only the current <=256 KiB operation can proceed after a stall; idle credit never
+accumulates. Full hashes, leases, cache advice/1 MiB windows, Stop and memory
+pressure thresholds remain unchanged. No native/observer or original-client changes.
+
+Code 51 returned **39m15s**, including **28m20s requested pacing / zero pressure
+pauses**. Prefix setup (101277 ms), full client hash and settings copy passed.
+The fault collector recorded a write AV in **Wow.exe**, candidate RVA **0x5c7898**,
+target **0xdfe000**, exit **0xC0000005 after 4296 ms**; zero drops/overflow and all
+three client image roles loaded. This is not proven fatal causality or a crash fix.
+[Bounded assessment](evidence/android-2026-10-29-thor-code51-fault-and-pacing.json).
+Original startup/rendering/login remain unqualified. Next: qualify/sign/deliver
+code 52, then one combined original-startup test to measure faster verification.
+No reimport, separate Verify, clear data or repeated passed standalone gates.
+
+## Superseded delivery: code 51 client fault tracing
 
 **51 / 0.17.1-client-fault** is signed and saved. [APK, sources and one device test](code51-recovery.md).
 This collects the missing crash location; **it is not a demonstrated crash fix**.

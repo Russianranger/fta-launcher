@@ -11,11 +11,37 @@ class ClientIoGuardTest {
     }
     @Test fun rateIncludesEveryReadWriteAndReadbackWithoutIdleBurstCredit() {
         val clock = Clock(); val guard = ClientIoGuard({ clock.time }, clock::sleep, { healthy }, {})
-        repeat(192) { guard.beforeIo(256 * 1024) }
-        assertEquals(48L shl 20, guard.ioBytes); assertTrue(clock.time >= 1000)
+        // 80 MiB read + 80 MiB write + 80 MiB readback share one rate budget.
+        repeat(960) { guard.beforeIo(256 * 1024) }
+        assertEquals(240L shl 20, guard.ioBytes); assertEquals(1000L, clock.time)
         clock.time += 60000; val before = clock.time
+        // At most the current 256 KiB operation can proceed after a long idle.
         guard.beforeIo(256 * 1024)
-        assertTrue(clock.time - before >= 5); assertTrue(clock.sleeps.all { it in 1..100 })
+        assertEquals(before, clock.time)
+        repeat(960) { guard.beforeIo(256 * 1024) }
+        assertEquals(1000L, clock.time - before); assertTrue(clock.sleeps.all { it in 1..100 })
+    }
+    @Test fun smallReadsShareFractionalTimeInsteadOfSleepingOneMillisecondEach() {
+        val clock = Clock(); val guard = ClientIoGuard({ clock.time }, clock::sleep, { healthy }, {})
+        repeat(256 * 1024) { guard.beforeIo(1) }
+        assertEquals(256L * 1024, guard.ioBytes); assertEquals(2L, clock.time)
+    }
+    @Test fun storageAndHashingTimeCountTowardTheRateBudget() {
+        val clock = Clock(); val guard = ClientIoGuard({ clock.time }, clock::sleep, { healthy }, {})
+        repeat(960) { guard.beforeIo(256 * 1024); clock.time += 1 }
+        assertEquals(1001L, clock.time); assertEquals(41L, guard.throttledMs)
+        // A slower storage device should incur no additional per-buffer delay.
+        val slowClock = Clock(); val slow = ClientIoGuard({ slowClock.time }, slowClock::sleep, { healthy }, {})
+        repeat(960) { slow.beforeIo(256 * 1024); slowClock.time += 3 }
+        assertEquals(2L, slow.throttledMs); assertEquals(2882L, slowClock.time)
+    }
+    @Test fun schedulerOversleepDoesNotBecomeAnotherFullDelay() {
+        val clock = Clock(); val guard = ClientIoGuard({ clock.time }, { clock.sleep(it + 4) }, { healthy }, {})
+        repeat(960) { guard.beforeIo(256 * 1024) }
+        // Scheduler granularity still limits throughput; never add negative waits
+        // or let an overdue deadline produce unbounded catch-up credit.
+        assertTrue(clock.time in 1000L..3000L)
+        assertTrue(clock.sleeps.all { it in 5..6 })
     }
     @Test fun pressureStopsIoUntilFiveSecondsOfSustainedRecovery() {
         val clock = Clock(); var paused = false

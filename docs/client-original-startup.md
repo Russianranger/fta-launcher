@@ -11,7 +11,7 @@ The exclusive runtime lease covers full pre/post runtime hashes. Inside it,
 view construction, every owned reader's exit and the source metadata audit.
 An early read-only preflight rejects a missing original binary, excessive mutable
 copies or insufficient space before the roughly 60 GB verification. Existing
-48 MiB/s pacing, cache release and memory backpressure remain in use.
+240 MiB/s aggregate pacing (code 52), cache release and memory backpressure remain in use.
 
 The pinned catalog and four original Wow/proxy/DLL/host hashes must match.
 Large shared files are guest links into `/immutable`, protected by the previously
@@ -181,3 +181,28 @@ its CI artifact; the production `--original` mode never saves raw Wine output.
 
 The next device gate remains one combined original-startup attempt and export.
 It collects the missing crash location; code 51 is not a demonstrated crash fix.
+
+
+## Verification pacing from code 52
+
+The owner requests a fivefold rate increase after code 51 spent 1,699,713 ms in
+requested pacing sleeps during a 2,355,235 ms attempt, with no pressure pause.
+The shared client/runtime I/O governor now permits **240 MiB/s**, up from 48.
+Read, write and readback requests all charge the same budget. Full hashes and
+existing source leases still run; no file-verification result is reused.
+
+The scheduler carries exact fractional milliseconds between requests instead
+of rounding every buffer separately (256 KiB at 240 MiB/s is 1.041667 ms).
+Elapsed reading/hashing time satisfies the next deadline instead of receiving
+an additional full sleep. A late deadline is clamped to the current time,
+allowing only the current <=256 KiB operation, with no accumulated idle credit.
+Pressure recovery resets both deadline and fractional remainder. Stop checks,
+one-second memory sampling, existing pressure thresholds, 256 KiB buffers and
+1 MiB cache/write/readback windows remain unchanged. No extra worker is added.
+
+Fake-clock regressions require 240 MiB of mixed I/O requests in exactly 1000 ms,
+262144 one-byte requests in 2 ms, and correct pacing with work time, idle periods
+and scheduler oversleep. Device storage/hash speed and scheduling can still limit
+throughput; fivefold configured rate is not a measured fivefold total-attempt
+speedup. The next diagnostic exports the rate, I/O bytes, requested pacing waits,
+pressure waits and total elapsed time for comparison.

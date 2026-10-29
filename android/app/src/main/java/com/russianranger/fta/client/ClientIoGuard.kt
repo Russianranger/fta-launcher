@@ -1,6 +1,6 @@
 package com.russianranger.fta.client
 
-/** Single-worker I/O governor. Counts source reads, writes AND readbacks; no burst credit. */
+/** Single-worker I/O governor. Counts reads, writes AND readbacks; no accumulated idle credit. */
 class ClientIoGuard(
     private val now: () -> Long,
     private val sleep: (Long) -> Unit,
@@ -28,16 +28,29 @@ class ClientIoGuard(
     var pressurePauses = 0L; private set
     var latest: Memory? = null; private set
     private var due = now()
+    // Exact fractional milliseconds: rounding each 256 KiB request would halve
+    // a 240 MiB/s ceiling. Carry the remainder across operations instead.
+    private var dueRemainder = 0L
     private var nextSample = Long.MIN_VALUE
 
     /** Called before each bounded payload read or write, including resumed/retained reads. */
     fun beforeIo(bytes: Int) {
         require(bytes in 1..(256 * 1024))
         check()
+        val duration = bytes * 1000L + dueRemainder
+        due += duration / IO_BYTES_PER_SECOND
+        dueRemainder = duration % IO_BYTES_PER_SECOND
+        var deadline = due + if (dueRemainder == 0L) 0 else 1
         val start = now()
-        due = maxOf(due, start) + (bytes * 1000L + IO_BYTES_PER_SECOND - 1) / IO_BYTES_PER_SECOND
-        while (now() < due) {
-            active(); val wait = minOf(100, due - now()); sleep(wait); throttledMs += wait
+        // Reading/hashing time already satisfies pacing. After a stall, permit
+        // only the current bounded operation, then restart without idle credit.
+        if (deadline < start) {
+            due = start; dueRemainder = 0; deadline = start
+        }
+        while (true) {
+            val remaining = deadline - now()
+            if (remaining <= 0) break
+            active(); val wait = minOf(100, remaining); sleep(wait); throttledMs += wait
             check()
         }
         ioBytes += bytes
@@ -67,12 +80,12 @@ class ClientIoGuard(
                 } else healthySince = null
             }
         }
-        due = now(); observe(latest, false)
+        due = now(); dueRemainder = 0; observe(latest, false)
     }
     companion object {
-        // Code 38 Thor evidence: ~9 GiB available, no pressure, 130 s of pacing.
-        // Raise only the aggregate rate; buffers, dirty windows and pressure gates stay bounded.
-        const val IO_BYTES_PER_SECOND = 48L * 1024 * 1024
+        // Owner-requested 5x rate; code 51 recorded 1,699,713 ms of pacing and
+        // zero pressure pauses. Buffers, dirty windows and pressure gates stay bounded.
+        const val IO_BYTES_PER_SECOND = 240L * 1024 * 1024
         const val MAX_PRESSURE_WAIT_MS = 120000L
         /** PSI numbers are percentages, exported as integer thousandths of one percent. */
         fun psi(text: String): Pair<Long, Long>? = runCatching {

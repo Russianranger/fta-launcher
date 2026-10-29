@@ -137,3 +137,6 @@ code-38 Thor report (about 9 GB available, no pressure pauses, 130 s throttled).
 The 256 KiB buffers, 1 MiB write/readback windows and pressure thresholds remain
 unchanged. Device throughput and pressure behavior at the new rate remain to be
 measured. See [socket repair](client-socket-repair.md).
+
+Code 52 supersedes this ceiling with the owner-requested **240 MiB/s** rate and
+elapsed-work/fractional pacing; [scheduler details](client-original-startup.md#verification-pacing-from-code-52).
