@@ -6,6 +6,20 @@ object ClientStartupProtocol {
     val events = setOf("client-started", "client-create-error", "client-early-exit", "host-header-valid", "host-owned",
         "host-channels", "host-not-observed", "startup-observed", "client-forced-stop", "client-stopped", "host-stopped")
     val required = setOf("client-started", "host-header-valid", "host-owned", "startup-observed", "client-stopped", "host-stopped")
+    val completionFlags = setOf("runtimePreRehashValidated", "runtimePostRehashValidated", "clientFullRehashValidated",
+        "sourceMetadataUnchanged", "independentLaunchSettingsPrepared", "startupProtocolValidated", "ownedCleanupComplete")
+    private fun integer(value: Any?): Long? = if (value is Int || value is Long) (value as Number).toLong() else null
+    fun qualified(report: Map<String, Any?>): Boolean {
+        val events = report["startupEvents"] as? Map<*, *> ?: return false
+        val observed = report["probeStages"] as? Map<*, *> ?: return false
+        return report["state"] == "complete" && report["operation"] == "original" &&
+            report["clientCatalogSha256"] == ClientManagedView.CATALOG &&
+            completionFlags.all { report[it] == true } && integer(report["sessionExit"]) == 0L &&
+            observed.keys == stages.toSet() && observed.values.all { integer(it) == 0L } &&
+            required.all { integer(events[it]) == 1L } && (integer(events["host-channels"])?.let { it in 2L..16L } == true) &&
+            events.keys.all { it in required + setOf("host-channels", "client-forced-stop") } &&
+            ("client-forced-stop" !in events || integer(events["client-forced-stop"]) == 1L)
+    }
     fun values(text: String): Map<String, Long> {
         runtimeRequire(text.length <= 65536, "probe-failed")
         return text.lineSequence().mapNotNull { line ->

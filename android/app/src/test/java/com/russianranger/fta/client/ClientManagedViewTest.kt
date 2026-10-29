@@ -67,7 +67,9 @@ class ClientManagedViewTest {
         try { ClientManagedView.run(store, File(temp.newFolder(), "view"), result.catalogSha256,
             validate = {}, pins = pins(), stamp = ::stamp, evidence = { k, v -> evidence[k] = v }) { _, _ ->
             try { throw RuntimeInstallFailure("cancelled") } finally { stopped = true }
-        }; fail() } catch (e: RuntimeInstallFailure) { assertEquals("cancelled", e.reason) }
+        }; fail() } catch (e: ClientFailureEvidence.AtPhase) {
+            assertEquals("client-session", e.phase); assertEquals("cancelled", (e.cause as RuntimeInstallFailure).reason)
+        }
         assertTrue(stopped); assertEquals(true, evidence["sourceMetadataUnchanged"])
         ClientStore(root).verify(validate = {})
     }

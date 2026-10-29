@@ -70,7 +70,7 @@ object ClientRuntimeReport {
         if (guarded || original) {
             for (key in listOf("viewCopiedBytes", "viewSharedBytes", "viewCopiedFiles", "viewSharedFiles", "viewBytesObserved", "prefixBytesObserved")) {
                 val value = raw.opt(key)
-                if ((value is Int || value is Long) && (value as Number).toLong() in 0..(8L * 1024 * 1024 * 1024)) result.put(key, value)
+                if ((value is Int || value is Long) && (value as Number).toLong() in 0..ClientPlan.MAX_BYTES) result.put(key, value)
             }
             raw.optString("viewPlanSha256").takeIf { it.matches(Regex("[0-9a-f]{64}")) }?.let { result.put("viewPlanSha256", it) }
             if (raw.opt("protectedFixtureUnchanged") is Boolean) result.put("protectedFixtureUnchanged", raw.getBoolean("protectedFixtureUnchanged"))
@@ -159,7 +159,7 @@ object ClientRuntimeReport {
         val ownership = probeOperation && result.optInt("ownershipNormalExit", -1) == 0 &&
             result.optInt("ownershipStopExit", -1) in 0..255 &&
             result.optInt("ownershipKilledExit", -1) == 137 && result.optInt("stoppedTracees") == 3 && result.optInt("killedTracees") == 3
-        val preRehash = probeOperation && result.has("archiveSha256") && result.has("catalogSha256") &&
+        val preRehash = (probeOperation || (original && result.optString("operation") == "original")) && result.has("archiveSha256") && result.has("catalogSha256") &&
             raw.optBoolean("runtimePreRehashValidated")
         val synthetic = !guarded && complete && ownership && preRehash && raw.optBoolean("syntheticMixedRuntimeValidated") &&
             raw.optBoolean("runtimePostRehashValidated") && result.optInt("socketProbeErrno", -1) == 0 &&
@@ -186,9 +186,7 @@ object ClientRuntimeReport {
                 .put("originalImportAccessed", false).put("originalWorkingViewQualified", false)
         }
         if (original) {
-            val passed = complete && raw.optBoolean("startupProtocolValidated") && raw.optBoolean("ownedCleanupComplete") &&
-                raw.optBoolean("clientFullRehashValidated") && raw.optBoolean("sourceMetadataUnchanged") && raw.optBoolean("runtimePostRehashValidated") &&
-                stages.length() == expectedStages.size && expectedStages.all { stages.optInt(it, -1) == 0 }
+            val passed = complete && preRehash && ClientStartupProtocol.qualified(values(raw))
             result.put("originalStartupValidated", passed).put("runtimePostRehashValidated", passed)
         }
         return result.put("runtimeTreeVerified", complete).put("retainedRehashValidated", complete && result.optString("operation") == "verify")

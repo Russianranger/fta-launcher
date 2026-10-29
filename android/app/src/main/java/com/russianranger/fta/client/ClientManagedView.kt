@@ -73,6 +73,8 @@ object ClientManagedView {
             runtimeRequire(snapshot() == before, "runtime-changed")
             try {
                 active(); phase("client-session"); action(source, destination)
+            } catch (e: Exception) {
+                throw if (e is ClientFailureEvidence.AtPhase) e else ClientFailureEvidence.AtPhase("client-session", e)
             } finally {
                 // Cleanup belongs to action; this check runs only after it returns.
                 // Do not let an already-requested Stop skip the metadata audit.
