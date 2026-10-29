@@ -30,7 +30,7 @@ class ClientRuntimeBindingsTest {
             Files.setPosixFilePermissions(file.toPath(), PosixFilePermissions.fromString("rwx------"))
     }
     private fun recover(root: File, observed: (Int) -> Unit = {}) = ClientRuntimeBindings.recover(root, plan(), stat(root).uid,
-        ::stat, { Files.delete(it.toPath()) }, removed = observed)
+        ::stat, ClientRuntimeBindings::deleteEmptyDirectory, removed = observed)
     private fun refused(action: () -> Unit) {
         try { action(); fail("Expected strict refusal") } catch (e: RuntimeInstallFailure) { assertEquals("runtime-bind-recovery-refused", e.reason) }
     }
@@ -79,5 +79,14 @@ class ClientRuntimeBindingsTest {
             active = { throw RuntimeInstallFailure("cancelled") }); fail() }
         catch (e: RuntimeInstallFailure) { assertEquals("cancelled", e.reason) }
         assertTrue(path.exists())
+    }
+    @Test fun directoryOnlyDeletionNeverUnlinksAFileOrASymbolicLink() {
+        val root = temp.newFolder(); val file = File(root, "keep").apply { writeText("unchanged") }
+        val link = File(root, "alias"); Files.createSymbolicLink(link.toPath(), file.toPath())
+        for (path in listOf(file, link)) {
+            try { ClientRuntimeBindings.deleteEmptyDirectory(path); fail() } catch (_: java.nio.file.FileSystemException) { }
+            assertTrue(Files.exists(path.toPath(), NOFOLLOW_LINKS))
+        }
+        assertEquals("unchanged", file.readText())
     }
 }

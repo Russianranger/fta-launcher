@@ -209,7 +209,7 @@ class ClientRuntimeService : Service() {
                     report.put("runtimeBindPlaceholdersRemoved", 0); write(true)
                     ClientRuntimeBindings.recover(runtime, plan, android.os.Process.myUid(),
                         stat = { file -> Os.lstat(file.absolutePath).let { ClientRuntimeBindings.Identity(it.st_mode, it.st_uid, it.st_nlink) } },
-                        rmdir = { file -> Os.rmdir(file.absolutePath) }, active = governor::check,
+                        rmdir = ClientRuntimeBindings::deleteEmptyDirectory, active = governor::check,
                         removed = { count -> report.put("runtimeBindPlaceholdersRemoved", count); write(true) })
                     report.put("runtimeBindPlaceholdersChecked", true); write(true)
                 }) { }
