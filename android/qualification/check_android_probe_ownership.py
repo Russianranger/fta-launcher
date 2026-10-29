@@ -28,17 +28,21 @@ def ended(before):
     return after is None or after['ticks'] != before['ticks'] or after['state'] in ('Z', 'X', 'x')
 
 
-def run_case(proot, loader, root, work, mode):
+def run_case(proot, loader, root, work, mode, *, bindings=(), protected=None, no_pollution=False, program="/probe/android_probe.py"):
     control = work / 'ownership-control'
     control.unlink(missing_ok=True)
     log = work / (mode + '.log')
     with log.open('wb') as output:
-        tracer = subprocess.Popen([str(proot), '--kill-on-exit', '--sysvipc', '-0', '-r', str(root),
+        tracer = subprocess.Popen([str(proot), '--kill-on-exit'] +
+            (['--fta-readonly=' + str(protected)] if protected is not None else []) +
+            [part for source, target in bindings for part in ('-b', f'{source}:{target}')] +
+            ['--sysvipc', '-0', '-r', str(root),
             '-b', '/dev', '-b', '/proc', '-b', '/sys', '-b', f'{work}:/session', '-w', '/session',
-            '/usr/bin/env', '-i', 'PYTHONDONTWRITEBYTECODE=1', '/usr/bin/python3', '-B', '/probe/android_probe.py',
+            '/usr/bin/env', '-i', 'PYTHONDONTWRITEBYTECODE=1', '/usr/bin/python3', '-B', program,
             '--ownership-normal' if mode == 'normal' else '--ownership-hold'],
             stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.STDOUT, start_new_session=True,
-            env=dict(os.environ, PROOT_LOADER=str(loader), PROOT_NO_SECCOMP='1', PROOT_TMP_DIR=str(work)))
+            env=dict(os.environ, PROOT_LOADER=str(loader), PROOT_NO_SECCOMP='1', PROOT_TMP_DIR=str(work),
+                     **({'PROOT_DONT_POLLUTE_ROOTFS': '1'} if no_pollution else {})))
         try:
             if mode == 'normal':
                 if tracer.wait(10) != 0:

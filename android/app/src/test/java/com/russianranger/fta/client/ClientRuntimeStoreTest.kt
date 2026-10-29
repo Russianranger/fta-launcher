@@ -150,6 +150,15 @@ class ClientRuntimeStoreTest {
             File(data, "usr/bin/probe").writeBytes(ByteArray(f.payload.size))
         } }
     }
+    @Test fun preVerificationRecoveryHoldsLeaseAndCannotBypassTheFullRehash() {
+        val f = Fixture(); val (root, first) = installed(f); val second = store(root, f)
+        failure("runtime-changed") {
+            first.withVerified(beforeVerify = { ready ->
+                failure("busy") { second.withVerified { fail() } }
+                File(ready, "usr/bin/probe").writeBytes(ByteArray(f.payload.size))
+            }) { fail("Changed runtime must not reach the verified callback") }
+        }
+    }
     @Test fun insufficientSpaceFailsBeforeSourceOpen() {
         val f = Fixture(); val root = File(temp.root, "runtime")
         failure("insufficient-space") { ClientRuntimeStore(root, f.plan, available = { ClientRuntimeStore.RESERVE })

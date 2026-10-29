@@ -116,7 +116,7 @@ object ClientNativeProbe {
                     "-b", "${tmp.absolutePath}:/tmp", "-b", "${fonts.absolutePath}:/var/cache",
                     "-w", if (guarded) "/view" else "/session", "/usr/bin/env", "-i", "PYTHONDONTWRITEBYTECODE=1", "/usr/bin/python3", "-B", if (guarded) "/client/guarded_wine.py" else "/client/android_probe.py", mode)
                 val env = arrayOf("PROOT_LOADER=${File(native, "libproot-loader.so").absolutePath}",
-                    "PROOT_TMP_DIR=${tmp.absolutePath}", "PROOT_NO_SECCOMP=1", "PATH=/system/bin", "TMPDIR=${tmp.absolutePath}")
+                    "PROOT_TMP_DIR=${tmp.absolutePath}", "PROOT_NO_SECCOMP=1", "PROOT_DONT_POLLUTE_ROOTFS=1", "PATH=/system/bin", "TMPDIR=${tmp.absolutePath}")
                 val output = File(run, "step-${logs.size}.out"); val error = File(run, "step-${logs.size}.err")
                 val handle = NativeProcessBridge.start(File(native, if (guarded) "libproot_ro.so" else "libproot.so").absolutePath, args.toTypedArray(), env,
                     run.absolutePath, null, output.absolutePath, error.absolutePath)

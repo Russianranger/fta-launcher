@@ -15,6 +15,7 @@ from build_runtime_catalog import catalog
 from check_android_runtime_path import verify
 from check_client_runtime import LOCK
 from guarded_wine import CHECKS, STAGES
+from check_android_probe_ownership import run_case
 
 
 def snapshot(root):
@@ -70,6 +71,26 @@ def main():
     for name in ('probe32.exe', 'probe64.exe', 'Data/canary.bin'): (view / name).symlink_to('/immutable/' + name)
     shutil.copyfile(original / 'WTF/Config.wtf', view / 'WTF/Config.wtf')
     before = snapshot(original)
+    # Reproduce the code-43 killed-tracer leak before testing its prevention.
+    ownership = work / 'ownership'; ownership.mkdir()
+    bindings = ((args.fixtures.resolve(), '/client'), (original, '/immutable'), (view, '/view'))
+    if 'PROOT_DONT_POLLUTE_ROOTFS' in os.environ: raise ValueError('inherited pollution flag masks regression')
+    def owned(mode, prevent):
+        return run_case(args.proot.resolve(), args.loader.resolve(), root, ownership, mode,
+            bindings=bindings, protected=original, no_pollution=prevent, program='/client/android_probe.py')
+    legacy = owned('kill', False)
+    for name in ('immutable', 'view'):
+        path = root / name; st = path.lstat()
+        if st.st_mode != 0o40000 or st.st_uid != os.getuid() or st.st_nlink != 2:
+            raise ValueError('legacy killed-tracer placeholder was not reproduced')
+        path.rmdir()  # Atomic empty-only removal, without chmod or traversal.
+    root_names = sorted(p.name for p in root.iterdir())
+    ownership_results = {}
+    for mode in ('normal', 'stop', 'kill'):
+        ownership_results[mode] = owned(mode, True)
+        if sorted(p.name for p in root.iterdir()) != root_names:
+            raise ValueError('owned lifecycle polluted runtime')
+    verify(root, rows)
     with tempfile.TemporaryDirectory(prefix='fta-guard-') as temporary:
         base = Path(temporary); tmp = base / ('p' * (79 - len(os.fsencode(base)) - 1)); tmp.mkdir()
         command = [str(args.proot.resolve()), '--kill-on-exit', '--fta-readonly=' + str(original), '--sysvipc', '-0', '-r', str(root),
@@ -80,7 +101,7 @@ def main():
         command += ['-w', '/view', '/usr/bin/env', '-i', 'PYTHONDONTWRITEBYTECODE=1', '/usr/bin/python3', '-B', '/client/guarded_wine.py', '--wine']
         with (work / 'probe.log').open('wb') as log:
             value = subprocess.run(command, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
-                env=dict(os.environ, PROOT_LOADER=str(args.loader.resolve()), PROOT_TMP_DIR=str(tmp), PROOT_NO_SECCOMP='1'), timeout=1000)
+                env=dict(os.environ, PROOT_LOADER=str(args.loader.resolve()), PROOT_TMP_DIR=str(tmp), PROOT_NO_SECCOMP='1', PROOT_DONT_POLLUTE_ROOTFS='1'), timeout=1000)
     with (work / 'probe.log').open('rb') as incoming: output = incoming.read(65537)
     if len(output) > 65536: raise ValueError('oversized probe log')
     after = snapshot(original)
@@ -90,7 +111,9 @@ def main():
     result = transcript(output.decode(), value.returncode)
     if not (view / 'WTF/Config.wtf').read_bytes().startswith(b'private'): raise ValueError('independent configuration not written')
     verify(root, rows)
-    result.update(scope='guarded-wine-on-native-arm64-linux', runtimeEntries=len(rows), fullRuntimePrePostRehash=True,
+    result.update(legacyKilledTracer=legacy, legacyPlaceholderNames=['immutable', 'view'],
+        guardedOwnership=ownership_results, runtimeRootPollutionPrevented=True,
+        scope='guarded-wine-on-native-arm64-linux', runtimeEntries=len(rows), fullRuntimePrePostRehash=True,
         protectedFixtureUnchanged=True, independentConfigurationWritten=True, sourceSharedBytes=65536 +
         sum((original / n).stat().st_size for n in ('probe32.exe', 'probe64.exe')),
         sourceCopiedBytes=(original / 'WTF/Config.wtf').stat().st_size,

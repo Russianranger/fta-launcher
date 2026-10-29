@@ -195,7 +195,7 @@ class ClientRuntimeService : Service() {
                     .put("sourceProbeElapsedMs", source.getLong("elapsedMs"))
                     .put("nativeProbeReexecuted", false).put("retainedProbeValidated", true)
                 write(true)
-                store.withVerified(governor::check, progress, milestone = ::milestone) {
+                store.withVerified(governor::check, progress, milestone = ::milestone, beforeVerify = { runtime ->
                     report.put("state", "retained-verify"); milestone("retained-files")
                     val result = ClientGuardedFinish.validateFiles(filesDir, source.getString("attemptId"), source.getString("viewPlanSha256"),
                         governor::check, governor::beforeIo, links = { file -> Os.lstat(file.absolutePath).st_nlink },
@@ -205,7 +205,14 @@ class ClientRuntimeService : Service() {
                     report.put("retainedTranscriptSha256", result.transcriptSha256).put("retainedFilesValidated", true)
                         .put("retainedFilesUnchanged", true)
                     milestone("retained-complete")
-                }
+                    milestone("runtime-bind-cleanup")
+                    report.put("runtimeBindPlaceholdersRemoved", 0); write(true)
+                    ClientRuntimeBindings.recover(runtime, plan, android.os.Process.myUid(),
+                        stat = { file -> Os.lstat(file.absolutePath).let { ClientRuntimeBindings.Identity(it.st_mode, it.st_uid, it.st_nlink) } },
+                        rmdir = { file -> Os.rmdir(file.absolutePath) }, active = governor::check,
+                        removed = { count -> report.put("runtimeBindPlaceholdersRemoved", count); write(true) })
+                    report.put("runtimeBindPlaceholdersChecked", true); write(true)
+                }) { }
                 report.put("guardedWineStorageValidated", true).put("runtimePostRehashValidated", true)
             } else if (probing) {
                 var nextMemory = 0L

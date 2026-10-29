@@ -13,12 +13,13 @@ late post-verification or completion failure, but the report has no exception
 category or phase. Neither a particular cause nor successful post-verification
 is established. There was no matching process exit or memory-pressure pause.
 
-## Code 44 recovery
+## Recovery in code 45
 
 `Finish protected Wine verification` requires the failed receipt's exact
 catalog, archive, native guard, 56 integer-zero checks, six zero stages,
 ownership/cleanup and source/copy observations. It takes the exclusive runtime
-lease and performs one fresh full runtime verification. It starts no native
+lease. It checks retained evidence, performs the narrowly scoped placeholder
+cleanup below, then performs one fresh full runtime verification. It starts no native
 process, Wine instance, prefix initialization or import.
 
 The retained attempt must have its cleanup marker and the exact five code-43
@@ -42,13 +43,35 @@ Full-file hashing alone is distinguished from successful lease release and
 result persistence. A failed final report or notification update cannot silently
 become a successful completion.
 
+## Code-44 finding and scoped cleanup
+
+The returned code-44 report identifies `runtime-pre-verify / access-denied` after
+all file bytes were read. No Wine process was restarted. [Assessment](evidence/android-2026-10-28-thor-code44-access-denied.json).
+
+The pinned PRoot `src/path/glue.c` creates mode-zero placeholders for missing
+bind targets and registers exit destructors to remove them. SIGKILL bypasses
+those destructors. Code 43 adds `/immutable` and `/view`, absent from the runtime
+catalog, and deliberately kills a tracer during its ownership check. Normal Wine
+CI previously omitted that preceding guarded ownership sequence. Code 45 adds
+an explicit reproduction and checks prevention through normal, Stop, killed
+tracer and guarded Wine lifecycles.
+
+Every future client probe sets `PROOT_DONT_POLLUTE_ROOTFS=1`. For the retained
+attempt only, after exact saved-file/transcript validation and while holding the
+runtime lease, recovery accepts only the two known uncatalogued names as real,
+app-owned, permission-zero directories with link count two. Android `rmdir`
+removes each atomically only if empty. There is no chmod, recursion or file
+removal; any other type, mode, owner or catalog membership is refused. Other
+unexpected entries still fail full verification. Removal count and completed
+cleanup checks are exported. No runtime integrity rule is relaxed.
+
 ## Physical test after delivery
 
-Install the signed code-44 update over the existing app. Preserve app data and
+Install the signed code-45 update over the existing app. Preserve app data and
 the retained attempt. Keep the launcher visible, select **Finish protected Wine
 verification** once, and export the diagnostic JSON after it finishes or fails.
 This checks the retained 2.64 GB runtime; no separate Prepare, Verify, protected
 Wine rerun, client import or server test is needed. If the finish action is
 unavailable, export the report instead of replacing the retained attempt.
 
-Code 44 remains unqualified on Thor until its completion report is returned.
+Code 45 remains unqualified on Thor until its completion report is returned.

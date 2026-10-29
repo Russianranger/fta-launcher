@@ -15,7 +15,7 @@ object ClientRuntimeReport {
     val states = setOf("preparing", "archive-verify", "download", "extract", "verify-runtime", "probe-ownership", "probe-wine", "probe-postconditions", "retained-verify", "complete", "stopped", "failed")
     val reasons = setOf("cancelled", "timeout", "busy", "invalid-catalog", "archive-changed", "runtime-changed",
         "unsafe-runtime-store", "storage-unavailable", "insufficient-space", "runtime-unavailable", "download-failed",
-        "memory-pressure", "memory-observation-unavailable", "io-failed", "ownership-failed", "probe-failed", "probe-timeout", "probe-unavailable", "socket-path-too-long", "probe-attempt-limit", "view-copy-limit", "view-growth-limit", "retained-probe-unavailable", "retained-probe-changed")
+        "memory-pressure", "memory-observation-unavailable", "io-failed", "ownership-failed", "probe-failed", "probe-timeout", "probe-unavailable", "socket-path-too-long", "probe-attempt-limit", "view-copy-limit", "view-growth-limit", "retained-probe-unavailable", "retained-probe-changed", "runtime-bind-recovery-refused")
     fun write(context: Context, report: JSONObject, guarded: Boolean = false, finish: Boolean = false) {
         val atomic = file(context, guarded, finish); val output = atomic.startWrite()
         try { val bytes = report.toString().toByteArray(); require(bytes.size <= 8192); output.write(bytes); atomic.finishWrite(output) }
@@ -96,6 +96,8 @@ object ClientRuntimeReport {
         (raw.opt("failureErrno") as? Int)?.takeIf { it in 1..4095 }?.let { result.put("failureErrno", it) }
         if (raw.opt("runtimePostRehashCompleted") is Boolean) result.put("runtimePostRehashCompleted", raw.getBoolean("runtimePostRehashCompleted"))
         if (finish) {
+            (raw.opt("runtimeBindPlaceholdersRemoved") as? Int)?.takeIf { it in 0..2 }?.let { result.put("runtimeBindPlaceholdersRemoved", it) }
+            if (raw.opt("runtimeBindPlaceholdersChecked") is Boolean) result.put("runtimeBindPlaceholdersChecked", raw.getBoolean("runtimeBindPlaceholdersChecked"))
             for (key in listOf("retainedProbeValidated", "retainedFilesValidated", "retainedFilesUnchanged", "nativeProbeReexecuted"))
                 if (raw.opt(key) is Boolean) result.put(key, raw.getBoolean(key))
             raw.optString("sourceProbeAttemptId").takeIf { it.matches(Regex("[0-9a-f-]{36}")) }?.let { result.put("sourceProbeAttemptId", it) }

@@ -5,7 +5,7 @@ object ClientFailureEvidence {
     val phases = setOf("preparing", "archive-verify", "probe-ownership", "probe-wine", "probe-postconditions",
         "runtime-lease-acquire", "runtime-pre-verify", "runtime-pre-verified", "verified-action", "runtime-post-verify",
         "runtime-post-verified", "runtime-lease-release", "runtime-verified", "retained-receipt", "retained-files",
-        "retained-complete", "result-commit", "report-write", "notification-update")
+        "retained-complete", "runtime-bind-cleanup", "result-commit", "report-write", "notification-update")
     val categories = setOf("missing", "access-denied", "filesystem-loop", "filesystem", "io", "closed-channel",
         "invalid-argument", "invalid-state", "json", "errno", "validation", "other")
     class AtPhase(val phase: String, cause: Exception) : Exception(cause)
