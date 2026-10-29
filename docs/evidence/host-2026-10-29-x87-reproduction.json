@@ -1,0 +1,41 @@
+{
+  "scope": "synthetic-x87-flags-on-native-arm64",
+  "profiles": {
+    "default": {
+      "exitCode": 1,
+      "observations": [
+        "FTA_X87_FLAGS 149 84",
+        "FTA_X87_FAULT 1 1",
+        "FTA_X87_PROFILE default 0 1"
+      ]
+    },
+    "reduced": {
+      "exitCode": 0,
+      "observations": [
+        "FTA_X87_FLAGS 149 149",
+        "FTA_X87_LOOP 48 576",
+        "FTA_X87_PASS",
+        "FTA_X87_PROFILE reduced 1 1"
+      ]
+    },
+    "strict-reduced": {
+      "exitCode": 1,
+      "observations": [
+        "FTA_X87_FLAGS 149 84",
+        "FTA_X87_FAULT 1 1",
+        "FTA_X87_PROFILE strict-reduced 0 1"
+      ]
+    }
+  },
+  "fullRuntimePrePostRehash": true,
+  "fixtureUnchanged": true,
+  "originalClientExecuted": false,
+  "androidExecuted": false,
+  "commit": "4ec7a6b074f23c21423b63b80e06e2cfa3def09a",
+  "runId": 40945702361,
+  "jobId": 123700356835,
+  "artifactId": 12929875952,
+  "artifactSha256": "9414ba799d8679ba5ed74a0bffe4071ffd75754a39d90b2fe2ee897da5b3f207",
+  "regressionReproduced": true,
+  "originalClientCrashResolved": false
+}

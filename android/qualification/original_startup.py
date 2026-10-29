@@ -18,6 +18,10 @@ except ModuleNotFoundError as error:
 STAGES = ('cpu-topology', 'display', 'prefix', 'original-startup', 'wine-stop')
 PREFIX_STAGES = ('cpu-topology', 'display', 'prefix', 'wine-stop')
 READY = b'FTA_PREFIX_READY_V1\n'
+# FEX-2510's NaN store path clobbers integer flags used by the original x87 loop.
+# Scoped to the startup child: 64-bit x87 precision is a compatibility workaround,
+# not a rendering-accuracy qualification. See docs/wow-startup-x87.md.
+STARTUP_X87_ENV = dict(FEX_X87REDUCEDPRECISION='1', FEX_X87STRICTREDUCEDPRECISION='0')
 EVENTS = ('client-started', 'client-create-error', 'client-early-exit', 'host-header-valid', 'host-owned',
           'host-channels', 'host-not-observed', 'startup-observed', 'client-forced-stop', 'client-stopped', 'host-stopped')
 
@@ -312,7 +316,7 @@ def main(fixture=False, prepare=False, fixture_crash=False):
             base.record('prefix', 0)
             mode = '--fixture-crash' if fixture_crash else '--fixture' if fixture else '--original'
             base.run('original-startup', ['wine', '/client/startup64.exe', mode], 145,
-                env=dict(os.environ, WINEDEBUG='-all,err+all,trace+seh,trace+loaddll,+pid'))
+                env=dict(os.environ, **STARTUP_X87_ENV, WINEDEBUG='-all,err+all,trace+seh,trace+loaddll,+pid'))
         passed = True
     except Exception:
         print('FTA_CLIENT_PREFIX_FAILED' if prepare else 'FTA_CLIENT_STARTUP_FAILED', flush=True)

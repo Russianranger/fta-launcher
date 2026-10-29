@@ -1,0 +1,47 @@
+{
+  "scope": "read-only-exact-original-executable-analysis",
+  "exe": {
+    "bytes": 7702016,
+    "sha256": "c4ea8503112878fa47d06580de9d936b184f9bb6b452f6931dfe793fe2f0a47e"
+  },
+  "imageBase": 4194304,
+  "imageSize": 10481664,
+  "faultCandidate": {
+    "rva": 6060184,
+    "instructionKind": "x87 scalar 32-bit store",
+    "writeTarget": 14671872,
+    "targetSection": ".c1024",
+    "targetSectionWritable": false
+  },
+  "initializationLoop": {
+    "expectedIterations": 48,
+    "bytesPerIteration": 12,
+    "totalBytes": 576,
+    "firstAddress": 11730688,
+    "lastAddress": 11731263,
+    "branchCondition": "integer sign flag after decrement; x87 stores must preserve it",
+    "targetStrideIndex": 245098
+  },
+  "nativeReference": {
+    "architecture": "x86_64",
+    "flagsBefore": 149,
+    "flagsAfter": 149,
+    "iterations": 48,
+    "zeroBytes": 576,
+    "leadingCanaryIntact": true
+  },
+  "runtime": {
+    "fex": "FEX-2510",
+    "fexCommit": "320c5f18475b0c8a7e99c51a5fdc5b5e35b147ab",
+    "wine": "10.13-arm64ec"
+  },
+  "upstreamRevert": {
+    "commit": "bc6295a78dd8d4bff49eb7f567881bd92d10b860",
+    "pullRequest": 4981,
+    "reason": "NaN handling broke Bayonetta startup; not a demonstrated explanation of this client"
+  },
+  "originalFilesChanged": false,
+  "originalClientExecuted": false,
+  "fatalExceptionLocationProven": false,
+  "androidExecuted": false
+}

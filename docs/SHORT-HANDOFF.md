@@ -5,7 +5,25 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery: code 52 faster verification
+## In progress: code 53 x87 startup compatibility
+
+The exact supplied Wow.exe matched its retained SHA256. Read-only disassembly
+located the repeated fault in a 48-iteration x87 store loop. The pinned FEX-2510
+runtime demonstrably changes integer flags from 149 to 84 and overruns a matching
+synthetic loop on native ARM64. Reduced x87 precision preserves 149, completes
+48 iterations / 576 bytes and keeps the canary intact. Re-enabling strict NaN
+handling reproduces the flags corruption and guard-page write. All three cases
+cleaned up; fixture/runtime integrity passed. [Analysis and measured matrix](wow-startup-x87.md).
+
+Application **53 / 0.17.3-x87-startup** applies that tested compatibility profile
+only to the original-startup child. It retains code-52 speed, original binaries,
+read-only protection, imported data/settings, runtime and realm. Reduced x87
+precision is a workaround with rendering-accuracy limits, not gameplay proof.
+Exact-commit foundation/ARM64 qualification and signed delivery are pending.
+Next: complete both, package with the persistent key, then one combined Thor
+startup test and export. Do not repeat passed gates, reimport or clear data.
+
+## Previous delivery: code 52 faster verification
 
 **52 / 0.17.2-fast-verify** is signed, saved and qualified.
 [APK, sources and one device test](code52-recovery.md). APK **60,689,601 bytes**,
@@ -47,16 +65,9 @@ elapsed); client exit occurred at **4424 ms**. Prefix setup, all client hashes,
 settings, source metadata and owned cleanup passed. Runtime posthash did not
 complete after failure. No matching Android exit or memory-pressure pause.
 
-**Next:** obtain the exact original client-root **Wow.exe**, **7,702,016 bytes**,
-SHA256 `c4ea8503112878fa47d06580de9d936b184f9bb6b452f6931dfe793fe2f0a47e`.
-It is not among supplied files; existing WarcraftXL DLL/proxy/host are available.
-Inspect its PE section permissions and instruction/control flow around candidate
-RVA **0x5c7898**, and the write target RVA **0x9fe000**. Do not substitute a stock
-build, infer fatal causality from equal exception/exit codes, or patch permissions
-without evidence. No full client upload, repeated device test, reimport, clear
-data or passed standalone gate is needed yet. Keep code 52 installed and preserve
-all reports/settings/receipts. No new APK has been built from this assessment.
-Future application code **>=53**.
+The exact requested Wow.exe has now been supplied and analyzed; see code 53
+above. Keep the code-52 physical result and all receipts. No source file changes,
+full client upload or repeated standalone gate is required.
 
 ## Superseded delivery: code 51 client fault tracing
 

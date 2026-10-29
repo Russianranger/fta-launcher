@@ -42,6 +42,11 @@ class OriginalStartupTests(unittest.TestCase):
                 calls = []; child = Mock(); capture = Mock()
                 def run(stage, *args, **kwargs):
                     calls.append(stage)
+                    environment = kwargs.get('env', guest.os.environ)
+                    for name, value in guest.STARTUP_X87_ENV.items():
+                        if stage == 'original-startup': self.assertEqual(value, environment.get(name))
+                        else: self.assertNotIn(name, environment)
+                        self.assertNotIn(name, guest.os.environ)
                     if stage == failure: raise RuntimeError('synthetic failure')
                 with patch.object(guest, 'Path', side_effect=lambda p: root / p.lstrip('/')), \
                      patch('builtins.open', return_value=io.BytesIO(b'0-3')), \

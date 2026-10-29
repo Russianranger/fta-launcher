@@ -8,9 +8,25 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from original_startup import STARTUP_X87_ENV
 
-PROFILES = {'default': {}, 'reduced': {'FEX_X87REDUCEDPRECISION': '1'},
-            'strict-reduced': {'FEX_X87REDUCEDPRECISION': '1', 'FEX_X87STRICTREDUCEDPRECISION': '1'}}
+PROFILES = {'default': {}, 'reduced': STARTUP_X87_ENV,
+            'strict-reduced': dict(STARTUP_X87_ENV, FEX_X87STRICTREDUCEDPRECISION='1')}
+
+
+def transcript(profile, text, status):
+    """Require the demonstrated failure/pass/failure matrix, including cleanup."""
+    good = profile == 'reduced'
+    expected = (['FTA_X87_FLAGS 149 149', 'FTA_X87_LOOP 48 576', 'FTA_X87_PASS'] if good else
+                ['FTA_X87_FLAGS 149 84', 'FTA_X87_FAULT 1 1'])
+    expected += [f'FTA_X87_PROFILE {profile} {int(good)} 1']
+    lines = text.splitlines()
+    observations = [l for l in lines if l.startswith('FTA_X87_')]
+    stages = [l for l in lines if l.startswith('FTA_ANDROID_STAGE ')]
+    if status != int(not good) or observations != expected or stages != [
+            f'FTA_ANDROID_STAGE x87 {0 if good else 21}', 'FTA_ANDROID_STAGE wine-stop 0']:
+        raise ValueError('x87 regression matrix or cleanup differs')
+    return dict(exitCode=status, fixtureExitCode=0 if good else 21, observations=observations)
 
 
 def guest(profile):
@@ -74,14 +90,12 @@ def main():
                     env=environment, timeout=120)
             with (work / (profile + '.log')).open('rb') as log: data = log.read(65537)
             if len(data) > 65536: raise ValueError('oversized fixture transcript')
-            text = data.decode(); lines = text.splitlines()
-            if f'FTA_X87_PROFILE {profile} {int(result.returncode == 0)} 1' not in lines:
-                raise ValueError('fixture cleanup or status incomplete')
-            results[profile] = dict(exitCode=result.returncode, observations=[l for l in lines if l.startswith('FTA_X87_')])
+            results[profile] = transcript(profile, data.decode(), result.returncode)
         if snapshot(fixtures) != before: raise ValueError('synthetic source changed')
         if snapshot(original) != protected_before: raise ValueError('protected synthetic executable changed')
     verify(root, rows)
     proof = dict(scope='synthetic-x87-flags-on-native-arm64', profiles=results,
+        productionStartupEnvironment=STARTUP_X87_ENV, regressionMatrixPassed=True,
         fullRuntimePrePostRehash=True, fixtureUnchanged=True, originalClientExecuted=False, androidExecuted=False)
     (work / 'evidence.json').write_text(json.dumps(proof, indent=2) + '\n')
     print(json.dumps(proof))
