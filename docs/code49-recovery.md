@@ -1,5 +1,9 @@
 # Code 49 — bounded native memory-pressure confirmation
 
+**Superseded by [code 50](code50-recovery.md).** The returned code-49 report
+stopped during prefix setup with critical trim/full PSI 0.36%. Preserve that
+report and earlier passes; use the code-50 test instructions.
+
 [FTA-Launcher-0.16.3-pressure-confirmation.apk](https://chatgpt.com/library?file_id=libfile_0c65cfd96c208191a23533393582a05e&account_id=personal)
 
 [FTA-Launcher-0.16.3-test-instructions.txt](https://chatgpt.com/library?file_id=libfile_6aabe3c396d081918041b10ed2a3443e&account_id=personal)

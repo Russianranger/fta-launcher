@@ -115,7 +115,11 @@ Traversal is bounded by 10,000 entries and depth 16; unchanged inode/size/time
 records skip repeat requests. Errors are counted. The worker is stopped before
 the preparation pass marker; an unjoined worker cannot qualify setup. The native
 owner remains responsible for terminating all descendants on cancellation.
-Accepted calls **do not establish actual cache eviction**.
+Accepted calls **do not establish actual cache eviction**. The Linux
+[cache-advice contract](https://www.man7.org/linux/man-pages/man2/posix_fadvise.2.html)
+recommends syncing dirty data before requesting DONTNEED; the syscall remains
+advisory. [Python documents](https://docs.python.org/3.11/library/os.html)
+directory-descriptor traversal and descriptor-relative opens.
 
 The second guarded invocation requires the prepared prefix/receipt and exact
 staged observer bytes. It does not rerun wineboot. Client lease, full client

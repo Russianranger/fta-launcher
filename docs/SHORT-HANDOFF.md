@@ -5,23 +5,50 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Active recovery: code 50 prefix first
+## Current delivery: code 50 prefix first
 
-Code 49 failed under an active critical trim: measured full PSI **0.36%** exceeded
-its strict **0.2%** critical-grace threshold. It fully verified all client files
-and copied settings before stopping during Wine setup after **36m27s**. No
-matching Android kill; owned cleanup/source audit passed. [Assessment](evidence/android-2026-10-29-thor-code49-prefix-pressure.json).
+**50 / 0.17.0-prefix-first** is signed and saved. [APK, sources and one device test](code50-recovery.md).
+APK **60,681,409 bytes**, SHA256
+`682141dc4f1a59805b650513341a7ce96e85f620472542af18c4ee03e4115aaa`.
+All **247 package checks**, persistent v2 signing and 16 KiB alignment passed.
+All **25 native payloads / 148 runtime entries** match code 49 byte-for-byte.
+The exact code-46 server companion remains valid; no native delivery rebuild.
+[Packaging proof](evidence/android-2026-10-29-private-prefix-first-apk.json).
 
-Code **50 / 0.17.0-prefix-first** prepares Wine before client verification with
-empty client bindings, then reaps that owned tracer. Only successful setup can
-start the full client verification and second owned startup invocation. A bounded
-NOFOLLOW/dirfd worker syncs and requests cache release for disposable prefix files.
-Counters measure accepted requests, not actual eviction. Code-49 pressure limits
-are unchanged. Prefix space already allocated is not reserved twice.
+Application **490a9cf7bfa7234b5ee98426fb0a9b9c79e7f0b6** passed foundation
+**40908106621**: **214 tooling**, **128 qualification** (no skips), **593 Android
+passed / one existing skip**, lint/assembly, native ownership, cache/JNI and full
+runtime installation/rehash with 96 MiB heap. [CI evidence](evidence/ci-2026-10-29-code50-foundation-pass.json).
+Same-commit ARM64 **40908106926** passed the new two-invocation prefix/startup
+fixture, all 56 Windows checks, 50 native guard checks and owned process cleanup.
+Prefix took **42,909 ms**, with **1,750 accepted cache requests / zero errors**.
+[Host evidence](evidence/host-2026-10-29-code50-prefix-first-pass.json).
+These are synthetic host observations, not Thor/original-client qualification.
 
-Pending: exact-commit Android foundation and native ARM64 two-invocation observer
-qualification, private packaging/signing and one combined device test. Do not
-ship the foundation APK. Imports/settings/realm/runtime and passed gates remain.
+Code 49 fully verified all client files and copied settings, then stopped during
+Wine setup after **36m27s**. Active critical trim + measured full PSI **0.36%**
+exceeded the **0.2%** ceiling for critical grace. No matching Android kill;
+owned cleanup/source audit passed. [Assessment](evidence/android-2026-10-29-thor-code49-prefix-pressure.json).
+It had generated 1.07 GB of prefix files; cache pressure is plausible, not proven.
+
+Code 50 prepares Wine with empty client bindings before the long client hash,
+then fully reaps that owned tracer. Only successful setup reaches full client
+verification and the second original-startup invocation. Bounded descriptor-
+relative NOFOLLOW cache maintenance syncs/advises disposable prefix files,
+exports fixed counters and joins before setup can pass. Accepted advice is not
+measured eviction. Code-49 memory limits, source protection, settings, leases,
+cleanup and full verification remain. Already allocated prefix bytes are not
+reserved twice. [Design](client-original-startup.md).
+
+**Next:** install in place, keep 5 GiB free internally, airplane mode with Wi-Fi
+off, launcher visible and powered. Tap **Test original client startup** once.
+Prefix setup now runs after runtime prehash, before the expensive client hash.
+If setup passes, allow roughly 40–60 minutes for the complete attempt. Export
+after completion/failure/Stop before retrying, or export if disabled. No game
+window is expected; physical original startup/rendering/login remain unqualified.
+Do not reimport, clear data, delete imported settings/cache, repeat Finish, tap
+separate Verify or repeat passed standalone gates. Preserve all data/receipts.
+Future updates require code **>=51** and the persistent signer.
 
 ## Superseded delivery: code 49 native pressure confirmation
 

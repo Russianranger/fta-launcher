@@ -55,8 +55,13 @@ a bounded 256 MiB copy allowance and separate 128 MiB session-output headroom.
 Code 48 physically passed full client verification and working-view preparation,
 then stopped during prefix initialization on a critical memory-trim callback.
 [Code 49](docs/code49-recovery.md) adds live pressure-stall sampling and bounded
-confirmation with strict immediate-stop conditions. Physical original startup,
-rendering and login remain pending.
+confirmation with strict immediate-stop conditions. Code 49 measured full PSI
+0.36% under a critical trim and stopped in prefix setup after 36m27s, with client
+verification/settings complete. [Code 50](docs/code50-recovery.md) prepares and
+reaps Wine before that long verification, adds bounded disposable-prefix cache
+advice and preserves the pressure thresholds. Exact-commit Android and ARM64
+two-invocation fixture checks pass; physical original startup, rendering and
+login remain pending.
 
 The [current handoff](docs/SHORT-HANDOFF.md) records exact private delivery and
 Thor gates. Public CI APKs are foundation previews, not private native updates.

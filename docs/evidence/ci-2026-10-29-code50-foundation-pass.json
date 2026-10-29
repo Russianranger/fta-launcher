@@ -1,0 +1,63 @@
+{
+  "scope": "code50-exact-commit-foundation-build",
+  "commit": "490a9cf7bfa7234b5ee98426fb0a9b9c79e7f0b6",
+  "runId": 40908106621,
+  "runAttempt": 1,
+  "conclusion": "success",
+  "jobs": {
+    "android": 123568310967,
+    "tooling": 123568311449,
+    "publish": 123571658166
+  },
+  "toolingTestsPassed": 214,
+  "qualificationTestsPassed": 128,
+  "qualificationSkips": 0,
+  "androidUnitResults": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 594
+  },
+  "suites": 57,
+  "androidTestsPassed": 593,
+  "lintPassed": true,
+  "assemblyPassed": true,
+  "nativeOwnershipPassed": true,
+  "cacheAndHostJniPassed": true,
+  "runtimeStoreQualification": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "assemblySha256": "a147172bfc235d58bd0cde3b572e517bcf36d5a21a76a6e23e88df27d32a0df1",
+  "assemblyBytes": 20469760,
+  "clientSourceSha256": "9c8889912b8927ea6d1c2dd9cda41d83664b71f78feb0c1fa3eea0d26b1c9e8c",
+  "clientSourceBytes": 2738033,
+  "applicationSourceFilesMatched": 237,
+  "artifacts": [
+    {
+      "id": 12912063197,
+      "name": "fta-client-bridge-source-490a9cf7bfa7234b5ee98426fb0a9b9c79e7f0b6",
+      "sha256": "c400ebf78f71cafe65aa7bde656e23527de61acbf143aee3177dbe755edfb71a",
+      "bytes": 2737140
+    },
+    {
+      "id": 12911654148,
+      "name": "fta-foundation-debug-490a9cf7bfa7234b5ee98426fb0a9b9c79e7f0b6",
+      "sha256": "1d1d6bdb3eb08caac7e0747ca5cedd62aa7a2a9cb04fc05ef387c706544641bb",
+      "bytes": 19947452
+    }
+  ],
+  "arm64QualificationRunId": 40908106926,
+  "arm64Evidence": "host-2026-10-29-code50-prefix-first-pass.json",
+  "physicalVersionExecuted": false,
+  "renderingQualified": false,
+  "gameLoginQualified": false
+}
