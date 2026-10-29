@@ -5,24 +5,46 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Code 52 in progress: fivefold verification rate
+## Current delivery: code 52 faster verification
 
-Owner requests fivefold file-verification speed. Code 52 / **0.17.2-fast-verify**
-raises the shared aggregate I/O ceiling from **48 to 240 MiB/s**, carries fractional
-milliseconds across requests, and credits time already spent reading/hashing.
-Only the current <=256 KiB operation can proceed after a stall; idle credit never
-accumulates. Full hashes, leases, cache advice/1 MiB windows, Stop and memory
-pressure thresholds remain unchanged. No native/observer or original-client changes.
+**52 / 0.17.2-fast-verify** is signed, saved and qualified.
+[APK, sources and one device test](code52-recovery.md). APK **60,689,601 bytes**,
+SHA256 `0b6498ce144c2fa8ba2308d9fe2af5523c01fa2b918ecc1678efc94981b72851`.
+**247 package checks**, persistent v2 signing and 16 KiB alignment passed.
+All **25 native payloads / 148 runtime entries** match code 51 exactly; the
+unchanged code-46 server companion passed strict source verification.
+[Package evidence](evidence/android-2026-10-29-private-fast-verify-apk.json).
+
+Owner requested fivefold verification speed. Shared client/runtime I/O ceiling
+is **240 MiB/s**, up from 48. Fractional milliseconds carry across buffers and
+elapsed reading/hashing time counts toward the deadline. After a stall only the
+current <=256 KiB operation may proceed; idle credit does not accumulate.
+Full hashes, leases, 1 MiB cache/write/readback windows, Stop and all pressure
+thresholds remain. No extra workers, native or original-client changes.
+Physical fivefold total-attempt improvement is **not yet measured**.
+
+Application **10912350bdc639c2204aab4063606aaeb8612037** passed foundation
+**40938186319 attempt 2**: **600 Android passed / one existing skip**, **214
+tooling**, **135 qualification with no skips**, lint/assembly, ownership, cache/JNI
+and full runtime install/rehash under 96 MiB heap. Attempt 1 failed installing
+the SDK/NDK before compiling; same-commit retry passed. [CI proof](evidence/ci-2026-10-29-code52-foundation-pass.json).
+Unchanged guard/observer retains code-51 ARM64 run **40927895789**; no rerun claimed.
 
 Code 51 returned **39m15s**, including **28m20s requested pacing / zero pressure
 pauses**. Prefix setup (101277 ms), full client hash and settings copy passed.
-The fault collector recorded a write AV in **Wow.exe**, candidate RVA **0x5c7898**,
-target **0xdfe000**, exit **0xC0000005 after 4296 ms**; zero drops/overflow and all
-three client image roles loaded. This is not proven fatal causality or a crash fix.
-[Bounded assessment](evidence/android-2026-10-29-thor-code51-fault-and-pacing.json).
-Original startup/rendering/login remain unqualified. Next: qualify/sign/deliver
-code 52, then one combined original-startup test to measure faster verification.
-No reimport, separate Verify, clear data or repeated passed standalone gates.
+The trace recorded a write AV in **Wow.exe**, candidate RVA **0x5c7898**, target
+**0xdfe000**, exit **0xC0000005 after 4296 ms**; zero drops/overflow and all three
+client image roles observed. Fatal causality is unproven; the crash is unresolved.
+[Assessment](evidence/android-2026-10-29-thor-code51-fault-and-pacing.json).
+Original startup/rendering/login remain unqualified. Preserve this candidate
+for further investigation against the exact imported Wow.exe, not a guessed build.
+
+**Next:** install code 52 in place, 5 GiB free internally, airplane mode with
+Wi-Fi off, launcher visible and powered. Tap **Test original client startup**
+once; export JSON after completion/failure/Stop before retrying (or export if
+disabled). Compare rate **251658240**, elapsed, I/O and pacing/pressure waits with
+code 51. No game window expected. No reimport, clear data, settings/cache deletion,
+Finish, separate Verify or passed standalone gates. Future code **>=53**.
 
 ## Superseded delivery: code 51 client fault tracing
 

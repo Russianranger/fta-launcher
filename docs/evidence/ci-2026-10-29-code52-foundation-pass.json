@@ -1,0 +1,112 @@
+{
+  "scope": "code52-exact-commit-foundation-build",
+  "commit": "10912350bdc639c2204aab4063606aaeb8612037",
+  "runId": 40938186319,
+  "runAttempt": 2,
+  "conclusion": "success",
+  "initialAttemptFailure": {
+    "job": 123674211390,
+    "step": "Install compile SDK",
+    "reason": "SDK manager rejected the downloaded NDK ZIP as an unknown archive; no application compilation ran.",
+    "retry": "Failed job rerun on same commit succeeded."
+  },
+  "jobs": {
+    "android": 123675106072,
+    "tooling": 123675108656,
+    "publish": 123681136282
+  },
+  "toolingFirstPassingJob": 123674211574,
+  "toolingTestsPassed": 214,
+  "qualificationTestsPassed": 135,
+  "qualificationSkips": 0,
+  "androidUnitResults": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 601
+  },
+  "suites": 58,
+  "androidTestsPassed": 600,
+  "lintPassed": true,
+  "assemblyPassed": true,
+  "nativeOwnershipPassed": true,
+  "cacheAndHostJniPassed": true,
+  "runtimeStoreQualification": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "assemblySha256": "82c005802cb45eb2fa231948bfae0f2a1ef8839310095a221d3dc529f202fbaa",
+  "assemblyBytes": 20476800,
+  "clientSourceSha256": "6e86855877aedfa85383e5c6a191f05353c61254b93a5dad1d53f59a8e4f4891",
+  "clientSourceBytes": 2778406,
+  "applicationSourceFilesMatched": 240,
+  "artifacts": [
+    {
+      "id": 12925864468,
+      "name": "fta-foundation-debug-10912350bdc639c2204aab4063606aaeb8612037",
+      "sha256": "2425e4b42dfe6de35cda965c960741b663b559b3ef93c68baf959eca3d925836",
+      "bytes": 19954501
+    },
+    {
+      "id": 12924969985,
+      "name": "fta-client-bridge-source-10912350bdc639c2204aab4063606aaeb8612037",
+      "sha256": "701883f5d8be1dfd7eb25154094610492b1ba0bcc3166a3d8287fe5bf1f20c7b",
+      "bytes": 2777493
+    }
+  ],
+  "rateAndTiming": {
+    "scope": "code52-verification-rate-change-review",
+    "applicationCommit": "10912350bdc639c2204aab4063606aaeb8612037",
+    "requestedMultiplier": 5,
+    "previousIoBytesPerSecond": 50331648,
+    "newIoBytesPerSecond": 251658240,
+    "bufferBytes": 262144,
+    "ioWindowBytes": 1048576,
+    "verificationHashesSkipped": false,
+    "additionalWorkerThreads": 0,
+    "memoryThresholdsChanged": false,
+    "nativePayloadSourceChanged": false,
+    "crashObserverChanged": false,
+    "physicalRateMeasured": false,
+    "localTooling": {
+      "passed": 214
+    },
+    "localQualification": {
+      "tests": 135,
+      "skipped": 2,
+      "note": "Host sandbox Unix-socket restrictions; CI must run without skips."
+    },
+    "expectedTimingRegressions": {
+      "mixedIoBytes": 251658240,
+      "mixedIoElapsedMs": 1000,
+      "oneByteRequestCount": 262144,
+      "oneByteElapsedMs": 2,
+      "oneMsWorkPer256KiB": {
+        "operations": 960,
+        "elapsedMs": 1001,
+        "requestedSleepMs": 41
+      },
+      "threeMsWorkPer256KiB": {
+        "operations": 960,
+        "elapsedMs": 2882,
+        "requestedSleepMs": 2
+      }
+    },
+    "retainedArm64RunId": 40927895789,
+    "retainedArm64ApplicationCommit": "cb13b1753837609989eaf5ef9838f3054b1a1c7b",
+    "retainedArm64Evidence": "host-2026-10-29-code51-client-fault-pass.json"
+  },
+  "physicalVersionExecuted": false,
+  "physicalFivefoldSpeedupMeasured": false,
+  "crashFixDemonstrated": false,
+  "renderingQualified": false,
+  "gameLoginQualified": false
+}
