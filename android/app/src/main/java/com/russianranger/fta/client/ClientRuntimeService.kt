@@ -145,17 +145,23 @@ class ClientRuntimeService : Service() {
             memory.someMilliPercent?.let { report.put("memoryPsiSomeMilliPercent", it) }
             memory.fullMilliPercent?.let { report.put("memoryPsiFullMilliPercent", it) }
         }
+        var latestPsiTotals: ClientProbePsi.Totals? = null
         fun memorySample(signal: ClientProbeMemory.Signal): ClientIoGuard.Memory? {
+            latestPsiTotals = null
             val memory = GameDataDiagnostics.memory(this, activityBound) ?: return null
             val psi = runCatching { File("/proc/pressure/memory").bufferedReader().use { input ->
                 val chars = CharArray(4097); val n = input.read(chars)
-                if (n in 1..4096) ClientIoGuard.psi(String(chars, 0, n)) else null
+                if (n in 1..4096) {
+                    val text = String(chars, 0, n)
+                    latestPsiTotals = ClientProbePsi.totals(text)
+                    ClientIoGuard.psi(text)
+                } else null
             } }.getOrNull()
             return ClientIoGuard.Memory(memory.available, memory.total, memory.threshold, memory.low,
                 psi?.first, psi?.second, signal.active(SystemClock.elapsedRealtime()))
         }
         fun recordProbeDecision(memory: ClientIoGuard.Memory, signal: ClientProbeMemory.Signal, now: Long): ClientProbeMemory.Decision {
-            val decision = probeMemory.evaluate(memory, now, signal)
+            val decision = probeMemory.evaluate(memory, now, signal, latestPsiTotals)
             recordMemory(memory, signal, now)
             report.put("memoryPressureSource", decision.source)
                 .put("probeMemoryAdvisories", probeMemory.advisoryEpisodes)
@@ -163,6 +169,15 @@ class ClientRuntimeService : Service() {
                 .put("probeMemoryCriticalGraceEpisodes", probeMemory.criticalGraceEpisodes)
                 .put("probeMemoryCriticalGraceMaxMs", probeMemory.criticalGraceMaxMs)
                 .put("probeMemoryCriticalGraceLimitMs", ClientProbeMemory.CRITICAL_MS)
+                .put("probeMemoryPsiGraceEpisodes", probeMemory.psiGraceEpisodes)
+                .put("probeMemoryPsiGraceMaxMs", probeMemory.psiGraceMaxMs)
+                .put("probeMemoryPsiGraceLimitMs", ClientProbeMemory.PSI_CONFIRM_MS)
+            for (key in listOf("probeMemoryPsiWindowMs", "probeMemoryPsiSomeMilliPercent", "probeMemoryPsiFullMilliPercent")) report.remove(key)
+            probeMemory.psiInterval?.let {
+                report.put("probeMemoryPsiWindowMs", it.elapsedMs)
+                    .put("probeMemoryPsiSomeMilliPercent", it.someMilliPercent)
+                    .put("probeMemoryPsiFullMilliPercent", it.fullMilliPercent)
+            }
             write(decision.stop)
             return decision
         }

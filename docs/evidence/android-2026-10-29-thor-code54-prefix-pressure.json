@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "kind": "physical-thor-code54-prefix-pressure-stop",
+  "source": {
+    "filename": "FTA-database-diagnostic-1793328389320.json",
+    "bytes": 120594,
+    "sha256": "78fef02be5cb4e08113cb1520ec945982a49df5025af74a6f4de7b0294731f8a"
+  },
+  "application": {
+    "appVersionCode": 54,
+    "appVersionName": "0.17.4-startup-exits",
+    "apkSha256": "8f94601c8190451a6606ba586196fcad9348fb8dd47f3669248f91598edb11af"
+  },
+  "observations": {
+    "attemptId": "af53d567-2d34-4578-910c-7e032453eba8",
+    "state": "failed",
+    "reason": "memory-pressure",
+    "failurePhase": "prefix-preparation",
+    "elapsedMs": 48479,
+    "ioBytes": 2637811085,
+    "throttledMs": 11859,
+    "pressureWaitMs": 0,
+    "pressurePauses": 0,
+    "ioLimitBytesPerSecond": 251658240,
+    "peakRssKiB": 223204,
+    "heapUsedBytes": 15693928,
+    "availableMemoryBytes": 8418881536,
+    "totalMemoryBytes": 15996096512,
+    "memoryFloorBytes": 3199219302,
+    "systemLowMemory": false,
+    "memoryPressureSource": "psi-full",
+    "memoryPsiSomeMilliPercent": 2280,
+    "memoryPsiFullMilliPercent": 2070,
+    "lastTrimLevel": 5,
+    "lastTrimAgeMs": 3047,
+    "criticalTrimActive": false,
+    "probeMemoryAdvisories": 1,
+    "probeMemoryAdvisoryMs": 1033,
+    "prefixElapsedMs": 15083,
+    "prefixSystem32Entries": 156,
+    "prefixSyswow64Entries": 0,
+    "prefixRegistryBytes": 0,
+    "prefixBytesObserved": 385485944,
+    "prefixPreparationStages": {
+      "cpu-topology": 0,
+      "display": 0
+    },
+    "prefixPreparationCleanupComplete": true,
+    "prefixCacheSyncedFiles": 171,
+    "prefixCacheAcceptedFiles": 171,
+    "prefixCacheErrors": 0,
+    "prefixCacheBytes": 318442616,
+    "runtimePreRehashValidated": true,
+    "runtimePostRehashValidated": false,
+    "startupEvents": {},
+    "startupFault": {},
+    "startupHostFault": {},
+    "workerObservation": "inactive",
+    "interrupted": false
+  },
+  "attemptMatchedAndroidExit": false,
+  "assessment": {
+    "originalClientStarted": false,
+    "postHostFailureReproduced": false,
+    "cleanupCompleted": true,
+    "pressureTrend": "single terminal avg10 sample; ongoing versus decaying pressure is unknown",
+    "lowMemoryKillObserved": false,
+    "headroomIsNotProofOfNoPressure": true,
+    "nextChange": "fresh PSI total deltas with bounded moderate-stall confirmation; retain immediate severe/low-memory stops and 240 MiB/s verification"
+  }
+}

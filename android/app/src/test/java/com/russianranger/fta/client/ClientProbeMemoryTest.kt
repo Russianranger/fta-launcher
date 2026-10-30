@@ -123,4 +123,83 @@ class ClientProbeMemoryTest {
         guard.trim(15, 20000); assertFalse(guard.evaluate(quiet, 21000).stop)
         assertEquals(2L, guard.criticalGraceEpisodes); assertEquals(9000L, guard.criticalGraceMaxMs)
     }
+
+    private val code54 = ClientIoGuard.Memory(8418881536L, 15996096512L, 226492416L, false, 2280, 2070)
+    private fun totals(full: Long = 0, some: Long = full) = ClientProbePsi.Totals(some, full)
+
+    @Test fun code54AverageAloneCannotProveThatPressureHasRecovered() {
+        val guard = ClientProbeMemory(); guard.trim(5, 0)
+        assertEquals(ClientProbeMemory.Decision("psi-full", true), guard.evaluate(code54, 3047))
+        assertEquals(0L, guard.psiGraceEpisodes)
+    }
+    @Test fun freshQuietCountersLetCode54AverageDecayWithoutDestroyingPrefix() {
+        val guard = ClientProbeMemory(); guard.trim(5, 0)
+        assertEquals(ClientProbeMemory.Decision("psi-confirming", false), guard.evaluate(code54, 3047, totals = totals()))
+        for (now in 4047L..16047L step 1000)
+            assertEquals(ClientProbeMemory.Decision("psi-recovering", false), guard.evaluate(code54, now, totals = totals()))
+        assertEquals(1L, guard.psiGraceEpisodes)
+        assertEquals(0L, guard.psiGraceMaxMs)
+        assertEquals(ClientProbePsi.Interval(1000, 0, 0), guard.psiInterval)
+    }
+    @Test fun ongoingModerateStallsStopAfterThreeSecondsAndCallbackCannotExtendIt() {
+        val guard = ClientProbeMemory()
+        for (i in 0L..3L) {
+            guard.trim(5, i * 1000)
+            val decision = guard.evaluate(code54, i * 1000, totals = totals(i * 20700, i * 22800))
+            assertEquals(i == 3L, decision.stop)
+        }
+        assertEquals(1L, guard.psiGraceEpisodes); assertEquals(3000L, guard.psiGraceMaxMs)
+    }
+    @Test fun newStallsAreDetectedBeforeTheTenSecondAverageRises() {
+        val quiet = healthy.copy(someMilliPercent = 0, fullMilliPercent = 0)
+        val guard = ClientProbeMemory()
+        assertFalse(guard.evaluate(quiet, 0, totals = totals()).stop)
+        for (i in 1L..4L) assertEquals(i == 4L,
+            guard.evaluate(quiet, i * 1000, totals = totals(i * 10000)).stop)
+        assertEquals(3000L, guard.psiGraceMaxMs)
+    }
+    @Test fun severeRecentOrAverageStallsAndLowMemoryRemainImmediate() {
+        for (sample in listOf(code54.copy(low = true), code54.copy(available = code54.floor - 1),
+            code54.copy(fullMilliPercent = 5000), code54.copy(someMilliPercent = 20000))) {
+            val guard = ClientProbeMemory()
+            assertTrue(guard.evaluate(sample, 0, totals = totals()).stop)
+            assertEquals(0L, guard.psiGraceEpisodes)
+        }
+        for (counter in listOf(totals(50000), totals(0, 200000))) {
+            val guard = ClientProbeMemory(); guard.evaluate(code54, 0, totals = totals())
+            assertTrue(guard.evaluate(code54, 1000, totals = counter).stop)
+        }
+    }
+    @Test fun graceCannotHideCriticalCallbacksMissingTelemetryOrInsufficientHeadroom() {
+        for (level in listOf(15, 19, 80, 100)) {
+            val guard = ClientProbeMemory(); guard.trim(level, 0)
+            assertTrue(guard.evaluate(code54, 0, totals = totals()).stop)
+        }
+        for (sample in listOf(code54.copy(available = code54.total / 3 - 1),
+            code54.copy(someMilliPercent = null), code54.copy(fullMilliPercent = null))) {
+            val guard = ClientProbeMemory(); guard.evaluate(code54, 0, totals = totals())
+            assertTrue(guard.evaluate(sample, 1000, totals = totals()).stop)
+        }
+        val missing = ClientProbeMemory(); missing.evaluate(code54, 0, totals = totals())
+        assertTrue(missing.evaluate(code54, 1000).stop)
+        val stale = ClientProbeMemory(); stale.evaluate(code54, 0, totals = totals())
+        assertTrue(stale.evaluate(code54, 2501, totals = totals()).stop)
+    }
+    @Test fun onlyQuietRecoveryResetsConfirmationAndSustainedTrimStillStops() {
+        val guard = ClientProbeMemory(); guard.evaluate(code54, 0, totals = totals())
+        // Below the 1% trigger, above the 0.2% recovery threshold: do not restart grace.
+        for (i in 1L..3L) assertEquals(i == 3L,
+            guard.evaluate(code54, i * 1000, totals = totals(i * 2000)).stop)
+        val recovering = ClientProbeMemory(); recovering.evaluate(code54, 0, totals = totals())
+        assertFalse(recovering.evaluate(code54, 1000, totals = totals(1999)).stop)
+        assertFalse(recovering.evaluate(code54, 2000, totals = totals(21999)).stop)
+        assertEquals(2L, recovering.psiGraceEpisodes)
+        val trim = ClientProbeMemory()
+        for (i in 0L..30L) {
+            trim.trim(5, i * 1000)
+            val result = trim.evaluate(code54, i * 1000, totals = totals())
+            assertEquals(i == 30L, result.stop)
+            if (i == 30L) assertEquals("sustained-trim", result.source)
+        }
+    }
 }

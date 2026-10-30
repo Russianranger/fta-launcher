@@ -5,7 +5,23 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery: code 54 post-host exit diagnostics
+## Code 55 in qualification: live pressure confirmation
+
+Physical code 54 stopped at **48.479 seconds in prefix preparation**, before either
+original process started: `psi-full`, avg10 some **2.28%** / full **2.07%**, 7.84 GiB
+available, no low-memory flag, trim 5. Prefix cleanup passed and no Android exit
+matched. The report cannot distinguish ongoing pressure from a decaying average.
+[Assessment](evidence/android-2026-10-29-thor-code54-prefix-pressure.json).
+
+**55 / 0.17.5-live-pressure** adds fresh PSI counter intervals and up to three
+seconds of moderate-pressure confirmation with ample headroom. Severe stalls,
+low memory, critical callbacks and unavailable observations remain fail-closed.
+[Exact policy, regression cases and next gate](client-live-pressure.md).
+Keep code-54 exit diagnostics, x87 profile, 240 MiB/s verification and all retained
+data/receipts. No original startup success is claimed. Exact-commit CI and signed
+delivery are pending; unchanged native observer retains code-54 ARM64 evidence.
+
+## Previous delivery: code 54 post-host exit diagnostics
 
 Physical code 53 reached the original owned WarcraftXL host with **8 channels**;
 no AV or matching Android exit was recorded. It then failed in the 15-second
