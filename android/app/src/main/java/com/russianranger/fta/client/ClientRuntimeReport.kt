@@ -97,6 +97,15 @@ object ClientRuntimeReport {
                 .put("faultLocationCandidateAvailable", ClientStartupFault.locationCandidateAvailable(fault))
                 .put("fatalExceptionLocationProven", false)
             fault["moduleId"]?.let { result.put("faultModuleCandidate", ClientStartupFault.modules[it.toInt()]) }
+            val hostFault = ClientStartupFault.validate(raw.optJSONObject("startupHostFault")?.let { values(it) } ?: emptyMap(), host = true)
+            result.put("startupHostFault", JSONObject(hostFault))
+                .put("hostFaultLocationCandidateAvailable", ClientStartupFault.locationCandidateAvailable(hostFault, host = true))
+                .put("hostFatalExceptionLocationProven", false)
+            hostFault["moduleId"]?.let { result.put("hostFaultModuleCandidate", ClientStartupFault.hostModules[it.toInt()]) }
+            for (key in listOf("startupClientErrorMask", "startupHostErrorMask")) {
+                val value = raw.opt(key)
+                if ((value is Int || value is Long) && (value as Number).toLong() in 0..63) result.put(key, value)
+            }
             val events = JSONObject()
             for (key in ClientStartupProtocol.events) (raw.optJSONObject("startupEvents")?.opt(key) as? Number)?.let {
                 if ((it is Int || it is Long) && it.toLong() in 0..0xffffffffL) events.put(key, it)

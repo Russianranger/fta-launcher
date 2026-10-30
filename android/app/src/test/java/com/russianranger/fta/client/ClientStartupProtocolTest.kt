@@ -19,6 +19,8 @@ class ClientStartupProtocolTest {
         }
         rejects(good(), 1); rejects(good() + "FTA_CLIENT_STARTUP_FAILED\n")
         rejects(good() + "FTA_CLIENT_EVENT client-early-exit 0\n")
+        for (key in listOf("host-exit-code", "client-exit-code", "observer-failure-phase", "client-state", "host-state"))
+            rejects(good() + "FTA_CLIENT_EVENT $key 0\n")
         rejects(good().replace("host-channels 16", "host-channels 17"))
         rejects(good().replace("original-startup 0", "original-startup 1"))
     }

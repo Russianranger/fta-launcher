@@ -85,5 +85,43 @@ class StartupFaultTests(unittest.TestCase):
             struct.pack_into('<I', data, 60, 0xfffffff0); path.write_bytes(data)
             self.assertEqual({}, image_sizes(source, prefix))
 
+    def test_host_trace_uses_its_owned_pid_and_64_bit_module_range(self):
+        data = self.trace(pid=b'00ab', path=rb'Z:\\view\\Utils\\WarcraftXLHost.exe', address=b'0000000140001234').replace(b'at 00400000:', b'at 0000000140000000:')
+        data += b'FTA_CLIENT_PROCESS 252\nFTA_HOST_PROCESS 171\nFTA_HOST_EXIT 171 3221225477 2000\n'
+        host = FaultTrace({1: 0x20000}, host=True); client = FaultTrace({1: 0x20000})
+        for offset in range(0, len(data), 7):
+            host.feed(data[offset:offset+7]); client.feed(data[offset:offset+7])
+        self.assertEqual((1, 0x140000000, 0x1234, 1), tuple(host.values()[k] for k in ('moduleId', 'moduleBase', 'moduleRva', 'exceptionMatchesExit')))
+        self.assertEqual(0, client.values()['accessViolationCount']); self.assertEqual(0, client.values()['exitObserved'])
+        host.feed(b'FTA_CLIENT_EXIT 171 0 3000\n')
+        self.assertEqual(0xc0000005, host.values()['exitCode'])
+
+    def test_runtime_error_masks_omit_private_text_and_other_processes(self):
+        capture = StartupCapture()
+        capture.append(b'00fc:0100:err:module:import_dll PRIVATE DLL/path\n'
+            b'00ab:0104:err:wgl:context PRIVATE renderer\n'
+            b'00fc:0100:err:d3d:init PRIVATE settings\n'
+            b'00cd:0108:err:opengl:loader unrelated\n'
+            b'FTA_CLIENT_PROCESS 252\nFTA_HOST_PROCESS 171\n')
+        with patch('sys.stdout', new_callable=io.StringIO) as output: capture.report()
+        text = output.getvalue()
+        self.assertIn('FTA_CLIENT_RUNTIME_ERRORS 9\n', text)
+        self.assertIn('FTA_HOST_RUNTIME_ERRORS 2\n', text)
+        self.assertNotIn('PRIVATE', text); self.assertNotIn('unrelated', text)
+        self.assertNotIn('FTA_HOST_PROCESS', text)
+
+    def test_host_pe_sizes_require_exact_pe64_header_and_no_symlinks(self):
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name); (root / 'Utils').mkdir()
+            data = bytearray(4096); data[:2] = b'MZ'; struct.pack_into('<I', data, 60, 128)
+            data[128:132] = b'PE\0\0'; struct.pack_into('<H', data, 132, 0x8664)
+            struct.pack_into('<H', data, 148, 240); struct.pack_into('<H', data, 152, 0x20b)
+            struct.pack_into('<I', data, 208, 0x20000)
+            path = root / 'Utils/WarcraftXLHost.exe'; path.write_bytes(data)
+            self.assertEqual({1: 0x20000}, image_sizes(root, root / 'absent', host=True))
+            self.assertEqual({}, image_sizes(root, root / 'absent'))
+            struct.pack_into('<H', data, 132, 0x14c); path.write_bytes(data)
+            self.assertEqual({}, image_sizes(root, root / 'absent', host=True))
+
 
 if __name__ == '__main__': unittest.main()

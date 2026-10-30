@@ -73,6 +73,9 @@ jobs:
             ${{ runner.temp }}/original-startup/prefix.log
             ${{ runner.temp }}/original-startup/probe.log
             ${{ runner.temp }}/original-startup/fault.log
+            ${{ runner.temp }}/original-startup/client-exit.log
+            ${{ runner.temp }}/original-startup/host-exit.log
+            ${{ runner.temp }}/original-startup/host-crash.log
             ${{ runner.temp }}/original-startup/session/fixture-trace.log
             ${{ runner.temp }}/original-startup/evidence.json
             ${{ runner.temp }}/x87-flags/*.log

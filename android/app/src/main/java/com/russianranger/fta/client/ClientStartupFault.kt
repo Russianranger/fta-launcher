@@ -10,18 +10,31 @@ object ClientStartupFault {
         "exceptionMatchesExit" to 1L)
     val modules = listOf("unknown", "Wow.exe", "WarcraftXL.dll", "root-d3d9.dll", "ntdll-x86", "kernelbase-x86", "kernel32-x86", "wined3d-x86")
 
-    fun parse(text: String): Map<String, Long> {
+    val hostModules = listOf("unknown", "WarcraftXLHost.exe", "unknown", "unknown", "ntdll-x64", "kernelbase-x64", "kernel32-x64", "ucrtbase-x64")
+    fun bounds(host: Boolean) = if (host) bounds + ("moduleBase" to 0x7fffffffffffL) else bounds
+
+    fun runtimeErrorMask(text: String, host: Boolean = false): Long? {
+        runtimeRequire(text.length <= 65536, "probe-failed")
+        val prefix = if (host) "FTA_HOST_RUNTIME_ERRORS " else "FTA_CLIENT_RUNTIME_ERRORS "
+        val lines = text.lineSequence().filter { it.startsWith(prefix) }.toList()
+        return lines.singleOrNull()?.removePrefix(prefix)?.takeIf { it.matches(Regex("[0-9]{1,2}")) }
+            ?.toLongOrNull()?.takeIf { it in 0..63 }
+    }
+
+    fun parse(text: String, host: Boolean = false): Map<String, Long> {
         runtimeRequire(text.length <= 65536, "probe-failed")
         val result = linkedMapOf<String, Long>()
-        for (line in text.lineSequence().filter { it.startsWith("FTA_CLIENT_FAULT ") }) {
+        val prefix = if (host) "FTA_HOST_FAULT " else "FTA_CLIENT_FAULT "
+        for (line in text.lineSequence().filter { it.startsWith(prefix) }) {
             val f = line.split(' ')
             if (f.size != 3 || f[1] !in bounds || f[1] in result || !f[2].matches(Regex("[0-9]{1,15}"))) return emptyMap()
             result[f[1]] = f[2].toLongOrNull() ?: return emptyMap()
         }
-        return validate(result)
+        return validate(result, host)
     }
 
-    fun validate(raw: Map<String, Any?>): Map<String, Long> {
+    fun validate(raw: Map<String, Any?>, host: Boolean = false): Map<String, Long> {
+        val bounds = bounds(host)
         if (raw.keys != bounds.keys) return emptyMap()
         val n = linkedMapOf<String, Long>()
         for ((key, limit) in bounds) {
@@ -41,11 +54,12 @@ object ClientStartupFault {
         if (v("moduleId") == 0L) {
             if (listOf("moduleBase", "moduleSize", "moduleRva").any { v(it) != 0L }) return emptyMap()
         } else {
-            if (v("moduleSize") < 4096 || v("moduleBase") + v("moduleSize") > 0x100000000L ||
+            if (v("moduleSize") < 4096 || v("moduleBase") + v("moduleSize") > (if (host) 0x800000000000L else 0x100000000L) ||
                 v("exceptionAddress") !in v("moduleBase") until v("moduleBase") + v("moduleSize") ||
                 v("moduleRva") != v("exceptionAddress") - v("moduleBase")) return emptyMap()
             if (v("moduleId") <= 3 && (v("loadedClientModules") and (1L shl (v("moduleId").toInt() - 1))) == 0L) return emptyMap()
         }
+        if (host && (v("moduleId") in 2L..3L || v("loadedClientModules") > 1L)) return emptyMap()
         if (v("exitObserved") == 0L && (v("exitCode") != 0L || v("exitElapsedMs") != 0L)) return emptyMap()
         if (v("pidCorrelated") == 0L && (v("exitObserved") != 0L || v("loadedClientModules") != 0L)) return emptyMap()
         val matches = v("pidCorrelated") == 1L && v("accessViolationCount") > 0 && v("exitObserved") == 1L && v("exitCode") == v("exceptionCode")
@@ -53,7 +67,7 @@ object ClientStartupFault {
         return n
     }
 
-    fun locationCandidateAvailable(values: Map<String, Long>) = validate(values).let {
+    fun locationCandidateAvailable(values: Map<String, Long>, host: Boolean = false) = validate(values, host).let {
         it["exceptionMatchesExit"] == 1L && it["moduleId"] != 0L && it["traceLinesDropped"] == 0L && it["traceStateOverflow"] == 0L
     }
 }

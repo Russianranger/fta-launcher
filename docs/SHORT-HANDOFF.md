@@ -5,7 +5,25 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Current delivery: code 53 x87 startup compatibility
+## In progress: code 54 post-host exit diagnostics
+
+Physical code 53 reached the original owned WarcraftXL host with **8 channels**;
+no AV or matching Android exit was recorded. It then failed in the 15-second
+post-host observation branch. That branch in code 53 emits no process state or
+exit code before cleanup, so zero-filled fault fields do not establish a clean
+exit or identify which process ended. [Report assessment](evidence/android-2026-10-29-thor-code53-post-host-failure.json).
+Elapsed **8m38s** includes **67s / two pressure pauses**; keep 240 MiB/s verification
+and the x87 workaround. Full client verification, prefix and owned cleanup passed.
+
+Code **54 / 0.17.4-startup-exits** records failure phase, both process states and
+available exit codes before cleanup, and correlates an independent bounded x64
+host fault trace. Fixed Wine error-channel masks give categories without paths,
+messages or settings. No pass criteria, runtime, original binary, data or pressure
+policy changes. Exact-commit CI and signed APK delivery are pending; qualify
+clean client exit, host exit and actual host write fault after header observation.
+This diagnoses the next failure; it does not claim that failure is repaired.
+
+## Previous delivery: code 53 x87 startup compatibility
 
 The exact supplied Wow.exe matched its retained SHA256. Read-only disassembly
 located the repeated fault in a 48-iteration x87 store loop. The pinned FEX-2510

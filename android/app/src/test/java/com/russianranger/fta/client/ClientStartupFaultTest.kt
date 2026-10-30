@@ -46,4 +46,24 @@ class ClientStartupFaultTest {
         assertEquals(unknown, ClientStartupFault.validate(unknown)); assertFalse(ClientStartupFault.locationCandidateAvailable(unknown))
         assertTrue(ClientStartupFault.validate(unknown + ("moduleRva" to 1L)).isEmpty())
     }
+
+    @Test fun hostFramesKeep64BitAddressesAndCannotBeUsedAsClientFrames() {
+        val host = example() + mapOf("moduleBase" to 0x140000000L, "exceptionAddress" to 0x140001234L)
+        val encoded = text(host).replace("FTA_CLIENT_FAULT", "FTA_HOST_FAULT")
+        assertEquals(host, ClientStartupFault.parse(encoded, host = true))
+        assertTrue(ClientStartupFault.locationCandidateAvailable(host, host = true))
+        assertTrue(ClientStartupFault.parse(encoded).isEmpty())
+        assertTrue(ClientStartupFault.validate(host).isEmpty())
+        for ((key, value) in listOf("moduleId" to 2L, "loadedClientModules" to 3L, "moduleRva" to 42L,
+            "moduleBase" to 0x800000000000L))
+            assertTrue(ClientStartupFault.validate(host + (key to value), host = true).isEmpty())
+    }
+    @Test fun errorCategoriesAreBoundedUniqueAndSeparateForBothProcesses() {
+        val text = "PRIVATE ignored\nFTA_CLIENT_RUNTIME_ERRORS 9\nFTA_HOST_RUNTIME_ERRORS 2\n"
+        assertEquals(9L, ClientStartupFault.runtimeErrorMask(text))
+        assertEquals(2L, ClientStartupFault.runtimeErrorMask(text, host = true))
+        for (value in listOf("64", "-1", "private", "1 2", "1.0"))
+            assertNull(ClientStartupFault.runtimeErrorMask("FTA_CLIENT_RUNTIME_ERRORS $value\n"))
+        assertNull(ClientStartupFault.runtimeErrorMask(text + "FTA_CLIENT_RUNTIME_ERRORS 1\n"))
+    }
 }

@@ -9,6 +9,27 @@
 static void event(const char *name, DWORD value) {
     printf("FTA_CLIENT_EVENT %s %lu\n", name, (unsigned long)value); fflush(stdout);
 }
+static void process_state(const char *role, HANDLE process, DWORD pid, ULONGLONG began, DWORD phase) {
+    char key[64]; DWORD state = process ? WaitForSingleObject(process, 0) : WAIT_FAILED;
+    DWORD wait_error = state == WAIT_FAILED && process ? GetLastError() : 0;
+    snprintf(key, sizeof(key), "%s-state", role);
+    event(key, !process ? 0 : state == WAIT_TIMEOUT ? 1 : state == WAIT_OBJECT_0 ? 2 : 3);
+    if (!process) return;
+    if (state == WAIT_OBJECT_0) {
+        DWORD status;
+        if (GetExitCodeProcess(process, &status)) {
+            snprintf(key, sizeof(key), "%s-exit-code", role); event(key, status);
+            // Only spontaneous exits may be correlated with an exception.
+            if (phase <= 2) {
+                if (!strcmp(role, "client")) event("client-early-exit", status);
+                printf("FTA_%s_EXIT %lu %lu %llu\n", !strcmp(role, "client") ? "CLIENT" : "HOST",
+                    (unsigned long)pid, (unsigned long)status, (unsigned long long)(GetTickCount64() - began)); fflush(stdout);
+            }
+        } else { DWORD error = GetLastError(); snprintf(key, sizeof(key), "%s-exit-read-error", role); event(key, error); }
+    } else if (state != WAIT_TIMEOUT) {
+        snprintf(key, sizeof(key), "%s-wait-error", role); event(key, wait_error);
+    }
+}
 static int owned_host(DWORD pid, DWORD parent, HANDLE process) {
     char image[1024]; DWORD size = sizeof(image);
     if (!QueryFullProcessImageNameA(process, 0, image, &size)) return 0;
@@ -40,12 +61,15 @@ static int stop_client(PROCESS_INFORMATION *client) {
 }
 int main(int argc, char **argv) {
     int fixture_crash = argc == 2 && !strcmp(argv[1], "--fixture-crash");
-    int fixture = argc == 2 && (!strcmp(argv[1], "--fixture") || fixture_crash);
+    const char *late = argc == 2 && !strcmp(argv[1], "--fixture-client-exit") ? " --fta-fixture-client-exit" :
+        argc == 2 && !strcmp(argv[1], "--fixture-host-exit") ? " --fta-fixture-host-exit" :
+        argc == 2 && !strcmp(argv[1], "--fixture-host-crash") ? " --fta-fixture-host-crash" : "";
+    int fixture = argc == 2 && (!strcmp(argv[1], "--fixture") || fixture_crash || late[0]);
     if (argc != 2 || (!fixture && strcmp(argv[1], "--original"))) return 2;
     STARTUPINFOA info; memset(&info, 0, sizeof(info)); info.cb = sizeof(info);
     PROCESS_INFORMATION client; memset(&client, 0, sizeof(client));
-    HANDLE mapping = NULL, host = NULL; void *view = NULL; int passed = 0;
-    char command[128]; snprintf(command, sizeof(command), "\"Z:\\view\\Wow.exe\" -windowed%s", fixture_crash ? " --fta-fixture-crash" : "");
+    HANDLE mapping = NULL, host = NULL; void *view = NULL; int passed = 0; DWORD host_pid = 0, phase = 1;
+    char command[160]; snprintf(command, sizeof(command), "\"Z:\\view\\Wow.exe\" -windowed%s", fixture_crash ? " --fta-fixture-crash" : late);
     ULONGLONG began = GetTickCount64();
     if (!CreateProcessA("Z:\\view\\Wow.exe", command, NULL, NULL, FALSE, 0, NULL, "Z:\\view", &info, &client)) {
         event("client-create-error", GetLastError()); return 10;
@@ -58,11 +82,6 @@ int main(int argc, char **argv) {
     ULONGLONG deadline = GetTickCount64() + (fixture ? 10000 : 90000);
     do {
         if (WaitForSingleObject(client.hProcess, 0) != WAIT_TIMEOUT) {
-            DWORD status = 0; if (GetExitCodeProcess(client.hProcess, &status)) {
-                event("client-early-exit", status);
-                printf("FTA_CLIENT_EXIT %lu %lu %llu\n", (unsigned long)client.dwProcessId,
-                    (unsigned long)status, (unsigned long long)(GetTickCount64() - began)); fflush(stdout);
-            }
             goto done;
         }
         mapping = OpenFileMappingA(FILE_MAP_READ, FALSE, name);
@@ -73,6 +92,8 @@ int main(int argc, char **argv) {
             if (header[0] == 0x4c585857u && header[1] == 4 && header[6] >= 2 && header[6] <= 16 && header[7]) {
                 host = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_LIMITED_INFORMATION, FALSE, header[7]);
                 if (host && owned_host(header[7], client.dwProcessId, host) && WaitForSingleObject(host, 0) == WAIT_TIMEOUT) {
+                    host_pid = header[7];
+                    printf("FTA_HOST_PROCESS %lu\n", (unsigned long)host_pid); fflush(stdout);
                     event("host-header-valid", 1); event("host-owned", 1); event("host-channels", header[6]);
                     break;
                 }
@@ -84,18 +105,27 @@ int main(int argc, char **argv) {
     } while (GetTickCount64() < deadline);
     if (!host) { event("host-not-observed", 1); goto done; }
     // Observe both original processes alive; no synthetic asset requests.
-    deadline = GetTickCount64() + (fixture ? 1000 : 15000);
+    phase = 2;
+    deadline = GetTickCount64() + (late[0] ? 5000 : fixture ? 1000 : 15000);
     do {
         if (WaitForSingleObject(client.hProcess, 0) != WAIT_TIMEOUT || WaitForSingleObject(host, 0) != WAIT_TIMEOUT) goto done;
         Sleep(100);
     } while (GetTickCount64() < deadline);
     event("startup-observed", 1);
+    phase = 3;
     if (!stop_client(&client)) goto done;
     event("client-stopped", 1);
+    phase = 4;
     if (WaitForSingleObject(host, 15000) != WAIT_OBJECT_0) goto done;
     event("host-stopped", 1); passed = 1;
 done:
-    if (!passed) stop_client(&client);
+    if (!passed) {
+        event("observer-failure-phase", phase);
+        event("observation-elapsed-ms", (DWORD)(GetTickCount64() - began));
+        process_state("client", client.hProcess, client.dwProcessId, began, phase);
+        process_state("host", host, host_pid, began, phase);
+        stop_client(&client);
+    }
     if (view) UnmapViewOfFile(view);
     if (mapping) CloseHandle(mapping);
     if (host) CloseHandle(host);

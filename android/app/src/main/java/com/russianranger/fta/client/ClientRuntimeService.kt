@@ -226,6 +226,9 @@ class ClientRuntimeService : Service() {
                         if (!preparingPrefix) {
                             report.put("startupEvents", JSONObject(ClientStartupProtocol.values(text)))
                             report.put("startupFault", JSONObject(ClientStartupFault.parse(text)))
+                            report.put("startupHostFault", JSONObject(ClientStartupFault.parse(text, host = true)))
+                            ClientStartupFault.runtimeErrorMask(text)?.let { report.put("startupClientErrorMask", it) }
+                            ClientStartupFault.runtimeErrorMask(text, host = true)?.let { report.put("startupHostErrorMask", it) }
                         }
                         val stages = JSONObject()
                         val expected = if (preparingPrefix) ClientStartupProtocol.prefixStages else ClientStartupProtocol.stages

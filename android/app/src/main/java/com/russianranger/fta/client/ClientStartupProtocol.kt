@@ -5,7 +5,9 @@ object ClientStartupProtocol {
     val stages = listOf("cpu-topology", "display", "prefix", "original-startup", "wine-stop")
     val prefixStages = listOf("cpu-topology", "display", "prefix", "wine-stop")
     val events = setOf("client-started", "client-create-error", "client-early-exit", "host-header-valid", "host-owned",
-        "host-channels", "host-not-observed", "startup-observed", "client-forced-stop", "client-stopped", "host-stopped")
+        "host-channels", "host-not-observed", "startup-observed", "client-forced-stop", "client-stopped", "host-stopped",
+        "observer-failure-phase", "observation-elapsed-ms", "client-state", "host-state", "client-exit-code",
+        "host-exit-code", "client-wait-error", "host-wait-error", "client-exit-read-error", "host-exit-read-error")
     val required = setOf("client-started", "host-header-valid", "host-owned", "startup-observed", "client-stopped", "host-stopped")
     val completionFlags = setOf("runtimePreRehashValidated", "runtimePostRehashValidated", "clientFullRehashValidated",
         "sourceMetadataUnchanged", "independentLaunchSettingsPrepared", "startupProtocolValidated", "ownedCleanupComplete", "prefixPreparationValidated", "prefixPreparationCleanupComplete")
@@ -54,7 +56,7 @@ object ClientStartupProtocol {
             lines.filter { it.startsWith("FTA_ANDROID_STAGE ") } == stages.map { "FTA_ANDROID_STAGE $it 0" } &&
             lines.count { it.startsWith("FTA_CLIENT_EVENT ") } == values.size &&
             required.all { values[it] == 1L } && values["host-channels"]?.let { it in 2L..16L } == true &&
-            values.keys.none { it in setOf("client-create-error", "client-early-exit", "host-not-observed") } &&
+            values.keys.all { it in required + setOf("host-channels", "client-forced-stop") } &&
             ("client-forced-stop" !in values || values["client-forced-stop"] == 1L), "client-startup-failed")
         return values
     }

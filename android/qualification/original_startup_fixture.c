@@ -7,7 +7,7 @@
 
 int main(int argc, char **argv) {
 #ifdef _WIN64
-    if (argc != 3 || strcmp(argv[1], "--client-pid")) return 2;
+    if (argc != 4 || strcmp(argv[1], "--client-pid")) return 2;
     DWORD pid = (DWORD)strtoul(argv[2], NULL, 10);
     HANDLE parent = OpenProcess(SYNCHRONIZE, FALSE, pid); if (!parent) return 3;
     char name[96]; snprintf(name, sizeof(name), "Local\\WarcraftXLShm_%lu", (unsigned long)pid);
@@ -16,7 +16,15 @@ int main(int argc, char **argv) {
     DWORD *words = MapViewOfFile(mapping, FILE_MAP_ALL_ACCESS, 0, 0, 64);
     if (!words) { CloseHandle(mapping); CloseHandle(parent); return 5; }
     memset(words, 0, 64); words[0] = 0x4c585857u; words[1] = 4; words[6] = 2; words[7] = GetCurrentProcessId();
-    MemoryBarrier(); DWORD status = WaitForSingleObject(parent, 30000);
+    MemoryBarrier();
+    if (!strcmp(argv[3], "host-exit") || !strcmp(argv[3], "host-crash")) {
+        Sleep(1500);
+        if (!strcmp(argv[3], "host-exit")) return 73;
+        volatile DWORD *page = VirtualAlloc(NULL, 4096, MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
+        if (!page) return 12;
+        *page = 42; return 13;
+    }
+    DWORD status = WaitForSingleObject(parent, 30000);
     UnmapViewOfFile(words); CloseHandle(mapping); CloseHandle(parent);
     return status == WAIT_OBJECT_0 ? 0 : 6;
 #else
@@ -26,11 +34,24 @@ int main(int argc, char **argv) {
         *page = 42; // Actual synthetic write fault in this PE32 image, never private game code.
         return 13;
     }
-    char args[160]; snprintf(args, sizeof(args), "\"Z:\\view\\Utils\\WarcraftXLHost.exe\" --client-pid %lu", (unsigned long)GetCurrentProcessId());
+    const char *mode = argc == 3 && !strcmp(argv[2], "--fta-fixture-client-exit") ? "client-exit" :
+        argc == 3 && !strcmp(argv[2], "--fta-fixture-host-exit") ? "host-exit" :
+        argc == 3 && !strcmp(argv[2], "--fta-fixture-host-crash") ? "host-crash" : "normal";
+    char args[192]; snprintf(args, sizeof(args), "\"Z:\\view\\Utils\\WarcraftXLHost.exe\" --client-pid %lu %s", (unsigned long)GetCurrentProcessId(), mode);
     STARTUPINFOA info; memset(&info, 0, sizeof(info)); info.cb = sizeof(info);
     PROCESS_INFORMATION host; memset(&host, 0, sizeof(host));
     if (!CreateProcessA("Z:\\view\\Utils\\WarcraftXLHost.exe", args, NULL, NULL, FALSE, 0, NULL, "Z:\\view\\Utils", &info, &host)) return 10;
     CloseHandle(host.hThread); CloseHandle(host.hProcess);
+    if (!strcmp(mode, "client-exit")) {
+        char name[96]; snprintf(name, sizeof(name), "Local\\WarcraftXLShm_%lu", (unsigned long)GetCurrentProcessId());
+        ULONGLONG deadline = GetTickCount64() + 10000;
+        do {
+            HANDLE mapping = OpenFileMappingA(FILE_MAP_READ, FALSE, name);
+            if (mapping) { CloseHandle(mapping); Sleep(1500); return 0; }
+            Sleep(100);
+        } while (GetTickCount64() < deadline);
+        return 14;
+    }
     Sleep(30000); return 11;
 #endif
 }

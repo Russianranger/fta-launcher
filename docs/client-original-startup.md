@@ -206,3 +206,35 @@ and scheduler oversleep. Device storage/hash speed and scheduling can still limi
 throughput; fivefold configured rate is not a measured fivefold total-attempt
 speedup. The next diagnostic exports the rate, I/O bytes, requested pacing waits,
 pressure waits and total elapsed time for comparison.
+
+## Post-host exit observations from code 54
+
+The physical code-53 report reached an owned eight-channel host, then failed
+before `startup-observed`. Its observer silently left that branch if either
+process exited or its wait failed. Code 54 snapshots both process handles before
+cleanup on every later observer failure. `observer-failure-phase` is 1 while
+finding the host, 2 while observing both alive, 3 during client stop, 4 while
+waiting for host shutdown. `client-state` / `host-state` are 0 absent, 1 alive,
+2 signaled/exited, 3 wait error. Available exit codes and Win32 query/wait errors
+have distinct fixed event names; `observation-elapsed-ms` is since client creation.
+A clean early exit still fails startup. The snapshots do not order simultaneous
+exits. Cleanup termination cannot be labeled a spontaneous fault-associated exit.
+
+`startupFault` retains its original x86 meaning. `startupHostFault` independently
+correlates the Windows PID only after header/parent/image ownership succeeds.
+The same bounded trace parser accepts 64-bit addresses for the host. Host image
+roles: 0 unknown, 1 WarcraftXLHost.exe, 4 ntdll, 5 kernelbase, 6 kernel32, 7
+ucrtbase from the prefix system32. Roles 2/3 are invalid. Module sizes come from
+bounded no-follow PE64 headers of the fully verified files. The host trace has
+its own 32-process / 128-module / 4 KiB-line bounds; raw capture remains 256 KiB
+shared. Dropped/overflow observations prevent location-candidate claims.
+Matching last-AV/exit codes still do not prove fatal causality. Raw paths, PIDs,
+registers, stacks, game code and logs are never exported.
+
+Optional `startupClientErrorMask` / `startupHostErrorMask` summarize only PID-
+correlated Wine `err` channels: module=1, wgl=2, opengl=4, d3d/d3d9/wined3d=8,
+seh=16, other=32. These are observed categories, not diagnoses or readiness flags.
+Duplicate or out-of-range masks are omitted. Existing reports remain readable.
+Synthetic qualification adds a clean x86 exit, x64 exit code 73 and actual x64
+write AV after the header is accepted; all remain failures with successful owned
+cleanup. Original game success and rendering remain separate device gates.

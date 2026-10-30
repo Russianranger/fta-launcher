@@ -23,7 +23,9 @@ READY = b'FTA_PREFIX_READY_V1\n'
 # not a rendering-accuracy qualification. See docs/wow-startup-x87.md.
 STARTUP_X87_ENV = dict(FEX_X87REDUCEDPRECISION='1', FEX_X87STRICTREDUCEDPRECISION='0')
 EVENTS = ('client-started', 'client-create-error', 'client-early-exit', 'host-header-valid', 'host-owned',
-          'host-channels', 'host-not-observed', 'startup-observed', 'client-forced-stop', 'client-stopped', 'host-stopped')
+          'host-channels', 'host-not-observed', 'startup-observed', 'client-forced-stop', 'client-stopped', 'host-stopped',
+          'observer-failure-phase', 'observation-elapsed-ms', 'client-state', 'host-state', 'client-exit-code',
+          'host-exit-code', 'client-wait-error', 'host-wait-error', 'client-exit-read-error', 'host-exit-read-error')
 
 
 FAULT_BOUNDS = dict(pidCorrelated=1, traceLinesDropped=1000000, traceStateOverflow=1,
@@ -35,11 +37,15 @@ IMAGE_NAMES = {1: 'Wow.exe', 2: 'WarcraftXL.dll', 3: 'd3d9.dll', 4: 'ntdll.dll',
                5: 'kernelbase.dll', 6: 'kernel32.dll', 7: 'wined3d.dll'}
 
 
-def image_sizes(source=Path('/immutable'), prefix=Path('/prefix')):
+HOST_IMAGE_NAMES = {1: 'Utils/WarcraftXLHost.exe', 4: 'ntdll.dll', 5: 'kernelbase.dll', 6: 'kernel32.dll', 7: 'ucrtbase.dll'}
+HOST_FAULT_BOUNDS = dict(FAULT_BOUNDS, moduleBase=0x7fffffffffff)
+
+
+def image_sizes(source=Path('/immutable'), prefix=Path('/prefix'), host=False):
     """Read bounded PE headers only, from already verified source/runtime images."""
     sizes = {}
-    for role, name in IMAGE_NAMES.items():
-        path = source / name if role <= 3 else prefix / 'drive_c/windows/syswow64' / name
+    for role, name in (HOST_IMAGE_NAMES if host else IMAGE_NAMES).items():
+        path = source / name if role <= 3 else prefix / ('drive_c/windows/system32' if host else 'drive_c/windows/syswow64') / name
         try:
             fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK)
             with os.fdopen(fd, 'rb') as stream:
@@ -50,8 +56,10 @@ def image_sizes(source=Path('/immutable'), prefix=Path('/prefix')):
                 offset = struct.unpack_from('<I', dos, 60)[0]
                 if not 64 <= offset <= min(info.st_size - 84, 1024 * 1024): continue
                 stream.seek(offset); header = stream.read(84)
-                if len(header) != 84 or header[:4] != b'PE\0\0' or struct.unpack_from('<H', header, 4)[0] != 0x14c: continue
-                if struct.unpack_from('<H', header, 20)[0] < 60 or struct.unpack_from('<H', header, 24)[0] != 0x10b: continue
+                if len(header) != 84 or header[:4] != b'PE\0\0': continue
+                machines = (0x8664,) if host and role == 1 else (0x8664, 0xa641, 0xaa64) if host else (0x14c,)
+                if struct.unpack_from('<H', header, 4)[0] not in machines: continue
+                if struct.unpack_from('<H', header, 20)[0] < 60 or struct.unpack_from('<H', header, 24)[0] != (0x20b if host else 0x10b): continue
                 size = struct.unpack_from('<I', header, 80)[0]
                 if 4096 <= size <= FAULT_BOUNDS['moduleSize']: sizes[role] = size
         except OSError: pass
@@ -69,7 +77,9 @@ class FaultTrace:
     MAX_PROCESSES = 32
     MAX_MODULES = 128
 
-    def __init__(self, sizes):
+    def __init__(self, sizes, host=False):
+        self.host = host; self.marker = b'HOST' if host else b'CLIENT'
+        self.bounds = HOST_FAULT_BOUNDS if host else FAULT_BOUNDS
         self.sizes = dict(sizes); self.partial = bytearray(); self.discarding = False
         self.processes = {}; self.pid = None; self.exit = None; self.events = []
         self.dropped = 0; self.overflow = False; self.pass_marker = False
@@ -85,19 +95,18 @@ class FaultTrace:
                 if not self.discarding: self.line(bytes(self.partial).rstrip(b'\r\n'))
                 self.partial.clear(); self.discarding = False
 
-    @staticmethod
-    def role(path):
+    def role(self, path):
         path = path.replace(b'\\\\', b'\\').lower()
-        for role, name in IMAGE_NAMES.items():
+        for role, name in (HOST_IMAGE_NAMES if self.host else IMAGE_NAMES).items():
             roots = (b'z:\\view\\', b'z:\\immutable\\') if role <= 3 else (b'c:\\windows\\syswow64\\', b'c:\\windows\\system32\\')
-            if any(path == root + name.lower().encode() for root in roots): return role
+            if any(path == root + name.lower().replace('/', '\\').encode() for root in roots): return role
         return 0
 
     def process(self, pid):
         if pid not in self.processes:
             if len(self.processes) >= self.MAX_PROCESSES:
                 self.overflow = True; return None
-            self.processes[pid] = dict(modules={}, loaded=0, count=0, av=None, pending=None)
+            self.processes[pid] = dict(modules={}, loaded=0, count=0, av=None, pending=None, errors=0)
         return self.processes[pid]
 
     def line(self, line):
@@ -107,23 +116,25 @@ class FaultTrace:
             if len(self.events) < 64: self.events.append(line)
             else: self.overflow = True
             return
-        match = re.fullmatch(rb'FTA_CLIENT_PROCESS ([0-9]{1,10})', line)
+        match = re.fullmatch(rb'FTA_' + self.marker + rb'_PROCESS ([0-9]{1,10})', line)
         if match and 0 < int(match[1]) <= 0xffffffff:
             if self.pid is not None: self.overflow = True
             else: self.pid = int(match[1])
             return
-        match = re.fullmatch(rb'FTA_CLIENT_EXIT ([0-9]{1,10}) ([0-9]{1,10}) ([0-9]{1,6})', line)
+        match = re.fullmatch(rb'FTA_' + self.marker + rb'_EXIT ([0-9]{1,10}) ([0-9]{1,10}) ([0-9]{1,6})', line)
         if match and self.pid == int(match[1]) and int(match[2]) <= 0xffffffff and int(match[3]) <= 145000:
             if self.exit is not None: self.overflow = True
             else: self.exit = (int(match[2]), int(match[3]))
             return
-        match = re.fullmatch(rb'([0-9a-fA-F]{4,8}):([0-9a-fA-F]{4,8}):(trace|warn|err):(seh|loaddll):([A-Za-z0-9_]+) (.*)', line)
+        match = re.fullmatch(rb'([0-9a-fA-F]{4,8}):([0-9a-fA-F]{4,8}):(trace|warn|err):([A-Za-z0-9_]{1,32}):([A-Za-z0-9_]{1,64}) (.*)', line)
         if not match: return
         pid, tid = int(match[1], 16), int(match[2], 16)
         if self.pid is not None and pid != self.pid: return
         state = self.process(pid)
         if state is None: return
         channel, function, message = match[4], match[5], match[6]
+        if match[3] == b'err':
+            state['errors'] |= {b'module': 1, b'wgl': 2, b'opengl': 4, b'd3d': 8, b'd3d9': 8, b'wined3d': 8, b'seh': 16}.get(channel, 32)
         if channel == b'loaddll':
             loaded = re.fullmatch(rb'Loaded L?"([^"\r\n]{1,2048})" at (?:0x)?([0-9a-fA-F]{1,16}): (native|builtin)', message)
             if loaded:
@@ -131,7 +142,7 @@ class FaultTrace:
                 # A replacement (including an unknown image) invalidates an old range.
                 state['modules'] = {a: v for a, v in state['modules'].items() if not a <= address < a + v[1]}
                 if role <= 3 and role: state['loaded'] |= 1 << (role - 1)
-                if role in self.sizes and address <= 0xffffffff and address + self.sizes[role] <= 0x100000000:
+                if role in self.sizes and address <= self.bounds['moduleBase'] and address + self.sizes[role] <= (0x800000000000 if self.host else 0x100000000):
                     if len(state['modules']) >= self.MAX_MODULES and address not in state['modules']: self.overflow = True
                     else: state['modules'][address] = (role, self.sizes[role])
             unloaded = re.fullmatch(rb'Unloaded module L?"([^"\r\n]{1,2048})" : (native|builtin)', message)
@@ -159,7 +170,7 @@ class FaultTrace:
                 av.update(accessType=details[0], accessAddress=details[1], accessDetailsKnown=1)
 
     def values(self):
-        result = dict.fromkeys(FAULT_BOUNDS, 0); result['accessType'] = 9
+        result = dict.fromkeys(self.bounds, 0); result['accessType'] = 9
         result.update(pidCorrelated=int(self.pid is not None), traceLinesDropped=self.dropped, traceStateOverflow=int(self.overflow))
         state = self.processes.get(self.pid)
         if state:
@@ -172,13 +183,14 @@ class FaultTrace:
 
 class StartupCapture(base.OutputCapture):
     image_sizes = {}
+    host_image_sizes = {}
     fixture_capture = False
 
     def __init__(self):
-        super().__init__(); self.fault = FaultTrace(self.image_sizes)
+        super().__init__(); self.fault = FaultTrace(self.image_sizes); self.host_fault = FaultTrace(self.host_image_sizes, host=True)
 
     def append(self, data):
-        super().append(data); self.fault.feed(data)
+        super().append(data); self.fault.feed(data); self.host_fault.feed(data)
         marker = b'\nFTA_ORIGINAL_STARTUP_PASS\n'
         if self.fault.pass_marker and b'FTA_ORIGINAL_STARTUP_PASS' not in self.data.replace(b'\r', b'').splitlines():
             # Verbose traces must not hide a real terminal marker after the raw prefix cap.
@@ -188,7 +200,13 @@ class StartupCapture(base.OutputCapture):
     def report(self):
         super().report()
         for line in self.fault.events: print(line.decode(), flush=True)
-        if self.fault.overflow: print('FTA_CLIENT_TRACE_OVERFLOW', flush=True)
+        if self.fault.overflow or self.host_fault.overflow: print('FTA_CLIENT_TRACE_OVERFLOW', flush=True)
+        for trace in (self.fault, self.host_fault):
+            if trace.pid is not None:
+                role = trace.marker.decode()
+                print(f'FTA_{role}_RUNTIME_ERRORS {trace.processes.get(trace.pid, {}).get("errors", 0)}', flush=True)
+                if trace.host:
+                    for key, value in trace.values().items(): print(f'FTA_HOST_FAULT {key} {value}', flush=True)
         if self.fault.pid is not None:
             for key, value in self.fault.values().items(): print(f'FTA_CLIENT_FAULT {key} {value}', flush=True)
             if self.fixture_capture:
@@ -284,11 +302,12 @@ def prepared(root=Path('/prefix'), session=Path('/session')):
             raise RuntimeError('prefix binaries incomplete')
 
 
-def main(fixture=False, prepare=False, fixture_crash=False):
+def main(fixture=False, prepare=False, fixture_crash=False, fixture_late=None):
     base.STAGES = PREFIX_STAGES if prepare else STAGES
     base.MARKERS = {'original-startup': b'FTA_ORIGINAL_STARTUP_PASS'}
     base.OutputCapture = StartupCapture
     StartupCapture.image_sizes = {} if prepare else image_sizes()
+    StartupCapture.host_image_sizes = {} if prepare else image_sizes(host=True)
     StartupCapture.fixture_capture = fixture_crash
     os.environ.update(PATH='/opt/wine/bin:/usr/bin:/bin', HOME='/session/home', LANG='C.UTF-8',
         WINEPREFIX='/prefix', WINEARCH='win64', DISPLAY=':8', WINEDEBUG='-all,err+all',
@@ -314,7 +333,7 @@ def main(fixture=False, prepare=False, fixture_crash=False):
                 env=dict(os.environ, WINEDEBUG='-all,err+all,trace+wineboot'), progress=progress)
         else:
             base.record('prefix', 0)
-            mode = '--fixture-crash' if fixture_crash else '--fixture' if fixture else '--original'
+            mode = '--fixture-' + fixture_late if fixture_late else '--fixture-crash' if fixture_crash else '--fixture' if fixture else '--original'
             base.run('original-startup', ['wine', '/client/startup64.exe', mode], 145,
                 env=dict(os.environ, **STARTUP_X87_ENV, WINEDEBUG='-all,err+all,trace+seh,trace+loaddll,+pid'))
         passed = True
@@ -342,6 +361,7 @@ def main(fixture=False, prepare=False, fixture_crash=False):
 
 
 if __name__ == '__main__':
-    if sys.argv[1:] not in (['--original'], ['--fixture'], ['--fixture-crash'], ['--prepare']): sys.exit(2)
+    late = {'--fixture-client-exit': 'client-exit', '--fixture-host-exit': 'host-exit', '--fixture-host-crash': 'host-crash'}
+    if sys.argv[1:] not in (['--original'], ['--fixture'], ['--fixture-crash'], ['--prepare'], *([v] for v in late)): sys.exit(2)
     sys.exit(main(fixture=sys.argv[1:] == ['--fixture'], prepare=sys.argv[1:] == ['--prepare'],
-                  fixture_crash=sys.argv[1:] == ['--fixture-crash']))
+                  fixture_crash=sys.argv[1:] == ['--fixture-crash'], fixture_late=late.get(sys.argv[1])))
