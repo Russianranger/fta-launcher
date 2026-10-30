@@ -49,9 +49,13 @@ histories test quiet recovery, sustained stalls, severe spikes, early detection,
 hysteresis, critical/advisory callbacks, missing observations, counter overflow
 and stale intervals. These qualify policy behavior, not physical recovery.
 
-Run the exact-commit foundation checks before packaging with the persistent
-signer. No native/Windows observer sources changed, so retain code-54 ARM64
-qualification rather than rerunning its unchanged standalone gates.
+Application **23d829dd5a01b14d2a6336e15321cf5868a3d975** passed foundation
+**40994731715**: 613 Android tests passed / one existing skip, 214 tooling and 138
+qualification tests with no skips, lint/assembly, cache/JNI, ownership and full
+runtime rehash under 96 MiB heap. [CI evidence](evidence/ci-2026-10-29-code55-foundation-pass.json).
+All eleven new pressure regressions passed. No native/Windows observer sources
+changed; code-54 ARM64 qualification is retained and was not rerun.
+[Signed delivery and instructions](code55-recovery.md).
 
 Next on Thor: install in place, run **Test original client startup** once, and
 export JSON on completion/failure/Stop before retrying. Keep 5 GiB free, power

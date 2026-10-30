@@ -5,21 +5,44 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## Code 55 in qualification: live pressure confirmation
+## Current delivery: code 55 live pressure confirmation
 
 Physical code 54 stopped at **48.479 seconds in prefix preparation**, before either
 original process started: `psi-full`, avg10 some **2.28%** / full **2.07%**, 7.84 GiB
 available, no low-memory flag, trim 5. Prefix cleanup passed and no Android exit
 matched. The report cannot distinguish ongoing pressure from a decaying average.
 [Assessment](evidence/android-2026-10-29-thor-code54-prefix-pressure.json).
+It supplies no new observation of the code-53 post-host failure.
 
-**55 / 0.17.5-live-pressure** adds fresh PSI counter intervals and up to three
-seconds of moderate-pressure confirmation with ample headroom. Severe stalls,
-low memory, critical callbacks and unavailable observations remain fail-closed.
-[Exact policy, regression cases and next gate](client-live-pressure.md).
-Keep code-54 exit diagnostics, x87 profile, 240 MiB/s verification and all retained
-data/receipts. No original startup success is claimed. Exact-commit CI and signed
-delivery are pending; unchanged native observer retains code-54 ARM64 evidence.
+**55 / 0.17.5-live-pressure** adds fresh PSI intervals and a three-second moderate
+pressure confirmation deadline with ample headroom. Severe stalls, low memory,
+critical callbacks and unavailable evidence during an episode remain immediate
+stops. Fresh quiet counters can distinguish recovery from a decaying average.
+[Exact policy and tests](client-live-pressure.md). Native monitoring remains active;
+no sleeping guest monitor, kernel settings or original binary changes.
+
+Application **23d829dd5a01b14d2a6336e15321cf5868a3d975** passed foundation
+**40994731715**: **613 Android passed / one existing skip**, **214 tooling**, **138
+qualification with no skips**, lint/assembly, ownership, cache/JNI and full runtime
+rehash with a **96 MiB heap**. Eleven new pressure regressions passed. Unchanged
+native/Windows observer retains code-54 ARM64 **40989654994**, not rerun.
+[Exact-commit evidence](evidence/ci-2026-10-29-code55-foundation-pass.json).
+
+[Signed APK, sources and one test](code55-recovery.md) are saved. APK
+**60,697,793 bytes**, SHA256
+`85aef564cbf41ab707b91e44dfd0b965102ca960e455e536e61355d557eaa8d7`.
+247 package checks, persistent v2 signing and 16 KiB alignment passed. All 25
+native payloads, 148 runtime entries and 205 runtime asset files match code 54;
+strict source companions verified, with 244 exact application source files.
+Keep code-54 exit diagnostics, x87 profile, **240 MiB/s** verification and all data.
+
+**Next:** install in place, **Test original client startup** once, export JSON on
+completion/failure/Stop before retrying. Keep 5 GiB free, power connected, airplane
+mode with Wi-Fi off, launcher visible; close other memory-heavy apps. Allow 8–10
+minutes plus pressure pauses. Inspect fresh PSI fields if prefix stops; otherwise
+inspect both original process exits/faults. No reimport, clear data or passed-gate
+repeats. Code-55 physical recovery and original startup/rendering/login remain
+unqualified; the earlier post-host failure is unresolved. Future code **>=56**.
 
 ## Previous delivery: code 54 post-host exit diagnostics
 
