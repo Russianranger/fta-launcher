@@ -1,0 +1,76 @@
+{
+  "scope": "code54-exact-commit-foundation-build",
+  "commit": "e93aa5c30689ff05da38c05ef929b2ff0ba4abc5",
+  "runId": 40989654997,
+  "runAttempt": 1,
+  "conclusion": "success",
+  "jobs": {
+    "android": 123848698166,
+    "tooling": 123848698146,
+    "publish": 123851067076
+  },
+  "toolingTestsPassed": 214,
+  "qualificationTestsPassed": 138,
+  "qualificationSkips": 0,
+  "androidUnitResults": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 1,
+    "tests": 603
+  },
+  "suites": 58,
+  "androidTestsPassed": 602,
+  "lintPassed": true,
+  "assemblyPassed": true,
+  "nativeOwnershipPassed": true,
+  "cacheAndHostJniPassed": true,
+  "runtimeStoreQualification": {
+    "runtimeEntries": 14092,
+    "runtimeFileBytes": 2637799241,
+    "catalogSha256": "510d1ff3f0e88c73496b5e87215d18174c6eebd2b7d548caeb44474225f15cd0",
+    "maximumIoRequest": 262144,
+    "maximumCacheRange": 1048611,
+    "accountedIoBytes": 13003192355,
+    "heapMaxBytes": 100663296,
+    "publishedFullRehash": true,
+    "retainedFullRehash": true,
+    "androidExecutionQualified": false
+  },
+  "assemblySha256": "a1e118fd3c63720353fb91b9038c5758ea34f6fe801131b3e771220303a2fc75",
+  "assemblyBytes": 20480180,
+  "clientSourceSha256": "465465886241d2abea7d62b744245972d92de4df40aae2b93d01a5acf4987ab7",
+  "clientSourceBytes": 2816800,
+  "applicationSourceFilesMatched": 242,
+  "guardedRunId": 40989654994,
+  "guardedEvidence": "host-2026-10-29-code54-startup-exits-pass.json",
+  "physicalVersionExecuted": false,
+  "originalPostHostFailureResolved": false,
+  "renderingQualified": false,
+  "gameLoginQualified": false,
+  "artifacts": [
+    {
+      "id": 12948762783,
+      "bytes": 19958368,
+      "sha256": "80a10ce11e175551fef0d5438a4e038327e1c2ea44c9e5821b0588a2be8be204"
+    },
+    {
+      "id": 12949066715,
+      "bytes": 2815915,
+      "sha256": "b55b644d5785de6275b9348c5f0b70f29b2d36eae5b4b39c992f417e35c3d65b"
+    }
+  ],
+  "retainedInvariants": {
+    "applicationCommit": "e93aa5c30689ff05da38c05ef929b2ff0ba4abc5",
+    "unchangedFromCode53": {
+      "android/app/src/main/java/com/russianranger/fta/client/ClientIoGuard.kt": "793b435ce4275b74afb3a2e17a974f40822ab077db090d3685246d45f6506282",
+      "android/qualification/client-runtime-lock.json": "d8cc170de314eac3d960e6be216b18d9365f165df08c450bb28b1f99652e651f",
+      "native/client-bridge/read_only.c": "fbc1a1aea7727f5436e6aaf4125a6da5afa1016845a4154356c74411e1546c56"
+    },
+    "originalFilesPatched": false,
+    "sectionPermissionsChanged": false,
+    "prefixConfigurationWritten": false,
+    "settingsCleared": false,
+    "verificationRateBytesPerSecond": 251658240,
+    "sourceCompanionFiles": 242
+  }
+}

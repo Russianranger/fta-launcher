@@ -5,7 +5,7 @@ development and pushes. Target: AYN Thor, Android 13, ARM64. Read `AGENTS.md`,
 [game data](game-data-import.md), [private diagnostics](private-diagnostics.md)
 and [native gate](native-world-gate.md). History: [DEVELOPMENT-HISTORY.md](DEVELOPMENT-HISTORY.md).
 
-## In progress: code 54 post-host exit diagnostics
+## Current delivery: code 54 post-host exit diagnostics
 
 Physical code 53 reached the original owned WarcraftXL host with **8 channels**;
 no AV or matching Android exit was recorded. It then failed in the 15-second
@@ -19,9 +19,28 @@ Code **54 / 0.17.4-startup-exits** records failure phase, both process states an
 available exit codes before cleanup, and correlates an independent bounded x64
 host fault trace. Fixed Wine error-channel masks give categories without paths,
 messages or settings. No pass criteria, runtime, original binary, data or pressure
-policy changes. Exact-commit CI and signed APK delivery are pending; qualify
-clean client exit, host exit and actual host write fault after header observation.
+policy changes. Application **e93aa5c30689ff05da38c05ef929b2ff0ba4abc5** passed
+foundation **40989654997**: 602 Android passed / one existing skip, 214 tooling,
+138 qualification with no skips, lint/assembly and full runtime rehash under
+96 MiB heap. Same-commit ARM64 **40989654994** passed clean client exit 0, host
+exit 73 and actual x64 host write AV after header acceptance; every case stayed
+failed with owned cleanup. Original observer, x87 regression, 56 Windows / 50
+native guard checks, seven root refusals and normal/Stop/kill ownership passed.
+
+[Signed APK, sources and one test](code54-recovery.md) are saved. APK
+**60,693,697 bytes**, SHA256
+`8f94601c8190451a6606ba586196fcad9348fb8dd47f3669248f91598edb11af`.
+247 checks, persistent v2 signing and 16 KiB alignment passed. All 25 native
+payloads / 148 runtime entries match code 53; exact companions verified.
 This diagnoses the next failure; it does not claim that failure is repaired.
+
+**Next:** install in place and run **Test original client startup** once, then
+export JSON before retrying, including on failure/Stop. Allow 8–10 minutes plus
+pressure pauses; 5 GiB free, airplane mode with Wi-Fi off, visible/powered.
+Inspect observer phase, both process states/exits, independently correlated host
+fault and fixed error masks. Preserve x87 workaround, faster verification and
+all retained data/receipts. No passed-gate repeats, reimports or clear data.
+Physical code-54 startup/rendering/login remain unqualified. Future code **>=55**.
 
 ## Previous delivery: code 53 x87 startup compatibility
 
